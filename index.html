@@ -3,24 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HHGCC Community Center</title>
-  <meta name="description" content="HHGCC is a 501(c)(3) nonprofit community center dedicated to Hindu values, cultural education, seva, and community-building for future generations." />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <title>Hindu Community Center Greater Cincinnati</title>
+  <meta
+    name="description"
+    content="Hindu Community Center Greater Cincinnati - a nonprofit community website for culture, values, service, room bookings, and donations."
+  />
   <style>
     :root {
-      --bg: #fffaf4;
-      --surface: #fff7ec;
-      --surface-2: #fff1de;
-      --primary: #9f2f18;
-      --primary-dark: #6e1e10;
-      --secondary: #e07b16;
-      --accent: #f3d4a5;
-      --ink: #2e1d12;
-      --muted: #6f5a4e;
-      --border: rgba(107, 63, 30, 0.14);
-      --shadow: 0 20px 50px rgba(81, 35, 9, 0.08);
+      --bg: #fff9f1;
+      --bg-soft: #fff3e2;
+      --surface: #ffffff;
+      --surface-soft: #fff6ea;
+      --border: rgba(121, 62, 17, 0.14);
+      --text: #2c1b10;
+      --muted: #6a5141;
+      --saffron: #b55a18;
+      --saffron-dark: #8d3e0d;
+      --maroon: #7f2e16;
+      --gold: #d98a1e;
+      --shadow: 0 18px 45px rgba(93, 43, 14, 0.10);
       --radius: 22px;
       --max: 1220px;
     }
@@ -29,562 +30,632 @@
     html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
       background:
-        radial-gradient(circle at top left, rgba(255, 205, 130, 0.22), transparent 22%),
-        radial-gradient(circle at top right, rgba(159, 47, 24, 0.06), transparent 20%),
+        radial-gradient(circle at top left, rgba(217, 138, 30, 0.12), transparent 22%),
+        radial-gradient(circle at top right, rgba(127, 46, 22, 0.05), transparent 20%),
         var(--bg);
-      line-height: 1.65;
+      line-height: 1.6;
     }
 
     img { max-width: 100%; display: block; }
     a { color: inherit; text-decoration: none; }
-    .container { width: min(calc(100% - 32px), var(--max)); margin: 0 auto; }
-    .section { padding: 84px 0; }
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 14px;
-      border-radius: 999px;
-      background: rgba(224, 123, 22, 0.12);
-      color: var(--primary);
-      font-size: 0.84rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-    .eyebrow::before {
-      content: "ॐ";
-      font-size: 1rem;
-    }
-    .section-title {
-      font-family: "Cormorant Garamond", Georgia, serif;
-      font-size: clamp(2.2rem, 4vw, 3.5rem);
-      line-height: 1.05;
-      margin: 18px 0 16px;
-      color: var(--primary-dark);
-    }
-    .section-lead {
-      color: var(--muted);
-      max-width: 760px;
-      font-size: 1.05rem;
-      margin: 0;
+    button, input, select, textarea { font: inherit; }
+
+    .container {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
     }
 
-    .top-strip {
-      background: linear-gradient(90deg, #752214, #b03b1c);
+    .topbar {
+      background: linear-gradient(90deg, var(--maroon), #a6481f);
       color: #fff;
-      font-size: 0.94rem;
+      font-size: 0.95rem;
     }
-    .top-strip .container {
+
+    .topbar .container {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
       padding: 10px 0;
       flex-wrap: wrap;
     }
-    .top-actions {
+
+    .topbar-actions {
       display: flex;
       gap: 10px;
-      align-items: center;
       flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: none;
+      cursor: pointer;
+      padding: 13px 20px;
+      border-radius: 999px;
+      font-weight: 700;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--saffron), #d17621);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(181, 90, 24, 0.20);
+    }
+
+    .btn-outline {
+      background: #fff;
+      color: var(--saffron-dark);
+      border: 1px solid rgba(181, 90, 24, 0.18);
+    }
+
+    .btn-donate {
+      background: linear-gradient(135deg, #efab3a, #d57c14);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(217, 138, 30, 0.22);
+    }
+
+    .btn-small {
+      padding: 10px 16px;
+      font-size: 0.92rem;
     }
 
     header {
       position: sticky;
       top: 0;
       z-index: 50;
-      backdrop-filter: blur(12px);
-      background: rgba(255, 250, 244, 0.85);
+      background: rgba(255, 249, 241, 0.92);
+      backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--border);
     }
+
     .nav {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 20px;
-      min-height: 78px;
+      gap: 24px;
+      min-height: 92px;
+      padding: 12px 0;
     }
+
     .brand {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 16px;
       min-width: 0;
     }
-    .brand-logo {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid rgba(159, 47, 24, 0.18);
+
+    .brand-logo-wrap {
       background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 8px;
+      box-shadow: var(--shadow);
+      flex-shrink: 0;
     }
+
+    .brand-logo {
+      width: 88px;
+      height: auto;
+      border-radius: 12px;
+      object-fit: contain;
+    }
+
     .brand-text h1 {
       margin: 0;
-      font-size: 1.08rem;
-      line-height: 1.2;
+      font-size: 1.2rem;
+      line-height: 1.15;
+      color: var(--maroon);
     }
+
     .brand-text p {
-      margin: 2px 0 0;
+      margin: 6px 0 0;
       color: var(--muted);
-      font-size: 0.88rem;
+      font-size: 0.92rem;
     }
+
     nav ul {
-      display: flex;
-      gap: 20px;
       list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
       margin: 0;
       padding: 0;
       align-items: center;
-      flex-wrap: wrap;
       justify-content: flex-end;
     }
-    nav a {
-      color: var(--ink);
-      font-weight: 600;
-      font-size: 0.95rem;
-    }
-    nav a:hover { color: var(--primary); }
 
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      border: none;
-      cursor: pointer;
-      border-radius: 999px;
-      padding: 14px 22px;
+    nav a {
       font-weight: 700;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
-      white-space: nowrap;
+      color: var(--text);
+      font-size: 0.96rem;
     }
-    .btn:hover { transform: translateY(-1px); }
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary), #c34b25);
-      color: #fff;
-      box-shadow: 0 12px 24px rgba(159, 47, 24, 0.16);
-    }
-    .btn-secondary {
-      background: #fff;
-      color: var(--primary);
-      border: 1px solid rgba(159, 47, 24, 0.18);
-    }
-    .btn-gold {
-      background: linear-gradient(135deg, #efab3a, #df7c11);
-      color: #fff;
-      box-shadow: 0 12px 24px rgba(224, 123, 22, 0.18);
-    }
-    .btn-small { padding: 11px 16px; font-size: 0.93rem; }
+
+    nav a:hover { color: var(--saffron-dark); }
 
     .hero {
-      padding: 42px 0 48px;
+      padding: 40px 0 28px;
     }
-    .hero-shell {
+
+    .hero-grid {
       display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 26px;
+      grid-template-columns: 1.18fr 0.82fr;
+      gap: 24px;
       align-items: stretch;
     }
+
     .hero-main {
       position: relative;
-      min-height: 640px;
-      border-radius: 34px;
       overflow: hidden;
+      min-height: 620px;
+      border-radius: 34px;
       border: 1px solid var(--border);
       box-shadow: var(--shadow);
       background:
-        linear-gradient(180deg, rgba(43, 21, 9, 0.18), rgba(43, 21, 9, 0.58)),
-        url('assets/banner.jpg') center/cover no-repeat;
+        linear-gradient(180deg, rgba(70, 28, 8, 0.18), rgba(70, 28, 8, 0.60)),
+        radial-gradient(circle at 15% 20%, rgba(255, 215, 140, 0.16), transparent 20%),
+        radial-gradient(circle at 80% 15%, rgba(255, 255, 255, 0.10), transparent 12%),
+        linear-gradient(135deg, #d37b1b, #a44a19 55%, #722a15);
     }
-    .hero-placeholder {
+
+    .hero-pattern {
       position: absolute;
       inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: rgba(255,255,255,0.72);
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      font-size: 0.95rem;
+      opacity: 0.14;
+      background-image:
+        radial-gradient(circle at 20px 20px, #fff 2px, transparent 2px),
+        radial-gradient(circle at 60px 60px, #fff 2px, transparent 2px);
+      background-size: 100px 100px;
     }
-    .hero-overlay {
+
+    .hero-content {
       position: relative;
       z-index: 1;
       height: 100%;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
-      padding: 38px;
+      padding: 42px;
       color: #fff;
     }
-    .hero-overlay h2 {
-      font-family: "Cormorant Garamond", Georgia, serif;
-      font-size: clamp(3rem, 5vw, 5.4rem);
-      line-height: 0.95;
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow::before {
+      content: "ॐ";
+      font-size: 1rem;
+    }
+
+    .hero-content h2 {
       margin: 0 0 18px;
-      max-width: 720px;
+      font-size: clamp(2.5rem, 4.8vw, 4.8rem);
+      line-height: 0.98;
+      max-width: 780px;
+      font-family: Georgia, "Times New Roman", serif;
     }
-    .hero-overlay p {
-      margin: 0 0 26px;
-      color: rgba(255,255,255,0.92);
-      max-width: 720px;
+
+    .hero-content p {
+      margin: 0 0 24px;
+      max-width: 760px;
       font-size: 1.05rem;
+      color: rgba(255,255,255,0.92);
     }
-    .hero-cta {
+
+    .hero-actions {
       display: flex;
-      gap: 12px;
       flex-wrap: wrap;
+      gap: 12px;
     }
 
     .hero-side {
       display: grid;
       gap: 18px;
     }
+
     .card {
-      background: rgba(255,255,255,0.82);
+      background: rgba(255,255,255,0.92);
       border: 1px solid var(--border);
-      box-shadow: var(--shadow);
       border-radius: var(--radius);
+      box-shadow: var(--shadow);
     }
-    .stat-card, .donate-card, .quote-card {
-      padding: 24px;
+
+    .card-pad { padding: 24px; }
+
+    .card h3 {
+      margin: 0 0 10px;
+      color: var(--maroon);
     }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
     .stat-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 14px;
+      margin-top: 16px;
     }
+
     .stat {
-      background: var(--surface);
+      background: var(--surface-soft);
       border: 1px solid var(--border);
       border-radius: 18px;
       padding: 18px;
     }
+
     .stat strong {
       display: block;
-      font-size: 1.9rem;
-      color: var(--primary-dark);
+      color: var(--saffron-dark);
+      font-size: 1.85rem;
       margin-bottom: 6px;
     }
-    .stat span {
+
+    .section {
+      padding: 82px 0;
+    }
+
+    .section-head {
+      margin-bottom: 32px;
+    }
+
+    .section-kicker {
+      display: inline-block;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: rgba(217, 138, 30, 0.12);
+      color: var(--saffron-dark);
+      font-size: 0.83rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .section-head h2 {
+      margin: 16px 0 12px;
+      font-size: clamp(2rem, 3.4vw, 3.2rem);
+      line-height: 1.05;
+      color: var(--maroon);
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    .section-head p {
+      margin: 0;
       color: var(--muted);
-      font-size: 0.92rem;
-    }
-    .quote-card {
-      background: linear-gradient(135deg, rgba(159, 47, 24, 0.98), rgba(110, 30, 16, 0.98));
-      color: #fff;
-    }
-    .quote-card p {
-      margin: 0 0 10px;
+      max-width: 780px;
       font-size: 1.03rem;
     }
-    .quote-card small {
-      color: rgba(255,255,255,0.84);
-    }
-    .donate-card {
-      background: linear-gradient(180deg, var(--surface), #fff);
-    }
-    .donate-card h3,
-    .booking-form h3,
-    .room-card h3,
-    .profile-card h3,
-    .info-card h3,
-    .faq-item h3,
-    .timeline-card h3 {
-      margin: 0 0 10px;
-      color: var(--primary-dark);
-    }
-    .donate-card p,
-    .booking-form p,
-    .room-card p,
-    .profile-card p,
-    .info-card p,
-    .faq-item p,
-    .timeline-card p {
-      color: var(--muted);
-      margin: 0 0 14px;
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 24px;
+      align-items: stretch;
     }
 
-    .about-grid,
-    .values-grid,
-    .timeline-grid,
-    .leadership-grid,
-    .footer-grid,
-    .contact-grid {
-      display: grid;
-      gap: 22px;
-    }
-    .about-grid {
-      grid-template-columns: 1.05fr 0.95fr;
-      align-items: center;
-      margin-top: 34px;
-    }
-    .about-panel {
+    .content-box {
       padding: 30px;
     }
-    .image-frame {
-      border-radius: 28px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      background: linear-gradient(135deg, rgba(159, 47, 24, 0.08), rgba(224, 123, 22, 0.18));
-      min-height: 420px;
-      position: relative;
-      box-shadow: var(--shadow);
-    }
-    .image-frame img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .image-fallback {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      color: var(--primary);
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+
+    .content-box p + p {
+      margin-top: 14px;
     }
 
-    .mini-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      margin-top: 18px;
+    .content-box ul {
+      margin: 18px 0 0 18px;
+      color: var(--muted);
+      padding: 0;
     }
-    .mini-box {
-      padding: 18px;
+
+    .image-panel {
+      min-height: 420px;
+      border-radius: 28px;
+      background:
+        linear-gradient(135deg, rgba(217, 138, 30, 0.16), rgba(127, 46, 22, 0.10)),
+        linear-gradient(180deg, #fff6ea, #fff);
       border: 1px solid var(--border);
-      border-radius: 18px;
-      background: var(--surface);
+      box-shadow: var(--shadow);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      text-align: center;
+      color: var(--muted);
     }
-    .mini-box strong {
+
+    .image-panel strong {
       display: block;
-      margin-bottom: 6px;
-      color: var(--primary);
+      color: var(--maroon);
+      font-size: 1.2rem;
+      margin-bottom: 8px;
     }
-    .mini-box span { color: var(--muted); font-size: 0.94rem; }
+
+    .values-grid,
+    .room-grid,
+    .profile-grid,
+    .faq-grid,
+    .contact-grid,
+    .footer-grid,
+    .process-grid {
+      display: grid;
+      gap: 18px;
+    }
 
     .values-grid {
       grid-template-columns: repeat(4, 1fr);
-      margin-top: 32px;
     }
-    .info-card {
+
+    .value-card {
       padding: 24px;
-      background: linear-gradient(180deg, #fff, var(--surface));
+      background: linear-gradient(180deg, #fff, #fff6ea);
     }
-    .info-card .icon {
-      width: 50px;
-      height: 50px;
-      border-radius: 16px;
+
+    .value-index {
+      width: 48px;
+      height: 48px;
+      border-radius: 15px;
       display: grid;
       place-items: center;
-      background: rgba(224, 123, 22, 0.12);
-      color: var(--primary);
+      background: rgba(217, 138, 30, 0.14);
+      color: var(--saffron-dark);
       font-weight: 800;
       margin-bottom: 14px;
     }
 
-    .rooms-wrap {
+    .booking-wrap {
       display: grid;
       grid-template-columns: 1.05fr 0.95fr;
-      gap: 26px;
-      margin-top: 34px;
+      gap: 24px;
       align-items: start;
     }
-    .rooms-grid {
-      display: grid;
+
+    .room-grid {
       grid-template-columns: repeat(2, 1fr);
-      gap: 18px;
     }
+
     .room-card {
       padding: 24px;
       display: flex;
       flex-direction: column;
       gap: 14px;
-      position: relative;
-      overflow: hidden;
+      background: linear-gradient(180deg, #fff, #fff7ec);
     }
-    .room-card::after {
-      content: "";
-      position: absolute;
-      inset: auto -30px -50px auto;
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(224,123,22,0.18), rgba(224,123,22,0));
-    }
-    .room-meta {
+
+    .room-badges,
+    .room-tags {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
-      color: var(--muted);
-      font-size: 0.9rem;
     }
+
     .pill {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
       padding: 8px 12px;
       border-radius: 999px;
-      background: var(--surface);
+      background: var(--surface-soft);
       border: 1px solid var(--border);
-      font-weight: 600;
-    }
-    .room-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .tag {
-      font-size: 0.82rem;
+      font-size: 0.88rem;
       font-weight: 700;
-      padding: 7px 11px;
-      border-radius: 999px;
-      background: rgba(159, 47, 24, 0.08);
-      color: var(--primary);
+      color: var(--saffron-dark);
     }
 
-    .booking-form {
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(127, 46, 22, 0.08);
+      color: var(--maroon);
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    .room-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: auto;
+    }
+
+    .booking-card {
       padding: 28px;
       position: sticky;
-      top: 110px;
+      top: 108px;
     }
+
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 14px;
+      margin-top: 18px;
     }
-    .field { display: flex; flex-direction: column; gap: 8px; }
-    .field label { font-weight: 700; font-size: 0.93rem; color: var(--primary-dark); }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      font-weight: 800;
+      color: var(--maroon);
+      font-size: 0.92rem;
+    }
+
     .field input,
     .field select,
     .field textarea {
       width: 100%;
       padding: 14px 15px;
       border-radius: 14px;
-      border: 1px solid rgba(107, 63, 30, 0.18);
+      border: 1px solid rgba(121, 62, 17, 0.18);
       background: #fff;
-      font: inherit;
-      color: var(--ink);
+      color: var(--text);
     }
-    .field textarea { min-height: 110px; resize: vertical; }
-    .field.full { grid-column: 1 / -1; }
-    .checkbox {
+
+    .field textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .check {
       display: flex;
       gap: 12px;
       align-items: flex-start;
-      background: var(--surface);
       padding: 14px;
+      background: var(--surface-soft);
       border-radius: 16px;
       border: 1px solid var(--border);
     }
-    .checkbox input { margin-top: 3px; }
+
+    .check input {
+      margin-top: 3px;
+    }
+
     .booking-summary {
       margin-top: 16px;
       padding: 16px;
       border-radius: 18px;
-      background: linear-gradient(180deg, var(--surface), #fff);
+      background: linear-gradient(180deg, #fff7ec, #fff);
       border: 1px solid var(--border);
-      color: var(--ink);
+      color: var(--text);
+      font-size: 0.96rem;
     }
+
     .helper {
-      font-size: 0.9rem;
+      margin-top: 10px;
       color: var(--muted);
-      margin-top: 8px;
+      font-size: 0.9rem;
     }
 
-    .terms-box {
+    .terms {
       margin-top: 22px;
-      padding: 20px;
+      padding: 22px;
       border-radius: 18px;
+      background: var(--surface-soft);
       border: 1px solid var(--border);
-      background: var(--surface);
     }
-    .terms-box ul { margin: 12px 0 0 18px; color: var(--muted); }
-    .terms-box li + li { margin-top: 8px; }
 
-    .timeline-grid {
-      grid-template-columns: repeat(3, 1fr);
-      margin-top: 34px;
+    .terms ul {
+      margin: 14px 0 0 18px;
+      padding: 0;
+      color: var(--muted);
     }
-    .timeline-card { padding: 24px; }
-    .timeline-step {
-      display: inline-grid;
-      place-items: center;
+
+    .terms li + li { margin-top: 8px; }
+
+    .process-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .process-card {
+      padding: 24px;
+    }
+
+    .step {
       width: 42px;
       height: 42px;
       border-radius: 50%;
-      background: rgba(159, 47, 24, 0.1);
-      color: var(--primary);
+      display: grid;
+      place-items: center;
+      background: rgba(217, 138, 30, 0.14);
+      color: var(--saffron-dark);
       font-weight: 800;
       margin-bottom: 14px;
     }
 
-    .leadership-grid {
+    .profile-grid {
       grid-template-columns: repeat(4, 1fr);
-      margin-top: 34px;
     }
+
     .profile-card {
       padding: 26px 22px;
       text-align: center;
-      background: linear-gradient(180deg, #fff, var(--surface));
+      background: linear-gradient(180deg, #fff, #fff6ea);
     }
-    .profile-photo {
-      width: 128px;
-      height: 128px;
-      border-radius: 50%;
-      object-fit: cover;
+
+    .avatar {
+      width: 122px;
+      height: 122px;
       margin: 0 auto 16px;
-      border: 4px solid rgba(255,255,255,0.95);
-      box-shadow: 0 16px 30px rgba(81, 35, 9, 0.12);
-      background: linear-gradient(135deg, rgba(224,123,22,0.25), rgba(159,47,24,0.16));
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 1.6rem;
+      background: linear-gradient(135deg, var(--saffron), var(--maroon));
+      box-shadow: 0 16px 28px rgba(93, 43, 14, 0.15);
     }
+
     .profile-role {
-      color: var(--primary);
-      font-weight: 700;
+      color: var(--saffron-dark);
       font-size: 0.92rem;
+      font-weight: 800;
       margin-bottom: 8px;
     }
+
     .profile-bio {
-      font-size: 0.93rem;
       color: var(--muted);
+      font-size: 0.93rem;
     }
 
     .faq-grid {
-      display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      margin-top: 34px;
     }
-    .faq-item { padding: 24px; }
-    .faq-item h3 { font-size: 1.08rem; }
 
-    .donation-band {
-      margin-top: 38px;
+    .faq-card {
+      padding: 24px;
+    }
+
+    .cta-band {
+      margin-top: 34px;
       padding: 28px;
-      border-radius: 26px;
-      background: linear-gradient(135deg, #7a2314, #c55223);
+      border-radius: 28px;
+      background: linear-gradient(135deg, var(--maroon), #b14b1f);
       color: #fff;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 20px;
+      align-items: center;
+      gap: 18px;
       flex-wrap: wrap;
       box-shadow: var(--shadow);
     }
-    .donation-band h3 {
+
+    .cta-band h3 {
       margin: 0 0 8px;
-      font-size: clamp(1.6rem, 3vw, 2.2rem);
-      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: clamp(1.7rem, 2.8vw, 2.3rem);
+      font-family: Georgia, "Times New Roman", serif;
     }
-    .donation-band p {
+
+    .cta-band p {
       margin: 0;
       max-width: 760px;
       color: rgba(255,255,255,0.92);
@@ -592,76 +663,104 @@
 
     .contact-grid {
       grid-template-columns: 1fr 1fr;
-      margin-top: 34px;
     }
-    .contact-card,
-    .footer-card {
+
+    .contact-card {
       padding: 28px;
     }
 
     footer {
-      padding: 26px 0 44px;
+      padding: 24px 0 44px;
     }
+
     .footer-grid {
       grid-template-columns: 1.2fr 0.8fr 0.8fr 1fr;
     }
+
+    .footer-card {
+      padding: 24px;
+    }
+
     .footer-card ul {
       list-style: none;
       margin: 0;
       padding: 0;
     }
-    .footer-card li + li { margin-top: 10px; }
+
+    .footer-card li + li {
+      margin-top: 10px;
+    }
+
     .footer-note {
-      margin-top: 20px;
-      padding-top: 20px;
+      margin-top: 18px;
+      padding-top: 18px;
       border-top: 1px solid var(--border);
       color: var(--muted);
       font-size: 0.92rem;
     }
 
-    .center { text-align: center; }
-    .muted { color: var(--muted); }
-
-    @media (max-width: 1100px) {
-      .hero-shell,
-      .about-grid,
-      .rooms-wrap,
+    @media (max-width: 1120px) {
+      .hero-grid,
+      .two-col,
+      .booking-wrap,
       .contact-grid,
       .footer-grid {
         grid-template-columns: 1fr;
       }
+
       .values-grid { grid-template-columns: repeat(2, 1fr); }
-      .timeline-grid { grid-template-columns: 1fr; }
-      .leadership-grid { grid-template-columns: repeat(2, 1fr); }
+      .process-grid { grid-template-columns: 1fr; }
+      .profile-grid { grid-template-columns: repeat(2, 1fr); }
       .faq-grid { grid-template-columns: 1fr; }
-      .booking-form { position: static; }
+      .booking-card { position: static; }
     }
 
-    @media (max-width: 820px) {
-      .nav { padding: 14px 0; align-items: flex-start; flex-direction: column; }
-      nav ul { justify-content: flex-start; gap: 14px; }
-      .hero-main { min-height: 540px; }
-      .rooms-grid,
+    @media (max-width: 860px) {
+      .nav {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      nav ul {
+        justify-content: flex-start;
+        gap: 14px;
+      }
+
+      .hero-main {
+        min-height: 520px;
+      }
+
+      .hero-content {
+        padding: 28px;
+      }
+
+      .room-grid,
       .form-grid,
       .stat-grid,
-      .mini-grid,
       .values-grid,
-      .leadership-grid {
+      .profile-grid {
         grid-template-columns: 1fr;
       }
-      .hero-overlay { padding: 28px; }
-      .hero-overlay h2 { font-size: 2.8rem; }
-      .section { padding: 68px 0; }
+
+      .brand-logo {
+        width: 74px;
+      }
+
+      .section {
+        padding: 66px 0;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="top-strip">
+  <div class="topbar">
     <div class="container">
-      <div>HHGCC is a 501(c)(3) nonprofit strengthening Hindu values, seva, learning, and community for the next generation.</div>
-      <div class="top-actions">
-        <a class="btn btn-small btn-secondary" href="#booking">Book a Hall</a>
-        <a class="btn btn-small btn-gold" href="https://example.org/donate" target="_blank" rel="noreferrer">Donate</a>
+      <div>
+        Hindu Community Center Greater Cincinnati is a 501(c)(3) nonprofit focused on culture, values, service, and the next generation.
+      </div>
+      <div class="topbar-actions">
+        <a class="btn btn-small btn-outline" href="#booking">Book a Room</a>
+        <a class="btn btn-small btn-donate" href="https://example.org/donate" target="_blank" rel="noreferrer">Donate</a>
       </div>
     </div>
   </div>
@@ -669,21 +768,30 @@
   <header>
     <div class="container nav">
       <a class="brand" href="#home">
-        <img class="brand-logo" src="assets/logo.png" alt="HHGCC logo" />
+        <div class="brand-logo-wrap">
+          <img
+            class="brand-logo"
+            alt="Hindu Community Center Greater Cincinnati logo"
+            src="data:image/jpeg;base64,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"
+          />
+        </div>
         <div class="brand-text">
-          <h1>HHGCC Community Center</h1>
-          <p>Hindu values. Family connection. Cultural continuity.</p>
+          <h1>Hindu Community Center<br />Greater Cincinnati</h1>
+          <p>Culture, community, service, and Hindu values for future generations</p>
         </div>
       </a>
+
       <nav>
         <ul>
           <li><a href="#about">About</a></li>
-          <li><a href="#vision">Vision & Mission</a></li>
-          <li><a href="#booking">Room Booking</a></li>
+          <li><a href="#vision">Vision</a></li>
+          <li><a href="#booking">Book Rooms</a></li>
           <li><a href="#leadership">Leadership</a></li>
           <li><a href="#faq">FAQ</a></li>
           <li><a href="#contact">Contact</a></li>
-          <li><a class="btn btn-small btn-gold" href="https://example.org/donate" target="_blank" rel="noreferrer">Donate</a></li>
+          <li>
+            <a class="btn btn-small btn-donate" href="https://example.org/donate" target="_blank" rel="noreferrer">Donate</a>
+          </li>
         </ul>
       </nav>
     </div>
@@ -691,56 +799,66 @@
 
   <main id="home">
     <section class="hero">
-      <div class="container hero-shell">
+      <div class="container hero-grid">
         <div class="hero-main">
-          <div class="hero-placeholder">Replace with your banner image</div>
-          <div class="hero-overlay">
-            <span class="eyebrow">Community. Dharma. Seva.</span>
-            <h2>A home for learning, culture, service, and shared belonging.</h2>
+          <div class="hero-pattern"></div>
+          <div class="hero-content">
+            <div class="eyebrow">Rooted in Dharma. Built for Community.</div>
+            <h2>A welcoming home for families, learning, service, and shared belonging.</h2>
             <p>
-              HHGCC is being built as a welcoming umbrella for Hindu families, children, youth, and the broader community.
-              The site highlights your introduction, vision, mission, trustees, and community impact while also making it easy to reserve halls on an hourly basis.
+              Hindu Community Center Greater Cincinnati is envisioned as a nonprofit umbrella for the next generation —
+              a space for culture, spiritual grounding, youth development, education, celebrations, and community service.
             </p>
-            <div class="hero-cta">
+            <div class="hero-actions">
               <a class="btn btn-primary" href="#booking">Reserve a Room</a>
-              <a class="btn btn-secondary" href="#about">Explore HHGCC</a>
+              <a class="btn btn-outline" href="#about">Learn More</a>
             </div>
           </div>
         </div>
 
         <div class="hero-side">
-          <div class="card stat-card">
-            <h3>Built for the next generation</h3>
-            <p class="muted">Designed in the spirit of AUM School and HSS: rooted in Hindu values, community service, family participation, and cultural continuity.</p>
+          <div class="card card-pad">
+            <h3>What this site does</h3>
+            <p>
+              This static website presents your introduction, mission, board leadership, and a five-room hourly booking flow
+              that hands users off to Calendly for scheduling and payment.
+            </p>
             <div class="stat-grid">
               <div class="stat">
                 <strong>5</strong>
-                <span>Bookable rooms or halls</span>
-              </div>
-              <div class="stat">
-                <strong>501(c)(3)</strong>
-                <span>Nonprofit donation-ready structure</span>
+                <span>Bookable rooms</span>
               </div>
               <div class="stat">
                 <strong>Hourly</strong>
-                <span>Flexible room rental workflow</span>
+                <span>Flexible reservations</span>
+              </div>
+              <div class="stat">
+                <strong>Donate</strong>
+                <span>Always visible</span>
               </div>
               <div class="stat">
                 <strong>Static</strong>
-                <span>Fast GitHub Pages deployment</span>
+                <span>GitHub Pages ready</span>
               </div>
             </div>
           </div>
 
-          <div class="card quote-card">
-            <p>“A strong community center does more than host events. It becomes a place where values are practiced, relationships are built, and future generations feel they belong.”</p>
-            <small>Use this space for a founding message, quote, or HHGCC guiding principle.</small>
+          <div class="card card-pad" style="background: linear-gradient(135deg, #7f2e16, #ad4a1f); color:#fff;">
+            <h3 style="color:#fff;">Community purpose</h3>
+            <p style="color: rgba(255,255,255,0.92);">
+              A place where Hindu values are lived, children grow with identity and confidence, and families gather under one strong community umbrella.
+            </p>
           </div>
 
-          <div class="card donate-card">
-            <h3>Always-visible giving</h3>
-            <p>Because HHGCC is a nonprofit, this starter keeps a donate action in the top bar and main navigation so visitors can support community growth at any point.</p>
-            <a class="btn btn-gold" href="https://example.org/donate" target="_blank" rel="noreferrer">Support HHGCC</a>
+          <div class="card card-pad">
+            <h3>Donation support</h3>
+            <p>
+              Keep your donation link active at all times so visitors can contribute toward facility growth, youth programming,
+              cultural education, and community impact.
+            </p>
+            <div style="margin-top:16px;">
+              <a class="btn btn-donate" href="https://example.org/donate" target="_blank" rel="noreferrer">Support HHGCC</a>
+            </div>
           </div>
         </div>
       </div>
@@ -748,40 +866,43 @@
 
     <section class="section" id="about">
       <div class="container">
-        <span class="eyebrow">About HHGCC</span>
-        <h2 class="section-title">A community-centered website with a spiritual and cultural heartbeat.</h2>
-        <p class="section-lead">
-          This site is structured to present HHGCC as a trusted nonprofit destination for families, community leaders, youth, and donors. It combines a warm, values-based visual identity with practical functionality for room rentals, leadership visibility, community trust, and outreach.
-        </p>
+        <div class="section-head">
+          <span class="section-kicker">About</span>
+          <h2>One umbrella for culture, seva, education, and community connection.</h2>
+          <p>
+            Replace this section with your official HHGCC introduction. This starter is built to look warm, community-first,
+            and Hindu value-centered while staying simple enough to deploy as a static website on GitHub Pages.
+          </p>
+        </div>
 
-        <div class="about-grid">
-          <div class="card about-panel">
-            <h3>What this website is designed to do</h3>
+        <div class="two-col">
+          <div class="card content-box">
+            <h3>Website purpose</h3>
             <p>
-              Present HHGCC’s story, explain its purpose, and make it easy for people to understand how the center serves children, families, educational activities, spiritual gatherings, volunteer programs, cultural programs, and community celebrations.
+              This website is meant to serve as your digital front door. It explains who you are, what you believe in,
+              what kind of community you are building, and how families, supporters, renters, and volunteers can engage.
             </p>
             <p>
-              The structure also supports hall rentals through a clear five-room booking system, terms and conditions, donation prompts, trustee and board profiles, and space for your banners, logo, rounded headshots, and other media.
+              It also gives visitors a clear path to reserve one of five rooms on an hourly basis, review terms and conditions,
+              and continue to Calendly for the final booking and payment step.
             </p>
-            <div class="mini-grid">
-              <div class="mini-box">
-                <strong>Introduction</strong>
-                <span>Founding story, purpose, and community impact</span>
-              </div>
-              <div class="mini-box">
-                <strong>Leadership</strong>
-                <span>Board of trustees, board members, committee leads</span>
-              </div>
-              <div class="mini-box">
-                <strong>Operations</strong>
-                <span>Room rental flow, Calendly, and payment redirection</span>
-              </div>
-            </div>
+            <ul>
+              <li>Introduction, vision, mission, and values</li>
+              <li>Board of trustees and board members</li>
+              <li>Rounded profile presentation style</li>
+              <li>Five room rental blocks with capacity and purpose</li>
+              <li>Terms and conditions before booking</li>
+              <li>Persistent donate buttons</li>
+            </ul>
           </div>
 
-          <div class="image-frame">
-            <img src="assets/community.jpg" alt="HHGCC community gathering" />
-            <div class="image-fallback">Replace with your community image</div>
+          <div class="image-panel">
+            <div>
+              <strong>Banner / community image area</strong>
+              Add your real banner or community photo here later.
+              <br /><br />
+              Right now this panel is a clean placeholder so the page still looks complete.
+            </div>
           </div>
         </div>
       </div>
@@ -789,32 +910,45 @@
 
     <section class="section" id="vision">
       <div class="container">
-        <span class="eyebrow">Vision, Mission, Values</span>
-        <h2 class="section-title">Grounded in Hindu values and built for future generations.</h2>
-        <p class="section-lead">
-          The wording below is starter copy. Once you send your official language, this can be replaced with your exact organizational vision, mission, and values.
-        </p>
+        <div class="section-head">
+          <span class="section-kicker">Vision, Mission, Values</span>
+          <h2>Built on Hindu values and focused on the next generation.</h2>
+          <p>
+            Replace the text below with your final official wording once you have it. The layout is already structured for it.
+          </p>
+        </div>
 
         <div class="values-grid">
-          <div class="card info-card">
-            <div class="icon">01</div>
+          <div class="card value-card">
+            <div class="value-index">01</div>
             <h3>Vision</h3>
-            <p>To build a vibrant and lasting Hindu community center where families grow in learning, service, identity, and shared belonging across generations.</p>
+            <p>
+              To build a vibrant, enduring Hindu community center where families grow in identity, belonging, service, and cultural confidence.
+            </p>
           </div>
-          <div class="card info-card">
-            <div class="icon">02</div>
+
+          <div class="card value-card">
+            <div class="value-index">02</div>
             <h3>Mission</h3>
-            <p>To provide a welcoming space for cultural education, spiritual gatherings, youth development, family connection, community service, and values-based living.</p>
+            <p>
+              To provide space for spiritual learning, youth development, cultural celebrations, educational programming, and meaningful community connection.
+            </p>
           </div>
-          <div class="card info-card">
-            <div class="icon">03</div>
+
+          <div class="card value-card">
+            <div class="value-index">03</div>
             <h3>Core Values</h3>
-            <p>Dharma, seva, inclusiveness, integrity, volunteerism, respect for elders, and responsibility toward the next generation.</p>
+            <p>
+              Dharma, seva, integrity, volunteerism, family unity, respect for elders, cultural continuity, and responsible leadership.
+            </p>
           </div>
-          <div class="card info-card">
-            <div class="icon">04</div>
+
+          <div class="card value-card">
+            <div class="value-index">04</div>
             <h3>Community Promise</h3>
-            <p>To create one umbrella where children, youth, adults, and seniors can gather to learn, celebrate, serve, and build a stronger shared future.</p>
+            <p>
+              To create a welcoming center where children, youth, adults, and seniors all find a place to learn, serve, gather, and grow together.
+            </p>
           </div>
         </div>
       </div>
@@ -822,31 +956,35 @@
 
     <section class="section" id="booking">
       <div class="container">
-        <span class="eyebrow">Room Booking</span>
-        <h2 class="section-title">Reserve a hall or room with a simple hourly booking flow.</h2>
-        <p class="section-lead">
-          This static-site version lets visitors review all five spaces, choose a room, enter their requested date and time, agree to the terms, and continue to Calendly for the final booking and payment step.
-        </p>
+        <div class="section-head">
+          <span class="section-kicker">Room Booking</span>
+          <h2>Reserve one of five rooms on an hourly basis.</h2>
+          <p>
+            Visitors can review room capacity and usage, select a room, enter date and time, accept the terms, and continue to the correct Calendly link.
+          </p>
+        </div>
 
-        <div class="rooms-wrap">
+        <div class="booking-wrap">
           <div>
-            <div class="rooms-grid" id="roomsGrid"></div>
+            <div class="room-grid" id="roomGrid"></div>
 
-            <div class="terms-box">
-              <h3>Booking terms and conditions</h3>
+            <div class="terms">
+              <h3>Terms and conditions</h3>
               <ul>
-                <li>Reservations are subject to availability and are confirmed only after completion of the Calendly flow and payment.</li>
-                <li>Hourly booking windows, setup time, and cleanup time must be included in the requested reservation period.</li>
-                <li>The renter is responsible for room condition, permitted usage, and compliance with HHGCC rules and community standards.</li>
-                <li>Decorations, catering, AV usage, footwear rules, and cleanup expectations can be customized once your final policy is provided.</li>
-                <li>HHGCC reserves the right to deny or cancel bookings that do not align with facility use policies or nonprofit community guidelines.</li>
+                <li>Reservations are subject to availability and are only confirmed after Calendly selection and payment completion.</li>
+                <li>Requested booking time must include setup and cleanup.</li>
+                <li>The renter is responsible for room condition, community conduct, and compliance with HHGCC usage rules.</li>
+                <li>Decoration limits, food policy, footwear rules, AV usage, and cleanup requirements can be customized later.</li>
+                <li>HHGCC may deny or cancel bookings that do not align with facility policy or nonprofit community standards.</li>
               </ul>
             </div>
           </div>
 
-          <div class="card booking-form">
-            <h3>Start your request</h3>
-            <p>Select a hall, date, time, and purpose. This summary can guide the visitor before they move to the Calendly payment step.</p>
+          <div class="card booking-card">
+            <h3>Start your booking request</h3>
+            <p style="color:var(--muted); margin:0;">
+              Choose the room, date, time, attendee count, and purpose. Then continue to Calendly.
+            </p>
 
             <form id="bookingForm">
               <div class="form-grid">
@@ -854,56 +992,65 @@
                   <label for="roomSelect">Hall / Room</label>
                   <select id="roomSelect" required></select>
                 </div>
+
                 <div class="field">
                   <label for="attendees">Expected attendees</label>
                   <input id="attendees" type="number" min="1" placeholder="e.g. 40" required />
                 </div>
+
                 <div class="field">
                   <label for="date">Date</label>
                   <input id="date" type="date" required />
                 </div>
+
                 <div class="field">
                   <label for="purpose">Purpose</label>
                   <select id="purpose" required>
                     <option value="">Select purpose</option>
                     <option>Religious gathering</option>
                     <option>Community meeting</option>
-                    <option>Youth / kids activity</option>
-                    <option>Class / workshop</option>
-                    <option>Celebration / private event</option>
-                    <option>Lecture / satsang</option>
+                    <option>Youth or kids activity</option>
+                    <option>Class or workshop</option>
+                    <option>Celebration or private event</option>
+                    <option>Lecture or satsang</option>
                     <option>Other</option>
                   </select>
                 </div>
+
                 <div class="field">
                   <label for="startTime">Start time</label>
                   <input id="startTime" type="time" required />
                 </div>
+
                 <div class="field">
                   <label for="endTime">End time</label>
                   <input id="endTime" type="time" required />
                 </div>
+
                 <div class="field full">
                   <label for="notes">Additional details</label>
-                  <textarea id="notes" placeholder="Share any special needs, seating layout, equipment needs, or event notes."></textarea>
+                  <textarea id="notes" placeholder="Special requirements, seating layout, volunteer support, AV, or any event details."></textarea>
                 </div>
+
                 <div class="field full">
-                  <label class="checkbox">
+                  <label class="check">
                     <input id="termsCheck" type="checkbox" required />
-                    <span>I agree to the HHGCC terms and conditions for facility use, timing, care, and community conduct.</span>
+                    <span>I agree to the HHGCC terms and conditions for room usage, timing, conduct, and care of the facility.</span>
                   </label>
                 </div>
               </div>
 
               <div class="booking-summary" id="bookingSummary">
-                Select your details to preview the request summary.
+                Select details to preview the booking summary.
               </div>
 
-              <div class="helper">Replace each room’s Calendly link in the code with your real booking URL. Payment can continue behind that Calendly flow.</div>
+              <div class="helper">
+                Replace the Calendly links in the code below with your real links. Your payment flow can stay behind Calendly.
+              </div>
 
               <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:18px;">
                 <button class="btn btn-primary" type="submit">Continue to Calendly</button>
-                <a class="btn btn-secondary" href="#contact">Need help booking?</a>
+                <a class="btn btn-outline" href="#contact">Need help?</a>
               </div>
             </form>
           </div>
@@ -913,23 +1060,28 @@
 
     <section class="section" id="process">
       <div class="container">
-        <span class="eyebrow">How it Works</span>
-        <h2 class="section-title">A simple path from inquiry to confirmed reservation.</h2>
-        <div class="timeline-grid">
-          <div class="card timeline-card">
-            <div class="timeline-step">1</div>
+        <div class="section-head">
+          <span class="section-kicker">How It Works</span>
+          <h2>A simple booking flow without a complex backend.</h2>
+        </div>
+
+        <div class="process-grid">
+          <div class="card process-card">
+            <div class="step">1</div>
             <h3>Review the rooms</h3>
-            <p>Visitors compare five room blocks by capacity, use case, and facilities before making a selection.</p>
+            <p>Visitors compare five spaces by capacity, purpose, and fit.</p>
           </div>
-          <div class="card timeline-card">
-            <div class="timeline-step">2</div>
-            <h3>Enter request details</h3>
-            <p>They choose the hall, date, time, attendee count, and purpose while accepting the terms.</p>
+
+          <div class="card process-card">
+            <div class="step">2</div>
+            <h3>Choose date and time</h3>
+            <p>They submit their required date, timing, purpose, and attendee count.</p>
           </div>
-          <div class="card timeline-card">
-            <div class="timeline-step">3</div>
-            <h3>Book and pay</h3>
-            <p>The user is redirected to the correct Calendly link, where the final time slot selection and payment are completed.</p>
+
+          <div class="card process-card">
+            <div class="step">3</div>
+            <h3>Pay through Calendly</h3>
+            <p>The room-specific Calendly link handles the final reservation and payment step.</p>
           </div>
         </div>
       </div>
@@ -937,73 +1089,96 @@
 
     <section class="section" id="leadership">
       <div class="container">
-        <span class="eyebrow">Leadership</span>
-        <h2 class="section-title">Board of Trustees</h2>
-        <p class="section-lead">These rounded profile cards are intentionally styled to feel warm, respectful, and community-centered, similar to the inspiration sites you mentioned.</p>
-        <div class="leadership-grid" id="trusteesGrid"></div>
+        <div class="section-head">
+          <span class="section-kicker">Leadership</span>
+          <h2>Board of Trustees</h2>
+          <p>
+            These profile cards are styled to support circular headshots later. Right now they use clean initials placeholders until you send actual photos.
+          </p>
+        </div>
 
-        <h2 class="section-title" style="margin-top:56px;">Board Members</h2>
-        <p class="section-lead">Use this second section for executive members, committee leads, advisors, or management team members.</p>
-        <div class="leadership-grid" id="membersGrid"></div>
+        <div class="profile-grid" id="trusteeGrid"></div>
+
+        <div class="section-head" style="margin-top:52px;">
+          <span class="section-kicker">Board Members</span>
+          <h2>Board Members and Community Leadership</h2>
+          <p>
+            Use this area for executive members, committee leads, advisors, and program leadership.
+          </p>
+        </div>
+
+        <div class="profile-grid" id="memberGrid"></div>
       </div>
     </section>
 
     <section class="section" id="faq">
       <div class="container">
-        <span class="eyebrow">Frequently Asked Questions</span>
-        <h2 class="section-title">Clear answers for visitors, renters, and donors.</h2>
+        <div class="section-head">
+          <span class="section-kicker">FAQ</span>
+          <h2>Clear answers for visitors, renters, and supporters.</h2>
+        </div>
+
         <div class="faq-grid">
-          <div class="card faq-item">
-            <h3>Can I reserve a room for just one hour?</h3>
-            <p>Yes. This site is structured for hourly bookings. Final minimums, setup windows, and cleanup requirements can be adjusted in the policy section.</p>
+          <div class="card faq-card">
+            <h3>Can I reserve a room for only one hour?</h3>
+            <p>Yes. The booking flow is built for hourly reservations.</p>
           </div>
-          <div class="card faq-item">
+
+          <div class="card faq-card">
             <h3>How does payment work?</h3>
-            <p>The static site sends visitors to a room-specific Calendly link. Your payment link can sit behind that booking flow so no custom checkout system is required on the website itself.</p>
+            <p>Users continue to a room-specific Calendly link, where the scheduling and payment flow can be completed.</p>
           </div>
-          <div class="card faq-item">
-            <h3>Can this site include our trustees, members, and advisors?</h3>
-            <p>Yes. The layout is already prepared for detailed leadership sections with circular photos, titles, and bios.</p>
+
+          <div class="card faq-card">
+            <h3>Can this site show our trustees and members?</h3>
+            <p>Yes. The layout already supports trustees, board members, bios, and rounded photo presentation.</p>
           </div>
-          <div class="card faq-item">
-            <h3>Can we add events, gallery, or volunteer forms later?</h3>
-            <p>Yes. Since this is a static site, it can easily grow into a fuller nonprofit community website with additional pages or sections.</p>
+
+          <div class="card faq-card">
+            <h3>Can we add events and volunteer forms later?</h3>
+            <p>Yes. This static site can easily be extended with more sections or separate pages later.</p>
           </div>
         </div>
 
-        <div class="donation-band">
+        <div class="cta-band">
           <div>
-            <h3>Help us build a strong Hindu future under one umbrella.</h3>
-            <p>Your donation can support community infrastructure, youth programs, cultural education, family engagement, service projects, and spaces where values are lived in daily practice.</p>
+            <h3>Help build a strong Hindu future in Greater Cincinnati.</h3>
+            <p>
+              Donations can support youth initiatives, cultural programming, educational classes, family events, service projects,
+              and the long-term growth of the community center.
+            </p>
           </div>
-          <a class="btn btn-gold" href="https://example.org/donate" target="_blank" rel="noreferrer">Donate to HHGCC</a>
+          <a class="btn btn-donate" href="https://example.org/donate" target="_blank" rel="noreferrer">Donate Now</a>
         </div>
       </div>
     </section>
 
     <section class="section" id="contact">
       <div class="container">
-        <span class="eyebrow">Contact</span>
-        <h2 class="section-title">Invite families, renters, donors, and volunteers to connect.</h2>
+        <div class="section-head">
+          <span class="section-kicker">Contact</span>
+          <h2>Give families, donors, renters, and volunteers a simple way to reach you.</h2>
+        </div>
+
         <div class="contact-grid">
           <div class="card contact-card">
             <h3>Contact information</h3>
-            <p><strong>Address:</strong> Replace with HHGCC address</p>
-            <p><strong>Email:</strong> Replace with official contact email</p>
-            <p><strong>Phone:</strong> Replace with official phone number</p>
-            <p><strong>Hours:</strong> Replace with visiting / office hours</p>
-            <p class="muted">You can also embed Google Maps, a volunteer form, or a general inquiry form here later.</p>
+            <p><strong>Address:</strong> Replace with your official address</p>
+            <p><strong>Email:</strong> Replace with your official email</p>
+            <p><strong>Phone:</strong> Replace with your official phone</p>
+            <p><strong>Hours:</strong> Replace with visiting or office hours</p>
           </div>
+
           <div class="card contact-card">
-            <h3>Suggested next additions</h3>
-            <p>Once you send your real content and media, the next round should include:</p>
-            <ul class="muted">
-              <li>Official HHGCC introduction and founder message</li>
-              <li>Exact room names, capacities, and allowed uses</li>
-              <li>Real Calendly booking URLs and donation link</li>
-              <li>Trustee and board member headshots with bios</li>
-              <li>Logo, banner, gallery images, and brand colors</li>
-              <li>Separate pages if you want About, Booking, Donate, and Leadership split out</li>
+            <h3>What you should replace next</h3>
+            <p>Do these next before publishing:</p>
+            <ul style="margin: 14px 0 0 18px; padding:0; color:var(--muted);">
+              <li>Donation URL</li>
+              <li>All five real Calendly links</li>
+              <li>Official HHGCC intro, vision, and mission</li>
+              <li>Trustee and member names, photos, and bios</li>
+              <li>Real contact info</li>
+              <li>Banner and gallery images</li>
             </ul>
           </div>
         </div>
@@ -1015,245 +1190,261 @@
     <div class="container">
       <div class="footer-grid">
         <div class="card footer-card">
-          <h3>HHGCC Community Center</h3>
-          <p class="muted">A nonprofit website starter inspired by Hindu values, community trust, seva, cultural continuity, and family-centered design.</p>
+          <h3>Hindu Community Center Greater Cincinnati</h3>
+          <p style="color:var(--muted);">
+            A nonprofit static website starter for culture, community, education, service, and room bookings.
+          </p>
         </div>
+
         <div class="card footer-card">
           <h3>Explore</h3>
-          <ul class="muted">
+          <ul style="color:var(--muted);">
             <li><a href="#about">About</a></li>
-            <li><a href="#vision">Vision & Mission</a></li>
-            <li><a href="#booking">Room Booking</a></li>
+            <li><a href="#vision">Vision</a></li>
+            <li><a href="#booking">Book Rooms</a></li>
             <li><a href="#leadership">Leadership</a></li>
           </ul>
         </div>
+
         <div class="card footer-card">
-          <h3>Community</h3>
-          <ul class="muted">
+          <h3>Support</h3>
+          <ul style="color:var(--muted);">
             <li><a href="#faq">FAQ</a></li>
             <li><a href="#contact">Contact</a></li>
             <li><a href="https://example.org/donate" target="_blank" rel="noreferrer">Donate</a></li>
           </ul>
         </div>
+
         <div class="card footer-card">
           <h3>Nonprofit note</h3>
-          <p class="muted">Replace this section with your 501(c)(3) legal name, tax ID note if desired, copyright line, and disclaimer text.</p>
+          <p style="color:var(--muted);">
+            Replace this with your official 501(c)(3) legal note, EIN statement if needed, and copyright language.
+          </p>
         </div>
       </div>
-      <div class="footer-note">© <span id="year"></span> HHGCC Community Center. All rights reserved.</div>
+
+      <div class="footer-note">
+        © <span id="year"></span> Hindu Community Center Greater Cincinnati. All rights reserved.
+      </div>
     </div>
   </footer>
 
   <script>
     const rooms = [
       {
-        name: 'Dharma Hall',
+        name: "Dharma Hall",
         capacity: 40,
-        use: 'Classes, satsangs, small gatherings',
-        purposeTags: ['Classes', 'Meetings', 'Prayer'],
-        calendly: 'https://calendly.com/your-org/dharma-hall'
+        use: "Small gatherings, satsangs, study circles, spiritual sessions",
+        tags: ["Prayer", "Meetings", "Classes"],
+        calendly: "https://calendly.com/your-org/dharma-hall"
       },
       {
-        name: 'Seva Room',
+        name: "Seva Room",
         capacity: 20,
-        use: 'Committee meetings, planning sessions, tutoring',
-        purposeTags: ['Meetings', 'Tutoring', 'Planning'],
-        calendly: 'https://calendly.com/your-org/seva-room'
+        use: "Committee meetings, tutoring, planning sessions, volunteer coordination",
+        tags: ["Planning", "Tutoring", "Committees"],
+        calendly: "https://calendly.com/your-org/seva-room"
       },
       {
-        name: 'Sanskriti Hall',
+        name: "Sanskriti Hall",
         capacity: 80,
-        use: 'Cultural events, workshops, youth activities',
-        purposeTags: ['Cultural', 'Youth', 'Workshops'],
-        calendly: 'https://calendly.com/your-org/sanskriti-hall'
+        use: "Cultural programs, workshops, youth activities, rehearsals",
+        tags: ["Cultural", "Workshops", "Youth"],
+        calendly: "https://calendly.com/your-org/sanskriti-hall"
       },
       {
-        name: 'Yoga Studio',
+        name: "Yoga and Wellness Studio",
         capacity: 25,
-        use: 'Yoga, wellness, meditation, training',
-        purposeTags: ['Yoga', 'Meditation', 'Training'],
-        calendly: 'https://calendly.com/your-org/yoga-studio'
+        use: "Yoga, meditation, wellness classes, quiet group sessions",
+        tags: ["Yoga", "Meditation", "Wellness"],
+        calendly: "https://calendly.com/your-org/yoga-studio"
       },
       {
-        name: 'Community Hall',
+        name: "Community Event Hall",
         capacity: 150,
-        use: 'Large events, celebrations, lectures, public programs',
-        purposeTags: ['Events', 'Celebrations', 'Lectures'],
-        calendly: 'https://calendly.com/your-org/community-hall'
+        use: "Large events, celebrations, lectures, public programs, community functions",
+        tags: ["Events", "Lectures", "Celebrations"],
+        calendly: "https://calendly.com/your-org/community-hall"
       }
     ];
 
     const trustees = [
       {
-        name: 'Trustee Name 1',
-        role: 'Chair, Board of Trustees',
-        bio: 'Replace with a short biography highlighting leadership, service, and connection to HHGCC.',
-        image: 'assets/trustee-1.jpg'
+        name: "Trustee Name One",
+        role: "Chair, Board of Trustees",
+        bio: "Replace with a short biography showing leadership, service, and long-term commitment to the Hindu community."
       },
       {
-        name: 'Trustee Name 2',
-        role: 'Trustee',
-        bio: 'Replace with a short biography highlighting leadership, service, and connection to HHGCC.',
-        image: 'assets/trustee-2.jpg'
+        name: "Trustee Name Two",
+        role: "Trustee",
+        bio: "Replace with a short biography showing leadership, service, and long-term commitment to the Hindu community."
       },
       {
-        name: 'Trustee Name 3',
-        role: 'Trustee',
-        bio: 'Replace with a short biography highlighting leadership, service, and connection to HHGCC.',
-        image: 'assets/trustee-3.jpg'
+        name: "Trustee Name Three",
+        role: "Trustee",
+        bio: "Replace with a short biography showing leadership, service, and long-term commitment to the Hindu community."
       },
       {
-        name: 'Trustee Name 4',
-        role: 'Trustee',
-        bio: 'Replace with a short biography highlighting leadership, service, and connection to HHGCC.',
-        image: 'assets/trustee-4.jpg'
+        name: "Trustee Name Four",
+        role: "Trustee",
+        bio: "Replace with a short biography showing leadership, service, and long-term commitment to the Hindu community."
       }
     ];
 
     const members = [
       {
-        name: 'Board Member 1',
-        role: 'President / Executive Member',
-        bio: 'Replace with a short description of responsibilities, background, and service focus.',
-        image: 'assets/member-1.jpg'
+        name: "Board Member One",
+        role: "President / Executive Member",
+        bio: "Replace with a short role summary, responsibilities, and a brief service-focused introduction."
       },
       {
-        name: 'Board Member 2',
-        role: 'Secretary / Executive Member',
-        bio: 'Replace with a short description of responsibilities, background, and service focus.',
-        image: 'assets/member-2.jpg'
+        name: "Board Member Two",
+        role: "Secretary / Executive Member",
+        bio: "Replace with a short role summary, responsibilities, and a brief service-focused introduction."
       },
       {
-        name: 'Board Member 3',
-        role: 'Treasurer / Executive Member',
-        bio: 'Replace with a short description of responsibilities, background, and service focus.',
-        image: 'assets/member-3.jpg'
+        name: "Board Member Three",
+        role: "Treasurer / Executive Member",
+        bio: "Replace with a short role summary, responsibilities, and a brief service-focused introduction."
       },
       {
-        name: 'Board Member 4',
-        role: 'Committee Lead / Advisor',
-        bio: 'Replace with a short description of responsibilities, background, and service focus.',
-        image: 'assets/member-4.jpg'
+        name: "Board Member Four",
+        role: "Program Lead / Advisor",
+        bio: "Replace with a short role summary, responsibilities, and a brief service-focused introduction."
       }
     ];
 
-    const roomsGrid = document.getElementById('roomsGrid');
-    const roomSelect = document.getElementById('roomSelect');
-    const bookingForm = document.getElementById('bookingForm');
-    const bookingSummary = document.getElementById('bookingSummary');
-    const trusteesGrid = document.getElementById('trusteesGrid');
-    const membersGrid = document.getElementById('membersGrid');
+    const roomGrid = document.getElementById("roomGrid");
+    const roomSelect = document.getElementById("roomSelect");
+    const bookingForm = document.getElementById("bookingForm");
+    const bookingSummary = document.getElementById("bookingSummary");
+    const trusteeGrid = document.getElementById("trusteeGrid");
+    const memberGrid = document.getElementById("memberGrid");
 
-    rooms.forEach((room, index) => {
-      const article = document.createElement('article');
-      article.className = 'card room-card';
-      article.innerHTML = `
-        <div class="pill">Room ${index + 1}</div>
-        <h3>${room.name}</h3>
-        <p>${room.use}</p>
-        <div class="room-meta">
-          <span class="pill">Capacity: ${room.capacity}</span>
-          <span class="pill">Hourly booking</span>
-        </div>
-        <div class="room-tags">
-          ${room.purposeTags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-        </div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:auto;">
-          <button class="btn btn-small btn-primary" type="button" data-select-room="${room.name}">Select this room</button>
-          <a class="btn btn-small btn-secondary" href="${room.calendly}" target="_blank" rel="noreferrer">Calendly</a>
-        </div>
-      `;
-      roomsGrid.appendChild(article);
+    function initials(name) {
+      return name
+        .split(" ")
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(part => part[0].toUpperCase())
+        .join("");
+    }
 
-      const option = document.createElement('option');
-      option.value = room.name;
-      option.textContent = `${room.name} (Capacity ${room.capacity})`;
-      roomSelect.appendChild(option);
-    });
+    function renderRooms() {
+      rooms.forEach((room, index) => {
+        const card = document.createElement("article");
+        card.className = "card room-card";
+        card.innerHTML = `
+          <div class="room-badges">
+            <span class="pill">Room ${index + 1}</span>
+            <span class="pill">Hourly Booking</span>
+          </div>
+          <h3>${room.name}</h3>
+          <p>${room.use}</p>
+          <div class="room-badges">
+            <span class="pill">Capacity: ${room.capacity}</span>
+          </div>
+          <div class="room-tags">
+            ${room.tags.map(tag => `<span class="tag">${tag}</span>`).join("")}
+          </div>
+          <div class="room-actions">
+            <button class="btn btn-small btn-primary" type="button" data-room="${room.name}">Select This Room</button>
+            <a class="btn btn-small btn-outline" href="${room.calendly}" target="_blank" rel="noreferrer">Calendly</a>
+          </div>
+        `;
+        roomGrid.appendChild(card);
 
-    const renderProfiles = (data, mount) => {
-      data.forEach(person => {
-        const article = document.createElement('article');
-        article.className = 'card profile-card';
-        article.innerHTML = `
-          <img class="profile-photo" src="${person.image}" alt="${person.name}" />
+        const option = document.createElement("option");
+        option.value = room.name;
+        option.textContent = `${room.name} (Capacity ${room.capacity})`;
+        roomSelect.appendChild(option);
+      });
+
+      document.querySelectorAll("[data-room]").forEach(button => {
+        button.addEventListener("click", () => {
+          roomSelect.value = button.dataset.room;
+          updateSummary();
+          document.getElementById("booking").scrollIntoView({ behavior: "smooth" });
+        });
+      });
+    }
+
+    function renderProfiles(list, mount) {
+      list.forEach(person => {
+        const card = document.createElement("article");
+        card.className = "card profile-card";
+        card.innerHTML = `
+          <div class="avatar">${initials(person.name)}</div>
           <h3>${person.name}</h3>
           <div class="profile-role">${person.role}</div>
-          <p class="profile-bio">${person.bio}</p>
+          <div class="profile-bio">${person.bio}</div>
         `;
-        mount.appendChild(article);
+        mount.appendChild(card);
       });
-    };
+    }
 
-    renderProfiles(trustees, trusteesGrid);
-    renderProfiles(members, membersGrid);
-
-    document.querySelectorAll('[data-select-room]').forEach(button => {
-      button.addEventListener('click', () => {
-        roomSelect.value = button.dataset.selectRoom;
-        roomSelect.dispatchEvent(new Event('change'));
-        document.getElementById('booking').scrollIntoView({ behavior: 'smooth' });
-      });
-    });
-
-    const updateSummary = () => {
-      const roomName = roomSelect.value;
-      const attendees = document.getElementById('attendees').value;
-      const date = document.getElementById('date').value;
-      const purpose = document.getElementById('purpose').value;
-      const startTime = document.getElementById('startTime').value;
-      const endTime = document.getElementById('endTime').value;
+    function updateSummary() {
+      const roomName = document.getElementById("roomSelect").value;
+      const attendees = Number(document.getElementById("attendees").value || 0);
+      const date = document.getElementById("date").value;
+      const purpose = document.getElementById("purpose").value;
+      const startTime = document.getElementById("startTime").value;
+      const endTime = document.getElementById("endTime").value;
 
       if (!roomName && !attendees && !date && !purpose && !startTime && !endTime) {
-        bookingSummary.textContent = 'Select your details to preview the request summary.';
+        bookingSummary.textContent = "Select details to preview the booking summary.";
         return;
       }
 
       const selectedRoom = rooms.find(room => room.name === roomName);
-      const attendeeCount = Number(attendees || 0);
-      const overCapacity = selectedRoom && attendeeCount > selectedRoom.capacity;
+      const overCapacity = selectedRoom && attendees > selectedRoom.capacity;
 
       bookingSummary.innerHTML = `
-        <strong>Request summary</strong><br>
-        Room: ${roomName || 'Not selected'}<br>
-        Date: ${date || 'Not selected'}<br>
-        Time: ${startTime || 'Not selected'} - ${endTime || 'Not selected'}<br>
-        Purpose: ${purpose || 'Not selected'}<br>
-        Attendees: ${attendees || 'Not entered'}
-        ${selectedRoom ? `<br>Room capacity: ${selectedRoom.capacity}` : ''}
-        ${overCapacity ? `<br><span style="color:#b3261e; font-weight:700;">Warning: attendee count exceeds this room's capacity.</span>` : ''}
+        <strong>Booking summary</strong><br />
+        Room: ${roomName || "Not selected"}<br />
+        Date: ${date || "Not selected"}<br />
+        Time: ${startTime || "Not selected"} - ${endTime || "Not selected"}<br />
+        Purpose: ${purpose || "Not selected"}<br />
+        Attendees: ${attendees || "Not entered"}
+        ${selectedRoom ? `<br />Room capacity: ${selectedRoom.capacity}` : ""}
+        ${overCapacity ? `<br /><span style="color:#b3261e; font-weight:800;">Warning: attendee count exceeds this room's capacity.</span>` : ""}
       `;
-    };
+    }
 
-    ['change', 'input'].forEach(evt => {
-      bookingForm.addEventListener(evt, updateSummary);
-    });
+    bookingForm.addEventListener("input", updateSummary);
+    bookingForm.addEventListener("change", updateSummary);
 
-    bookingForm.addEventListener('submit', event => {
+    bookingForm.addEventListener("submit", function (event) {
       event.preventDefault();
-      const roomName = roomSelect.value;
-      const attendees = Number(document.getElementById('attendees').value || 0);
+
+      const roomName = document.getElementById("roomSelect").value;
+      const attendees = Number(document.getElementById("attendees").value || 0);
+      const termsAccepted = document.getElementById("termsCheck").checked;
       const selectedRoom = rooms.find(room => room.name === roomName);
-      const termsAccepted = document.getElementById('termsCheck').checked;
 
       if (!selectedRoom) {
-        alert('Please select a hall or room.');
-        return;
-      }
-      if (!termsAccepted) {
-        alert('Please accept the terms and conditions before continuing.');
-        return;
-      }
-      if (attendees > selectedRoom.capacity) {
-        alert(`The selected room holds up to ${selectedRoom.capacity} guests. Please choose a larger room or lower the attendee count.`);
+        alert("Please select a room.");
         return;
       }
 
-      window.open(selectedRoom.calendly, '_blank', 'noopener,noreferrer');
+      if (!termsAccepted) {
+        alert("Please accept the terms and conditions before continuing.");
+        return;
+      }
+
+      if (attendees > selectedRoom.capacity) {
+        alert(`The selected room supports up to ${selectedRoom.capacity} guests. Please choose a larger room or reduce the attendee count.`);
+        return;
+      }
+
+      window.open(selectedRoom.calendly, "_blank", "noopener,noreferrer");
     });
 
+    renderRooms();
+    renderProfiles(trustees, trusteeGrid);
+    renderProfiles(members, memberGrid);
     updateSummary();
-    document.getElementById('year').textContent = new Date().getFullYear();
+    document.getElementById("year").textContent = new Date().getFullYear();
   </script>
 </body>
 </html>

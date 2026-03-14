@@ -6,7 +6,7 @@
   <title>Hindu Community Center Greater Cincinnati</title>
   <meta
     name="description"
-    content="Hindu Community Center Greater Cincinnati - a nonprofit community website for culture, values, service, room bookings, and donations."
+    content="Hindu Community Center Greater Cincinnati - nonprofit community website for culture, values, service, room bookings, and donations."
   />
   <style>
     :root {
@@ -563,13 +563,51 @@
       border: 1px solid var(--border);
     }
 
-    .terms ul {
-      margin: 14px 0 0 18px;
-      padding: 0;
+    .terms-scroll {
+      margin-top: 16px;
+      max-height: 360px;
+      overflow-y: auto;
+      padding: 18px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: inset 0 1px 3px rgba(93, 43, 14, 0.06);
+    }
+
+    .terms-scroll h4 {
+      margin: 0 0 8px;
+      color: var(--maroon);
+      font-size: 1rem;
+    }
+
+    .terms-scroll p {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .terms-scroll ol {
+      margin: 0;
+      padding-left: 20px;
       color: var(--muted);
     }
 
-    .terms li + li { margin-top: 8px; }
+    .terms-scroll li {
+      margin-bottom: 16px;
+    }
+
+    .terms-scroll li strong {
+      display: block;
+      color: var(--saffron-dark);
+      margin-bottom: 4px;
+    }
+
+    .terms-note {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
 
     .process-grid {
       grid-template-columns: repeat(3, 1fr);
@@ -772,7 +810,7 @@
           <img
             class="brand-logo"
             alt="Hindu Community Center Greater Cincinnati logo"
-            src="data:image/jpeg;base64,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"
+            src="assets/hccgc-logo.jpeg"
           />
         </div>
         <div class="brand-text">
@@ -969,14 +1007,83 @@
             <div class="room-grid" id="roomGrid"></div>
 
             <div class="terms">
-              <h3>Terms and conditions</h3>
-              <ul>
-                <li>Reservations are subject to availability and are only confirmed after Calendly selection and payment completion.</li>
-                <li>Requested booking time must include setup and cleanup.</li>
-                <li>The renter is responsible for room condition, community conduct, and compliance with HHGCC usage rules.</li>
-                <li>Decoration limits, food policy, footwear rules, AV usage, and cleanup requirements can be customized later.</li>
-                <li>HHGCC may deny or cancel bookings that do not align with facility policy or nonprofit community standards.</li>
-              </ul>
+              <h3>Terms and Conditions</h3>
+              <p style="margin:10px 0 0; color:var(--muted);">
+                Please read all venue rules carefully before proceeding with a booking request.
+              </p>
+
+              <div class="terms-scroll">
+                <h4>Venue Rental Agreement &amp; Event Rules</h4>
+                <p>
+                  By renting and using this venue, the renter and all guests agree to follow the rules and conditions listed below.
+                </p>
+
+                <ol>
+                  <li>
+                    <strong>Responsibility of the Renter</strong>
+                    The renter is fully responsible for the conduct of all guests attending the event. Any violation of these rules by guests will be considered the responsibility of the renter.
+                  </li>
+
+                  <li>
+                    <strong>Care of the Property</strong>
+                    All guests must respect the venue property. Damaging furniture, walls, floors, equipment, decorations, or facilities is strictly prohibited.
+                  </li>
+
+                  <li>
+                    <strong>Cleanliness Requirement</strong>
+                    The venue must be kept reasonably clean during and after the event. All trash must be disposed of properly, and food or drinks should not be left on tables, floors, or outdoor areas.
+                  </li>
+
+                  <li>
+                    <strong>Supervision of Children</strong>
+                    Children must be supervised by parents or guardians at all times. Running, climbing on furniture, or unsafe activities are not permitted inside the venue.
+                  </li>
+
+                  <li>
+                    <strong>Noise and Community Respect</strong>
+                    Guests must maintain reasonable noise levels and respect neighboring properties. Excessive noise or disruptive behavior may result in the event being stopped.
+                  </li>
+
+                  <li>
+                    <strong>Event Time Limit</strong>
+                    The event must begin and end within the agreed rental time. All guests must vacate the premises by the scheduled end time.
+                  </li>
+
+                  <li>
+                    <strong>Parking Regulations</strong>
+                    Vehicles must be parked only in designated parking areas. Blocking entrances, driveways, or emergency exits is strictly prohibited.
+                  </li>
+
+                  <li>
+                    <strong>Smoking, Alcohol, and Illegal Activities</strong>
+                    Smoking inside the venue is not permitted. Alcohol is only allowed if approved by the venue and must comply with local laws. Illegal activities of any kind are strictly prohibited.
+                  </li>
+
+                  <li>
+                    <strong>Decorations and Setup</strong>
+                    Decorations are allowed only with prior approval. No tape, nails, staples, or adhesives may be used on walls, ceilings, or furniture without permission.
+                  </li>
+
+                  <li>
+                    <strong>Security Deposit</strong>
+                    A security deposit will be collected prior to the event. The deposit will be returned after the event once the venue has been inspected and no damage has been found.
+                  </li>
+
+                  <li>
+                    <strong>Damage and Repair Costs</strong>
+                    If any damage occurs to the venue, furniture, equipment, or property, the cost of repair or replacement will be deducted from the security deposit. If the damage exceeds the deposit amount, the renter agrees to pay the remaining balance.
+                  </li>
+
+                  <li>
+                    <strong>Right to Terminate Event</strong>
+                    The venue owner reserves the right to end the event if these rules are violated, if illegal activity occurs, or if the property is being misused.
+                  </li>
+                </ol>
+              </div>
+
+              <div class="terms-note">
+                Read all terms given below before selecting the checkbox and continuing to Calendly.
+              </div>
             </div>
           </div>
 
@@ -1035,7 +1142,7 @@
                 <div class="field full">
                   <label class="check">
                     <input id="termsCheck" type="checkbox" required />
-                    <span>I agree to the HHGCC terms and conditions for room usage, timing, conduct, and care of the facility.</span>
+                    <span>I have read and agree to the full Venue Rental Agreement and Event Rules listed above.</span>
                   </label>
                 </div>
               </div>
@@ -1144,8 +1251,8 @@
           <div>
             <h3>Help build a strong Hindu future in Greater Cincinnati.</h3>
             <p>
-              Donations can support youth initiatives, cultural programming, educational classes, family events, service projects,
-              and the long-term growth of the community center.
+              Donations can support youth initiatives, cultural programming, educational classes, family events,
+              service projects, and the long-term growth of the community center.
             </p>
           </div>
           <a class="btn btn-donate" href="https://example.org/donate" target="_blank" rel="noreferrer">Donate Now</a>
@@ -1428,7 +1535,7 @@
       }
 
       if (!termsAccepted) {
-        alert("Please accept the terms and conditions before continuing.");
+        alert("Please confirm that you have read and accepted the full terms and conditions before continuing.");
         return;
       }
 

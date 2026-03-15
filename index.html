@@ -217,7 +217,7 @@
         .hero-main {
             position: relative;
             overflow: hidden;
-            min-height: 620px;
+            min-height: 0;
             border-radius: 34px;
             border: 1px solid var(--border);
             box-shadow: var(--shadow);
@@ -244,7 +244,8 @@
             height: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
+            justify-content: flex-start;
+            align-items: flex-start;
             padding: 42px;
             color: #fff;
         }
@@ -272,10 +273,11 @@
 
         .hero-content h2 {
             margin: 0 0 18px;
-            font-size: clamp(2.5rem, 4.8vw, 4.8rem);
-            line-height: 0.98;
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            line-height: 1.1;
             max-width: 780px;
             font-family: Georgia, "Times New Roman", serif;
+            color: #fff;
         }
 
         .hero-content p {
@@ -289,6 +291,112 @@
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
+        }
+
+        .hero-gallery {
+            width: min(100%, 760px);
+            margin: 0 0 28px;
+            padding: 16px;
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.10);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(6px);
+        }
+
+        .hero-gallery-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .hero-gallery-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #fff;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .hero-gallery-mini {
+            color: rgba(255, 255, 255, 0.86);
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .hero-gallery-frame {
+            overflow: hidden;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .hero-gallery-frame img {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            display: block;
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+
+        .hero-gallery-frame img.fade-out {
+            opacity: 0.18;
+            transform: scale(1.015);
+        }
+
+        .hero-gallery-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 14px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+
+        .hero-gallery-text {
+            max-width: 520px;
+        }
+
+        .hero-gallery-text strong {
+            display: block;
+            color: #fff;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .hero-gallery-text span {
+            display: block;
+            color: rgba(255, 255, 255, 0.88);
+            font-size: 0.92rem;
+            line-height: 1.45;
+        }
+
+        .hero-gallery-dots {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-top: 4px;
+        }
+
+        .hero-gallery-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.32);
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .hero-gallery-dot.active {
+            background: #fff;
+            transform: scale(1.15);
         }
 
         .hero-side {
@@ -445,7 +553,7 @@
         .stat strong {
             display: block;
             color: var(--saffron-dark);
-            font-size: 1.85rem;
+            font-size: 1.3rem;
             margin-bottom: 6px;
         }
 
@@ -514,7 +622,7 @@
             padding: 30px;
         }
 
-        .content-box p+p {
+        .content-box p + p {
             margin-top: 14px;
         }
 
@@ -547,7 +655,6 @@
         }
 
         .values-grid,
-        .room-grid,
         .profile-grid,
         .faq-grid,
         .contact-grid,
@@ -578,105 +685,13 @@
             margin-bottom: 14px;
         }
 
-        .booking-wrap {
-            display: grid;
-            grid-template-columns: 1.05fr 0.95fr;
-            gap: 24px;
-            align-items: start;
-        }
-
-        .room-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .room-card {
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            background: linear-gradient(180deg, #fff, #fff7ec);
-        }
-
-        .room-badges,
-        .room-tags {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .pill {
-            display: inline-flex;
-            align-items: center;
-            padding: 8px 12px;
-            border-radius: 999px;
-            background: var(--surface-soft);
-            border: 1px solid var(--border);
-            font-size: 0.88rem;
-            font-weight: 700;
-            color: var(--saffron-dark);
-        }
-
-        .tag {
-            display: inline-flex;
-            align-items: center;
-            padding: 7px 10px;
-            border-radius: 999px;
-            background: rgba(127, 46, 22, 0.08);
-            color: var(--maroon);
-            font-size: 0.82rem;
-            font-weight: 800;
-        }
-
-        .room-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: auto;
+        .booking-simple {
+            max-width: 860px;
+            margin: 0 auto;
         }
 
         .booking-card {
             padding: 28px;
-            position: sticky;
-            top: 108px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-            margin-top: 18px;
-        }
-
-        .field {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .field.full {
-            grid-column: 1 / -1;
-        }
-
-        .field label {
-            font-weight: 800;
-            color: var(--maroon);
-            font-size: 0.92rem;
-        }
-
-        .field input,
-        .field select,
-        .field textarea {
-            width: 100%;
-            padding: 14px 15px;
-            border-radius: 14px;
-            border: 1px solid rgba(121, 62, 17, 0.18);
-            background: #fff;
-            color: var(--text);
-        }
-
-        .field textarea {
-            min-height: 110px;
-            resize: vertical;
         }
 
         .check {
@@ -691,16 +706,6 @@
 
         .check input {
             margin-top: 3px;
-        }
-
-        .booking-summary {
-            margin-top: 16px;
-            padding: 16px;
-            border-radius: 18px;
-            background: linear-gradient(180deg, #fff7ec, #fff);
-            border: 1px solid var(--border);
-            color: var(--text);
-            font-size: 0.96rem;
         }
 
         .helper {
@@ -845,6 +850,7 @@
             margin: 0 0 8px;
             font-size: clamp(1.7rem, 2.8vw, 2.3rem);
             font-family: Georgia, "Times New Roman", serif;
+            color: #fff;
         }
 
         .cta-band p {
@@ -879,7 +885,7 @@
             padding: 0;
         }
 
-        .footer-card li+li {
+        .footer-card li + li {
             margin-top: 10px;
         }
 
@@ -895,7 +901,6 @@
 
             .hero-grid,
             .two-col,
-            .booking-wrap,
             .contact-grid,
             .footer-grid {
                 grid-template-columns: 1fr;
@@ -916,10 +921,6 @@
             .faq-grid {
                 grid-template-columns: 1fr;
             }
-
-            .booking-card {
-                position: static;
-            }
         }
 
         @media (max-width: 860px) {
@@ -934,19 +935,21 @@
             }
 
             .hero-main {
-                min-height: 520px;
+                min-height: 0;
             }
 
             .hero-content {
                 padding: 28px;
             }
 
-            .room-grid,
-            .form-grid,
             .stat-grid,
             .values-grid,
             .profile-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .hero-gallery {
+                padding: 12px;
             }
 
             .brand-logo {
@@ -968,7 +971,7 @@
                 and the next generation.
             </div>
             <div class="topbar-actions">
-                <a class="btn btn-small btn-outline" href="#booking">Book a Room</a>
+                <a class="btn btn-small btn-outline" href="#booking">Book My Room</a>
                 <a class="btn btn-small btn-donate" href="https://example.org/donate" target="_blank"
                     rel="noreferrer">Donate</a>
             </div>
@@ -992,7 +995,7 @@
                 <ul>
                     <li><a href="#about">About</a></li>
                     <li><a href="#vision">Vision</a></li>
-                    <li><a href="#booking">Book Rooms</a></li>
+                    <li><a href="#booking">Book My Room</a></li>
                     <li><a href="#leadership">Leadership</a></li>
                     <li><a href="#faq">FAQ</a></li>
                     <li><a href="#contact">Contact</a></li>
@@ -1012,17 +1015,34 @@
                     <div class="hero-pattern"></div>
                     <div class="hero-content">
                         <div class="eyebrow">Rooted in Dharma. Built for Community.</div>
-                        <h3> welcoming home for families, learning, service, and shared belonging.</h3>
+
+                        <div class="hero-gallery" aria-live="polite">
+                            <div class="hero-gallery-head">
+                                <span class="hero-gallery-badge">Community Album</span>
+                                <span class="hero-gallery-mini"></span>
+                            </div>
+
+                            <div class="hero-gallery-frame">
+                                <img id="heroGalleryImg" alt="HHGCC community album image" src="images/community-1.jpg" />
+                            </div>
+
+                            <div class="hero-gallery-meta">
+                                <div class="hero-gallery-text">
+                                    <strong id="heroGalleryTitle">Community Gatherings</strong>
+                                    <span id="heroGallerySubtitle">Festivals, family events, and shared celebration.</span>
+                                </div>
+                                <div class="hero-gallery-dots" id="heroGalleryDots"></div>
+                            </div>
+                        </div>
+
+                        <h4>Welcoming home for families, learning, service, and shared belonging.</h4>
                         <p>
                             Hindu Community Center Greater Cincinnati is envisioned as a nonprofit umbrella for the
-                            next
-                            generation —
-                            a space for culture, spiritual grounding, youth development, education, celebrations,
-                            and
-                            community service.
+                            next generation — a space for culture, spiritual grounding, youth development, education,
+                            celebrations, and community service.
                         </p>
                         <div class="hero-actions">
-                            <a class="btn btn-primary" href="#booking">Reserve a Room</a>
+                            <a class="btn btn-primary" href="#booking">Book My Room</a>
                             <a class="btn btn-outline" href="#about">Learn More</a>
                         </div>
                     </div>
@@ -1034,40 +1054,29 @@
                             <div class="album-shell">
                                 <div class="album-head">
                                     <span class="album-badge">Announcements</span>
-                                    <span class="album-mini">Auto rotation</span>
+                                    <span class="album-mini"></span>
                                 </div>
 
                                 <div class="album-card" id="announcementCard">
                                     <div class="album-tag" id="announcementTag">Dance Classes</div>
-                                    <div class="album-title" id="announcementTitle">Weekly dance sessions for all age
-                                        groups.</div>
-                                    <div class="album-subtitle" id="announcementSubtitle">Reserve class space, rehearsal
-                                        time, or join a program.</div>
+                                    <div class="album-title" id="announcementTitle">Weekly dance sessions for all age groups.</div>
+                                    <div class="album-subtitle" id="announcementSubtitle">Reserve class space,
+                                        rehearsal time, or join a program.</div>
                                 </div>
 
                                 <div class="album-dots" id="announcementDots"></div>
                             </div>
                         </div>
 
-                        <!--div>
-                            <h3>What this site does</h3>
-                            <p>
-                                This static website presents your introduction, mission, board leadership, and a
-                                five-room
-                                hourly booking flow
-                                that hands users off to Calendly for scheduling and payment.
-                            </p>
-                        </div-->
-
                         <div class="stat-grid">
                             <div class="stat">
-                                <strong>5</strong>
-                                <span>Bookable rooms</span>
+                                <strong>Simple</strong>
+                                <span>Booking & handoff flow</span>
                             </div>
 
                             <div class="stat">
-                                <a class="stat-link" href="#booking"><strong>Hourly →</strong></a>
-                                <span>Flexible reservations</span>
+                                <a class="stat-link" href="#booking"><strong>Terms First →</strong></a>
+                                <span>Accept venue rules before booking</span>
                             </div>
 
                             <div class="stat">
@@ -1096,8 +1105,7 @@
                         <h3>Donation support</h3>
                         <p>
                             Keep your donation link active at all times so visitors can contribute toward facility
-                            growth, youth programming,
-                            cultural education, and community impact.
+                            growth, youth programming, cultural education, and community impact.
                         </p>
                         <div style="margin-top:16px;">
                             <a class="btn btn-donate" href="https://example.org/donate" target="_blank"
@@ -1125,22 +1133,22 @@
                     <div class="card content-box">
                         <h3>Website purpose</h3>
                         <p>
-                            This website is meant to serve as your digital front door. It explains who you are, what you
+                            This website is meant to serve as your digital front door. It explains who you are, what
+                            you
                             believe in,
                             what kind of community you are building, and how families, supporters, renters, and
                             volunteers can engage.
                         </p>
                         <p>
-                            It also gives visitors a clear path to reserve one of five rooms on an hourly basis, review
-                            terms and conditions,
-                            and continue to Calendly for the final booking and payment step.
+                            It also gives visitors a clear path to review venue terms and continue to your external
+                            booking page for the final scheduling and payment step.
                         </p>
                         <ul>
                             <li>Introduction, vision, mission, and values</li>
                             <li>Board of trustees and board members</li>
                             <li>Rounded profile presentation style</li>
-                            <li>Five room rental blocks with capacity and purpose</li>
-                            <li>Terms and conditions before booking</li>
+                            <li>Venue terms and conditions before booking</li>
+                            <li>Simple handoff to external booking page</li>
                             <li>Persistent donate buttons</li>
                         </ul>
                     </div>
@@ -1200,7 +1208,8 @@
                         <div class="value-index">04</div>
                         <h3>Community Promise</h3>
                         <p>
-                            HCCGC is a nonprofit celebrating Hindu culture, faith, and values. Our goal is to serve the
+                            HCCGC is a nonprofit celebrating Hindu culture, faith, and values. Our goal is to serve
+                            the
                             cultural, educational, social, and spiritual needs of our community. We are guided by
                             inclusivity and seeing divinity in all. Our programs unite Hindus of all generations —
                             children to seniors. We are rooted in the values of Dharma and Seva.
@@ -1215,17 +1224,21 @@
         <section class="section" id="booking">
             <div class="container">
                 <div class="section-head">
-                    <span class="section-kicker">Room Booking</span>
-                    <h2>Reserve one of five rooms on an hourly basis.</h2>
+                    <span class="section-kicker">Booking</span>
+                    <h2>Review the venue terms before continuing to our booking page.</h2>
                     <p>
-                        Visitors can review room capacity and usage, select a room, enter date and time, accept the
-                        terms, and continue to the correct Calendly link.
+                        Visitors must read and accept the terms and conditions below before continuing to the external
+                        room booking website.
                     </p>
                 </div>
 
-                <div class="booking-wrap">
-                    <div>
-                        <div class="room-grid" id="roomGrid"></div>
+                <div class="booking-simple">
+                    <div class="card booking-card">
+                        <h3>Continue to book my room</h3>
+                        <p style="color:var(--muted); margin:0;">
+                            Read the full venue rules below, confirm your agreement, and then continue to the external
+                            booking site.
+                        </p>
 
                         <div class="terms">
                             <h3>Terms and Conditions</h3>
@@ -1236,7 +1249,8 @@
                             <div class="terms-scroll">
                                 <h4>Venue Rental Agreement &amp; Event Rules</h4>
                                 <p>
-                                    By renting and using this venue, the renter and all guests agree to follow the rules
+                                    By renting and using this venue, the renter and all guests agree to follow the
+                                    rules
                                     and conditions listed below.
                                 </p>
 
@@ -1288,7 +1302,8 @@
                                     <li>
                                         <strong>Smoking, Alcohol, and Illegal Activities</strong>
                                         Smoking inside the venue is not permitted. Alcohol is only allowed if approved
-                                        by the venue and must comply with local laws. Illegal activities of any kind are
+                                        by the venue and must comply with local laws. Illegal activities of any kind
+                                        are
                                         strictly prohibited.
                                     </li>
 
@@ -1315,91 +1330,32 @@
 
                                     <li>
                                         <strong>Right to Terminate Event</strong>
-                                        The venue owner reserves the right to end the event if these rules are violated,
+                                        The venue owner reserves the right to end the event if these rules are
+                                        violated,
                                         if illegal activity occurs, or if the property is being misused.
                                     </li>
                                 </ol>
                             </div>
 
                             <div class="terms-note">
-                                Read all terms given below before selecting the checkbox and continuing to Calendly.
+                                Read all terms above before selecting the checkbox and continuing to the booking site.
                             </div>
                         </div>
-                    </div>
 
-                    <div class="card booking-card">
-                        <h3>Start your booking request</h3>
-                        <p style="color:var(--muted); margin:0;">
-                            Choose the room, date, time, attendee count, and purpose. Then continue to Calendly.
-                        </p>
-
-                        <form id="bookingForm">
-                            <div class="form-grid">
-                                <div class="field">
-                                    <label for="roomSelect">Hall / Room</label>
-                                    <select id="roomSelect" required></select>
-                                </div>
-
-                                <div class="field">
-                                    <label for="attendees">Expected attendees</label>
-                                    <input id="attendees" type="number" min="1" placeholder="e.g. 40" required />
-                                </div>
-
-                                <div class="field">
-                                    <label for="date">Date</label>
-                                    <input id="date" type="date" required />
-                                </div>
-
-                                <div class="field">
-                                    <label for="purpose">Purpose</label>
-                                    <select id="purpose" required>
-                                        <option value="">Select purpose</option>
-                                        <option>Religious gathering</option>
-                                        <option>Community meeting</option>
-                                        <option>Youth or kids activity</option>
-                                        <option>Class or workshop</option>
-                                        <option>Celebration or private event</option>
-                                        <option>Lecture or satsang</option>
-                                        <option>Other</option>
-                                    </select>
-                                </div>
-
-                                <div class="field">
-                                    <label for="startTime">Start time</label>
-                                    <input id="startTime" type="time" required />
-                                </div>
-
-                                <div class="field">
-                                    <label for="endTime">End time</label>
-                                    <input id="endTime" type="time" required />
-                                </div>
-
-                                <div class="field full">
-                                    <label for="notes">Additional details</label>
-                                    <textarea id="notes"
-                                        placeholder="Special requirements, seating layout, volunteer support, AV, or any event details."></textarea>
-                                </div>
-
-                                <div class="field full">
-                                    <label class="check">
-                                        <input id="termsCheck" type="checkbox" required />
-                                        <span>I have read and agree to the full Venue Rental Agreement and Event Rules
-                                            listed above.</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="booking-summary" id="bookingSummary">
-                                Select details to preview the booking summary.
-                            </div>
+                        <form id="bookingContinueForm" style="margin-top:18px;">
+                            <label class="check">
+                                <input id="termsCheck" type="checkbox" required />
+                                <span>I have read and agree to the full Venue Rental Agreement and Event Rules listed
+                                    above.</span>
+                            </label>
 
                             <div class="helper">
-                                Replace the Calendly links in the code below with your real links. Your payment flow can
-                                stay behind Calendly.
+                                Replace the external booking URL in the script below with your real booking website
+                                link if needed.
                             </div>
 
                             <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:18px;">
-                                <button class="btn btn-primary" type="submit">Continue to Calendly</button>
+                                <button class="btn btn-primary" type="submit">Continue to Book My Room</button>
                                 <a class="btn btn-outline" href="#contact">Need help?</a>
                             </div>
                         </form>
@@ -1418,20 +1374,20 @@
                 <div class="process-grid">
                     <div class="card process-card">
                         <div class="step">1</div>
-                        <h3>Review the rooms</h3>
-                        <p>Visitors compare five spaces by capacity, purpose, and fit.</p>
+                        <h3>Read the terms</h3>
+                        <p>Visitors review the venue rules and expectations before booking.</p>
                     </div>
 
                     <div class="card process-card">
                         <div class="step">2</div>
-                        <h3>Choose date and time</h3>
-                        <p>They submit their required date, timing, purpose, and attendee count.</p>
+                        <h3>Accept the agreement</h3>
+                        <p>They confirm agreement to the terms and conditions on this page.</p>
                     </div>
 
                     <div class="card process-card">
                         <div class="step">3</div>
-                        <h3>Pay through Calendly</h3>
-                        <p>The room-specific Calendly link handles the final reservation and payment step.</p>
+                        <h3>Continue externally</h3>
+                        <p>The button sends them to your external booking website for scheduling and payment.</p>
                     </div>
                 </div>
             </div>
@@ -1471,20 +1427,19 @@
 
                 <div class="faq-grid">
                     <div class="card faq-card">
-                        <h3>Can I reserve a room for only one hour?</h3>
-                        <p>Yes. The booking flow is built for hourly reservations.</p>
+                        <h3>How do I book a room?</h3>
+                        <p>Read the terms, check the agreement box, and continue to the external booking website.</p>
                     </div>
 
                     <div class="card faq-card">
                         <h3>How does payment work?</h3>
-                        <p>Users continue to a room-specific Calendly link, where the scheduling and payment flow can be
-                            completed.</p>
+                        <p>Payment can be handled on your external booking page, depending on how that system is set
+                            up.</p>
                     </div>
 
                     <div class="card faq-card">
-                        <h3>Can this site show our trustees and members?</h3>
-                        <p>Yes. The layout already supports trustees, board members, bios, and rounded photo
-                            presentation.</p>
+                        <h3>Do I need to accept the terms first?</h3>
+                        <p>Yes. Visitors must agree to the venue terms and conditions before they can continue.</p>
                     </div>
 
                     <div class="card faq-card">
@@ -1502,7 +1457,8 @@
                             service projects, and the long-term growth of the community center.
                         </p>
                     </div>
-                    <a class="btn btn-donate" href="https://example.org/donate" target="_blank" rel="noreferrer">Donate
+                    <a class="btn btn-donate" href="https://example.org/donate" target="_blank"
+                        rel="noreferrer">Donate
                         Now</a>
                 </div>
             </div>
@@ -1529,7 +1485,7 @@
                         <p>Do these next before publishing:</p>
                         <ul style="margin: 14px 0 0 18px; padding:0; color:var(--muted);">
                             <li>Donation URL</li>
-                            <li>All five real Calendly links</li>
+                            <li>Final external booking URL</li>
                             <li>Official HHGCC intro, vision, and mission</li>
                             <li>Trustee and member names, photos, and bios</li>
                             <li>Real contact info</li>
@@ -1548,7 +1504,7 @@
                     <h3>Hindu Community Center Greater Cincinnati</h3>
                     <p style="color:var(--muted);">
                         A nonprofit static website starter for culture, community, education, service, and room
-                        bookings.
+                        booking handoff.
                     </p>
                 </div>
 
@@ -1557,7 +1513,7 @@
                     <ul style="color:var(--muted);">
                         <li><a href="#about">About</a></li>
                         <li><a href="#vision">Vision</a></li>
-                        <li><a href="#booking">Book Rooms</a></li>
+                        <li><a href="#booking">Book My Room</a></li>
                         <li><a href="#leadership">Leadership</a></li>
                     </ul>
                 </div>
@@ -1587,6 +1543,8 @@
     </footer>
 
     <script>
+        const EXTERNAL_BOOKING_URL = "https://www.picktime.com/home/3d66d429-0a6c-4785-8c43-07dec1b355c9";
+
         const announcements = [
             {
                 tag: "Dance Classes",
@@ -1635,41 +1593,36 @@
             }
         ];
 
-        const rooms = [
+        const heroSlides = [
             {
-                name: "Dharma Hall",
-                capacity: 40,
-                use: "Small gatherings, satsangs, study circles, spiritual sessions",
-                tags: ["Prayer", "Meetings", "Classes"],
-                calendly: "https://calendly.com/your-org/dharma-hall"
+                title: "Community Gatherings",
+                subtitle: "Festivals, family events, and shared celebration.",
+                image: "community-1.jpg"
             },
             {
-                name: "Seva Room",
-                capacity: 20,
-                use: "Committee meetings, tutoring, planning sessions, volunteer coordination",
-                tags: ["Planning", "Tutoring", "Committees"],
-                calendly: "https://calendly.com/your-org/seva-room"
+                title: "Youth Programs",
+                subtitle: "Learning, leadership, and confidence for the next generation.",
+                image: "community-2.jpg"
             },
             {
-                name: "Sanskriti Hall",
-                capacity: 80,
-                use: "Cultural programs, workshops, youth activities, rehearsals",
-                tags: ["Cultural", "Workshops", "Youth"],
-                calendly: "https://calendly.com/your-org/sanskriti-hall"
+                title: "Cultural Classes",
+                subtitle: "Dance, language, music, and artistic expression.",
+                image: "community-3.jpg"
             },
             {
-                name: "Yoga and Wellness Studio",
-                capacity: 25,
-                use: "Yoga, meditation, wellness classes, quiet group sessions",
-                tags: ["Yoga", "Meditation", "Wellness"],
-                calendly: "https://calendly.com/your-org/yoga-studio"
+                title: "Spiritual Learning",
+                subtitle: "Study circles, satsangs, and values-based guidance.",
+                image: "community-4.jpg"
             },
             {
-                name: "Community Event Hall",
-                capacity: 150,
-                use: "Large events, celebrations, lectures, public programs, community functions",
-                tags: ["Events", "Lectures", "Celebrations"],
-                calendly: "https://calendly.com/your-org/community-hall"
+                title: "Family Celebrations",
+                subtitle: "A warm venue for milestones, holidays, and connection.",
+                image: "community-5.jpg"
+            },
+            {
+                title: "Seva and Outreach",
+                subtitle: "Volunteer-driven support for a stronger community.",
+                image: "community-6.jpg"
             }
         ];
 
@@ -1719,12 +1672,9 @@
             }
         ];
 
-        const roomGrid = document.getElementById("roomGrid");
-        const roomSelect = document.getElementById("roomSelect");
-        const bookingForm = document.getElementById("bookingForm");
-        const bookingSummary = document.getElementById("bookingSummary");
         const trusteeGrid = document.getElementById("trusteeGrid");
         const memberGrid = document.getElementById("memberGrid");
+        const bookingContinueForm = document.getElementById("bookingContinueForm");
 
         const announcementTag = document.getElementById("announcementTag");
         const announcementTitle = document.getElementById("announcementTitle");
@@ -1732,7 +1682,13 @@
         const announcementCard = document.getElementById("announcementCard");
         const announcementDots = document.getElementById("announcementDots");
 
+        const heroGalleryImg = document.getElementById("heroGalleryImg");
+        const heroGalleryTitle = document.getElementById("heroGalleryTitle");
+        const heroGallerySubtitle = document.getElementById("heroGallerySubtitle");
+        const heroGalleryDots = document.getElementById("heroGalleryDots");
+
         let announcementIndex = 0;
+        let heroGalleryIndex = 0;
 
         function buildAnnouncementDots() {
             announcementDots.innerHTML = "";
@@ -1765,6 +1721,38 @@
             }, 220);
         }
 
+        function buildHeroGalleryDots() {
+            heroGalleryDots.innerHTML = "";
+            heroSlides.forEach((_, index) => {
+                const dot = document.createElement("span");
+                dot.className = "hero-gallery-dot" + (index === 0 ? " active" : "");
+                heroGalleryDots.appendChild(dot);
+            });
+        }
+
+        function renderHeroGallery(index) {
+            const item = heroSlides[index];
+            heroGalleryImg.src = item.image;
+            heroGalleryImg.alt = item.title;
+            heroGalleryTitle.textContent = item.title;
+            heroGallerySubtitle.textContent = item.subtitle;
+
+            const dots = heroGalleryDots.querySelectorAll(".hero-gallery-dot");
+            dots.forEach((dot, i) => {
+                dot.classList.toggle("active", i === index);
+            });
+        }
+
+        function rotateHeroGallery() {
+            heroGalleryImg.classList.add("fade-out");
+
+            setTimeout(() => {
+                heroGalleryIndex = (heroGalleryIndex + 1) % heroSlides.length;
+                renderHeroGallery(heroGalleryIndex);
+                heroGalleryImg.classList.remove("fade-out");
+            }, 220);
+        }
+
         function initials(name) {
             return name
                 .split(" ")
@@ -1772,45 +1760,6 @@
                 .slice(0, 2)
                 .map(part => part[0].toUpperCase())
                 .join("");
-        }
-
-        function renderRooms() {
-            rooms.forEach((room, index) => {
-                const card = document.createElement("article");
-                card.className = "card room-card";
-                card.innerHTML = `
-          <div class="room-badges">
-            <span class="pill">Room ${index + 1}</span>
-            <span class="pill">Hourly Booking</span>
-          </div>
-          <h3>${room.name}</h3>
-          <p>${room.use}</p>
-          <div class="room-badges">
-            <span class="pill">Capacity: ${room.capacity}</span>
-          </div>
-          <div class="room-tags">
-            ${room.tags.map(tag => `<span class="tag">${tag}</span>`).join("")}
-          </div>
-          <div class="room-actions">
-            <button class="btn btn-small btn-primary" type="button" data-room="${room.name}">Select This Room</button>
-            <a class="btn btn-small btn-outline" href="${room.calendly}" target="_blank" rel="noreferrer">Calendly</a>
-          </div>
-        `;
-                roomGrid.appendChild(card);
-
-                const option = document.createElement("option");
-                option.value = room.name;
-                option.textContent = `${room.name} (Capacity ${room.capacity})`;
-                roomSelect.appendChild(option);
-            });
-
-            document.querySelectorAll("[data-room]").forEach(button => {
-                button.addEventListener("click", () => {
-                    roomSelect.value = button.dataset.room;
-                    updateSummary();
-                    document.getElementById("booking").scrollIntoView({ behavior: "smooth" });
-                });
-            });
         }
 
         function renderProfiles(list, mount) {
@@ -1827,71 +1776,29 @@
             });
         }
 
-        function updateSummary() {
-            const roomName = document.getElementById("roomSelect").value;
-            const attendees = Number(document.getElementById("attendees").value || 0);
-            const date = document.getElementById("date").value;
-            const purpose = document.getElementById("purpose").value;
-            const startTime = document.getElementById("startTime").value;
-            const endTime = document.getElementById("endTime").value;
-
-            if (!roomName && !attendees && !date && !purpose && !startTime && !endTime) {
-                bookingSummary.textContent = "Select details to preview the booking summary.";
-                return;
-            }
-
-            const selectedRoom = rooms.find(room => room.name === roomName);
-            const overCapacity = selectedRoom && attendees > selectedRoom.capacity;
-
-            bookingSummary.innerHTML = `
-        <strong>Booking summary</strong><br />
-        Room: ${roomName || "Not selected"}<br />
-        Date: ${date || "Not selected"}<br />
-        Time: ${startTime || "Not selected"} - ${endTime || "Not selected"}<br />
-        Purpose: ${purpose || "Not selected"}<br />
-        Attendees: ${attendees || "Not entered"}
-        ${selectedRoom ? `<br />Room capacity: ${selectedRoom.capacity}` : ""}
-        ${overCapacity ? `<br /><span style="color:#b3261e; font-weight:800;">Warning: attendee count exceeds this room's capacity.</span>` : ""}
-      `;
-        }
-
-        bookingForm.addEventListener("input", updateSummary);
-        bookingForm.addEventListener("change", updateSummary);
-
-        bookingForm.addEventListener("submit", function (event) {
+        bookingContinueForm.addEventListener("submit", function (event) {
             event.preventDefault();
 
-            const roomName = document.getElementById("roomSelect").value;
-            const attendees = Number(document.getElementById("attendees").value || 0);
             const termsAccepted = document.getElementById("termsCheck").checked;
-            const selectedRoom = rooms.find(room => room.name === roomName);
-
-            if (!selectedRoom) {
-                alert("Please select a room.");
-                return;
-            }
 
             if (!termsAccepted) {
                 alert("Please confirm that you have read and accepted the full terms and conditions before continuing.");
                 return;
             }
 
-            if (attendees > selectedRoom.capacity) {
-                alert(`The selected room supports up to ${selectedRoom.capacity} guests. Please choose a larger room or reduce the attendee count.`);
-                return;
-            }
-
-            window.open(selectedRoom.calendly, "_blank", "noopener,noreferrer");
+            window.open(EXTERNAL_BOOKING_URL, "_blank", "noopener,noreferrer");
         });
 
         buildAnnouncementDots();
         renderAnnouncement(0);
         setInterval(rotateAnnouncements, 2600);
 
-        renderRooms();
+        buildHeroGalleryDots();
+        renderHeroGallery(0);
+        setInterval(rotateHeroGallery, 3200);
+
         renderProfiles(trustees, trusteeGrid);
         renderProfiles(members, memberGrid);
-        updateSummary();
         document.getElementById("year").textContent = new Date().getFullYear();
     </script>
 </body>

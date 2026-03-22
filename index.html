@@ -66,27 +66,6 @@
             margin: 0 auto;
         }
 
-        .topbar {
-            background: linear-gradient(90deg, var(--maroon), #a6481f);
-            color: #fff;
-            font-size: 0.95rem;
-        }
-
-        .topbar .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 0;
-            flex-wrap: wrap;
-        }
-
-        .topbar-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
         .btn {
             display: inline-flex;
             align-items: center;
@@ -115,12 +94,6 @@
             background: #fff;
             color: var(--saffron-dark);
             border: 1px solid rgba(181, 90, 24, 0.18);
-        }
-
-        .btn-donate {
-            background: linear-gradient(135deg, #efab3a, #d57c14);
-            color: #fff;
-            box-shadow: 0 10px 24px rgba(217, 138, 30, 0.22);
         }
 
         .btn-small {
@@ -654,8 +627,18 @@
             margin-bottom: 8px;
         }
 
+        .image-panel-static img {
+            width: 100%;
+            max-width: 520px;
+            aspect-ratio: 16 / 10;
+            object-fit: cover;
+            border-radius: 22px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            margin: 0 auto 16px;
+        }
+
         .values-grid,
-        .profile-grid,
         .faq-grid,
         .contact-grid,
         .footer-grid,
@@ -788,42 +771,6 @@
             margin-bottom: 14px;
         }
 
-        .profile-grid {
-            grid-template-columns: repeat(4, 1fr);
-        }
-
-        .profile-card {
-            padding: 26px 22px;
-            text-align: center;
-            background: linear-gradient(180deg, #fff, #fff6ea);
-        }
-
-        .avatar {
-            width: 122px;
-            height: 122px;
-            margin: 0 auto 16px;
-            border-radius: 50%;
-            display: grid;
-            place-items: center;
-            color: #fff;
-            font-weight: 800;
-            font-size: 1.6rem;
-            background: linear-gradient(135deg, var(--saffron), var(--maroon));
-            box-shadow: 0 16px 28px rgba(93, 43, 14, 0.15);
-        }
-
-        .profile-role {
-            color: var(--saffron-dark);
-            font-size: 0.92rem;
-            font-weight: 800;
-            margin-bottom: 8px;
-        }
-
-        .profile-bio {
-            color: var(--muted);
-            font-size: 0.93rem;
-        }
-
         .faq-grid {
             grid-template-columns: 1fr 1fr;
         }
@@ -865,6 +812,14 @@
 
         .contact-card {
             padding: 28px;
+        }
+
+        .zeffy-embed-wrap {
+            margin-top: 18px;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: #fff;
         }
 
         footer {
@@ -914,10 +869,6 @@
                 grid-template-columns: 1fr;
             }
 
-            .profile-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
             .faq-grid {
                 grid-template-columns: 1fr;
             }
@@ -943,8 +894,7 @@
             }
 
             .stat-grid,
-            .values-grid,
-            .profile-grid {
+            .values-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -964,20 +914,6 @@
 </head>
 
 <body>
-    <div class="topbar">
-        <div class="container">
-            <div>
-                Hindu Community Center Greater Cincinnati is a 501(c)(3) nonprofit focused on culture, values, service,
-                and the next generation.
-            </div>
-            <div class="topbar-actions">
-                <a class="btn btn-small btn-outline" href="#booking">Book My Room</a>
-                <a class="btn btn-small btn-donate" href="https://example.org/donate" target="_blank"
-                    rel="noreferrer">Donate</a>
-            </div>
-        </div>
-    </div>
-
     <header>
         <div class="container nav">
             <a class="brand" href="#home">
@@ -996,13 +932,8 @@
                     <li><a href="#about">About</a></li>
                     <li><a href="#vision">Vision</a></li>
                     <li><a href="#booking">Book My Room</a></li>
-                    <li><a href="#leadership">Leadership</a></li>
                     <li><a href="#faq">FAQ</a></li>
                     <li><a href="#contact">Contact</a></li>
-                    <li>
-                        <a class="btn btn-small btn-donate" href="https://example.org/donate" target="_blank"
-                            rel="noreferrer">Donate</a>
-                    </li>
                 </ul>
             </nav>
         </div>
@@ -1035,7 +966,7 @@
                             </div>
                         </div>
 
-                        <h4>Welcoming home for families, learning, service, and shared belonging.</h4>
+                        <h2>Welcoming home for families, learning, service, and shared belonging.</h2>
                         <p>
                             Hindu Community Center Greater Cincinnati is envisioned as a nonprofit umbrella for the
                             next generation — a space for culture, spiritual grounding, youth development, education,
@@ -1071,7 +1002,7 @@
                         <div class="stat-grid">
                             <div class="stat">
                                 <strong>Simple</strong>
-                                <span>Booking & handoff flow</span>
+                                <span>Booking and handoff flow</span>
                             </div>
 
                             <div class="stat">
@@ -1080,9 +1011,8 @@
                             </div>
 
                             <div class="stat">
-                                <a class="stat-link" href="https://example.org/donate" target="_blank"
-                                    rel="noreferrer"><strong>Donate →</strong></a>
-                                <span>Support HHGCC programs</span>
+                                <a class="stat-link" href="#about"><strong>Community →</strong></a>
+                                <span>Learn about HHGCC values and purpose</span>
                             </div>
 
                             <div class="stat">
@@ -1107,9 +1037,9 @@
                             Keep your donation link active at all times so visitors can contribute toward facility
                             growth, youth programming, cultural education, and community impact.
                         </p>
-                        <div style="margin-top:16px;">
-                            <a class="btn btn-donate" href="https://example.org/donate" target="_blank"
-                                rel="noreferrer">Support HHGCC</a>
+
+                        <div class="zeffy-embed-wrap">
+                            <div style="position:relative;overflow:hidden;height:450px;width:100%;padding-top:450px;"><iframe title='Donation form powered by Zeffy' style='position: absolute; border: 0; top:0;left:0;bottom:0;right:0;width:100%;height:100%' src='https://www.zeffy.com/embed/ticketing/hindu-community-center-of-greater-cincinnatis-shop' allowpaymentrequest allowTransparency="true"></iframe></div>
                         </div>
                     </div>
                 </div>
@@ -1121,51 +1051,31 @@
                 <div class="section-head">
                     <span class="section-kicker">About</span>
                     <h2>One umbrella for culture, seva, education, and community connection.</h2>
-                    <p> *Samaj *Sahyog *Sanskruti *Shikshan *Sewa 
-               
-                    </p>
+                    <p>*Samaj *Sahyog *Sanskruti *Shikshan *Sewa</p>
                 </div>
 
                 <div class="two-col">
                     <div class="card content-box">
-
                         <h3>Hindu Community Center of Greater Cincinnati (HCCGC)</h3>
-                        <p>Celebrating Hindu culture, faith, and values. Our goal is to serve the cultural, educational, social, and spiritual needs of our community.
-                        </p>
+                        <p>Celebrating Hindu culture, faith, and values. Our goal is to serve the cultural, educational, social, and spiritual needs of our community.</p>
                         <p>
                             We are guided by inclusivity and seeing divinity in all.
-Our programs unite Hindus of all generations — children to seniors.
+                            Our programs unite Hindus of all generations — children to seniors.
                         </p>
                         <ul>
-
                             <li>HCCGC is dedicated to supporting the Hindu community through culture, education, service, and shared values.</li>
                             <li>HCCGC creates a place where families, children, youth, adults, and seniors can all feel connected and supported.</li>
-
                             <li>HCCGC helps strengthen community bonds by offering meaningful programs, celebrations, and learning opportunities.</li>
                             <li>HCCGC works to preserve Hindu heritage while building a positive future for the next generation.</li>
                             <li>HCCGC stands as a center for unity, belonging, and community growth in Greater Cincinnati.</li>
-
                         </ul>
                     </div>
 
-                    <div class="image-panel">
-                        <div class="hero-gallery" aria-live="polite">
-                            <div class="hero-gallery-head">
-                                <span class="hero-gallery-badge">Community Album</span>
-                                <span class="hero-gallery-mini"></span>
-                            </div>
-
-                            <div class="hero-gallery-frame">
-                                <img id="heroGalleryImg" alt="HHGCC community album image" src="images/community-1.jpg" />
-                            </div>
-
-                            <div class="hero-gallery-meta">
-                                <div class="hero-gallery-text">
-                                    <strong id="heroGalleryTitle">Community Gatherings</strong>
-                                    <span id="heroGallerySubtitle">Festivals, family events, and shared celebration.</span>
-                                </div>
-                                <div class="hero-gallery-dots" id="heroGalleryDots"></div>
-                            </div>
+                    <div class="image-panel image-panel-static">
+                        <div>
+                            <img src="images/community-1.jpg" alt="HHGCC community gathering" />
+                            <strong>Community moments</strong>
+                            Festivals, learning, service, and shared belonging under one community umbrella.
                         </div>
                     </div>
                 </div>
@@ -1177,9 +1087,7 @@ Our programs unite Hindus of all generations — children to seniors.
                 <div class="section-head">
                     <span class="section-kicker">Vision, Mission, Values</span>
                     <h2>Built on Hindu values and focused on the next generation.</h2>
-                    <p>
-                        -
-                    </p>
+                    <p>-</p>
                 </div>
 
                 <div class="values-grid">
@@ -1214,13 +1122,12 @@ Our programs unite Hindus of all generations — children to seniors.
                         <div class="value-index">04</div>
                         <h3>Community Promise</h3>
                         <p>
-                            HCCGC is a nonprofit celebrating Hindu culture, faith, and values. Our goal is to serve
-                            the
+                            HCCGC is a nonprofit celebrating Hindu culture, faith, and values. Our goal is to serve the
                             cultural, educational, social, and spiritual needs of our community. We are guided by
                             inclusivity and seeing divinity in all. Our programs unite Hindus of all generations —
                             children to seniors. We are rooted in the values of Dharma and Seva.
 
-                            *Samaj * Sahyog *Sanskruti *Shikshan *Sewa
+                            *Samaj *Sahyog *Sanskruti *Shikshan *Sewa
                         </p>
                     </div>
                 </div>
@@ -1256,8 +1163,7 @@ Our programs unite Hindus of all generations — children to seniors.
                                 <h4>Venue Rental Agreement &amp; Event Rules</h4>
                                 <p>
                                     By renting and using this venue, the renter and all guests agree to follow the
-                                    rules
-                                    and conditions listed below.
+                                    rules and conditions listed below.
                                 </p>
 
                                 <ol>
@@ -1309,8 +1215,7 @@ Our programs unite Hindus of all generations — children to seniors.
                                         <strong>Smoking, Alcohol, and Illegal Activities</strong>
                                         Smoking inside the venue is not permitted. Alcohol is only allowed if approved
                                         by the venue and must comply with local laws. Illegal activities of any kind
-                                        are
-                                        strictly prohibited.
+                                        are strictly prohibited.
                                     </li>
 
                                     <li>
@@ -1337,8 +1242,7 @@ Our programs unite Hindus of all generations — children to seniors.
                                     <li>
                                         <strong>Right to Terminate Event</strong>
                                         The venue owner reserves the right to end the event if these rules are
-                                        violated,
-                                        if illegal activity occurs, or if the property is being misused.
+                                        violated, if illegal activity occurs, or if the property is being misused.
                                     </li>
                                 </ol>
                             </div>
@@ -1399,31 +1303,6 @@ Our programs unite Hindus of all generations — children to seniors.
             </div>
         </section>
 
-        <section class="section" id="leadership">
-            <div class="container">
-                <div class="section-head">
-                    <span class="section-kicker">Leadership</span>
-                    <h2>Board of Trustees</h2>
-                    <p>
-                        These profile cards are styled to support circular headshots later. Right now they use clean
-                        initials placeholders until you send actual photos.
-                    </p>
-                </div>
-
-                <div class="profile-grid" id="trusteeGrid"></div>
-
-                <div class="section-head" style="margin-top:52px;">
-                    <span class="section-kicker">Board Members</span>
-                    <h2>Board Members and Community Leadership</h2>
-                    <p>
-                        Use this area for executive members, committee leads, advisors, and program leadership.
-                    </p>
-                </div>
-
-                <div class="profile-grid" id="memberGrid"></div>
-            </div>
-        </section>
-
         <section class="section" id="faq">
             <div class="container">
                 <div class="section-head">
@@ -1458,14 +1337,10 @@ Our programs unite Hindus of all generations — children to seniors.
                     <div>
                         <h3>Help build a strong Hindu future in Greater Cincinnati.</h3>
                         <p>
-                            Donations can support youth initiatives, cultural programming, educational classes, family
-                            events,
-                            service projects, and the long-term growth of the community center.
+                            Community participation, volunteering, cultural programs, educational classes, family
+                            events, and shared service all help strengthen HCCGC for the long term.
                         </p>
                     </div>
-                    <a class="btn btn-donate" href="https://example.org/donate" target="_blank"
-                        rel="noreferrer">Donate
-                        Now</a>
                 </div>
             </div>
         </section>
@@ -1480,7 +1355,7 @@ Our programs unite Hindus of all generations — children to seniors.
                 <div class="contact-grid">
                     <div class="card contact-card">
                         <h3>Contact information</h3>
-                        <p><strong>Address:</strong>7500 Industrial Row Drive,Mason, OH - 45040 </p>
+                        <p><strong>Address:</strong>7500 Industrial Row Drive, Mason, OH - 45040</p>
                         <p><strong>Email:</strong>hccgccommunity@gmail.com</p>
                         <p><strong>Phone:</strong> Replace with your official phone</p>
                         <p><strong>Hours:</strong> 9 AM - 11 PM EST</p>
@@ -1490,12 +1365,12 @@ Our programs unite Hindus of all generations — children to seniors.
                         <h3>What you should replace next</h3>
                         <p>Do these next before publishing:</p>
                         <ul style="margin: 14px 0 0 18px; padding:0; color:var(--muted);">
-                            <li>Donation URL</li>
                             <li>Final external booking URL</li>
                             <li>Official HHGCC intro, vision, and mission</li>
-                            <li>Trustee and member names, photos, and bios</li>
                             <li>Real contact info</li>
                             <li>Banner and gallery images</li>
+                            <li>Volunteer/contact form if needed</li>
+                            <li>Official nonprofit legal note</li>
                         </ul>
                     </div>
                 </div>
@@ -1520,16 +1395,16 @@ Our programs unite Hindus of all generations — children to seniors.
                         <li><a href="#about">About</a></li>
                         <li><a href="#vision">Vision</a></li>
                         <li><a href="#booking">Book My Room</a></li>
-                        <li><a href="#leadership">Leadership</a></li>
+                        <li><a href="#faq">FAQ</a></li>
                     </ul>
                 </div>
 
                 <div class="card footer-card">
-                    <h3>Support</h3>
+                    <h3>Connect</h3>
                     <ul style="color:var(--muted);">
                         <li><a href="#faq">FAQ</a></li>
                         <li><a href="#contact">Contact</a></li>
-                        <li><a href="https://example.org/donate" target="_blank" rel="noreferrer">Donate</a></li>
+                        <li><a href="#about">Community</a></li>
                     </ul>
                 </div>
 
@@ -1603,83 +1478,35 @@ Our programs unite Hindus of all generations — children to seniors.
             {
                 title: "Community Gatherings",
                 subtitle: "Festivals, family events, and shared celebration.",
-                image: "community-1.jpg"
+                image: "images/community-1.jpg"
             },
             {
                 title: "Youth Programs",
                 subtitle: "Learning, leadership, and confidence for the next generation.",
-                image: "community-2.jpg"
+                image: "images/community-2.jpg"
             },
             {
                 title: "Cultural Classes",
                 subtitle: "Dance, language, music, and artistic expression.",
-                image: "community-3.jpg"
+                image: "images/community-3.jpg"
             },
             {
                 title: "Spiritual Learning",
                 subtitle: "Study circles, satsangs, and values-based guidance.",
-                image: "community-4.jpg"
+                image: "images/community-4.jpg"
             },
             {
                 title: "Family Celebrations",
                 subtitle: "A warm venue for milestones, holidays, and connection.",
-                image: "community-5.jpg"
+                image: "images/community-5.jpg"
             },
             {
                 title: "Seva and Outreach",
                 subtitle: "Volunteer-driven support for a stronger community.",
-                image: "community-6.jpg"
+                image: "images/community-6.jpg"
             }
         ];
 
-        const trustees = [
-            {
-                name: "Trustee Name One",
-                role: "Chair, Board of Trustees",
-                bio: "Replace with a short biography showing leadership, service, and long-term commitment to the Hindu community."
-            },
-            {
-                name: "Trustee Name Two",
-                role: "Trustee",
-                bio: "Replace with a short biography showing leadership, service, and long-term commitment to the Hindu community."
-            },
-            {
-                name: "Trustee Name Three",
-                role: "Trustee",
-                bio: "Replace with a short biography showing leadership, service, and long-term commitment to the Hindu community."
-            },
-            {
-                name: "Trustee Name Four",
-                role: "Trustee",
-                bio: "Replace with a short biography showing leadership, service, and long-term commitment to the Hindu community."
-            }
-        ];
-
-        const members = [
-            {
-                name: "Board Member One",
-                role: "President / Executive Member",
-                bio: "Replace with a short role summary, responsibilities, and a brief service-focused introduction."
-            },
-            {
-                name: "Board Member Two",
-                role: "Secretary / Executive Member",
-                bio: "Replace with a short role summary, responsibilities, and a brief service-focused introduction."
-            },
-            {
-                name: "Board Member Three",
-                role: "Treasurer / Executive Member",
-                bio: "Replace with a short role summary, responsibilities, and a brief service-focused introduction."
-            },
-            {
-                name: "Board Member Four",
-                role: "Program Lead / Advisor",
-                bio: "Replace with a short role summary, responsibilities, and a brief service-focused introduction."
-            }
-        ];
-
-        const trusteeGrid = document.getElementById("trusteeGrid");
-        const memberGrid = document.getElementById("memberGrid");
         const bookingContinueForm = document.getElementById("bookingContinueForm");
 
         const announcementTag = document.getElementById("announcementTag");
@@ -1759,29 +1586,6 @@ Our programs unite Hindus of all generations — children to seniors.
             }, 220);
         }
 
-        function initials(name) {
-            return name
-                .split(" ")
-                .filter(Boolean)
-                .slice(0, 2)
-                .map(part => part[0].toUpperCase())
-                .join("");
-        }
-
-        function renderProfiles(list, mount) {
-            list.forEach(person => {
-                const card = document.createElement("article");
-                card.className = "card profile-card";
-                card.innerHTML = `
-          <div class="avatar">${initials(person.name)}</div>
-          <h3>${person.name}</h3>
-          <div class="profile-role">${person.role}</div>
-          <div class="profile-bio">${person.bio}</div>
-        `;
-                mount.appendChild(card);
-            });
-        }
-
         bookingContinueForm.addEventListener("submit", function (event) {
             event.preventDefault();
 
@@ -1803,8 +1607,6 @@ Our programs unite Hindus of all generations — children to seniors.
         renderHeroGallery(0);
         setInterval(rotateHeroGallery, 3200);
 
-        renderProfiles(trustees, trusteeGrid);
-        renderProfiles(members, memberGrid);
         document.getElementById("year").textContent = new Date().getFullYear();
     </script>
 </body>

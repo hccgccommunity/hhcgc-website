@@ -522,6 +522,15 @@
                         <p><strong>Email:</strong> hccgccommunity@gmail.com</p>
                         <p><strong>Phone:</strong> Coming Soon</p>
                         <p><strong>Hours:</strong> 8 AM - 11 PM EST</p>
+
+
+
+                <div style="display:flex; justify-content:center; margin-top:12px;">
+                    <form id="donatetoHHGC">
+                        <button class="btn btn-primary" type="submit">Donate</button>
+                    </form>
+                </div>
+
                     </div>
 
                     <div class="card contact-card">
@@ -582,8 +591,22 @@
         </div>
     </footer>
 
+
+<script src="https://zeffy-scripts.s3.ca-central-1.amazonaws.com/embed-form-script.min.js"></script>
+
     <script>
         const EXTERNAL_BOOKING_URL = "https://www.picktime.com/home/3d66d429-0a6c-4785-8c43-07dec1b355c9";
+	const ZEFFY_FORM_LINK ="https://www.zeffy.com/embed/donation-form/build-hcc-with-us?modal=true"
+
+        const donateForm = document.getElementById("donatetoHHGC");
+
+        donateForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            window.open(ZEFFY_FORM_LINK, "_blank", "noopener,noreferrer");
+        });
+
+
+
         const bookingContinueForm = document.getElementById("bookingContinueForm");
 
         bookingContinueForm.addEventListener("submit", function (event) {
@@ -591,10 +614,12 @@
             window.open(EXTERNAL_BOOKING_URL, "_blank", "noopener,noreferrer");
         });
 
+
+
         document.getElementById("year").textContent = new Date().getFullYear();
     </script>
 
-
+ 
 
 
 

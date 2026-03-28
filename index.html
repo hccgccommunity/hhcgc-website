@@ -226,12 +226,21 @@
             text-align: left;
         }
 
-        .card {
-            background: rgba(255, 255, 255, 0.92);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-        }
+.card {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius);
+
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25);
+
+  position: relative;
+  overflow: hidden;
+}
 
         .card h3 {
             margin: 0 0 10px;
@@ -425,12 +434,12 @@
                 <div class="three-values" id="vision">
                     <div class="card value-card">
                         <h3>Vision</h3>
-                        <p>To build a vibrant, enduring Hindu community center where families grow in identity, belonging, service, and cultural confidence.</p>
+                        <p>A vibrant and enduring community where families grow in identity, belonging, service, and cultural confidence.</p>
                     </div>
 
                     <div class="card value-card">
                         <h3>Mission</h3>
-                        <p>To provide space for spiritual learning, youth development, cultural celebrations, educational programming, and meaningful community connection.</p>
+                        <p>To create a welcoming space for spiritual learning, cultural expression, youth development, and meaningful community connection.</p>
                     </div>
 
                     <div class="card value-card">
@@ -492,33 +501,16 @@
             </div>
         </section>
 
-        <section class="section" id="donate">
+
+
+        <section class="section" id="involved">
             <div class="container">
                 <div class="section-head content-width">
                     <span class="section-kicker">Build HCC With Us</span>
 
 
 <p class="section-copy">
-                        This center is more than a building, it is a home for our community. A place where children learn their roots, families celebrate together, traditions continue, and future generations feel connected. Your support brings this vision to life, one step at a time. Every contribution, big or small, makes a real difference. Join others in creating something lasting.
-                    </p>
-
-
-                </div>
-
-                <div style="display:flex; justify-content:center; margin-top:12px;">
-                    <button class="btn btn-primary" type="button">Donate</button>
-                </div>
-            </div>
-        </section>
-
-        <section class="section" id="involved">
-            <div class="container">
-                <div class="section-head content-width">
-                    <span class="section-kicker">Get Involved</span>
-
-
-<p class="section-copy">
-                        We’d love to hear from you whether you’re looking to volunteer, host an event, support the community, or learn more.
+                        Hindu Community Center of Greater Cincinnati is more than just a building, it is a home for our community. A place where children learn their roots, families come together to celebrate, traditions are preserved, and future generations stay connected to their heritage. Your support helps bring this vision to life - one step at a time. Together, we can build and sustain a space that nurtures connection, preserves heritage, and inspires future generations. Your support is truly invaluable!.
                     </p>
 
                 </div>

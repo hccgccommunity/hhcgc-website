@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Policy | Hindu Community Center of Greater Cincinnati</title>
+    <meta name="description" content="Privacy Policy for the Hindu Community Center of Greater Cincinnati website." />
+    <style>
+        :root {
+            --bg: #fff9f1;
+            --surface: #ffffff;
+            --surface-soft: #fff6ea;
+            --border: rgba(121, 62, 17, 0.14);
+            --text: #2c1b10;
+            --muted: #6a5141;
+            --saffron: #b55a18;
+            --saffron-dark: #8d3e0d;
+            --maroon: #7f2e16;
+            --shadow: 0 18px 45px rgba(93, 43, 14, 0.10);
+            --radius: 22px;
+            --max: 1100px;
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(217, 138, 30, 0.12), transparent 22%),
+                radial-gradient(circle at top right, rgba(127, 46, 22, 0.05), transparent 20%),
+                var(--bg);
+            line-height: 1.7;
+        }
+
+        a {
+            color: var(--saffron-dark);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            width: min(calc(100% - 32px), var(--max));
+            margin: 0 auto;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(255, 249, 241, 0.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav {
+            min-height: 88px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 12px 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+        }
+
+        .brand-logo-wrap {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 8px;
+            box-shadow: var(--shadow);
+            flex-shrink: 0;
+        }
+
+        .brand-logo {
+            width: 78px;
+            height: auto;
+            border-radius: 12px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .brand-text h1 {
+            margin: 0;
+            font-size: 1.15rem;
+            line-height: 1.2;
+            color: var(--maroon);
+        }
+
+        .brand-text p {
+            margin: 4px 0 0;
+            color: var(--muted);
+            font-size: 0.94rem;
+        }
+
+        .hero {
+            padding: 42px 0 20px;
+        }
+
+        .hero-card {
+            background: linear-gradient(135deg, rgba(181, 90, 24, 0.96), rgba(127, 46, 22, 0.95));
+            color: #fff;
+            border-radius: 30px;
+            box-shadow: var(--shadow);
+            padding: 42px 34px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 15% 18%, rgba(255,255,255,0.18), transparent 18%),
+                radial-gradient(circle at 88% 20%, rgba(255,255,255,0.10), transparent 14%);
+            pointer-events: none;
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            padding: 7px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            font-size: 0.82rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        .hero h2 {
+            margin: 0 0 10px;
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            line-height: 1.08;
+            font-family: Georgia, "Times New Roman", serif;
+        }
+
+        .hero p {
+            margin: 0;
+            max-width: 820px;
+            color: rgba(255,255,255,0.93);
+            font-size: 1.02rem;
+        }
+
+        .section {
+            padding: 20px 0 48px;
+        }
+
+        .policy-card {
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+        }
+
+        .meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .meta-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(217, 138, 30, 0.12);
+            color: var(--saffron-dark);
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .intro {
+            margin-bottom: 28px;
+            color: var(--muted);
+            font-size: 1rem;
+        }
+
+        .policy-section + .policy-section {
+            margin-top: 26px;
+            padding-top: 26px;
+            border-top: 1px solid var(--border);
+        }
+
+        .policy-section h3 {
+            margin: 0 0 10px;
+            color: var(--maroon);
+            font-size: 1.2rem;
+            line-height: 1.3;
+        }
+
+        .policy-section p {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        .policy-section ul {
+            margin: 12px 0 0 20px;
+            padding: 0;
+            color: var(--muted);
+        }
+
+        .policy-section li + li {
+            margin-top: 8px;
+        }
+
+        .contact-box {
+            margin-top: 28px;
+            padding: 22px;
+            border-radius: 18px;
+            background: var(--surface-soft);
+            border: 1px solid var(--border);
+        }
+
+        .contact-box h3 {
+            margin: 0 0 10px;
+            color: var(--maroon);
+        }
+
+        .contact-box p {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        .contact-box p + p {
+            margin-top: 6px;
+        }
+
+        footer {
+            padding: 0 0 36px;
+        }
+
+        .footer-note {
+            color: var(--muted);
+            font-size: 0.92rem;
+            text-align: center;
+        }
+
+        @media (max-width: 860px) {
+            .nav {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .hero {
+                padding-top: 28px;
+            }
+
+            .hero-card,
+            .policy-card {
+                padding: 24px;
+            }
+
+            .brand-logo {
+                width: 70px;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .container {
+                width: min(calc(100% - 22px), var(--max));
+            }
+
+            .hero-card,
+            .policy-card {
+                padding: 20px;
+                border-radius: 22px;
+            }
+
+            .policy-section h3 {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container nav">
+            <div class="brand">
+                <div class="brand-logo-wrap">
+                    <img class="brand-logo" src="hccgc-logo.jpeg" alt="HCCGC logo" />
+                </div>
+                <div class="brand-text">
+                    <h1>Hindu Community Center of Greater Cincinnati</h1>
+                    <p>Privacy Policy</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <div class="hero-card">
+                    <div class="hero-inner">
+                        <span class="eyebrow">Privacy Policy</span>
+                        <h2>Your information should be handled with care and transparency.</h2>
+                        <p>
+                            This page explains what information HCCGC may collect through its website,
+                            how that information may be used, and the choices available to visitors.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <div class="policy-card">
+                    <div class="meta-row">
+                        <span class="meta-pill">Last Updated: 03/28/2026</span>
+                    </div>
+
+                    <div class="intro">
+                        The Hindu Community Center of Greater Cincinnati (“HCCGC”, “we”, “our”, or “us”) respects your privacy and is committed to protecting the personal information you share with us through our website. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website.
+                    </div>
+
+                    <div class="policy-section">
+                        <h3>1. Information We Collect</h3>
+                        <p>We may collect the following types of information:</p>
+                        <ul>
+                            <li><strong>Personal Information:</strong> Name, email address, phone number, billing and payment information, and event or booking details.</li>
+                            <li><strong>Non-Personal Information:</strong> Browser type and device information, IP address, pages visited, time spent on the site, cookies, and usage data.</li>
+                        </ul>
+                    </div>
+
+                    <div class="policy-section">
+                        <h3>2. How We Use Your Information</h3>
+                        <p>We use your information to:</p>
+                        <ul>
+                            <li>Process donations and payments.</li>
+                            <li>Manage room bookings and reservations.</li>
+                            <li>Communicate with you regarding inquiries, events, or updates.</li>
+                            <li>Improve our website and user experience.</li>
+                            <li>Maintain security and prevent fraud.</li>
+                        </ul>
+                    </div>
+
+                    <div class="policy-section">
+                        <h3>3. Payments and Transactions</h3>
+                        <p>
+                            All payments are processed securely through third-party payment providers
+                            such as Stripe or other integrated services. We do not store your full
+                            payment card details on our servers.
+                        </p>
+                    </div>
+
+                    <div class="policy-section">
+                        <h3>4. Sharing of Information</h3>
+                        <p>We do not sell or rent your personal information. We may share your information with:</p>
+                        <ul>
+                            <li>Trusted service providers such as payment processors, scheduling tools, and email services.</li>
+                            <li>Legal authorities when required by law.</li>
+                        </ul>
+                    </div>
+
+                    <div class="policy-section">
+                        <h3>5. Cookies and Tracking Technologies</h3>
+                        <p>We may use cookies and similar technologies to:</p>
+                        <ul>
+                            <li>Enhance your browsing experience.</li>
+                            <li>Analyze website traffic.</li>
+                            <li>Remember your preferences.</li>
+                        </ul>
+                        <p style="margin-top: 12px;">You can control or disable cookies through your browser settings.</p>
+                    </div>
+
+                    <div class="policy-section">
+                        <h3>6. Data Security</h3>
+                        <p>
+                            We implement reasonable security measures to protect your personal information.
+                            However, no online transmission or storage system is 100% secure.
+                        </p>
+                    </div>
+
+                    <div class="policy-section">
+                        <h3>7. Your Rights</h3>
+                        <p>You may:</p>
+                        <ul>
+                            <li>Request access to your personal data.</li>
+                            <li>Request correction or deletion of your information.</li>
+                            <li>Opt out of communications.</li>
+                        </ul>
+                        <p style="margin-top: 12px;">To make a request, please contact us using the information below.</p>
+                    </div>
+
+                    <div class="policy-section">
+                        <h3>8. Third-Party Links</h3>
+                        <p>
+                            Our website may contain links to third-party services. We are not responsible
+                            for the privacy practices of those external websites.
+                        </p>
+                    </div>
+
+                    <div class="policy-section">
+                        <h3>9. Children’s Privacy</h3>
+                        <p>
+                            Our website is not intended to collect personal information from children under
+                            the age of 13. If we become aware that such data has been collected, we will
+                            take appropriate steps to delete it.
+                        </p>
+                    </div>
+
+                    <div class="policy-section">
+                        <h3>10. Changes to This Privacy Policy</h3>
+                        <p>
+                            We may update this Privacy Policy from time to time. Any changes will be posted
+                            on this page with an updated effective date.
+                        </p>
+                    </div>
+
+                    <div class="policy-section">
+                        <h3>11. Contact Us</h3>
+                        <p>
+                            If you have any questions about this Privacy Policy or how your information is handled,
+                            please contact us:
+                        </p>
+                    </div>
+
+                    <div class="contact-box">
+                        <h3>Hindu Community Center of Greater Cincinnati</h3>
+                        <p><strong>Email:</strong> <a href="mailto:hccgccommunity@gmail.com">hccgccommunity@gmail.com</a></p>
+                        <p><strong>Address:</strong> 7500 Industrial Row Drive, Mason, OH 45040</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-note">
+                © <span id="year"></span> Hindu Community Center of Greater Cincinnati. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>

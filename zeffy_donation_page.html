@@ -1,9 +1,422 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Donate - HCCGC</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hindu Community Center Greater Cincinnati</title>
+    <meta name="description" content="Hindu Community Center Greater Cincinnati - nonprofit community website for culture, values, service, room bookings, and donations." />
+    <style>
+        :root {
+            --bg: #fff9f1;
+            --surface: #ffffff;
+            --surface-soft: #fff6ea;
+            --border: rgba(121, 62, 17, 0.14);
+            --text: #2c1b10;
+            --muted: #6a5141;
+            --saffron: #b55a18;
+            --saffron-dark: #8d3e0d;
+            --maroon: #7f2e16;
+            --shadow: 0 18px 45px rgba(93, 43, 14, 0.10);
+            --radius: 22px;
+            --max: 1220px;
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(217, 138, 30, 0.12), transparent 22%),
+                radial-gradient(circle at top right, rgba(127, 46, 22, 0.05), transparent 20%),
+                var(--bg);
+            line-height: 1.65;
+        }
+
+        img {
+            max-width: 100%;
+            display: block;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button, input, select, textarea {
+            font: inherit;
+        }
+
+        .container {
+            width: min(calc(100% - 32px), var(--max));
+            margin: 0 auto;
+        }
+
+        .content-width {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: none;
+            cursor: pointer;
+            padding: 13px 20px;
+            border-radius: 999px;
+            font-weight: 700;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+            white-space: nowrap;
+        }
+
+        .btn:hover { transform: translateY(-1px); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--saffron), #d17621);
+            color: #fff;
+            box-shadow: 0 10px 24px rgba(181, 90, 24, 0.20);
+        }
+
+        .btn-outline {
+            background: #fff;
+            color: var(--saffron-dark);
+            border: 1px solid rgba(181, 90, 24, 0.18);
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(255, 249, 241, 0.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            min-height: 92px;
+            padding: 12px 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-width: 0;
+        }
+
+        .brand-logo-wrap {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 8px;
+            box-shadow: var(--shadow);
+            flex-shrink: 0;
+        }
+
+        .brand-logo {
+            width: 88px;
+            height: auto;
+            border-radius: 12px;
+            object-fit: contain;
+        }
+
+        .brand-text h1 {
+            margin: 0;
+            font-size: 1.2rem;
+            line-height: 1.15;
+            color: var(--maroon);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin: 0;
+            padding: 0;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        nav a {
+            font-weight: 700;
+            color: var(--text);
+            font-size: 0.96rem;
+        }
+
+        nav a:hover { color: var(--saffron-dark); }
+
+        .hero-banner {
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #d37b1b, #a44a19 55%, #722a15);
+        }
+
+        .hero-banner img {
+            width: 100%;
+            height: clamp(320px, 48vw, 760px);
+            min-height: 320px;
+            object-fit: cover;
+            object-position: center center;
+        }
+
+        .section {
+            padding: 42px 0;
+        }
+
+        .section-head {
+            margin-bottom: 16px;
+        }
+
+        .section-kicker {
+            display: inline-block;
+            padding: 7px 14px;
+            border-radius: 999px;
+            background: rgba(217, 138, 30, 0.12);
+            color: var(--saffron-dark);
+            font-size: 0.83rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .section-head h2,
+        .section-head h3 {
+            margin: 8px 0;
+            line-height: 1.2;
+            color: var(--maroon);
+            font-family: Georgia, "Times New Roman", serif;
+        }
+
+        .section-head h2 {
+            font-size: clamp(2rem, 3.4vw, 3rem);
+        }
+
+        .section-head h3 {
+            font-size: clamp(1.2rem, 2.3vw, 1.6rem);
+            font-weight: 700;
+        }
+
+        .section-head p,
+        .section-copy,
+        .venue-body p,
+        .contact-card p,
+        .footer-card p,
+        .helper-list,
+        .helper-list li {
+            margin: 0;
+            color: var(--muted);
+            font-size: 1rem;
+        }
+
+        .section-copy {
+            width: 100%;
+            max-width: 100%;
+            display: block;
+            text-align: left;
+        }
+
+.card {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius);
+
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25);
+
+  position: relative;
+  overflow: hidden;
+}
+
+        .card h3 {
+            margin: 0 0 10px;
+            color: var(--maroon);
+            line-height: 1.25;
+        }
+
+        .three-values {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-top: 18px;
+        }
+
+        .value-card {
+            padding: 24px;
+            background: linear-gradient(180deg, #fff, #fff6ea);
+            height: 100%;
+        }
+
+        .venue-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+            margin-top: 18px;
+            margin-bottom: 24px;
+        }
+
+        .venue-card {
+            overflow: hidden;
+        }
+
+        .venue-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+        }
+
+        .venue-body {
+            padding: 16px;
+        }
+
+        .contact-grid,
+        .footer-grid {
+            display: grid;
+            gap: 18px;
+        }
+
+        .contact-grid {
+            grid-template-columns: 1fr 1fr;
+            margin-top: 18px;
+        }
+
+        .contact-card,
+        .footer-card {
+            padding: 24px;
+        }
+
+        .helper-list {
+            margin: 14px 0 0 18px;
+            padding: 0;
+        }
+
+        footer { padding: 24px 0 44px; }
+
+        .footer-grid {
+            grid-template-columns: 1.2fr 0.8fr 0.8fr 1fr;
+        }
+
+        .footer-card ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            color: var(--muted);
+        }
+
+        .footer-card li + li { margin-top: 10px; }
+
+        .footer-note {
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 0.5rem;
+        }
+
+        @media (max-width: 1120px) {
+            .venue-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 860px) {
+            .nav {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            nav ul {
+                justify-content: flex-start;
+                gap: 14px;
+            }
+
+            .hero-banner img {
+                height: clamp(260px, 58vw, 480px);
+                min-height: 260px;
+                object-position: center center;
+            }
+
+            .three-values,
+            .contact-grid,
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section {
+                padding: 34px 0;
+            }
+
+            .brand-logo { width: 74px; }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                width: min(calc(100% - 24px), var(--max));
+            }
+
+            .venue-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .venue-card img {
+                height: 210px;
+            }
+
+            .hero-banner img {
+                height: 240px;
+                min-height: 240px;
+            }
+
+            .value-card,
+            .contact-card,
+            .footer-card,
+            .venue-body {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container nav">
+            <a class="brand" href="#home">
+                <div class="brand-logo-wrap">
+                    <img class="brand-logo" alt="Hindu Community Center Greater Cincinnati logo" src="hccgc-logo.jpeg" />
+                </div>
+                <div class="brand-text">
+                    <h1>Hindu Community Center Of Greater Cincinnati</h1>
+                </div>
+            </a>
+
+            <nav>
+                <ul>
+                    <li><a href="#about">About</a></li>
+<li><a href="#about">Initiatives</a></li>
+                    <li><a href="#booking">Facility Rental</a></li>
+                    <li><a href="#donate">Contact Us</a></li>
+                    <li><a href="#involved">Build Together</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
   <style>
     body {
       margin: 0;

@@ -32,7 +32,7 @@
                 radial-gradient(circle at top left, rgba(217, 138, 30, 0.12), transparent 22%),
                 radial-gradient(circle at top right, rgba(127, 46, 22, 0.05), transparent 20%),
                 var(--bg);
-            line-height: 1.6;
+            line-height: 1.65;
         }
 
         img {
@@ -52,6 +52,11 @@
         .container {
             width: min(calc(100% - 32px), var(--max));
             margin: 0 auto;
+        }
+
+        .content-width {
+            width: 100%;
+            max-width: 100%;
         }
 
         .btn {
@@ -202,11 +207,23 @@
             font-weight: 700;
         }
 
-        .section-head p {
+        .section-head p,
+        .section-copy,
+        .venue-body p,
+        .contact-card p,
+        .footer-card p,
+        .helper-list,
+        .helper-list li {
             margin: 0;
             color: var(--muted);
-            max-width: 900px;
             font-size: 1rem;
+        }
+
+        .section-copy {
+            width: 100%;
+            max-width: 100%;
+            display: block;
+            text-align: left;
         }
 
         .card {
@@ -219,16 +236,7 @@
         .card h3 {
             margin: 0 0 10px;
             color: var(--maroon);
-        }
-
-        .card p {
-            margin: 0;
-            color: var(--muted);
-        }
-
-        .about-copy {
-            margin-top: 12px;
-            color: var(--muted);
+            line-height: 1.25;
         }
 
         .three-values {
@@ -285,7 +293,6 @@
         .helper-list {
             margin: 14px 0 0 18px;
             padding: 0;
-            color: var(--muted);
         }
 
         footer { padding: 24px 0 44px; }
@@ -408,9 +415,9 @@
 
         <section class="section" id="about">
             <div class="container">
-                <div class="section-head">
+                <div class="section-head content-width">
                     <span class="section-kicker">About</span>
-                    <p class="about-copy">
+                    <p class="section-copy">
                         Hindu Community Center of Greater Cincinnati is a 501(c)(3) nonprofit organization dedicated to celebrating Hindu culture, faith, and values while serving the cultural, educational, social, and spiritual needs of the community. Guided by inclusivity and the belief in seeing divinity in all, it brings together people of all generations, from children to seniors, in a shared space of learning, connection, and service. Rooted in the principles of Samaj (community), Sahyog (collaboration), Sanskruti (culture), Shikshan (education), and Sewa (service), the organization supports meaningful programs, cultural celebrations, and educational initiatives that help families feel connected and engaged. It plays a vital role in strengthening community bonds, preserving Hindu heritage, and building a positive future for the next generation, while serving as a center for unity, belonging, and growth in Greater Cincinnati.
                     </p>
                 </div>
@@ -428,7 +435,7 @@
 
                     <div class="card value-card">
                         <h3>Core Values</h3>
-                        <p>Dharma • Seva • Integrity • Service • Family Unity • Respect • Cultural Continuity • Leadership</p>
+                        <p>Dharma • Seva • Integrity • Service • Family Unity • Respect • Cultural Continuity • Leadership.</p>
                     </div>
                 </div>
             </div>
@@ -436,9 +443,9 @@
 
         <section class="section" id="booking">
             <div class="container">
-                <div class="section-head">
+                <div class="section-head content-width">
                     <span class="section-kicker">Facility Rental</span>
-                    <p>
+                    <p class="section-copy">
                         Our spaces are designed to bring people together whether for cultural programs, classes, celebrations, or community gatherings. From small group sessions to larger events, each room offers flexibility and comfort to support a variety of needs, including group seating, presentations, and multi-purpose use. A minimum booking of 2 hours is required, with discounted pricing available for weekday bookings and extended reservations of 4 hours or more. We strive to create a welcoming environment where families, friends, and community members can connect, learn, and celebrate together.
                     </p>
                 </div>
@@ -487,7 +494,7 @@
 
         <section class="section" id="donate">
             <div class="container">
-                <div class="section-head">
+                <div class="section-head content-width">
                     <span class="section-kicker">Build HCC With Us</span>
                     <h3>This center is more than a building, it is a home for our community. A place where children learn their roots, families celebrate together, traditions continue, and future generations feel connected. Your support brings this vision to life, one step at a time. Every contribution, big or small, makes a real difference. Join others in creating something lasting.</h3>
                 </div>
@@ -500,7 +507,7 @@
 
         <section class="section" id="involved">
             <div class="container">
-                <div class="section-head">
+                <div class="section-head content-width">
                     <span class="section-kicker">Get Involved</span>
                     <h3>We’d love to hear from you whether you’re looking to volunteer, host an event, support the community, or learn more.</h3>
                 </div>

@@ -607,34 +607,30 @@ Contribute your time and skills to support events, programs, and the day-to-day 
 
     <footer>
 
-        <div class="container">
-            <div class="footer-grid">
 
-                <div class="card footer-card">
-                    <h3>Explore</h3>
-                    <ul>
-                        <li><a href="#about">About</a></li>
-           		<li><a href="#booking">Facility Rental</a></li>
-                    </ul>
-                </div>
+<section class="section" id="involved">
+            <div class="container">
+                <div class="section-head content-width text-align: center;"">
 
-                <div class="card footer-card">
-                    <h3>Get Involved</h3>
-                    <ul>
-                        <li><a href="#involved">Contact</a></li>
-                        <li><a href="#donate">Donate</a></li>
-                    </ul>
-                </div>
+<div style="display: flex; justify-content: center;">            
+<nav>
+                <ul>
+                    <li><a href="#about">About  |</a></li>
+<li><a href="#about">Initiatives  |</a></li>
+                    <li><a href="#booking">Facility Rental  |</a></li>
+                    <li><a href="#donate">Donate  |</a></li>
+                    <li><a href="#involved">Build Together</a></li>
+                </ul>
+            </nav>
+</div>
 
-                <div class="card footer-card">
-                    <h3>Contact</h3>
-                    <ul>
-                        <li>7500 Industrial Row Drive</li>
-                        <li>Mason, OH 45040</li>
-                        <li><a href="mailto:hccgccommunity@gmail.com">hccgccommunity@gmail.com</a></li>
-                    </ul>
+
                 </div>
             </div>
+        </section>
+
+
+       
 
             <div class="footer-note">
                 © <span id="year"></span> Hindu Community Center Greater Cincinnati. All rights reserved.
@@ -647,9 +643,10 @@ Contribute your time and skills to support events, programs, and the day-to-day 
 
     <script>
         const EXTERNAL_BOOKING_URL = "https://www.picktime.com/home/3d66d429-0a6c-4785-8c43-07dec1b355c9";
-	const ZEFFY_FORM_LINK ="https://www.zeffy.com/embed/donation-form/build-hcc-with-us?modal=true"
-	const AUM_SCHOOL_LINK ="https://aum.school/cincinnati/"
-
+	const ZEFFY_FORM_LINK ="https://www.zeffy.com/embed/donation-form/build-hcc-with-us?modal=true";
+	const AUM_SCHOOL_LINK ="https://aum.school/cincinnati/";
+	const SAHYOGMILAN_LINK ="https://docs.google.com/forms/d/e/1FAIpQLSfNtKphaHdj6Ts4lyDgA9-5FZltd_TvI6qGo_nFBoLcjkPs7g/viewform?usp=publish-editor";
+	const VOLUNTEERWUS_LINK ="https://docs.google.com/forms/d/e/1FAIpQLSfau2C0_vvGvvBh0_kqNMyMCnPrjpJlLiT4CkGNtA51G8turQ/viewform?usp=header";
         const donateForm = document.getElementById("donatetoHHGC");
 
         donateForm.addEventListener("submit", function (event) {
@@ -672,6 +669,25 @@ Contribute your time and skills to support events, programs, and the day-to-day 
             event.preventDefault();
             window.open(AUM_SCHOOL_LINK, "_blank", "noopener,noreferrer");
         });
+
+
+        const sahyogKnowMoreForm = document.getElementById("sahyogKnowMore");
+
+        sahyogKnowMoreForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            window.open(SAHYOGMILAN_LINK, "_blank", "noopener,noreferrer");
+        });
+
+
+
+
+	const volunteerwithHHGCForm = document.getElementById("volunteerwithHHGC");
+
+        volunteerwithHHGCForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            window.open(VOLUNTEERWUS_LINK, "_blank", "noopener,noreferrer");
+        });
+
 
         document.getElementById("year").textContent = new Date().getFullYear();
     </script>

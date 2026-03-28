@@ -409,9 +409,10 @@
             <nav>
                 <ul>
                     <li><a href="#about">About</a></li>
+<li><a href="#about">Initiatives</a></li>
                     <li><a href="#booking">Facility Rental</a></li>
                     <li><a href="#donate">Donate</a></li>
-                    <li><a href="#involved">Get Involved</a></li>
+                    <li><a href="#involved">Build Together</a></li>
                 </ul>
             </nav>
         </div>
@@ -468,15 +469,16 @@ These programs create spaces where individuals can connect, participate, and gro
 
                 <div class="contact-grid">
                     <div class="card contact-card">
-                        <h3>Sahyog Milan - A Senior Citizen Gathering</h3>
+                        <h3>Sahyog Milan - A Gathering for Seniors</h3>
 <p class="section-copy">
-We want to create a joyful space where Hindu seniors feel valued and supported. Together we’ll share meals, play games, enjoy conversations, can celebrate culture white inspiring the next generation and society at large with our rich experience.</p>
+
+We want to create a joyful space where Hindu seniors feel valued and supported. Together we’ll share meals, play games, enjoy conversations, can celebrate culture white inspiring the next generation and society at large with our rich experience. </br> </br></br></p>
 
 
 
                 <div style="display:flex; justify-content:center; margin-top:12px;">
-                    <form id="donatetoHHGC111">
-                        <button class="btn btn-primary" type="submit">Donate Now</button>
+                    <form id="sahyogKnowMore">
+                        <button class="btn btn-primary" type="submit">Know More</button>
                     </form>
                 </div>
 
@@ -484,15 +486,17 @@ We want to create a joyful space where Hindu seniors feel valued and supported. 
 
                     <div class="card contact-card">
                         <h3>AUM School - A Summer School with Value Based Teaching</h3>
-                        <ul class="helper-list">
-                            <li>Volunteer your time and skills</li>
-                            <li>Support community programs and initiatives</li>
-                            <li>Host cultural, educational, or family events</li>
-                            <li>Partner with us to grow community impact</li>
-                        </ul>
-                        <div style="margin-top:10px; color:var(--muted);">
-                            <strong>Reach out</strong> to get involved. We’re building this together.
-                        </div>
+
+<p class="section-copy">
+AUM School Summer Camp is a culturally enriching program that is curated to nurture young minds through Hindu values and engaging, age-appropriate learning. It blends stories, shlokas, games, and creative activities to help children build character, confidence, and a strong connection to their roots. The program focuses on holistic development while making cultural learning fun and meaningful.
+</p>
+
+                <div style="display:flex; justify-content:center; margin-top:12px;">
+                    <form id="aumSchoolKnowMore">
+                        <button class="btn btn-primary" type="submit">Know More</button>
+                    </form>
+                </div>
+
                     </div>
                 </div>
             </div>
@@ -648,6 +652,7 @@ Contribute your time and skills to support events, programs, and the day-to-day 
     <script>
         const EXTERNAL_BOOKING_URL = "https://www.picktime.com/home/3d66d429-0a6c-4785-8c43-07dec1b355c9";
 	const ZEFFY_FORM_LINK ="https://www.zeffy.com/embed/donation-form/build-hcc-with-us?modal=true"
+	const AUM_SCHOOL_LINK ="https://aum.school/cincinnati/"
 
         const donateForm = document.getElementById("donatetoHHGC");
 
@@ -665,7 +670,12 @@ Contribute your time and skills to support events, programs, and the day-to-day 
             window.open(EXTERNAL_BOOKING_URL, "_blank", "noopener,noreferrer");
         });
 
+        const aumSchoolKnowMoreForm = document.getElementById("aumSchoolKnowMore");
 
+        aumSchoolKnowMoreForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            window.open(AUM_SCHOOL_LINK, "_blank", "noopener,noreferrer");
+        });
 
         document.getElementById("year").textContent = new Date().getFullYear();
     </script>

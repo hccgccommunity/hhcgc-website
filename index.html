@@ -666,31 +666,31 @@
         const donateForm = document.getElementById("donatetoHHGC");
         donateForm.addEventListener("submit", function (event) {
             event.preventDefault();
-            window.open(ZEFFY_FORM_LINK, "_blank", "noopener,noreferrer");
+            window.open(ZEFFY_FORM_LINK,  "_self");
         });
 
         const bookingContinueForm = document.getElementById("bookingContinueForm");
         bookingContinueForm.addEventListener("submit", function (event) {
             event.preventDefault();
-            window.open(EXTERNAL_BOOKING_URL, "_blank", "noopener,noreferrer");
+            window.open(EXTERNAL_BOOKING_URL,  "_self");
         });
 
         const aumSchoolKnowMoreForm = document.getElementById("aumSchoolKnowMore");
         aumSchoolKnowMoreForm.addEventListener("submit", function (event) {
             event.preventDefault();
-            window.open(AUM_SCHOOL_LINK, "_blank", "noopener,noreferrer");
+            window.open(AUM_SCHOOL_LINK, "_self");
         });
 
         const sahyogKnowMoreForm = document.getElementById("sahyogKnowMore");
         sahyogKnowMoreForm.addEventListener("submit", function (event) {
             event.preventDefault();
-            window.open(SAHYOGMILAN_LINK, "_blank", "noopener,noreferrer");
+            window.open(SAHYOGMILAN_LINK, "_self");
         });
 
         const volunteerwithHHGCForm = document.getElementById("volunteerwithHHGC");
         volunteerwithHHGCForm.addEventListener("submit", function (event) {
             event.preventDefault();
-            window.open(VOLUNTEERWUS_LINK, "_blank", "noopener,noreferrer");
+            window.open(VOLUNTEERWUS_LINK, "_self");
         });
 
         document.getElementById("year").textContent = new Date().getFullYear();

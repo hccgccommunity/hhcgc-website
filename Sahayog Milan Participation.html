@@ -3,18 +3,167 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sahyog Milan Form | Hindu Community Center of Greater Cincinnati</title>
+  <meta name="description" content="Sahyog Milan form for Hindu Community Center of Greater Cincinnati." />
   <style>
+    :root {
+      --bg: #fff9f1;
+      --surface: #ffffff;
+      --border: rgba(121, 62, 17, 0.14);
+      --text: #2c1b10;
+      --muted: #6a5141;
+      --saffron: #b55a18;
+      --saffron-dark: #8d3e0d;
+      --maroon: #7f2e16;
+      --shadow: 0 18px 45px rgba(93, 43, 14, 0.10);
+      --radius: 22px;
+      --max: 900px;
+      --nav-max: 1220px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      background: #fff9f1;
-      color: #2c1b10;
+      background:
+        radial-gradient(circle at top left, rgba(217, 138, 30, 0.12), transparent 22%),
+        radial-gradient(circle at top right, rgba(127, 46, 22, 0.05), transparent 20%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.6;
     }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .container {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+    }
+
+    .nav-container {
+      width: min(calc(100% - 32px), var(--nav-max));
+      margin: 0 auto;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 249, 241, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav {
+      min-height: 92px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 12px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+      color: inherit;
+    }
+
+    .brand-logo-wrap {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 8px;
+      box-shadow: var(--shadow);
+      flex-shrink: 0;
+    }
+
+    .brand-logo {
+      width: 78px;
+      height: auto;
+      border-radius: 12px;
+      object-fit: contain;
+    }
+
+    .brand-text h1 {
+      margin: 0;
+      font-size: 1.15rem;
+      line-height: 1.2;
+      color: var(--maroon);
+    }
+
+    .brand-text p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin: 0;
+      padding: 0;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    nav a {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.96rem;
+      text-decoration: none;
+    }
+
+    nav a:hover {
+      color: var(--saffron-dark);
+      text-decoration: none;
+    }
+
+    .page-section {
+      padding: 42px 0 24px;
+    }
+
     .wrap {
       max-width: 900px;
-      margin: 40px auto;
+      margin: 0 auto 48px;
       padding: 0 16px;
     }
+
+    .page-title {
+      text-align: center;
+      margin: 0 0 16px;
+      color: var(--maroon);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.9rem, 3vw, 2.7rem);
+    }
+
+    .page-copy {
+      text-align: center;
+      color: var(--muted);
+      max-width: 760px;
+      margin: 0 auto 24px;
+      font-size: 1rem;
+    }
+
     .embed-card {
       border-radius: 20px;
       overflow: hidden;
@@ -23,26 +172,189 @@
       border: 1px solid rgba(121, 62, 17, 0.14);
       padding: 16px;
     }
+
     iframe {
       width: 100%;
       height: 1100px;
       border: 0;
       border-radius: 12px;
+      display: block;
+      background: #fff;
+    }
+
+    footer {
+      padding: 24px 0 36px;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .footer-links nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .footer-links a {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.96rem;
+      text-decoration: none;
+    }
+
+    .footer-links a:hover {
+      color: var(--saffron-dark);
+      text-decoration: none;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.92rem;
+      text-align: center;
+    }
+
+    .footer-note a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .footer-note a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 860px) {
+      .nav {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      nav ul {
+        justify-content: flex-start;
+        gap: 14px;
+      }
+
+      .brand-logo {
+        width: 70px;
+      }
+
+      .footer-links {
+        justify-content: flex-start;
+        text-align: left;
+      }
+
+      .footer-links nav ul {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .container,
+      .nav-container {
+        width: min(calc(100% - 22px), var(--nav-max));
+      }
+
+      .wrap {
+        padding: 0;
+      }
+
+      .embed-card {
+        padding: 8px;
+      }
+
+      iframe {
+        height: 1200px;
+      }
     }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <div class="embed-card">
-      <iframe 
-        src="https://docs.google.com/forms/d/e/1FAIpQLSfNtKphaHdj6Ts4lyDgA9-5FZltd_TvI6qGo_nFBoLcjkPs7g/viewform?embedded=true" 
-        frameborder="0" 
-        marginheight="0" 
-        marginwidth="0">
-        Loading…
-      </iframe>
+  <header>
+    <div class="nav-container nav">
+      <a class="brand" href="https://hccgc.org/">
+        <div class="brand-logo-wrap">
+          <img class="brand-logo" src="hccgc-logo.jpeg" alt="HCCGC logo" />
+        </div>
+        <div class="brand-text">
+          <h1>Hindu Community Center of Greater Cincinnati</h1>
+          <p>Sahyog Milan Form</p>
+        </div>
+      </a>
+
+      <nav aria-label="Main navigation">
+        <ul>
+          <li><a href="https://hccgc.org/#about">About</a></li>
+          <li><a href="https://hccgc.org/#initiatives">Initiatives</a></li>
+          <li><a href="https://hccgc.org/#booking">Facility Rental</a></li>
+          <li><a href="https://hccgc.org/#contact">Contact Us</a></li>
+          <li><a href="https://hccgc.org/#build-together">Build Together</a></li>
+        </ul>
+      </nav>
     </div>
-  </div>
+  </header>
+
+  <main>
+    <section class="page-section">
+      <div class="container">
+        <div class="wrap">
+          <h1 class="page-title">Sahyog Milan Form</h1>
+          <p class="page-copy">
+            Please complete the form below. All header and footer menu links return to the main HCCGC home page and the matching section.
+          </p>
+
+          <div class="embed-card">
+            <iframe 
+              src="https://docs.google.com/forms/d/e/1FAIpQLSfNtKphaHdj6Ts4lyDgA9-5FZltd_TvI6qGo_nFBoLcjkPs7g/viewform?embedded=true" 
+              frameborder="0" 
+              marginheight="0" 
+              marginwidth="0">
+              Loading…
+            </iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="nav-container">
+      <div class="footer-links">
+        <nav aria-label="Footer navigation">
+          <ul>
+            <li><a href="https://hccgc.org/#about">About</a></li>
+            <li><span>|</span></li>
+            <li><a href="https://hccgc.org/#initiatives">Initiatives</a></li>
+            <li><span>|</span></li>
+            <li><a href="https://hccgc.org/#booking">Facility Rental</a></li>
+            <li><span>|</span></li>
+            <li><a href="https://hccgc.org/#contact">Contact Us</a></li>
+            <li><span>|</span></li>
+            <li><a href="https://hccgc.org/#build-together">Build Together</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="footer-note">
+        © <span id="year"></span> HINDU COMMUNITY CENTER OF GREATER CINCINNATI | ALL RIGHTS RESERVED |
+        <a href="https://hccgc.org/hccgc_privacy_policy.html">PRIVACY POLICY</a> |
+        <a href="https://hccgc.org/hccgc_rental_conditions.html">RENTAL TERMS & CONDITIONS</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>

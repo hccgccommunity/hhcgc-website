@@ -19,6 +19,7 @@
             --shadow: 0 18px 45px rgba(93, 43, 14, 0.10);
             --radius: 22px;
             --max: 1220px;
+            --header-offset: 110px;
         }
 
         * { box-sizing: border-box; }
@@ -171,6 +172,7 @@
 
         .section {
             padding: 42px 0;
+            scroll-margin-top: var(--header-offset);
         }
 
         .section-head {
@@ -226,21 +228,18 @@
             text-align: left;
         }
 
-.card {
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
-
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: var(--radius);
-
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.25),
-    inset 0 1px 1px rgba(255, 255, 255, 0.25);
-
-  position: relative;
-  overflow: hidden;
-}
+        .card {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: var(--radius);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.25),
+                inset 0 1px 1px rgba(255, 255, 255, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
 
         .card h3 {
             margin: 0 0 10px;
@@ -306,34 +305,52 @@
 
         footer { padding: 24px 0 44px; }
 
-        .footer-grid {
-            grid-template-columns: 1.2fr 0.8fr 0.8fr 1fr;
+        .footer-nav-wrap {
+            padding: 16px 0 8px;
         }
 
-        .footer-card ul {
+        .footer-nav {
+            display: flex;
+            justify-content: center;
+        }
+
+        .footer-nav ul {
             list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
             margin: 0;
             padding: 0;
-            color: var(--muted);
+            justify-content: center;
+            align-items: center;
         }
 
-        .footer-card li + li { margin-top: 10px; }
+        .footer-nav a {
+            font-weight: 700;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+
+        .footer-nav a:hover {
+            color: var(--saffron-dark);
+        }
 
         .footer-note {
             margin-top: 18px;
             padding-top: 18px;
             border-top: 1px solid var(--border);
             color: var(--muted);
-            font-size: 0.5rem;
+            font-size: 0.7rem;
+            text-align: center;
+        }
+
+        .copyright-links a {
+            text-decoration: none;
         }
 
         @media (max-width: 1120px) {
             .venue-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-
-            .footer-grid {
-                grid-template-columns: 1fr 1fr;
             }
         }
 
@@ -355,8 +372,7 @@
             }
 
             .three-values,
-            .contact-grid,
-            .footer-grid {
+            .contact-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -365,6 +381,14 @@
             }
 
             .brand-logo { width: 74px; }
+
+            .footer-nav {
+                justify-content: flex-start;
+            }
+
+            .footer-nav ul {
+                justify-content: flex-start;
+            }
         }
 
         @media (max-width: 640px) {
@@ -387,7 +411,6 @@
 
             .value-card,
             .contact-card,
-            .footer-card,
             .venue-body {
                 padding: 20px;
             }
@@ -409,10 +432,10 @@
             <nav>
                 <ul>
                     <li><a href="#about">About</a></li>
-<li><a href="#about">Initiatives</a></li>
+                    <li><a href="#initiatives">Initiatives</a></li>
                     <li><a href="#booking">Facility Rental</a></li>
-                    <li><a href="#donate">Contact Us</a></li>
-                    <li><a href="#involved">Build Together</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                    <li><a href="#build-together">Build Together</a></li>
                 </ul>
             </nav>
         </div>
@@ -451,58 +474,47 @@
             </div>
         </section>
 
-
-
-        <section class="section" id="involved">
+        <section class="section" id="initiatives">
             <div class="container">
                 <div class="section-head content-width">
                     <span class="section-kicker">Initiatives</span>
-
-
-<p class="section-copy">
-                       Our initiatives focus on creating meaningful opportunities for connection, learning, and engagement within the community. From dedicated gatherings that foster companionship and well-being for seniors to enriching programs that encourage curiosity and cultural learning in children, each initiative is thoughtfully designed to support different stages of life.
-
-These programs create spaces where individuals can connect, participate, and grow, while reinforcing shared traditions and values in ways that feel relevant and accessible for today’s generation.
+                    <p class="section-copy">
+                        Our initiatives focus on creating meaningful opportunities for connection, learning, and engagement within the community. From dedicated gatherings that foster companionship and well-being for seniors to enriching programs that encourage curiosity and cultural learning in children, each initiative is thoughtfully designed to support different stages of life.
+                        <br><br>
+                        These programs create spaces where individuals can connect, participate, and grow, while reinforcing shared traditions and values in ways that feel relevant and accessible for today’s generation.
                     </p>
-
                 </div>
 
                 <div class="contact-grid">
                     <div class="card contact-card">
                         <h3>Sahyog Milan - A Gathering for Seniors</h3>
-<p class="section-copy">
+                        <p class="section-copy">
+                            We want to create a joyful space where Hindu seniors feel valued and supported. Together we’ll share meals, play games, enjoy conversations, can celebrate culture white inspiring the next generation and society at large with our rich experience.
+                            <br><br><br>
+                        </p>
 
-We want to create a joyful space where Hindu seniors feel valued and supported. Together we’ll share meals, play games, enjoy conversations, can celebrate culture white inspiring the next generation and society at large with our rich experience. </br> </br></br></p>
-
-
-
-                <div style="display:flex; justify-content:center; margin-top:12px;">
-                    <form id="sahyogKnowMore">
-                        <button class="btn btn-primary" type="submit">Join Now</button>
-                    </form>
-                </div>
-
+                        <div style="display:flex; justify-content:center; margin-top:12px;">
+                            <form id="sahyogKnowMore">
+                                <button class="btn btn-primary" type="submit">Join Now</button>
+                            </form>
+                        </div>
                     </div>
 
                     <div class="card contact-card">
                         <h3>AUM School - A Summer School with Value Based Teaching</h3>
+                        <p class="section-copy">
+                            AUM School Summer Camp is a culturally enriching program that is curated to nurture young minds through Hindu values and engaging, age-appropriate learning. It blends stories, shlokas, games, and creative activities to help children build character, confidence, and a strong connection to their roots. The program focuses on holistic development while making cultural learning fun and meaningful.
+                        </p>
 
-<p class="section-copy">
-AUM School Summer Camp is a culturally enriching program that is curated to nurture young minds through Hindu values and engaging, age-appropriate learning. It blends stories, shlokas, games, and creative activities to help children build character, confidence, and a strong connection to their roots. The program focuses on holistic development while making cultural learning fun and meaningful.
-</p>
-
-                <div style="display:flex; justify-content:center; margin-top:12px;">
-                    <form id="aumSchoolKnowMore">
-                        <button class="btn btn-primary" type="submit">Know More</button>
-                    </form>
-                </div>
-
+                        <div style="display:flex; justify-content:center; margin-top:12px;">
+                            <form id="aumSchoolKnowMore">
+                                <button class="btn btn-primary" type="submit">Know More</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
-
-
 
         <section class="section" id="booking">
             <div class="container">
@@ -555,50 +567,66 @@ AUM School Summer Camp is a culturally enriching program that is curated to nurt
             </div>
         </section>
 
-
-
-        <section class="section" id="involved">
+        <section class="section" id="build-together">
             <div class="container">
                 <div class="section-head content-width">
                     <span class="section-kicker">Build HCC With Us</span>
-
-
-<p class="section-copy">
+                    <p class="section-copy">
                         Hindu Community Center of Greater Cincinnati is more than just a building, it is a home for our community. A place where children learn their roots, families come together to celebrate, traditions are preserved, and future generations stay connected to their heritage. Your support helps bring this vision to life - one step at a time. Together, we can build and sustain a space that nurtures connection, preserves heritage, and inspires future generations. Your support is truly invaluable!.
                     </p>
-
                 </div>
 
                 <div class="contact-grid">
                     <div class="card contact-card">
-                        <!--h3>Donate</h3-->
-<p class="section-copy">
-Donations play a vital role in sustaining this center, supporting day-to-day operations, maintaining the facility, and enabling cultural, educational, and community programs. Your generosity also helps us expand our efforts and undertake new initiatives that strengthen and serve the Hindu community for years to come.
-</p>
+                        <p class="section-copy">
+                            Donations play a vital role in sustaining this center, supporting day-to-day operations, maintaining the facility, and enabling cultural, educational, and community programs. Your generosity also helps us expand our efforts and undertake new initiatives that strengthen and serve the Hindu community for years to come.
+                        </p>
 
-
-
-                <div style="display:flex; justify-content:center; margin-top:12px;">
-                    <form id="donatetoHHGC">
-                        <button class="btn btn-primary" type="submit">Donate Now</button>
-                    </form>
-                </div>
-
+                        <div style="display:flex; justify-content:center; margin-top:12px;">
+                            <form id="donatetoHHGC">
+                                <button class="btn btn-primary" type="submit">Donate Now</button>
+                            </form>
+                        </div>
                     </div>
 
                     <div class="card contact-card">
-                        <!--h3>Ways to Get Involved</h3-->
-<p class="section-copy">
+                        <p class="section-copy">
+                            Contribute your time and skills to support events, programs, and the day-to-day needs of the center. From helping with setup and coordination to assisting during activities, your involvement plays an important role in keeping everything running smoothly.
+                            <br><br>
+                        </p>
 
-Contribute your time and skills to support events, programs, and the day-to-day needs of the center. From helping with setup and coordination to assisting during activities, your involvement plays an important role in keeping everything running smoothly.  </br> </br>              
-</p>
-
-
-                <div style="display:flex; justify-content:center; margin-top:12px;">
-                    <form id="volunteerwithHHGC">
-                        <button class="btn btn-primary" type="submit">Volunteer With Us</button>
-                    </form>
+                        <div style="display:flex; justify-content:center; margin-top:12px;">
+                            <form id="volunteerwithHHGC">
+                                <button class="btn btn-primary" type="submit">Volunteer With Us</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
+            </div>
+        </section>
+
+        <section class="section" id="contact">
+            <div class="container">
+                <div class="section-head content-width">
+                    <span class="section-kicker">Contact Us</span>
+                    <p class="section-copy">
+                        Reach out to connect with us about programs, facility rentals, community activities, volunteering, and support opportunities.
+                    </p>
+                </div>
+
+                <div class="contact-grid">
+                    <div class="card contact-card">
+                        <h3>General Contact</h3>
+                        <p><strong>Email:</strong> hccgccommunity@gmail.com</p>
+                        <p><strong>Organization:</strong> Hindu Community Center of Greater Cincinnati</p>
+                    </div>
+
+                    <div class="card contact-card">
+                        <h3>How We Can Help</h3>
+                        <p>Questions about room bookings</p>
+                        <p>Program participation and initiatives</p>
+                        <p>Volunteer opportunities</p>
+                        <p>Community support and donations</p>
                     </div>
                 </div>
             </div>
@@ -606,97 +634,79 @@ Contribute your time and skills to support events, programs, and the day-to-day 
     </main>
 
     <footer>
-
-
-<section class="section" id="involved">
+        <div class="footer-nav-wrap">
             <div class="container">
-                <div class="section-head content-width text-align: center;"">
+                <div class="footer-nav">
+                    <nav aria-label="Footer navigation">
+                        <ul>
+                            <li><a href="#about">About</a></li>
+                            <li><span>|</span></li>
+                            <li><a href="#initiatives">Initiatives</a></li>
+                            <li><span>|</span></li>
+                            <li><a href="#booking">Facility Rental</a></li>
+                            <li><span>|</span></li>
+                            <li><a href="#contact">Contact Us</a></li>
+                            <li><span>|</span></li>
+                            <li><a href="#build-together">Build Together</a></li>
+                        </ul>
+                    </nav>
+                </div>
 
-<div style="display: flex; justify-content: center;">            
-<nav>
-                <ul>
-                    <li><a href="#about">About  |</a></li>
-<li><a href="#about">Initiatives  |</a></li>
-                    <li><a href="#booking">Facility Rental  |</a></li>
-                    <li><a href="#donate">Contact Us  |</a></li>
-                    <li><a href="#involved">Build Together</a></li>
-                </ul>
-            </nav>
-</div>
-
-
+                <div class="footer-note">
+                    <span class="copyright-links">
+                        © <span id="year"></span> HINDU COMMUNITY CENTER OF GREATER CINCINNATI | ALL RIGHTS RESERVED |
+                        <a href="hccgc_privacy_policy.html">PRIVACY POLICY</a> |
+                        <a href="hccgc_rental_conditions.html">RENTAL TERMS & CONDITIONS</a>
+                    </span>
                 </div>
             </div>
-        </section>
-
-
-       <div style="display: flex; justify-content: center; font-size: 0.6rem;">   
-           
-                © <span id="year"></span>HINDU COMMUNITY CENTER OF GREATER CINCINNATI | ALL RIGHTS RESERVED | <a href="hccgc_privacy_policy.html"> PRIVACY POLICY</a>  | <a href="hccgc_rental_conditions.html"> RENTAL TERMS & CONDITIONS </a>            </div>
         </div>
     </footer>
 
-
-<script src="https://zeffy-scripts.s3.ca-central-1.amazonaws.com/embed-form-script.min.js"></script>
+    <script src="https://zeffy-scripts.s3.ca-central-1.amazonaws.com/embed-form-script.min.js"></script>
 
     <script>
         const EXTERNAL_BOOKING_URLOLD = "https://www.picktime.com/hccgccommunityspaces#book/services";
-	const EXTERNAL_BOOKING_URL = "picktime_booking_page.html";
+        const EXTERNAL_BOOKING_URL = "picktime_booking_page.html";
 
-	const ZEFFY_FORM_LINK_OLD ="https://www.zeffy.com/embed/donation-form/build-hcc-with-us?modal=true";
-	const ZEFFY_FORM_LINK ="zeffy_donation_page.html";
+        const ZEFFY_FORM_LINK_OLD = "https://www.zeffy.com/embed/donation-form/build-hcc-with-us?modal=true";
+        const ZEFFY_FORM_LINK = "zeffy_donation_page.html";
 
-	const AUM_SCHOOL_LINK ="https://aum.school/cincinnati/";
-	const SAHYOGMILAN_LINK ="https://docs.google.com/forms/d/e/1FAIpQLSfNtKphaHdj6Ts4lyDgA9-5FZltd_TvI6qGo_nFBoLcjkPs7g/viewform?usp=publish-editor";
-	const VOLUNTEERWUS_LINK ="https://docs.google.com/forms/d/e/1FAIpQLSfau2C0_vvGvvBh0_kqNMyMCnPrjpJlLiT4CkGNtA51G8turQ/viewform?usp=header";
+        const AUM_SCHOOL_LINK = "https://aum.school/cincinnati/";
+        const SAHYOGMILAN_LINK = "https://docs.google.com/forms/d/e/1FAIpQLSfNtKphaHdj6Ts4lyDgA9-5FZltd_TvI6qGo_nFBoLcjkPs7g/viewform?usp=publish-editor";
+        const VOLUNTEERWUS_LINK = "https://docs.google.com/forms/d/e/1FAIpQLSfau2C0_vvGvvBh0_kqNMyMCnPrjpJlLiT4CkGNtA51G8turQ/viewform?usp=header";
+
         const donateForm = document.getElementById("donatetoHHGC");
-
         donateForm.addEventListener("submit", function (event) {
             event.preventDefault();
             window.open(ZEFFY_FORM_LINK, "_blank", "noopener,noreferrer");
         });
 
-
-
         const bookingContinueForm = document.getElementById("bookingContinueForm");
-
         bookingContinueForm.addEventListener("submit", function (event) {
             event.preventDefault();
             window.open(EXTERNAL_BOOKING_URL, "_blank", "noopener,noreferrer");
         });
 
         const aumSchoolKnowMoreForm = document.getElementById("aumSchoolKnowMore");
-
         aumSchoolKnowMoreForm.addEventListener("submit", function (event) {
             event.preventDefault();
             window.open(AUM_SCHOOL_LINK, "_blank", "noopener,noreferrer");
         });
 
-
         const sahyogKnowMoreForm = document.getElementById("sahyogKnowMore");
-
         sahyogKnowMoreForm.addEventListener("submit", function (event) {
             event.preventDefault();
             window.open(SAHYOGMILAN_LINK, "_blank", "noopener,noreferrer");
         });
 
-
-
-
-	const volunteerwithHHGCForm = document.getElementById("volunteerwithHHGC");
-
+        const volunteerwithHHGCForm = document.getElementById("volunteerwithHHGC");
         volunteerwithHHGCForm.addEventListener("submit", function (event) {
             event.preventDefault();
             window.open(VOLUNTEERWUS_LINK, "_blank", "noopener,noreferrer");
         });
 
-
         document.getElementById("year").textContent = new Date().getFullYear();
     </script>
-
- 
-
-
-
 </body>
 </html>

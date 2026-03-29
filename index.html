@@ -5,6 +5,109 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hindu Community Center Greater Cincinnati</title>
     <meta name="description" content="Hindu Community Center Greater Cincinnati - nonprofit community website for culture, values, service, room bookings, and donations." />
+
+    <style>
+    .footer-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+
+    .footer-nav {
+        display: flex;
+        justify-content: flex-start;
+        flex: 1;
+        min-width: 320px;
+    }
+
+    .footer-nav ul {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 0;
+        padding: 0;
+        justify-content: flex-start;
+        align-items: center;
+    }
+
+    .footer-nav a {
+        font-weight: 700;
+        color: var(--text);
+        font-size: 0.95rem;
+    }
+
+    .footer-nav a:hover {
+        color: var(--saffron-dark);
+    }
+
+    .footer-social {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+        min-width: 220px;
+        color: var(--text);
+        font-weight: 700;
+    }
+
+    .footer-social-label {
+        white-space: nowrap;
+    }
+
+    .social-icons {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .social-icon {
+        width: 42px;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #fff;
+        border: 1px solid var(--border);
+        box-shadow: 0 6px 18px rgba(93, 43, 14, 0.10);
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .social-icon:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 22px rgba(93, 43, 14, 0.16);
+    }
+
+    .social-icon svg {
+        width: 20px;
+        height: 20px;
+        display: block;
+    }
+
+    @media (max-width: 860px) {
+        .footer-top {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .footer-nav {
+            width: 100%;
+        }
+
+        .footer-nav ul {
+            justify-content: flex-start;
+        }
+
+        .footer-social {
+            justify-content: flex-start;
+            min-width: auto;
+        }
+    }
+</style>
+    
     <style>
         :root {
             --bg: #fff9f1;

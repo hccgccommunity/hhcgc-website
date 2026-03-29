@@ -4,21 +4,151 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Book a Space - HCCGC</title>
+  <meta name="description" content="Book a community space at Hindu Community Center of Greater Cincinnati." />
   <style>
+    :root {
+      --bg: #fff9f1;
+      --surface: #ffffff;
+      --border: rgba(121, 62, 17, 0.14);
+      --text: #2c1b10;
+      --muted: #6a5141;
+      --saffron: #b55a18;
+      --saffron-dark: #8d3e0d;
+      --maroon: #7f2e16;
+      --shadow: 0 18px 45px rgba(93, 43, 14, 0.10);
+      --radius: 22px;
+      --max: 1220px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      background: #fff9f1;
-      color: #2c1b10;
+      background:
+        radial-gradient(circle at top left, rgba(217, 138, 30, 0.12), transparent 22%),
+        radial-gradient(circle at top right, rgba(127, 46, 22, 0.05), transparent 20%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.6;
     }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .container {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 249, 241, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-height: 92px;
+      padding: 12px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .brand-logo-wrap {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 8px;
+      box-shadow: var(--shadow);
+      flex-shrink: 0;
+    }
+
+    .brand-logo {
+      width: 88px;
+      height: auto;
+      border-radius: 12px;
+      object-fit: contain;
+    }
+
+    .brand-text h1 {
+      margin: 0;
+      font-size: 1.2rem;
+      line-height: 1.15;
+      color: var(--maroon);
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin: 0;
+      padding: 0;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    nav a {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.96rem;
+    }
+
+    nav a:hover {
+      color: var(--saffron-dark);
+    }
+
+    .page-section {
+      padding: 42px 0 24px;
+    }
+
     .wrap {
       max-width: 1100px;
-      margin: 40px auto;
+      margin: 0 auto 48px;
       padding: 0 16px;
     }
-    h1 {
+
+    .page-title {
       margin: 0 0 16px;
+      color: var(--maroon);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.9rem, 3vw, 2.7rem);
+      text-align: center;
     }
+
+    .page-copy {
+      margin: 0 auto 22px;
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 820px;
+      text-align: center;
+    }
+
     .embed-card {
       border-radius: 20px;
       overflow: hidden;
@@ -27,6 +157,7 @@
       border: 1px solid rgba(121, 62, 17, 0.14);
       padding: 16px;
     }
+
     .embed-shell {
       position: relative;
       overflow: hidden;
@@ -34,6 +165,7 @@
       height: 900px;
       border-radius: 16px;
     }
+
     .embed-shell iframe {
       position: absolute;
       inset: 0;
@@ -41,26 +173,181 @@
       height: 100%;
       border: 0;
     }
+
     .note {
       margin-top: 12px;
       color: #6a5141;
       font-size: 14px;
+      text-align: center;
+    }
+
+    footer {
+      padding: 24px 0 44px;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .footer-links nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .footer-links a {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.96rem;
+    }
+
+    .footer-links a:hover {
+      color: var(--saffron-dark);
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.7rem;
+      text-align: center;
+    }
+
+    .footer-note a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    @media (max-width: 860px) {
+      .nav {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      nav ul {
+        justify-content: flex-start;
+        gap: 14px;
+      }
+
+      .brand-logo {
+        width: 74px;
+      }
+
+      .embed-shell {
+        height: 820px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        width: min(calc(100% - 24px), var(--max));
+      }
+
+      .wrap {
+        padding: 0;
+      }
+
+      .embed-shell {
+        height: 760px;
+      }
+
+      .footer-links {
+        justify-content: flex-start;
+        text-align: left;
+      }
+
+      .footer-links nav ul {
+        justify-content: flex-start;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>Book a Space</h1>
-    <div class="embed-card">
-      <div class="embed-shell">
-        <iframe
-          title="Room booking"
-          src="https://www.picktime.com/hccgccommunityspaces#book/services"
-          allowtransparency="true">
-        </iframe>
-      </div>
-      <div class="note">If the booking page does not load inside the frame, open the link directly in a browser tab.</div>
+  <header>
+    <div class="container nav">
+      <a class="brand" href="https://hccgc.org/">
+        <div class="brand-logo-wrap">
+          <img class="brand-logo" alt="Hindu Community Center Greater Cincinnati logo" src="hccgc-logo.jpeg" />
+        </div>
+        <div class="brand-text">
+          <h1>Hindu Community Center Of Greater Cincinnati</h1>
+        </div>
+      </a>
+
+      <nav aria-label="Main navigation">
+        <ul>
+          <li><a href="https://hccgc.org/#about">About</a></li>
+          <li><a href="https://hccgc.org/#initiatives">Initiatives</a></li>
+          <li><a href="https://hccgc.org/#booking">Facility Rental</a></li>
+          <li><a href="https://hccgc.org/#contact">Contact Us</a></li>
+          <li><a href="https://hccgc.org/#build-together">Build Together</a></li>
+        </ul>
+      </nav>
     </div>
-  </div>
+  </header>
+
+  <main>
+    <section class="page-section">
+      <div class="container">
+        <div class="wrap">
+          <h1 class="page-title">Book a Space</h1>
+          <p class="page-copy">
+            Reserve community space through our booking page below. All navigation links in the header and footer return to the main HCCGC home page and the matching section.
+          </p>
+
+          <div class="embed-card">
+            <div class="embed-shell">
+              <iframe
+                title="Room booking"
+                src="https://www.picktime.com/hccgccommunityspaces#book/services"
+                allowtransparency="true">
+              </iframe>
+            </div>
+            <div class="note">
+              If the booking page does not load inside the frame, open the booking link directly in a browser tab.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <nav aria-label="Footer navigation">
+          <ul>
+            <li><a href="https://hccgc.org/#about">About</a></li>
+            <li><span>|</span></li>
+            <li><a href="https://hccgc.org/#initiatives">Initiatives</a></li>
+            <li><span>|</span></li>
+            <li><a href="https://hccgc.org/#booking">Facility Rental</a></li>
+            <li><span>|</span></li>
+            <li><a href="https://hccgc.org/#contact">Contact Us</a></li>
+            <li><span>|</span></li>
+            <li><a href="https://hccgc.org/#build-together">Build Together</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="footer-note">
+        © <span id="year"></span> HINDU COMMUNITY CENTER OF GREATER CINCINNATI | ALL RIGHTS RESERVED |
+        <a href="https://hccgc.org/hccgc_privacy_policy.html">PRIVACY POLICY</a> |
+        <a href="https://hccgc.org/hccgc_rental_conditions.html">RENTAL TERMS & CONDITIONS</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>

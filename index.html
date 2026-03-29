@@ -675,7 +675,7 @@
         const aumSchoolKnowMoreForm = document.getElementById("aumSchoolKnowMore");
         aumSchoolKnowMoreForm.addEventListener("submit", function (event) {
             event.preventDefault();
-            window.open(AUM_SCHOOL_LINK, "_self");
+            window.open(AUM_SCHOOL_LINK, "_blank", "noopener,noreferrer")
         });
 
         const sahyogKnowMoreForm = document.getElementById("sahyogKnowMore");

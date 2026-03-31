@@ -8,18 +8,16 @@
 
     <style>
     .footer-top {
-        display: flex;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
         align-items: center;
         gap: 24px;
-        flex-wrap: wrap;
     }
 
     .footer-nav {
         display: flex;
         justify-content: flex-start;
-        flex: 1;
-        min-width: 320px;
+        min-width: 0;
     }
 
     .footer-nav ul {
@@ -40,6 +38,20 @@
     }
 
     .footer-nav a:hover {
+        color: var(--saffron-dark);
+    }
+
+    .footer-email {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        color: var(--text);
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .footer-email a {
         color: var(--saffron-dark);
     }
 
@@ -87,14 +99,18 @@
         display: block;
     }
 
-    @media (max-width: 860px) {
+    @media (max-width: 980px) {
         .footer-top {
-            flex-direction: column;
+            grid-template-columns: 1fr;
             align-items: flex-start;
         }
 
-        .footer-nav {
+        .footer-nav,
+        .footer-email,
+        .footer-social {
             width: 100%;
+            justify-content: flex-start;
+            text-align: left;
         }
 
         .footer-nav ul {
@@ -102,7 +118,6 @@
         }
 
         .footer-social {
-            justify-content: flex-start;
             min-width: auto;
         }
     }
@@ -484,14 +499,6 @@
             }
 
             .brand-logo { width: 74px; }
-
-            .footer-nav {
-                justify-content: flex-start;
-            }
-
-            .footer-nav ul {
-                justify-content: flex-start;
-            }
         }
 
         @media (max-width: 640px) {
@@ -778,6 +785,10 @@
                             <li><a href="#build-together">Support Our Mission</a></li>
                         </ul>
                     </nav>
+                </div>
+
+                <div class="footer-email">
+                    <span>Email Us : <a href="mailto:hccgccommunity@gmail.com">hccgccommunity@gmail.com</a></span>
                 </div>
 
                 <div class="footer-social">

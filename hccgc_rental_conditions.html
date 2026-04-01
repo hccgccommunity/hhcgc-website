@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rental Terms & Conditions | Hindu Community Center of Greater Cincinnati</title>
   <meta name="description" content="Rental Terms & Conditions for Hindu Community Center of Greater Cincinnati." />
+
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' x='50%25' text-anchor='middle' font-size='82'%3E%E0%A5%90%3C/text%3E%3C/svg%3E">
+
   <style>
     :root {
       --bg: #fff9f1;
@@ -18,22 +26,17 @@
       --maroon: #7f2e16;
       --shadow: 0 18px 45px rgba(93, 43, 14, 0.10);
       --radius: 22px;
-      --max: 950px;
-      --nav-max: 1220px;
+      --max: 1220px;
+      --header-offset: 110px;
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      line-height: 1.6;
+      line-height: 1.65;
       color: var(--text);
       background:
         radial-gradient(circle at top left, rgba(217, 138, 30, 0.12), transparent 22%),
@@ -46,9 +49,7 @@
       text-decoration: none;
     }
 
-    a:hover {
-      text-decoration: underline;
-    }
+    a:hover { text-decoration: underline; }
 
     img {
       max-width: 100%;
@@ -60,12 +61,7 @@
       margin: 0 auto;
     }
 
-    .nav-container {
-      width: min(calc(100% - 32px), var(--nav-max));
-      margin: 0 auto;
-    }
-
-    header.site-header {
+    .site-header {
       position: sticky;
       top: 0;
       z-index: 50;
@@ -75,11 +71,11 @@
     }
 
     .nav {
-      min-height: 92px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 24px;
+      min-height: 92px;
       padding: 12px 0;
     }
 
@@ -88,7 +84,6 @@
       align-items: center;
       gap: 16px;
       min-width: 0;
-      color: inherit;
     }
 
     .brand-logo-wrap {
@@ -101,7 +96,7 @@
     }
 
     .brand-logo {
-      width: 78px;
+      width: 88px;
       height: auto;
       border-radius: 12px;
       object-fit: contain;
@@ -109,18 +104,12 @@
 
     .brand-text h1 {
       margin: 0;
-      font-size: 1.15rem;
-      line-height: 1.2;
+      font-size: 1.2rem;
+      line-height: 1.15;
       color: var(--maroon);
     }
 
-    .brand-text p {
-      margin: 4px 0 0;
-      color: var(--muted);
-      font-size: 0.94rem;
-    }
-
-    nav ul {
+    .site-header nav ul {
       list-style: none;
       display: flex;
       flex-wrap: wrap;
@@ -131,46 +120,83 @@
       justify-content: flex-end;
     }
 
-    nav a {
+    .site-header nav a {
       font-weight: 700;
       color: var(--text);
       font-size: 0.96rem;
-      text-decoration: none;
     }
 
-    nav a:hover {
+    .site-header nav a:hover {
       color: var(--saffron-dark);
       text-decoration: none;
     }
 
     .hero {
-      background: linear-gradient(135deg, rgba(181, 90, 24, 0.96), rgba(127, 46, 22, 0.95));
-      color: white;
-      padding: 40px 20px;
-      text-align: center;
-      box-shadow: var(--shadow);
+      padding: 42px 0 20px;
     }
 
-    .hero h1 {
-      margin: 0;
-      font-size: 2.2rem;
+    .hero-card {
+      background: linear-gradient(135deg, rgba(181, 90, 24, 0.96), rgba(127, 46, 22, 0.95));
+      color: #fff;
+      border-radius: 30px;
+      box-shadow: var(--shadow);
+      padding: 42px 34px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 15% 18%, rgba(255,255,255,0.18), transparent 18%),
+        radial-gradient(circle at 88% 20%, rgba(255,255,255,0.10), transparent 14%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .hero h2 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1.08;
       font-family: Georgia, "Times New Roman", serif;
     }
 
     .hero p {
+      margin: 0;
       max-width: 820px;
-      margin: 12px auto 0;
-      color: rgba(255,255,255,0.92);
-      font-size: 1rem;
+      color: rgba(255,255,255,0.93);
+      font-size: 1.02rem;
     }
 
-    main.container {
-      margin: 30px auto;
-      background: rgba(255, 255, 255, 0.96);
-      padding: 30px;
-      border-radius: 18px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    .section {
+      padding: 20px 0 48px;
+    }
+
+    .terms-card {
+      background: rgba(255, 255, 255, 0.94);
       border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 30px;
     }
 
     .intro {
@@ -182,7 +208,7 @@
     .term {
       margin-bottom: 24px;
       padding-bottom: 18px;
-      border-bottom: 1px solid #e5e5e5;
+      border-bottom: 1px solid rgba(121, 62, 17, 0.12);
     }
 
     .term:last-child {
@@ -191,10 +217,11 @@
       padding-bottom: 0;
     }
 
-    .term h2 {
+    .term h3 {
       margin: 0 0 8px;
       font-size: 1.15rem;
-      color: #b45309;
+      color: var(--saffron-dark);
+      line-height: 1.35;
     }
 
     .term p {
@@ -202,55 +229,116 @@
       color: var(--muted);
     }
 
-    footer {
-      padding: 24px 0 36px;
+    .site-footer .footer-top {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 24px;
+      padding: 8px 0 0;
     }
 
-    .footer-links {
+    .site-footer .footer-nav {
       display: flex;
-      justify-content: center;
-      text-align: center;
+      justify-content: flex-start;
+      min-width: 0;
     }
 
-    .footer-links nav ul {
+    .site-footer .footer-nav ul {
       list-style: none;
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
       margin: 0;
       padding: 0;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: center;
     }
 
-    .footer-links a {
+    .site-footer .footer-nav a {
       font-weight: 700;
       color: var(--text);
-      font-size: 0.96rem;
-      text-decoration: none;
+      font-size: 0.95rem;
     }
 
-    .footer-links a:hover {
+    .site-footer .footer-nav a:hover {
       color: var(--saffron-dark);
-      text-decoration: none;
     }
 
-    .footer-note {
+    .site-footer .footer-email {
+      text-align: center;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .site-footer .footer-email a:hover {
+      color: var(--saffron-dark);
+    }
+
+    .site-footer .footer-social {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      min-width: 220px;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .site-footer .footer-social-label { white-space: nowrap; }
+
+    .site-footer .social-icons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .site-footer .social-icon {
+      width: 42px;
+      height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: #fff;
+      border: 1px solid var(--border);
+      box-shadow: 0 6px 18px rgba(93, 43, 14, 0.10);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .site-footer .social-icon:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(93, 43, 14, 0.16);
+    }
+
+    .site-footer .social-icon svg {
+      width: 20px;
+      height: 20px;
+      display: block;
+    }
+
+    .site-footer .footer-note {
       margin-top: 18px;
       padding-top: 18px;
       border-top: 1px solid var(--border);
       color: var(--muted);
-      font-size: 0.92rem;
+      font-size: 0.7rem;
       text-align: center;
     }
 
-    .footer-note a {
-      color: inherit;
-      text-decoration: none;
-    }
+    .site-footer .copyright-links a { text-decoration: none; }
 
-    .footer-note a:hover {
-      text-decoration: underline;
+    @media (max-width: 1120px) {
+      .site-footer .footer-top {
+        grid-template-columns: 1fr;
+        justify-items: start;
+      }
+
+      .site-footer .footer-email,
+      .site-footer .footer-social {
+        text-align: left;
+        justify-content: flex-start;
+      }
     }
 
     @media (max-width: 860px) {
@@ -259,222 +347,204 @@
         align-items: flex-start;
       }
 
-      nav ul {
+      .site-header nav ul {
         justify-content: flex-start;
         gap: 14px;
       }
 
-      .brand-logo {
-        width: 70px;
+      .brand-logo { width: 74px; }
+
+      .hero {
+        padding-top: 28px;
       }
 
-      main.container {
+      .hero-card,
+      .terms-card {
         padding: 24px;
-      }
-
-      .footer-links {
-        justify-content: flex-start;
-        text-align: left;
-      }
-
-      .footer-links nav ul {
-        justify-content: flex-start;
       }
     }
 
     @media (max-width: 768px) {
-      .hero h1 {
-        font-size: 1.8rem;
+      .hero h2 {
+        font-size: 1.9rem;
       }
 
-      .term h2 {
+      .term h3 {
         font-size: 1.05rem;
       }
     }
 
     @media (max-width: 560px) {
-      .container,
-      .nav-container {
-        width: min(calc(100% - 22px), var(--nav-max));
+      .container {
+        width: min(calc(100% - 22px), var(--max));
       }
 
-      main.container {
-        margin: 20px auto;
-        padding: 22px;
+      .hero-card,
+      .terms-card {
+        padding: 20px;
+        border-radius: 22px;
       }
     }
   </style>
 </head>
 <body>
+  <div id="header-placeholder"></div>
 
-  <header class="site-header">
-    <div class="nav-container nav">
-      <a class="brand" href="https://hccgc.org/">
-        <div class="brand-logo-wrap">
-          <img class="brand-logo" src="hccgc-logo.jpeg" alt="HCCGC logo" />
+  <main>
+    <section class="hero">
+      <div class="container">
+        <div class="hero-card">
+          <div class="hero-inner">
+            <span class="eyebrow">Rental Terms</span>
+            <h2>Rental Terms &amp; Conditions</h2>
+            <p>
+              Please review the venue rules carefully before making or confirming a reservation.
+            </p>
+          </div>
         </div>
-        <div class="brand-text">
-          <h1>Hindu Community Center of Greater Cincinnati</h1>
-          <p>Rental Terms & Conditions</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="terms-card">
+          <div class="intro">
+            <p>
+              By renting and using this venue, the renter and all guests agree to follow
+              the rules and conditions listed below.
+            </p>
+          </div>
+
+          <section class="term">
+            <h3>Responsibility of the Renter</h3>
+            <p>
+              The renter is fully responsible for the conduct of all guests attending the event.
+              Any violation of these rules by guests will be considered the responsibility of the renter.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Care of the Property</h3>
+            <p>
+              All guests must respect the venue property. Damaging furniture, walls, floors,
+              equipment, decorations, or facilities is strictly prohibited.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Cleanliness Requirement</h3>
+            <p>
+              The venue must be kept reasonably clean during and after the event. All trash must
+              be disposed of properly, and food or drinks should not be left on tables, floors,
+              or outdoor areas.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Supervision of Children</h3>
+            <p>
+              Children must be supervised by parents or guardians at all times. Running, climbing
+              on furniture, or unsafe activities are not permitted inside the venue.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Noise and Community Respect</h3>
+            <p>
+              Guests must maintain reasonable noise levels and respect neighboring properties.
+              Excessive noise or disruptive behavior may result in the event being stopped.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Event Time Limit</h3>
+            <p>
+              The event must begin and end within the agreed rental time. All guests must vacate
+              the premises by the scheduled end time.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Parking Regulations</h3>
+            <p>
+              Vehicles must be parked only in designated parking areas. Blocking entrances,
+              driveways, or emergency exits is strictly prohibited.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Smoking, Alcohol, and Illegal Activities</h3>
+            <p>
+              Smoking inside the venue is not permitted. Alcohol is only allowed if approved by
+              the venue and must comply with local laws. Illegal activities of any kind are
+              strictly prohibited.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Decorations and Setup</h3>
+            <p>
+              Decorations are allowed only with prior approval. No tape, nails, staples, or
+              adhesives may be used on walls, ceilings, or furniture without permission.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Security Deposit</h3>
+            <p>
+              A security deposit will be collected prior to the event. The deposit will be returned
+              after the event once the venue has been inspected and no damage has been found.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Damage and Repair Costs</h3>
+            <p>
+              If any damage occurs to the venue, furniture, equipment, or property, the cost of
+              repair or replacement will be deducted from the security deposit. If the damage
+              exceeds the deposit amount, the renter agrees to pay the remaining balance.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Right to Terminate Event</h3>
+            <p>
+              The venue owner reserves the right to end the event if these rules are violated,
+              if illegal activity occurs, or if the property is being misused.
+            </p>
+          </section>
         </div>
-      </a>
-
-      <nav aria-label="Main navigation">
-        <ul>
-          <li><a href="https://hccgc.org/#about">About</a></li>
-          <li><a href="https://hccgc.org/#initiatives">Initiatives</a></li>
-          <li><a href="https://hccgc.org/#booking">Facility Rental</a></li>
-          <li><a href="https://hccgc.org/#contact">Contact Us</a></li>
-          <li><a href="https://hccgc.org/#build-together">Build Together</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
-
-  <section class="hero">
-    <h1>Rental Terms &amp; Conditions</h1>
-    <p>
-      Please review the venue rules carefully before making or confirming a reservation.
-    </p>
-  </section>
-
-  <main class="container">
-    <div class="intro">
-      <p>
-        By renting and using this venue, the renter and all guests agree to follow
-        the rules and conditions listed below.
-      </p>
-    </div>
-
-    <section class="term">
-      <h2>Responsibility of the Renter</h2>
-      <p>
-        The renter is fully responsible for the conduct of all guests attending the event.
-        Any violation of these rules by guests will be considered the responsibility of the renter.
-      </p>
-    </section>
-
-    <section class="term">
-      <h2>Care of the Property</h2>
-      <p>
-        All guests must respect the venue property. Damaging furniture, walls, floors,
-        equipment, decorations, or facilities is strictly prohibited.
-      </p>
-    </section>
-
-    <section class="term">
-      <h2>Cleanliness Requirement</h2>
-      <p>
-        The venue must be kept reasonably clean during and after the event. All trash must
-        be disposed of properly, and food or drinks should not be left on tables, floors,
-        or outdoor areas.
-      </p>
-    </section>
-
-    <section class="term">
-      <h2>Supervision of Children</h2>
-      <p>
-        Children must be supervised by parents or guardians at all times. Running, climbing
-        on furniture, or unsafe activities are not permitted inside the venue.
-      </p>
-    </section>
-
-    <section class="term">
-      <h2>Noise and Community Respect</h2>
-      <p>
-        Guests must maintain reasonable noise levels and respect neighboring properties.
-        Excessive noise or disruptive behavior may result in the event being stopped.
-      </p>
-    </section>
-
-    <section class="term">
-      <h2>Event Time Limit</h2>
-      <p>
-        The event must begin and end within the agreed rental time. All guests must vacate
-        the premises by the scheduled end time.
-      </p>
-    </section>
-
-    <section class="term">
-      <h2>Parking Regulations</h2>
-      <p>
-        Vehicles must be parked only in designated parking areas. Blocking entrances,
-        driveways, or emergency exits is strictly prohibited.
-      </p>
-    </section>
-
-    <section class="term">
-      <h2>Smoking, Alcohol, and Illegal Activities</h2>
-      <p>
-        Smoking inside the venue is not permitted. Alcohol is only allowed if approved by
-        the venue and must comply with local laws. Illegal activities of any kind are
-        strictly prohibited.
-      </p>
-    </section>
-
-    <section class="term">
-      <h2>Decorations and Setup</h2>
-      <p>
-        Decorations are allowed only with prior approval. No tape, nails, staples, or
-        adhesives may be used on walls, ceilings, or furniture without permission.
-      </p>
-    </section>
-
-    <section class="term">
-      <h2>Security Deposit</h2>
-      <p>
-        A security deposit will be collected prior to the event. The deposit will be returned
-        after the event once the venue has been inspected and no damage has been found.
-      </p>
-    </section>
-
-    <section class="term">
-      <h2>Damage and Repair Costs</h2>
-      <p>
-        If any damage occurs to the venue, furniture, equipment, or property, the cost of
-        repair or replacement will be deducted from the security deposit. If the damage
-        exceeds the deposit amount, the renter agrees to pay the remaining balance.
-      </p>
-    </section>
-
-    <section class="term">
-      <h2>Right to Terminate Event</h2>
-      <p>
-        The venue owner reserves the right to end the event if these rules are violated,
-        if illegal activity occurs, or if the property is being misused.
-      </p>
+      </div>
     </section>
   </main>
 
-  <footer>
-    <div class="nav-container">
-      <div class="footer-links">
-        <nav aria-label="Footer navigation">
-          <ul>
-            <li><a href="https://hccgc.org/#about">About</a></li>
-            <li><span>|</span></li>
-            <li><a href="https://hccgc.org/#initiatives">Initiatives</a></li>
-            <li><span>|</span></li>
-            <li><a href="https://hccgc.org/#booking">Facility Rental</a></li>
-            <li><span>|</span></li>
-            <li><a href="https://hccgc.org/#contact">Contact Us</a></li>
-            <li><span>|</span></li>
-            <li><a href="https://hccgc.org/#build-together">Build Together</a></li>
-          </ul>
-        </nav>
-      </div>
-
-      <div class="footer-note">
-        © <span id="year"></span> HINDU COMMUNITY CENTER OF GREATER CINCINNATI | ALL RIGHTS RESERVED |
-        <a href="https://hccgc.org/hccgc_privacy_policy.html">PRIVACY POLICY</a> |
-        <a href="https://hccgc.org/hccgc_rental_conditions.html">RENTAL TERMS & CONDITIONS</a>
-      </div>
-    </div>
-  </footer>
+  <div id="footer-placeholder"></div>
 
   <script>
-    document.getElementById("year").textContent = new Date().getFullYear();
-  </script>
+    async function loadPartial(placeholderId, filePath) {
+      const target = document.getElementById(placeholderId);
+      if (!target) return;
+      try {
+        const response = await fetch(filePath);
+        if (!response.ok) throw new Error("Unable to load " + filePath);
+        target.innerHTML = await response.text();
+      } catch (error) {
+        console.error(error);
+        target.innerHTML = "";
+      }
+    }
 
+    async function initializePage() {
+      await loadPartial("header-placeholder", "header.html");
+      await loadPartial("footer-placeholder", "footer.html");
+
+      const year = document.getElementById("year");
+      if (year) {
+        year.textContent = new Date().getFullYear();
+      }
+    }
+
+    initializePage();
+  </script>
 </body>
 </html>

@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Privacy Policy | Hindu Community Center of Greater Cincinnati</title>
     <meta name="description" content="Privacy Policy for the Hindu Community Center of Greater Cincinnati website." />
+
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/svg+xml"
+          href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' x='50%25' text-anchor='middle' font-size='82'%3E%E0%A5%90%3C/text%3E%3C/svg%3E">
+
     <style>
         :root {
             --bg: #fff9f1;
@@ -18,8 +26,8 @@
             --maroon: #7f2e16;
             --shadow: 0 18px 45px rgba(93, 43, 14, 0.10);
             --radius: 22px;
-            --max: 1100px;
-            --nav-max: 1220px;
+            --max: 1220px;
+            --header-offset: 110px;
         }
 
         * { box-sizing: border-box; }
@@ -55,12 +63,7 @@
             margin: 0 auto;
         }
 
-        .nav-container {
-            width: min(calc(100% - 32px), var(--nav-max));
-            margin: 0 auto;
-        }
-
-        header {
+        .site-header {
             position: sticky;
             top: 0;
             z-index: 50;
@@ -70,11 +73,11 @@
         }
 
         .nav {
-            min-height: 92px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 24px;
+            min-height: 92px;
             padding: 12px 0;
         }
 
@@ -83,7 +86,6 @@
             align-items: center;
             gap: 16px;
             min-width: 0;
-            color: inherit;
         }
 
         .brand-logo-wrap {
@@ -96,7 +98,7 @@
         }
 
         .brand-logo {
-            width: 78px;
+            width: 88px;
             height: auto;
             border-radius: 12px;
             object-fit: contain;
@@ -104,18 +106,12 @@
 
         .brand-text h1 {
             margin: 0;
-            font-size: 1.15rem;
-            line-height: 1.2;
+            font-size: 1.2rem;
+            line-height: 1.15;
             color: var(--maroon);
         }
 
-        .brand-text p {
-            margin: 4px 0 0;
-            color: var(--muted);
-            font-size: 0.94rem;
-        }
-
-        nav ul {
+        .site-header nav ul {
             list-style: none;
             display: flex;
             flex-wrap: wrap;
@@ -126,14 +122,13 @@
             justify-content: flex-end;
         }
 
-        nav a {
+        .site-header nav a {
             font-weight: 700;
             color: var(--text);
             font-size: 0.96rem;
-            text-decoration: none;
         }
 
-        nav a:hover {
+        .site-header nav a:hover {
             color: var(--saffron-dark);
             text-decoration: none;
         }
@@ -280,55 +275,120 @@
             margin-top: 6px;
         }
 
-        footer {
-            padding: 24px 0 36px;
+        .site-footer .footer-top {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 24px;
+            padding: 8px 0 0;
         }
 
-        .footer-links {
+        .site-footer .footer-nav {
             display: flex;
-            justify-content: center;
-            text-align: center;
+            justify-content: flex-start;
+            min-width: 0;
         }
 
-        .footer-links nav ul {
+        .site-footer .footer-nav ul {
             list-style: none;
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             margin: 0;
             padding: 0;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
         }
 
-        .footer-links a {
+        .site-footer .footer-nav a {
             font-weight: 700;
             color: var(--text);
-            font-size: 0.96rem;
-            text-decoration: none;
+            font-size: 0.95rem;
         }
 
-        .footer-links a:hover {
+        .site-footer .footer-nav a:hover {
             color: var(--saffron-dark);
-            text-decoration: none;
         }
 
-        .footer-note {
+        .site-footer .footer-email {
+            text-align: center;
+            font-weight: 700;
+            color: var(--text);
+            white-space: nowrap;
+        }
+
+        .site-footer .footer-email a:hover {
+            color: var(--saffron-dark);
+        }
+
+        .site-footer .footer-social {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            min-width: 220px;
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .site-footer .footer-social-label {
+            white-space: nowrap;
+        }
+
+        .site-footer .social-icons {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .site-footer .social-icon {
+            width: 42px;
+            height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #fff;
+            border: 1px solid var(--border);
+            box-shadow: 0 6px 18px rgba(93, 43, 14, 0.10);
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .site-footer .social-icon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 22px rgba(93, 43, 14, 0.16);
+        }
+
+        .site-footer .social-icon svg {
+            width: 20px;
+            height: 20px;
+            display: block;
+        }
+
+        .site-footer .footer-note {
             margin-top: 18px;
             padding-top: 18px;
             border-top: 1px solid var(--border);
             color: var(--muted);
-            font-size: 0.92rem;
+            font-size: 0.7rem;
             text-align: center;
         }
 
-        .footer-note a {
-            color: inherit;
+        .site-footer .copyright-links a {
             text-decoration: none;
         }
 
-        .footer-note a:hover {
-            text-decoration: underline;
+        @media (max-width: 1120px) {
+            .site-footer .footer-top {
+                grid-template-columns: 1fr;
+                justify-items: start;
+            }
+
+            .site-footer .footer-email,
+            .site-footer .footer-social {
+                text-align: left;
+                justify-content: flex-start;
+            }
         }
 
         @media (max-width: 860px) {
@@ -337,7 +397,7 @@
                 align-items: flex-start;
             }
 
-            nav ul {
+            .site-header nav ul {
                 justify-content: flex-start;
                 gap: 14px;
             }
@@ -352,23 +412,13 @@
             }
 
             .brand-logo {
-                width: 70px;
-            }
-
-            .footer-links {
-                justify-content: flex-start;
-                text-align: left;
-            }
-
-            .footer-links nav ul {
-                justify-content: flex-start;
+                width: 74px;
             }
         }
 
         @media (max-width: 560px) {
-            .container,
-            .nav-container {
-                width: min(calc(100% - 22px), var(--nav-max));
+            .container {
+                width: min(calc(100% - 22px), var(--max));
             }
 
             .hero-card,
@@ -384,29 +434,7 @@
     </style>
 </head>
 <body>
-    <header>
-        <div class="nav-container nav">
-            <a class="brand" href="https://hccgc.org/">
-                <div class="brand-logo-wrap">
-                    <img class="brand-logo" src="hccgc-logo.jpeg" alt="HCCGC logo" />
-                </div>
-                <div class="brand-text">
-                    <h1>Hindu Community Center of Greater Cincinnati</h1>
-                    <p>Privacy Policy</p>
-                </div>
-            </a>
-
-            <nav aria-label="Main navigation">
-                <ul>
-                    <li><a href="https://hccgc.org/#about">About</a></li>
-                    <li><a href="https://hccgc.org/#initiatives">Initiatives</a></li>
-                    <li><a href="https://hccgc.org/#booking">Facility Rental</a></li>
-                    <li><a href="https://hccgc.org/#contact">Contact Us</a></li>
-                    <li><a href="https://hccgc.org/#build-together">Build Together</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+    <div id="header-placeholder"></div>
 
     <main>
         <section class="hero">
@@ -547,34 +575,33 @@
         </section>
     </main>
 
-    <footer>
-        <div class="nav-container">
-            <div class="footer-links">
-                <nav aria-label="Footer navigation">
-                    <ul>
-                        <li><a href="https://hccgc.org/#about">About</a></li>
-                        <li><span>|</span></li>
-                        <li><a href="https://hccgc.org/#initiatives">Initiatives</a></li>
-                        <li><span>|</span></li>
-                        <li><a href="https://hccgc.org/#booking">Facility Rental</a></li>
-                        <li><span>|</span></li>
-                        <li><a href="https://hccgc.org/#contact">Contact Us</a></li>
-                        <li><span>|</span></li>
-                        <li><a href="https://hccgc.org/#build-together">Build Together</a></li>
-                    </ul>
-                </nav>
-            </div>
-
-            <div class="footer-note">
-                © <span id="year"></span> HINDU COMMUNITY CENTER OF GREATER CINCINNATI | ALL RIGHTS RESERVED |
-                <a href="https://hccgc.org/hccgc_privacy_policy.html">PRIVACY POLICY</a> |
-                <a href="https://hccgc.org/hccgc_rental_conditions.html">RENTAL TERMS & CONDITIONS</a>
-            </div>
-        </div>
-    </footer>
+    <div id="footer-placeholder"></div>
 
     <script>
-        document.getElementById("year").textContent = new Date().getFullYear();
+        async function loadPartial(placeholderId, filePath) {
+            const target = document.getElementById(placeholderId);
+            if (!target) return;
+            try {
+                const response = await fetch(filePath);
+                if (!response.ok) throw new Error("Unable to load " + filePath);
+                target.innerHTML = await response.text();
+            } catch (error) {
+                console.error(error);
+                target.innerHTML = "";
+            }
+        }
+
+        async function initializePage() {
+            await loadPartial("header-placeholder", "header.html");
+            await loadPartial("footer-placeholder", "footer.html");
+
+            const year = document.getElementById("year");
+            if (year) {
+                year.textContent = new Date().getFullYear();
+            }
+        }
+
+        initializePage();
     </script>
 </body>
 </html>

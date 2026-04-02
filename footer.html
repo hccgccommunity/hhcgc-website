@@ -64,36 +64,26 @@
   list-style: none;
   padding: 0;
   margin: 0;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: flex-start !important;
-  justify-content: flex-start !important;
+  display: grid;
   gap: 10px;
 }
 
 .footer-nav li {
-  display: block !important;
-  width: 100%;
+  display: block;
 }
 
 .footer-nav a,
 .footer-email-link {
-  display: inline-block;
   color: var(--text);
-  font-size: 0.8rem;
-  font-weight: 500;
+  font-size: 0.92rem;
+  font-weight: 600;
   text-decoration: none;
-  line-height: 1.4;
-  white-space: nowrap;
+  line-height: 1.5;
 }
 
 .footer-nav a:hover,
 .footer-email-link:hover {
   color: var(--saffron-dark);
-}
-
-.footer-email-link {
-  display: inline-block;
 }
 
 .social-icons {
@@ -182,7 +172,9 @@
 
         <div class="footer-block footer-contact-block">
           <h3 class="footer-heading">Email Us</h3>
-          <a class="footer-email-link" href="mailto:hccgccommunity@gmail.com">hccgccommunity@gmail.com</a>
+          <a class="footer-email-link" href="mailto:hccgccommunity@gmail.com">
+            hccgccommunity@gmail.com
+          </a>
         </div>
 
         <div class="footer-block footer-social-block">

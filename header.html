@@ -1,134 +1,23 @@
-
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Header with Mobile Hamburger</title>
-
-<style>
-:root {
-  --border: rgba(121,62,17,0.14);
-  --text:#2c1b10;
-}
-
-body {margin:0;font-family:Arial;}
-
-.site-header {
-  position: sticky;
-  top: 0;
-  background: rgba(255,249,241,0.92);
-  backdrop-filter: blur(10px);
-  border-bottom:1px solid var(--border);
-}
-
-.container {
-  width: min(calc(100% - 32px), 1220px);
-  margin:0 auto;
-}
-
-.nav {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  min-height:90px;
-}
-
-.brand {
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-
-.brand-logo {width:70px;}
-
-nav ul {
-  list-style:none;
-  display:flex;
-  gap:18px;
-  margin:0;
-  padding:0;
-}
-
-nav a {
-  font-weight:700;
-  color:var(--text);
-  text-decoration:none;
-}
-
-/* HAMBURGER */
-.hamburger {
-  display:none;
-  flex-direction:column;
-  cursor:pointer;
-  gap:4px;
-}
-
-.hamburger span {
-  width:25px;
-  height:3px;
-  background:#000;
-}
-
-/* MOBILE */
-@media(max-width:768px){
-  .hamburger {display:flex;}
-
-  nav {
-    position:absolute;
-    top:90px;
-    left:0;
-    width:100%;
-    background:#fff;
-    display:none;
-    flex-direction:column;
-    border-top:1px solid var(--border);
-  }
-
-  nav.open {display:flex;}
-
-  nav ul {
-    flex-direction:column;
-    padding:15px;
-  }
-}
-</style>
-</head>
-
-<body>
-
 <header class="site-header">
-  <div class="container nav">
+    <div class="container nav">
+        <a class="brand" href="index.html#home">
+            <div class="brand-logo-wrap">
+                <img class="brand-logo" alt="Hindu Community Center Greater Cincinnati logo" src="hccgc-logo.jpeg" />
+            </div>
+            <div class="brand-text">
+                <h1>Hindu Community Center <br> Of Greater Cincinnati</h1>
+            </div>
+        </a>
 
-    <a class="brand" href="index.html#home">
-      <img class="brand-logo" src="hccgc-logo.jpeg">
-      <h3>HCCGC</h3>
-    </a>
-
-    <div class="hamburger" onclick="toggleMenu()">
-      <span></span>
-      <span></span>
-      <span></span>
+        <nav aria-label="Primary navigation">
+            <ul>
+                <li><a href="index.html#about">About</a></li>
+                <li><a href="index.html#initiatives">Initiatives</a></li>
+                <li><a href="index.html#booking">Facility Rental</a></li>
+                <li><a href="Contact%20Us.html">Contact Us</a></li>
+                <li><a href="index.html#build-together">Support Our Mission</a></li>
+            </ul>
+        </nav>
     </div>
-
-    <nav id="menu">
-      <ul>
-        <li><a href="index.html#about">About</a></li>
-        <li><a href="index.html#initiatives">Initiatives</a></li>
-        <li><a href="index.html#booking">Facility Rental</a></li>
-        <li><a href="Contact%20Us.html">Contact Us</a></li>
-        <li><a href="index.html#build-together">Support</a></li>
-      </ul>
-    </nav>
-
-  </div>
 </header>
-
-<script>
-function toggleMenu(){
-  document.getElementById("menu").classList.toggle("open");
-}
-</script>
-
-</body>
-</html>

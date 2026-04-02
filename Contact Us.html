@@ -189,17 +189,6 @@
       overflow: hidden;
     }
 
-    .form-card {
-      border-radius: 20px;
-      overflow: hidden;
-      background: transparent;
-      border: 0;
-      box-shadow: none;
-      padding: 0;
-      backdrop-filter: none;
-      -webkit-backdrop-filter: none;
-    }
-
     iframe {
       width: 100%;
       height: 1903px;
@@ -207,7 +196,6 @@
       display: block;
       background: transparent;
     }
-
 
     .site-footer .footer-top {
       display: grid;
@@ -308,33 +296,33 @@
       text-align: center;
     }
 
-         .embed-card {
-            overflow: hidden;
-            background: #fff;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-        }
+    .embed-card {
+      overflow: hidden;
+      background: transparent;
+      border-radius: var(--radius);
+      box-shadow: none;
+      border: 0;
+    }
 
-        .embed-frame {
-            position: relative;
-            overflow: hidden;
-            height: 1903px;
-            width: 100%;
-            background: transparent;
-        }
-        
-        .embed-frame iframe {
-            position: absolute;
-            border: 0;
-            top: 0;
-            left: 0;
-            right: 0;
-            width: 100%;
-            height: 100%;
-            background: transparent;
-        }
-            
+    .embed-frame {
+      position: relative;
+      overflow: hidden;
+      height: 1903px;
+      width: 100%;
+      background: transparent;
+    }
+
+    .embed-frame iframe {
+      position: absolute;
+      border: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+    }
+
     .site-footer .copyright-links a {
       text-decoration: none;
     }
@@ -371,19 +359,20 @@
         padding: 34px 0;
       }
 
-      iframe {
+      iframe,
+      .embed-frame {
         height: 1500px;
       }
     }
 
-      @media (max-width: 640px) {
-        .container {
-          width: min(calc(100% - 24px), var(--max));
-        }
-      
-        iframe {
-          height: 1580px;
-        }
+    @media (max-width: 640px) {
+      .container {
+        width: min(calc(100% - 24px), var(--max));
+      }
+
+      iframe,
+      .embed-frame {
+        height: 1580px;
       }
     }
   </style>
@@ -410,19 +399,18 @@
           </p>
         </div>
 
-      <div class="embed-card">
-    <div class="embed-frame">
-          
-          <iframe
-            src="https://docs.google.com/forms/d/1IbWJ1ZvHwXAwCB5p6qLMoTvzUoPIuIhje-uwZuKiC_0/viewform?embedded=true"
-            title="Contact Us form"
-            loading="lazy"
-            marginheight="0"
-            marginwidth="0">
-            Loading…
-          </iframe>
+        <div class="embed-card">
+          <div class="embed-frame">
+            <iframe
+              src="https://docs.google.com/forms/d/1IbWJ1ZvHwXAwCB5p6qLMoTvzUoPIuIhje-uwZuKiC_0/viewform?embedded=true"
+              title="Contact Us form"
+              loading="lazy"
+              marginheight="0"
+              marginwidth="0">
+              Loading…
+            </iframe>
+          </div>
         </div>
-      </div>
       </div>
     </section>
   </main>

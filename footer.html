@@ -31,9 +31,14 @@
 
 .footer-top {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 32px;
+  grid-template-columns: 1.2fr 1.1fr 1fr;
+  column-gap: 56px;
+  row-gap: 24px;
   align-items: start;
+}
+
+.footer-block {
+  min-width: 0;
 }
 
 .footer-heading {
@@ -41,6 +46,18 @@
   font-size: 0.95rem;
   font-weight: 800;
   color: var(--maroon);
+}
+
+.footer-links-block {
+  justify-self: start;
+}
+
+.footer-contact-block {
+  justify-self: start;
+}
+
+.footer-social-block {
+  justify-self: end;
 }
 
 .footer-nav ul {
@@ -51,12 +68,17 @@
   gap: 10px;
 }
 
+.footer-nav li {
+  display: block;
+}
+
 .footer-nav a,
 .footer-email-link {
   color: var(--text);
   font-size: 0.92rem;
   font-weight: 600;
   text-decoration: none;
+  line-height: 1.5;
 }
 
 .footer-nav a:hover,
@@ -68,6 +90,7 @@
   display: flex;
   gap: 12px;
   align-items: center;
+  justify-content: flex-start;
 }
 
 .social-icon {
@@ -79,6 +102,7 @@
   border-radius: 50%;
   background: #fff;
   border: 1px solid var(--border);
+  box-shadow: 0 6px 18px rgba(93, 43, 14, 0.10);
 }
 
 .social-icon svg {
@@ -94,6 +118,7 @@
   text-align: center;
   font-size: 0.8rem;
   color: var(--muted);
+  line-height: 1.6;
 }
 
 .footer-note a {
@@ -114,6 +139,12 @@
     grid-template-columns: 1fr;
     gap: 24px;
   }
+
+  .footer-links-block,
+  .footer-contact-block,
+  .footer-social-block {
+    justify-self: start;
+  }
 }
 </style>
 </head>
@@ -126,9 +157,9 @@
 
       <div class="footer-top">
 
-        <div>
+        <div class="footer-block footer-links-block">
           <h3 class="footer-heading">Quick Links</h3>
-          <nav class="footer-nav">
+          <nav class="footer-nav" aria-label="Footer navigation">
             <ul>
               <li><a href="index.html#about">About</a></li>
               <li><a href="index.html#initiatives">Initiatives</a></li>
@@ -139,14 +170,14 @@
           </nav>
         </div>
 
-        <div>
+        <div class="footer-block footer-contact-block">
           <h3 class="footer-heading">Email Us</h3>
           <a class="footer-email-link" href="mailto:hccgccommunity@gmail.com">
             hccgccommunity@gmail.com
           </a>
         </div>
 
-        <div>
+        <div class="footer-block footer-social-block">
           <h3 class="footer-heading">Follow Us</h3>
           <div class="social-icons">
 

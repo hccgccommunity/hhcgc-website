@@ -2,6 +2,18 @@
 <!DOCTYPE html>
 <header class="site-header">
     <style>
+        /* Match header background */
+        .site-header {
+            background: rgba(255, 249, 241, 0.92);
+        }
+
+        /* Remove white box around logo */
+        .brand-logo-wrap {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }
+
         /* Mobile hamburger only */
         .menu-toggle {
             display: none;
@@ -54,9 +66,13 @@
                 margin-top: 2px;
             }
 
+            /* Menu background same as header */
             .site-header nav {
                 display: none;
                 width: 100%;
+                background: rgba(255, 249, 241, 0.95);
+                padding: 10px 0;
+                border-top: 1px solid rgba(121, 62, 17, 0.14);
             }
 
             .site-header nav.is-open {
@@ -69,6 +85,7 @@
                 justify-content: flex-start;
                 gap: 14px;
                 padding-top: 4px;
+                padding-left: 4px;
             }
         }
     </style>

@@ -1,412 +1,64 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sahyog Milan Participation Form | Hindu Community Center of Greater Cincinnati</title>
-  <meta name="description" content="Sahyog Milan participation form for Hindu Community Center of Greater Cincinnati." />
-
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-  <link rel="icon" type="image/svg+xml"
-        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' x='50%25' text-anchor='middle' font-size='82'%3E%E0%A5%90%3C/text%3E%3C/svg%3E">
 
   <style>
-    :root {
-      --bg: #fff9f1;
-      --surface: #ffffff;
-      --surface-soft: #fff6ea;
-      --border: rgba(121, 62, 17, 0.14);
-      --text: #2c1b10;
-      --muted: #6a5141;
-      --saffron: #b55a18;
-      --saffron-dark: #8d3e0d;
-      --maroon: #7f2e16;
-      --shadow: 0 18px 45px rgba(93, 43, 14, 0.10);
-      --radius: 22px;
-      --max: 1220px;
-      --header-offset: 110px;
-    }
-
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(217, 138, 30, 0.12), transparent 22%),
-        radial-gradient(circle at top right, rgba(127, 46, 22, 0.05), transparent 20%),
-        var(--bg);
-      line-height: 1.65;
+      background: #fff9f1;
     }
-
-    img { max-width: 100%; display: block; }
-    a { color: inherit; text-decoration: none; }
-    button, input, select, textarea { font: inherit; }
 
     .container {
-      width: min(calc(100% - 32px), var(--max));
-      margin: 0 auto;
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 16px;
     }
 
-    .content-width {
-      width: 100%;
-      max-width: 100%;
+    .embed-card {
+      overflow: hidden;
+      background: transparent;
+      border-radius: 20px;
+      box-shadow: none;
+      border: 0;
     }
 
-    .site-header {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      background: rgba(255, 249, 241, 0.92);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      min-height: 92px;
-      padding: 12px 0;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      min-width: 0;
-    }
-
-    .brand-logo-wrap {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 8px;
-      box-shadow: var(--shadow);
-      flex-shrink: 0;
-    }
-
-    .brand-logo {
-      width: 88px;
-      height: auto;
-      border-radius: 12px;
-      object-fit: contain;
-    }
-
-    .brand-text h1 {
-      margin: 0;
-      font-size: 1.2rem;
-      line-height: 1.15;
-      color: var(--maroon);
-    }
-
-    .site-header nav ul {
-      list-style: none;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 18px;
-      margin: 0;
-      padding: 0;
-      align-items: center;
-      justify-content: flex-end;
-    }
-
-    .site-header nav a {
-      font-weight: 700;
-      color: var(--text);
-      font-size: 0.96rem;
-    }
-
-    .site-header nav a:hover {
-      color: var(--saffron-dark);
-    }
-
-    .section {
-      padding: 42px 0;
-      scroll-margin-top: var(--header-offset);
-    }
-
-    .section-head {
-      margin-bottom: 18px;
-      text-align: center;
-    }
-
-    .section-kicker {
-      display: inline-block;
-      padding: 7px 14px;
-      border-radius: 999px;
-      background: rgba(217, 138, 30, 0.12);
-      color: var(--saffron-dark);
-      font-size: 0.83rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 8px;
-    }
-
-    .section-head h2 {
-      margin: 8px 0 10px;
-      line-height: 1.2;
-      color: var(--maroon);
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(2rem, 3.4vw, 3rem);
-    }
-
-    .section-copy {
-      margin: 0 auto;
-      color: var(--muted);
-      font-size: 1rem;
-      max-width: 760px;
-      text-align: center;
-    }
-
-    .card {
-      background: rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(22px);
-      -webkit-backdrop-filter: blur(22px);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      border-radius: var(--radius);
-      box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.25),
-        inset 0 1px 1px rgba(255, 255, 255, 0.25);
+    .embed-frame {
       position: relative;
       overflow: hidden;
-    }
-
-    .form-card {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 14px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,246,234,0.95));
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-    }
-
-    iframe {
-      width: 100%;
       height: 1120px;
+      width: 100%;
+      background: transparent;
+    }
+
+    .embed-frame iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       border: 0;
-      border-radius: 16px;
-      display: block;
-      background: #fff;
-    }
-
-    .site-footer .footer-top {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      gap: 24px;
-      padding: 8px 0 0;
-    }
-
-    .site-footer .footer-nav {
-      display: flex;
-      justify-content: flex-start;
-      min-width: 0;
-    }
-
-    .site-footer .footer-nav ul {
-      list-style: none;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 0;
-      padding: 0;
-      justify-content: flex-start;
-      align-items: center;
-    }
-
-    .site-footer .footer-nav a {
-      font-weight: 700;
-      color: var(--text);
-      font-size: 0.95rem;
-    }
-
-    .site-footer .footer-nav a:hover {
-      color: var(--saffron-dark);
-    }
-
-    .site-footer .footer-email {
-      text-align: center;
-      font-weight: 700;
-      color: var(--text);
-      white-space: nowrap;
-    }
-
-    .site-footer .footer-email a:hover {
-      color: var(--saffron-dark);
-    }
-
-    .site-footer .footer-social {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 12px;
-      min-width: 220px;
-      color: var(--text);
-      font-weight: 700;
-    }
-
-    .site-footer .footer-social-label {
-      white-space: nowrap;
-    }
-
-    .site-footer .social-icons {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .site-footer .social-icon {
-      width: 42px;
-      height: 42px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      background: #fff;
-      border: 1px solid var(--border);
-      box-shadow: 0 6px 18px rgba(93, 43, 14, 0.10);
-      transition: transform 0.18s ease, box-shadow 0.18s ease;
-    }
-
-    .site-footer .social-icon:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 22px rgba(93, 43, 14, 0.16);
-    }
-
-    .site-footer .social-icon svg {
-      width: 20px;
-      height: 20px;
-      display: block;
-    }
-
-    .site-footer .footer-note {
-      margin-top: 18px;
-      padding-top: 18px;
-      border-top: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 0.7rem;
-      text-align: center;
-    }
-
-    .site-footer .copyright-links a {
-      text-decoration: none;
-    }
-
-    @media (max-width: 1120px) {
-      .site-footer .footer-top {
-        grid-template-columns: 1fr;
-        justify-items: start;
-      }
-
-      .site-footer .footer-email,
-      .site-footer .footer-social {
-        text-align: left;
-        justify-content: flex-start;
-      }
-    }
-
-    @media (max-width: 860px) {
-      .nav {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .site-header nav ul {
-        justify-content: flex-start;
-        gap: 14px;
-      }
-
-      .brand-logo {
-        width: 74px;
-      }
-
-      .section {
-        padding: 34px 0;
-      }
-
-      iframe {
-        height: 1200px;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .container {
-        width: min(calc(100% - 24px), var(--max));
-      }
-
-      .form-card {
-        padding: 10px;
-      }
-
-      iframe {
-        height: 1280px;
-      }
+      background: transparent;
     }
   </style>
 </head>
+
 <body>
-  <div id="header-placeholder"></div>
 
-  <main>
-    <section class="section">
-      <div class="container">
-        <div class="section-head content-width">
-          <span class="section-kicker">Sahyog Milan</span>
-          <h2>Sahyog Milan Participation Form</h2>
-          <p class="section-copy">
-            Please share your details with us, and our team will reach out to you soon.
-          </p>
-        </div>
+<div class="container">
+  <div class="embed-card">
+    <div class="embed-frame">
+      <iframe 
+        src="https://docs.google.com/forms/d/e/1FAIpQLSfNtKphaHdj6Ts4lyDgA9-5FZltd_TvI6qGo_nFBoLcjkPs7g/viewform?embedded=true"
+        loading="lazy">
+      </iframe>
+    </div>
+  </div>
+</div>
 
-        <div class="card form-card">
-          <iframe
-            src="https://docs.google.com/forms/d/e/1FAIpQLSfNtKphaHdj6Ts4lyDgA9-5FZltd_TvI6qGo_nFBoLcjkPs7g/viewform?embedded=true"
-            title="Sahyog Milan participation form"
-            loading="lazy"
-            marginheight="0"
-            marginwidth="0">
-            Loading…
-          </iframe>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <div id="footer-placeholder"></div>
-
-  <script>
-    async function loadPartial(placeholderId, filePath) {
-      const target = document.getElementById(placeholderId);
-      if (!target) return;
-      try {
-        const response = await fetch(filePath);
-        if (!response.ok) throw new Error("Unable to load " + filePath);
-        target.innerHTML = await response.text();
-      } catch (error) {
-        console.error(error);
-        target.innerHTML = "";
-      }
-    }
-
-    async function initializePage() {
-      await loadPartial("header-placeholder", "header.html");
-      await loadPartial("footer-placeholder", "footer.html");
-
-      const year = document.getElementById("year");
-      if (year) {
-        year.textContent = new Date().getFullYear();
-      }
-    }
-
-    initializePage();
-  </script>
 </body>
 </html>

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -166,35 +167,12 @@
       text-align: center;
     }
 
-    .card {
-      background: rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(22px);
-      -webkit-backdrop-filter: blur(22px);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      border-radius: var(--radius);
-      box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.25),
-        inset 0 1px 1px rgba(255, 255, 255, 0.25);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .form-card {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 14px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,246,234,0.95));
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-    }
-
     iframe {
       width: 100%;
       height: 1903px;
       border: 0;
-      border-radius: 16px;
       display: block;
-      background: #fff;
+      background: transparent;
     }
 
     .site-footer .footer-top {
@@ -296,6 +274,33 @@
       text-align: center;
     }
 
+    .embed-card {
+      overflow: hidden;
+      background: transparent;
+      border-radius: var(--radius);
+      box-shadow: none;
+      border: 0;
+    }
+
+    .embed-frame {
+      position: relative;
+      overflow: hidden;
+      height: 1903px;
+      width: 100%;
+      background: transparent;
+    }
+
+    .embed-frame iframe {
+      position: absolute;
+      border: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+    }
+
     .site-footer .copyright-links a {
       text-decoration: none;
     }
@@ -331,6 +336,11 @@
       .section {
         padding: 34px 0;
       }
+
+      iframe,
+      .embed-frame {
+        height: 1500px;
+      }
     }
 
     @media (max-width: 640px) {
@@ -338,11 +348,8 @@
         width: min(calc(100% - 24px), var(--max));
       }
 
-      .form-card {
-        padding: 10px;
-      }
-
-      iframe {
+      iframe,
+      .embed-frame {
         height: 2050px;
       }
     }
@@ -362,15 +369,17 @@
           </p>
         </div>
 
-        <div class="card form-card">
-          <iframe
-            src="https://docs.google.com/forms/d/e/1FAIpQLSfau2C0_vvGvvBh0_kqNMyMCnPrjpJlLiT4CkGNtA51G8turQ/viewform?embedded=true"
-            title="Volunteer With Us form"
-            loading="lazy"
-            marginheight="0"
-            marginwidth="0">
-            Loading…
-          </iframe>
+        <div class="embed-card">
+          <div class="embed-frame">
+            <iframe
+              src="https://docs.google.com/forms/d/e/1FAIpQLSfau2C0_vvGvvBh0_kqNMyMCnPrjpJlLiT4CkGNtA51G8turQ/viewform?embedded=true"
+              title="Volunteer With Us form"
+              loading="lazy"
+              marginheight="0"
+              marginwidth="0">
+              Loading…
+            </iframe>
+          </div>
         </div>
       </div>
     </section>

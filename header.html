@@ -2,130 +2,122 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Corrected Mobile Header</title>
-  <style>
-    /* Only additive styles for the mobile hamburger */
-    .menu-toggle {
-      display: none;
-      margin-top: 10px;
-      padding: 0;
-      border: 0;
-      background: transparent;
-      cursor: pointer;
-      line-height: 0;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    .menu-toggle .bar {
-      display: block;
-      width: 24px;
-      height: 2px;
-      margin: 5px 0;
-      background: currentColor;
-      transition: transform 0.22s ease, opacity 0.22s ease;
-    }
+<style>
+/* ONLY hamburger related changes */
 
-    .menu-toggle.is-open .bar:nth-child(1) {
-      transform: translateY(7px) rotate(45deg);
-    }
+.menu-toggle {
+  display: none;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
 
-    .menu-toggle.is-open .bar:nth-child(2) {
-      opacity: 0;
-    }
+.menu-toggle .bar {
+  display: block;
+  width: 24px;
+  height: 2px;
+  margin: 5px 0;
+  background: currentColor;
+  transition: 0.25s;
+}
 
-    .menu-toggle.is-open .bar:nth-child(3) {
-      transform: translateY(-7px) rotate(-45deg);
-    }
+/* Mobile behavior */
+@media (max-width: 768px) {
 
-    @media (max-width: 768px) {
-      .brand {
-        align-items: flex-start;
-      }
+  .nav {
+    flex-direction: column;
+    align-items: stretch;
+  }
 
-      .brand-text {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-      }
+  .brand {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
 
-      .menu-toggle {
-        display: inline-block;
-      }
+  .menu-toggle {
+    display: block;
+  }
 
-      .site-header nav {
-        display: none;
-        width: 100%;
-        margin-top: 12px;
-      }
+  nav {
+    display: none;
+    width: 100%;
+    margin-top: 10px;
+  }
 
-      .site-header nav.is-open {
-        display: block;
-      }
+  nav.open {
+    display: block;
+  }
 
-      .site-header nav ul {
-        flex-direction: column;
-        align-items: flex-start;
-        justify-content: flex-start;
-        gap: 14px;
-      }
-    }
-  </style>
+  nav ul {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+}
+
+/* animation */
+.menu-toggle.open .bar:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+.menu-toggle.open .bar:nth-child(2) {
+  opacity: 0;
+}
+.menu-toggle.open .bar:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+</style>
 </head>
+
 <body>
 
 <header class="site-header">
-    <div class="container nav">
-        <a class="brand" href="index.html#home">
-            <div class="brand-logo-wrap">
-                <img class="brand-logo" alt="Hindu Community Center Greater Cincinnati logo" src="hccgc-logo.jpeg" />
-            </div>
-            <div class="brand-text">
-                <h1>Hindu Community Center <br> Of Greater Cincinnati</h1>
+  <div class="container nav">
 
-                <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="primaryNav">
-                    <span class="bar"></span>
-                    <span class="bar"></span>
-                    <span class="bar"></span>
-                </button>
-            </div>
-        </a>
+    <div class="brand">
+      <a href="index.html#home" style="display:flex; align-items:center; gap:12px;">
+        <div class="brand-logo-wrap">
+          <img class="brand-logo" src="hccgc-logo.jpeg">
+        </div>
+        <div class="brand-text">
+          <h1>Hindu Community Center <br> Of Greater Cincinnati</h1>
+        </div>
+      </a>
 
-        <nav id="primaryNav" aria-label="Primary navigation">
-            <ul>
-                <li><a href="index.html#about">About</a></li>
-                <li><a href="index.html#initiatives">Initiatives</a></li>
-                <li><a href="index.html#booking">Facility Rental</a></li>
-                <li><a href="Contact%20Us.html">Contact Us</a></li>
-                <li><a href="index.html#build-together">Support Our Mission</a></li>
-            </ul>
-        </nav>
+      <!-- hamburger RIGHT SIDE -->
+      <button class="menu-toggle" id="menuBtn">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
     </div>
+
+    <nav id="menu">
+      <ul>
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="index.html#initiatives">Initiatives</a></li>
+        <li><a href="index.html#booking">Facility Rental</a></li>
+        <li><a href="Contact%20Us.html">Contact Us</a></li>
+        <li><a href="index.html#build-together">Support Our Mission</a></li>
+      </ul>
+    </nav>
+
+  </div>
 </header>
 
 <script>
-  (function () {
-    const toggle = document.getElementById("menuToggle");
-    const nav = document.getElementById("primaryNav");
+const btn = document.getElementById("menuBtn");
+const menu = document.getElementById("menu");
 
-    if (!toggle || !nav) return;
-
-    toggle.addEventListener("click", function () {
-      const isOpen = nav.classList.toggle("is-open");
-      toggle.classList.toggle("is-open", isOpen);
-      toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-    });
-
-    nav.querySelectorAll("a").forEach(function (link) {
-      link.addEventListener("click", function () {
-        if (window.innerWidth <= 768) {
-          nav.classList.remove("is-open");
-          toggle.classList.remove("is-open");
-          toggle.setAttribute("aria-expanded", "false");
-        }
-      });
-    });
-  })();
+btn.addEventListener("click", () => {
+  menu.classList.toggle("open");
+  btn.classList.toggle("open");
+});
 </script>
 
 </body>

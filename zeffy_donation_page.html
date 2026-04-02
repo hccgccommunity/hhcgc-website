@@ -2,112 +2,184 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Hindu Community Center Greater Cincinnati</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hindu Community Center Greater Cincinnati</title>
+    <meta name="description" content="Support Hindu Community Center Greater Cincinnati through our donation page." />
+    <style>
+        :root {
+            --bg: #fff9f1;
+            --surface: #ffffff;
+            --surface-soft: #fff6ea;
+            --border: rgba(121, 62, 17, 0.14);
+            --text: #2c1b10;
+            --muted: #6a5141;
+            --saffron: #b55a18;
+            --saffron-dark: #8d3e0d;
+            --maroon: #7f2e16;
+            --shadow: 0 18px 45px rgba(93, 43, 14, 0.10);
+            --radius: 22px;
+            --max: 1220px;
+        }
 
-<style>
-:root {
-  --bg:#fff9f1;
-  --border:rgba(121,62,17,0.14);
-  --text:#2c1b10;
-  --muted:#6a5141;
-  --maroon:#7f2e16;
-}
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
 
-body{
-  margin:0;
-  font-family:Arial, Helvetica, sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%),
-    radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%),
-    var(--bg);
-}
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(217, 138, 30, 0.12), transparent 22%),
+                radial-gradient(circle at top right, rgba(127, 46, 22, 0.05), transparent 20%),
+                var(--bg);
+            line-height: 1.65;
+        }
 
-.container{
-  width:min(calc(100% - 32px),1220px);
-  margin:0 auto;
-}
+        img {
+            max-width: 100%;
+            display: block;
+        }
 
-/* KEEP HEADER SAME */
-header{
-  position:sticky;
-  top:0;
-  background:rgba(255,249,241,0.92);
-  backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--border);
-}
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
 
-/* MAIN */
-.page-section{padding:40px 0;}
+        .container {
+            width: min(calc(100% - 32px), var(--max));
+            margin: 0 auto;
+        }
 
-.page-title{
-  text-align:center;
-  color:var(--maroon);
-}
+        .page-section {
+            padding: 42px 0 24px;
+        }
 
-.page-copy{
-  text-align:center;
-  color:var(--muted);
-  margin-bottom:20px;
-}
+        .wrap {
+            max-width: 960px;
+            margin: 0 auto 48px;
+            width: 100%;
+        }
 
-/* KEY CHANGE: FULL BLEND */
-.embed-card{
-  background:transparent;
-  border:none;
-  box-shadow:none;
-  padding:0;
-}
+        .page-title {
+            text-align: center;
+            margin: 0 0 18px;
+            color: var(--maroon);
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(1.8rem, 3vw, 2.6rem);
+        }
 
-.embed-frame{
-  position:relative;
-  width:100%;
-  height:800px;
-  overflow:hidden;
-}
+        .page-copy {
+            text-align: center;
+            color: var(--muted);
+            max-width: 820px;
+            margin: 0 auto 24px;
+            font-size: 1rem;
+        }
 
-.embed-frame iframe{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  border:0;
-  background:transparent;
-  display:block;
-}
+        /* Only blend the Zeffy area */
+        .embed-card {
+            overflow: hidden;
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
+            border: 0;
+            padding: 0;
+        }
 
-/* KEEP FOOTER SAME */
-footer{
-  padding:30px 0;
-}
-</style>
+        .embed-frame {
+            position: relative;
+            overflow: hidden;
+            height: 800px;
+            width: 100%;
+            background: transparent;
+            border-radius: 0;
+        }
+
+        .embed-frame iframe {
+            position: absolute;
+            border: 0;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            display: block;
+        }
+
+        @media (max-width: 860px) {
+            .embed-frame {
+                height: 760px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                width: min(calc(100% - 24px), var(--max));
+            }
+
+            .embed-frame {
+                height: 700px;
+            }
+        }
+    </style>
 </head>
-
 <body>
+    <div id="header-placeholder"></div>
 
-<header></header>
+    <main>
+        <section class="page-section">
+            <div class="container">
+                <div class="wrap">
+                    <h1 class="page-title">Support Our Mission</h1>
+                    <p class="page-copy">
+                        Support the Hindu Community Center of Greater Cincinnati through your donation. Your contribution helps sustain the facility, strengthen community programs, and support future initiatives.
+                    </p>
 
-<main>
-<section class="page-section">
-<div class="container">
+                    <div class="embed-card">
+                        <div class="embed-frame">
+                            <iframe
+                                title="Donation form powered by Zeffy"
+                                src="https://www.zeffy.com/embed/donation-form/build-hcc-with-us"
+                                allowpaymentrequest
+                                allowTransparency="true">
+                            </iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 
-<h1 class="page-title">Support Our Mission</h1>
-<p class="page-copy">
-Support the Hindu Community Center through your donation.
-</p>
+    <div id="footer-placeholder"></div>
 
-<div class="embed-card">
-  <div class="embed-frame">
-    <iframe src="https://www.zeffy.com/embed/donation-form/build-hcc-with-us"></iframe>
-  </div>
-</div>
+    <script>
+        async function loadPartial(placeholderId, filePath) {
+            const target = document.getElementById(placeholderId);
+            if (!target) return;
+            try {
+                const response = await fetch(filePath);
+                if (!response.ok) throw new Error("Unable to load " + filePath);
+                target.innerHTML = await response.text();
+            } catch (error) {
+                console.error(error);
+                target.innerHTML = "";
+            }
+        }
 
-</div>
-</section>
-</main>
+        async function initializePage() {
+            await loadPartial("header-placeholder", "header.html");
+            await loadPartial("footer-placeholder", "footer.html");
 
-<footer></footer>
+            const year = document.getElementById("year");
+            if (year) {
+                year.textContent = new Date().getFullYear();
+            }
+        }
 
+        initializePage();
+    </script>
 </body>
 </html>

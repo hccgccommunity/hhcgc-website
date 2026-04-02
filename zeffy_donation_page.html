@@ -51,6 +51,75 @@
             margin: 0 auto;
         }
 
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(255, 249, 241, 0.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            min-height: 92px;
+            padding: 12px 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-width: 0;
+        }
+
+        .brand-logo-wrap {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 8px;
+            box-shadow: var(--shadow);
+            flex-shrink: 0;
+        }
+
+        .brand-logo {
+            width: 88px;
+            height: auto;
+            border-radius: 12px;
+            object-fit: contain;
+        }
+
+        .brand-text h1 {
+            margin: 0;
+            font-size: 1.2rem;
+            line-height: 1.15;
+            color: var(--maroon);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin: 0;
+            padding: 0;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        nav a {
+            font-weight: 700;
+            color: var(--text);
+            font-size: 0.96rem;
+        }
+
+        nav a:hover {
+            color: var(--saffron-dark);
+        }
+
         .page-section {
             padding: 42px 0 24px;
         }
@@ -109,7 +178,66 @@
             display: block;
         }
 
+        footer {
+            padding: 24px 0 44px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .footer-links nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 0;
+            padding: 0;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .footer-links a {
+            font-weight: 700;
+            color: var(--text);
+            font-size: 0.96rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--saffron-dark);
+        }
+
+        .footer-note {
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 0.7rem;
+            text-align: center;
+        }
+
+        .footer-note a {
+            color: inherit;
+            text-decoration: none;
+        }
+
         @media (max-width: 860px) {
+            .nav {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            nav ul {
+                justify-content: flex-start;
+                gap: 14px;
+            }
+
+            .brand-logo {
+                width: 74px;
+            }
+
             .embed-frame {
                 height: 760px;
             }
@@ -123,11 +251,41 @@
             .embed-frame {
                 height: 700px;
             }
+
+            .footer-links {
+                justify-content: flex-start;
+                text-align: left;
+            }
+
+            .footer-links nav ul {
+                justify-content: flex-start;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="header-placeholder"></div>
+    <header>
+        <div class="container nav">
+            <a class="brand" href="https://hccgc.org/">
+                <div class="brand-logo-wrap">
+                    <img class="brand-logo" alt="Hindu Community Center Greater Cincinnati logo" src="hccgc-logo.jpeg" />
+                </div>
+                <div class="brand-text">
+                    <h1>Hindu Community Center Of Greater Cincinnati</h1>
+                </div>
+            </a>
+
+            <nav aria-label="Main navigation">
+                <ul>
+                    <li><a href="https://hccgc.org/#about">About</a></li>
+                    <li><a href="https://hccgc.org/#initiatives">Initiatives</a></li>
+                    <li><a href="https://hccgc.org/#booking">Facility Rental</a></li>
+                    <li><a href="https://hccgc.org/#contact">Contact Us</a></li>
+                    <li><a href="https://hccgc.org/#build-together">Build Together</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
     <main>
         <section class="page-section">
@@ -153,33 +311,34 @@
         </section>
     </main>
 
-    <div id="footer-placeholder"></div>
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <nav aria-label="Footer navigation">
+                    <ul>
+                        <li><a href="https://hccgc.org/#about">About</a></li>
+                        <li><span>|</span></li>
+                        <li><a href="https://hccgc.org/#initiatives">Initiatives</a></li>
+                        <li><span>|</span></li>
+                        <li><a href="https://hccgc.org/#booking">Facility Rental</a></li>
+                        <li><span>|</span></li>
+                        <li><a href="https://hccgc.org/#contact">Contact Us</a></li>
+                        <li><span>|</span></li>
+                        <li><a href="https://hccgc.org/#build-together">Build Together</a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="footer-note">
+                © <span id="year"></span> HINDU COMMUNITY CENTER OF GREATER CINCINNATI | ALL RIGHTS RESERVED |
+                <a href="https://hccgc.org/hccgc_privacy_policy.html">PRIVACY POLICY</a> |
+                <a href="https://hccgc.org/hccgc_rental_conditions.html">RENTAL TERMS & CONDITIONS</a>
+            </div>
+        </div>
+    </footer>
 
     <script>
-        async function loadPartial(placeholderId, filePath) {
-            const target = document.getElementById(placeholderId);
-            if (!target) return;
-            try {
-                const response = await fetch(filePath);
-                if (!response.ok) throw new Error("Unable to load " + filePath);
-                target.innerHTML = await response.text();
-            } catch (error) {
-                console.error(error);
-                target.innerHTML = "";
-            }
-        }
-
-        async function initializePage() {
-            await loadPartial("header-placeholder", "header.html");
-            await loadPartial("footer-placeholder", "footer.html");
-
-            const year = document.getElementById("year");
-            if (year) {
-                year.textContent = new Date().getFullYear();
-            }
-        }
-
-        initializePage();
+        document.getElementById("year").textContent = new Date().getFullYear();
     </script>
 </body>
 </html>

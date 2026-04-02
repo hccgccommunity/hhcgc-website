@@ -2,16 +2,22 @@
 <!DOCTYPE html>
 <header class="site-header">
     <style>
-        /* Match header background */
+        /* Header background stays same */
         .site-header {
             background: rgba(255, 249, 241, 0.92);
         }
 
-        /* Remove white box around logo */
+        /* FIX: logo background now maroon instead of white */
         .brand-logo-wrap {
-            background: transparent;
+            background: #7f2e16; /* maroon */
             border: none;
             box-shadow: none;
+        }
+
+        /* Optional: slight padding adjustment for nicer look */
+        .brand-logo {
+            background: #7f2e16;
+            border-radius: 8px;
         }
 
         /* Mobile hamburger only */
@@ -31,19 +37,6 @@
             height: 2px;
             margin: 5px 0;
             background: currentColor;
-            transition: transform 0.22s ease, opacity 0.22s ease;
-        }
-
-        .menu-toggle.is-open .bar:nth-child(1) {
-            transform: translateY(7px) rotate(45deg);
-        }
-
-        .menu-toggle.is-open .bar:nth-child(2) {
-            opacity: 0;
-        }
-
-        .menu-toggle.is-open .bar:nth-child(3) {
-            transform: translateY(-7px) rotate(-45deg);
         }
 
         @media (max-width: 768px) {
@@ -53,26 +46,15 @@
                 gap: 8px;
             }
 
-            .brand {
-                width: 100%;
-            }
-
-            .brand-logo {
-                width: 74px;
-            }
-
             .menu-toggle {
                 display: inline-block;
-                margin-top: 2px;
             }
 
-            /* Menu background same as header */
             .site-header nav {
                 display: none;
                 width: 100%;
                 background: rgba(255, 249, 241, 0.95);
                 padding: 10px 0;
-                border-top: 1px solid rgba(121, 62, 17, 0.14);
             }
 
             .site-header nav.is-open {
@@ -81,11 +63,7 @@
 
             .site-header nav ul {
                 flex-direction: column;
-                align-items: flex-start;
-                justify-content: flex-start;
                 gap: 14px;
-                padding-top: 4px;
-                padding-left: 4px;
             }
         }
     </style>
@@ -93,27 +71,21 @@
     <div class="container nav">
         <a class="brand" href="index.html#home">
             <div class="brand-logo-wrap">
-                <img class="brand-logo" alt="Hindu Community Center Greater Cincinnati logo" src="hccgc-logo.jpeg" />
+                <img class="brand-logo" alt="HCCGC logo" src="hccgc-logo.jpeg" />
             </div>
             <div class="brand-text">
                 <h1>Hindu Community Center <br> Of Greater Cincinnati</h1>
             </div>
         </a>
 
-        <button
-            class="menu-toggle"
-            id="menuToggle"
-            type="button"
-            aria-label="Open navigation"
-            aria-expanded="false"
-            aria-controls="primaryNav"
-            onclick="(function(btn){var nav=document.getElementById('primaryNav');if(!nav)return;var open=nav.classList.toggle('is-open');btn.classList.toggle('is-open',open);btn.setAttribute('aria-expanded',open?'true':'false');})(this)">
+        <button class="menu-toggle" id="menuToggle"
+            onclick="(function(btn){var nav=document.getElementById('primaryNav');if(!nav)return;var open=nav.classList.toggle('is-open');})(this)">
             <span class="bar"></span>
             <span class="bar"></span>
             <span class="bar"></span>
         </button>
 
-        <nav id="primaryNav" aria-label="Primary navigation">
+        <nav id="primaryNav">
             <ul>
                 <li><a href="index.html#about">About</a></li>
                 <li><a href="index.html#initiatives">Initiatives</a></li>

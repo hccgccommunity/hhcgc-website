@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rental Terms & Conditions | Hindu Community Center of Greater Cincinnati</title>
+  <meta name="description" content="Rental Terms & Conditions for Hindu Community Center of Greater Cincinnati." />
+
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' x='50%25' text-anchor='middle' font-size='82'%3E%E0%A5%90%3C/text%3E%3C/svg%3E">
+
+  <style>
+    :root {
+      --bg: #fff9f1;
+      --surface: #ffffff;
+      --surface-soft: #fff6ea;
+      --border: rgba(121, 62, 17, 0.14);
+      --text: #2c1b10;
+      --muted: #6a5141;
+      --saffron: #b55a18;
+      --saffron-dark: #8d3e0d;
+      --maroon: #7f2e16;
+      --shadow: 0 18px 45px rgba(93, 43, 14, 0.10);
+      --radius: 22px;
+      --max: 1220px;
+      --header-offset: 110px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.65;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(217, 138, 30, 0.12), transparent 22%),
+        radial-gradient(circle at top right, rgba(127, 46, 22, 0.05), transparent 20%),
+        var(--bg);
+    }
+
+    a {
+      color: var(--saffron-dark);
+      text-decoration: none;
+    }
+
+    a:hover { text-decoration: underline; }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .container {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 249, 241, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-height: 92px;
+      padding: 12px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .brand-logo-wrap {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 8px;
+      box-shadow: var(--shadow);
+      flex-shrink: 0;
+    }
+
+    .brand-logo {
+      width: 88px;
+      height: auto;
+      border-radius: 12px;
+      object-fit: contain;
+    }
+
+    .brand-text h1 {
+      margin: 0;
+      font-size: 1.2rem;
+      line-height: 1.15;
+      color: var(--maroon);
+    }
+
+    .site-header nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin: 0;
+      padding: 0;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .site-header nav a {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.96rem;
+    }
+
+    .site-header nav a:hover {
+      color: var(--saffron-dark);
+      text-decoration: none;
+    }
+
+    .hero {
+      padding: 42px 0 20px;
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, rgba(181, 90, 24, 0.96), rgba(127, 46, 22, 0.95));
+      color: #fff;
+      border-radius: 30px;
+      box-shadow: var(--shadow);
+      padding: 42px 34px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 15% 18%, rgba(255,255,255,0.18), transparent 18%),
+        radial-gradient(circle at 88% 20%, rgba(255,255,255,0.10), transparent 14%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .hero h2 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1.08;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 820px;
+      color: rgba(255,255,255,0.93);
+      font-size: 1.02rem;
+    }
+
+    .section {
+      padding: 20px 0 48px;
+    }
+
+    .terms-card {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 30px;
+    }
+
+    .intro {
+      margin-bottom: 30px;
+      font-size: 1rem;
+      color: var(--muted);
+    }
+
+    .term {
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(121, 62, 17, 0.12);
+    }
+
+    .term:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .term h3 {
+      margin: 0 0 8px;
+      font-size: 1.15rem;
+      color: var(--saffron-dark);
+      line-height: 1.35;
+    }
+
+    .term p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .site-footer .footer-top {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 24px;
+      padding: 8px 0 0;
+    }
+
+    .site-footer .footer-nav {
+      display: flex;
+      justify-content: flex-start;
+      min-width: 0;
+    }
+
+    .site-footer .footer-nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    .site-footer .footer-nav a {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .site-footer .footer-nav a:hover {
+      color: var(--saffron-dark);
+    }
+
+    .site-footer .footer-email {
+      text-align: center;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .site-footer .footer-email a:hover {
+      color: var(--saffron-dark);
+    }
+
+    .site-footer .footer-social {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      min-width: 220px;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .site-footer .footer-social-label { white-space: nowrap; }
+
+    .site-footer .social-icons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .site-footer .social-icon {
+      width: 42px;
+      height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: #fff;
+      border: 1px solid var(--border);
+      box-shadow: 0 6px 18px rgba(93, 43, 14, 0.10);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .site-footer .social-icon:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(93, 43, 14, 0.16);
+    }
+
+    .site-footer .social-icon svg {
+      width: 20px;
+      height: 20px;
+      display: block;
+    }
+
+    .site-footer .footer-note {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.7rem;
+      text-align: center;
+    }
+
+    .site-footer .copyright-links a { text-decoration: none; }
+
+    @media (max-width: 1120px) {
+      .site-footer .footer-top {
+        grid-template-columns: 1fr;
+        justify-items: start;
+      }
+
+      .site-footer .footer-email,
+      .site-footer .footer-social {
+        text-align: left;
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .nav {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .site-header nav ul {
+        justify-content: flex-start;
+        gap: 14px;
+      }
+
+      .brand-logo { width: 74px; }
+
+      .hero {
+        padding-top: 28px;
+      }
+
+      .hero-card,
+      .terms-card {
+        padding: 24px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero h2 {
+        font-size: 1.9rem;
+      }
+
+      .term h3 {
+        font-size: 1.05rem;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .container {
+        width: min(calc(100% - 22px), var(--max));
+      }
+
+      .hero-card,
+      .terms-card {
+        padding: 20px;
+        border-radius: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="header-placeholder"></div>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <div class="hero-card">
+          <div class="hero-inner">
+            <span class="eyebrow">Rental Terms</span>
+            <h2>Rental Terms &amp; Conditions</h2>
+            <p>
+              Please review the venue rules carefully before making or confirming a reservation.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="terms-card">
+          <div class="intro">
+            <p>
+              By renting and using this venue, the renter and all guests agree to follow
+              the rules and conditions listed below.
+            </p>
+          </div>
+
+          <section class="term">
+            <h3>Responsibility of the Renter</h3>
+            <p>
+              The renter is fully responsible for the conduct of all guests attending the event.
+              Any violation of these rules by guests will be considered the responsibility of the renter.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Care of the Property</h3>
+            <p>
+              All guests must respect the venue property. Damaging furniture, walls, floors,
+              equipment, decorations, or facilities is strictly prohibited.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Cleanliness Requirement</h3>
+            <p>
+              The venue must be kept reasonably clean during and after the event. All trash must
+              be disposed of properly, and food or drinks should not be left on tables, floors,
+              or outdoor areas.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Supervision of Children</h3>
+            <p>
+              Children must be supervised by parents or guardians at all times. Running, climbing
+              on furniture, or unsafe activities are not permitted inside the venue.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Noise and Community Respect</h3>
+            <p>
+              Guests must maintain reasonable noise levels and respect neighboring properties.
+              Excessive noise or disruptive behavior may result in the event being stopped.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Event Time Limit</h3>
+            <p>
+              The event must begin and end within the agreed rental time. All guests must vacate
+              the premises by the scheduled end time.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Parking Regulations</h3>
+            <p>
+              Vehicles must be parked only in designated parking areas. Blocking entrances,
+              driveways, or emergency exits is strictly prohibited.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Smoking, Alcohol, and Illegal Activities</h3>
+            <p>
+              Smoking inside the venue is not permitted. Alcohol is only allowed if approved by
+              the venue and must comply with local laws. Illegal activities of any kind are
+              strictly prohibited.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Decorations and Setup</h3>
+            <p>
+              Decorations are allowed only with prior approval. No tape, nails, staples, or
+              adhesives may be used on walls, ceilings, or furniture without permission.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Security Deposit</h3>
+            <p>
+              A security deposit will be collected prior to the event. The deposit will be returned
+              after the event once the venue has been inspected and no damage has been found.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Damage and Repair Costs</h3>
+            <p>
+              If any damage occurs to the venue, furniture, equipment, or property, the cost of
+              repair or replacement will be deducted from the security deposit. If the damage
+              exceeds the deposit amount, the renter agrees to pay the remaining balance.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Right to Terminate Event</h3>
+            <p>
+              The venue owner reserves the right to end the event if these rules are violated,
+              if illegal activity occurs, or if the property is being misused.
+            </p>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-placeholder"></div>
+
+  <script>
+    async function loadPartial(placeholderId, filePath) {
+      const target = document.getElementById(placeholderId);
+      if (!target) return;
+      try {
+        const response = await fetch(filePath);
+        if (!response.ok) throw new Error("Unable to load " + filePath);
+        target.innerHTML = await response.text();
+      } catch (error) {
+        console.error(error);
+        target.innerHTML = "";
+      }
+    }
+
+    async function initializePage() {
+      await loadPartial("header-placeholder", "header.html");
+      await loadPartial("footer-placeholder", "footer.html");
+
+      const year = document.getElementById("year");
+      if (year) {
+        year.textContent = new Date().getFullYear();
+      }
+    }
+
+    initializePage();
+  </script>
+</body>
+</html>

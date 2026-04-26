@@ -1,0 +1,551 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sangeet Sandhya Terms & Conditions | Hindu Community Center of Greater Cincinnati</title>
+  <meta name="description" content="Sangeet Sandhya Terms & Conditions" />
+
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' x='50%25' text-anchor='middle' font-size='82'%3E%E0%A5%90%3C/text%3E%3C/svg%3E">
+
+  <style>
+    :root {
+      --bg: #fff9f1;
+      --surface: #ffffff;
+      --surface-soft: #fff6ea;
+      --border: rgba(121, 62, 17, 0.14);
+      --text: #2c1b10;
+      --muted: #6a5141;
+      --saffron: #b55a18;
+      --saffron-dark: #8d3e0d;
+      --maroon: #7f2e16;
+      --shadow: 0 18px 45px rgba(93, 43, 14, 0.10);
+      --radius: 22px;
+      --max: 1220px;
+      --header-offset: 110px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.65;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(217, 138, 30, 0.12), transparent 22%),
+        radial-gradient(circle at top right, rgba(127, 46, 22, 0.05), transparent 20%),
+        var(--bg);
+    }
+
+    a {
+      color: var(--saffron-dark);
+      text-decoration: none;
+    }
+
+    a:hover { text-decoration: underline; }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .container {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 249, 241, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-height: 92px;
+      padding: 12px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .brand-logo-wrap {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 8px;
+      box-shadow: var(--shadow);
+      flex-shrink: 0;
+    }
+
+    .brand-logo {
+      width: 88px;
+      height: auto;
+      border-radius: 12px;
+      object-fit: contain;
+    }
+
+    .brand-text h1 {
+      margin: 0;
+      font-size: 1.2rem;
+      line-height: 1.15;
+      color: var(--maroon);
+    }
+
+    .site-header nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin: 0;
+      padding: 0;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .site-header nav a {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.96rem;
+    }
+
+    .site-header nav a:hover {
+      color: var(--saffron-dark);
+      text-decoration: none;
+    }
+
+    .hero {
+      padding: 42px 0 20px;
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, rgba(181, 90, 24, 0.96), rgba(127, 46, 22, 0.95));
+      color: #fff;
+      border-radius: 30px;
+      box-shadow: var(--shadow);
+      padding: 42px 34px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 15% 18%, rgba(255,255,255,0.18), transparent 18%),
+        radial-gradient(circle at 88% 20%, rgba(255,255,255,0.10), transparent 14%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .hero h2 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1.08;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 820px;
+      color: rgba(255,255,255,0.93);
+      font-size: 1.02rem;
+    }
+
+    .section {
+      padding: 20px 0 48px;
+    }
+
+    .terms-card {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 30px;
+    }
+
+    .intro {
+      margin-bottom: 30px;
+      font-size: 1rem;
+      color: var(--muted);
+    }
+
+    .term {
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(121, 62, 17, 0.12);
+    }
+
+    .term:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .term h3 {
+      margin: 0 0 8px;
+      font-size: 1.15rem;
+      color: var(--saffron-dark);
+      line-height: 1.35;
+    }
+
+    .term p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .site-footer .footer-top {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 24px;
+      padding: 8px 0 0;
+    }
+
+    .site-footer .footer-nav {
+      display: flex;
+      justify-content: flex-start;
+      min-width: 0;
+    }
+
+    .site-footer .footer-nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    .site-footer .footer-nav a {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .site-footer .footer-nav a:hover {
+      color: var(--saffron-dark);
+    }
+
+    .site-footer .footer-email {
+      text-align: center;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .site-footer .footer-email a:hover {
+      color: var(--saffron-dark);
+    }
+
+    .site-footer .footer-social {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      min-width: 220px;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .site-footer .footer-social-label { white-space: nowrap; }
+
+    .site-footer .social-icons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .site-footer .social-icon {
+      width: 42px;
+      height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: #fff;
+      border: 1px solid var(--border);
+      box-shadow: 0 6px 18px rgba(93, 43, 14, 0.10);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .site-footer .social-icon:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(93, 43, 14, 0.16);
+    }
+
+    .site-footer .social-icon svg {
+      width: 20px;
+      height: 20px;
+      display: block;
+    }
+
+    .site-footer .footer-note {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.7rem;
+      text-align: center;
+    }
+
+    .site-footer .copyright-links a { text-decoration: none; }
+
+    @media (max-width: 1120px) {
+      .site-footer .footer-top {
+        grid-template-columns: 1fr;
+        justify-items: start;
+      }
+
+      .site-footer .footer-email,
+      .site-footer .footer-social {
+        text-align: left;
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .nav {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .site-header nav ul {
+        justify-content: flex-start;
+        gap: 14px;
+      }
+
+      .brand-logo { width: 74px; }
+
+      .hero {
+        padding-top: 28px;
+      }
+
+      .hero-card,
+      .terms-card {
+        padding: 24px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero h2 {
+        font-size: 1.9rem;
+      }
+
+      .term h3 {
+        font-size: 1.05rem;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .container {
+        width: min(calc(100% - 22px), var(--max));
+      }
+
+      .hero-card,
+      .terms-card {
+        padding: 20px;
+        border-radius: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="header-placeholder"></div>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <div class="hero-card">
+          <div class="hero-inner">
+            <span class="eyebrow">Sangeet Sandhya Terms</span>
+            <h2>Sangeet Sandhya Terms &amp; Conditions</h2>
+            <p>
+              Please review the terms and conditions before participating in Sangeet Sandhya.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="terms-card">
+          <div class="intro">
+            <p>
+              By attending, registering for, or participating in Sangeet Sandhya at HCCGC, all singers, audience members, volunteers, and guests agree to follow the rules and conditions listed below. These terms apply to all Sangeet Sandhya sessions, including karaoke, musical performances, language-based sessions, themed sessions, and any related community music gatherings organized by HCCGC.
+            </p>
+          </div>
+
+          <div class="term">
+            <h3>Participation and Registration</h3>
+            <p>Participation as a singer, performer, audience member, or volunteer may require prior registration or approval by HCCGC. Submission of a form does not guarantee a singing or performance opportunity. HCCGC reserves the right to accept, limit, prioritize, waitlist, or decline participation based on capacity, event format, theme, language, schedule, and other operational considerations.</p>
+          </div>
+
+          <div class="term">
+            <h3>Event Format, Language, and Theme</h3>
+            <p>Sangeet Sandhya sessions may be organized in different Indian languages and may follow specific themes. The language, theme, format, performance order, time limits, number of singers, song selection process, and overall program structure will be decided solely by HCCGC. Participants agree to follow the format and instructions communicated for each session.</p>
+          </div>
+
+          <div class="term">
+            <h3>HCCGC Decisions Are Final</h3>
+            <p>All decisions made by HCCGC regarding event planning, participant selection, song approval, performance order, rules, schedule, safety, conduct, and facility use are final and binding. Participants and attendees agree to respect the decisions of HCCGC organizers and volunteers.</p>
+          </div>
+
+          <div class="term">
+            <h3>Song Selection and Duplicate Songs</h3>
+            <p>When HCCGC provides a song list, spreadsheet, or other process for song selection, participants must follow that process. HCCGC may limit repeated songs, request changes, reject duplicate entries, or ask participants to choose another song to maintain variety and fairness. Song selection may be handled on a first-come, first-served basis unless HCCGC decides otherwise.</p>
+          </div>
+
+          <div class="term">
+            <h3>Performance Content</h3>
+            <p>All songs, karaoke tracks, lyrics, comments, and performances must be suitable for a family-friendly community environment. Offensive, abusive, obscene, discriminatory, political, hateful, sexually explicit, or otherwise inappropriate content is strictly prohibited. HCCGC reserves the right to stop, skip, modify, or cancel any performance that is deemed inappropriate.</p>
+          </div>
+
+          <div class="term">
+            <h3>Karaoke Tracks and Equipment</h3>
+            <p>Participants are responsible for providing correct song details and karaoke tracks when requested. HCCGC will make reasonable efforts to support the event setup but does not guarantee availability, compatibility, or quality of any specific track, device, file, microphone, speaker, display, or other equipment. Participants must not tamper with or misuse any sound, stage, or facility equipment.</p>
+          </div>
+
+          <div class="term">
+            <h3>Respectful Conduct</h3>
+            <p>All participants and attendees are expected to behave respectfully toward singers, audience members, volunteers, organizers, staff, and the HCCGC facility. Harassment, intimidation, abusive language, heckling, aggressive conduct, disruptive behavior, or disrespect toward performers or organizers will not be tolerated.</p>
+          </div>
+
+          <div class="term">
+            <h3>Family-Friendly Environment</h3>
+            <p>Sangeet Sandhya is intended to be a positive, inclusive, and family-friendly community gathering. Participants and attendees must maintain decorum, avoid disruptions, and support a welcoming atmosphere for people of all ages and backgrounds.</p>
+          </div>
+
+          <div class="term">
+            <h3>Voluntary Donations</h3>
+            <p>HCCGC may accept voluntary donations to help sustain and grow Sangeet Sandhya and related community initiatives. Donations are optional and do not guarantee singer selection, preferred performance order, special treatment, or any other participation benefit.</p>
+          </div>
+
+          <div class="term">
+            <h3>Smoking, Alcohol, and Prohibited Substances</h3>
+            <p>Smoking, vaping, alcohol consumption, illegal substances, intoxicating materials, and non-vegetarian food are strictly prohibited anywhere on the premises during Sangeet Sandhya.</p>
+          </div>
+
+          <div class="term">
+            <h3>Food, Drinks, and Cleanliness</h3>
+            <p>Any food or drinks must be handled responsibly and only in permitted areas. Participants and attendees must keep the venue clean, dispose of trash properly, and avoid placing food or drinks near sound equipment, musical equipment, electrical items, stage areas, or any restricted spaces.</p>
+          </div>
+
+          <div class="term">
+            <h3>Care of the Property</h3>
+            <p>Participants and attendees must respect the facility, furniture, equipment, décor, microphones, speakers, cables, screens, and all other property of HCCGC. Damaging, misusing, moving, or removing any item from the premises is strictly prohibited. Individuals may be held responsible for any damage caused by them.</p>
+          </div>
+
+          <div class="term">
+            <h3>Safety and Facility Decorum</h3>
+            <p>Participants and attendees must follow all safety instructions and maintain the decorum of the facility. Running, rough behavior, blocking walkways, unsafe use of equipment, unauthorized access to restricted areas, or any activity that may create risk to people or property is not allowed.</p>
+          </div>
+
+          <div class="term">
+            <h3>Noise and Community Respect</h3>
+            <p>Participants and attendees must respect the facility, neighboring properties, and community surroundings. Excessive noise, disruptive behavior, or activity outside the approved event format may result in the activity being stopped and the participant or attendee being asked to leave.</p>
+          </div>
+
+          <div class="term">
+            <h3>Parking Regulations</h3>
+            <p>Vehicles must be parked only in designated parking areas. Blocking entrances, driveways, fire lanes, neighboring businesses, or emergency exits is strictly prohibited. Participants and attendees are responsible for following all parking instructions and applicable regulations.</p>
+          </div>
+
+          <div class="term">
+            <h3>Personal Belongings</h3>
+            <p>Participants and attendees are responsible for their own belongings, including musical items, phones, bags, personal devices, and valuables. HCCGC is not responsible for any lost, stolen, misplaced, or damaged personal items brought to the event.</p>
+          </div>
+
+          <div class="term">
+            <h3>Injury and Liability</h3>
+            <p>Participation in Sangeet Sandhya is voluntary. Each participant and attendee assumes responsibility for their own participation and any associated risks. HCCGC, its organizers, volunteers, staff, and representatives shall not be liable for accidental injury, illness, loss, damage, or claims arising from participation or attendance, except as required by applicable law.</p>
+          </div>
+
+          <div class="term">
+            <h3>Photo, Video, and Audio Consent</h3>
+            <p>HCCGC may take photographs, videos, or audio recordings during Sangeet Sandhya for community updates, website use, social media, archival purposes, or promotional purposes. By participating or attending, individuals consent to such use unless they specifically inform HCCGC otherwise in advance.</p>
+          </div>
+
+          <div class="term">
+            <h3>Schedule Changes and Cancellation</h3>
+            <p>HCCGC reserves the right to modify the event schedule, language, theme, format, venue arrangements, participant list, performance order, or any event details at its discretion. HCCGC may postpone or cancel a session due to low participation, facility needs, weather, safety concerns, technical issues, or any unforeseen circumstances.</p>
+          </div>
+
+          <div class="term">
+            <h3>Right to Refuse or Remove Participation</h3>
+            <p>HCCGC reserves the right to deny entry, refuse participation, remove a participant or attendee, or restrict future participation if these rules are violated, if conduct is disruptive or unsafe, or if the activity is deemed inconsistent with the values, safety, or rules of the event or facility.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-placeholder"></div>
+
+  <script>
+    async function loadPartial(placeholderId, filePath) {
+      const target = document.getElementById(placeholderId);
+      if (!target) return;
+      try {
+        const response = await fetch(filePath);
+        if (!response.ok) throw new Error("Unable to load " + filePath);
+        target.innerHTML = await response.text();
+      } catch (error) {
+        console.error(error);
+        target.innerHTML = "";
+      }
+    }
+
+    async function initializePage() {
+      await loadPartial("header-placeholder", "header.html");
+      await loadPartial("footer-placeholder", "footer.html");
+
+      const year = document.getElementById("year");
+      if (year) {
+        year.textContent = new Date().getFullYear();
+      }
+    }
+
+    initializePage();
+  </script>
+</body>
+</html>

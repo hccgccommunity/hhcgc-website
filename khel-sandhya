@@ -732,7 +732,6 @@
       <div class="container">
         <div class="hero-card">
           <div>
-            <span class="hero-kicker">HCCGC Community Initiative</span>
             <h1 class="hero-title">Khel Sandhya</h1>
             <p class="hero-copy">
               A warm community evening of indoor games, friendly competition, and meaningful connection.
@@ -781,15 +780,6 @@
     </section>
 
     <section id="about" class="section">
-      <div class="container">
-        <div class="section-head">
-          <span class="section-kicker">About the initiative</span>
-          <h2>What is Khel Sandhya?</h2>
-          <p class="section-copy">
-            Khel Sandhya is HCCGC’s signature community evening dedicated to bringing people together through simple, engaging indoor games.
-          </p>
-        </div>
-
         <div class="about-grid">
           <article class="content-card">
             <p>
@@ -829,22 +819,6 @@
           </div>
         </div>
 
-        <div class="info-band">
-          <div class="info-card">
-            <div class="info-icon">🤝</div>
-            <h3>Community First</h3>
-            <p>A relaxed space to build connections and enjoy time together.</p>
-          </div>
-          <div class="info-card">
-            <div class="info-icon">🏆</div>
-            <h3>Friendly Play</h3>
-            <p>Structured formats that keep the evening engaging and fair.</p>
-          </div>
-          <div class="info-card">
-            <div class="info-icon">🏠</div>
-            <h3>HCCGC Spirit</h3>
-            <p>A space our community can call its own.</p>
-          </div>
         </div>
       </div>
     </section>

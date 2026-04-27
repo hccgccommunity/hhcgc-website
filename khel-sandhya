@@ -500,7 +500,7 @@
 
     /* Seamless Zeffy area: no white wrapper/card sides */
     .embed-card {
-      overflow: hidden;
+      overflow: visible;
       background: transparent;
       border-radius: 0;
       box-shadow: none;
@@ -510,42 +510,38 @@
       padding: 0;
     }
 
-    .embed-frame {
-      position: relative;
-      overflow: hidden;
+    .embed-card [data-zeffy-embed] {
       width: 100%;
-      height: 1900px;
-      min-height: 1900px;
-      max-height: 1900px;
       background: transparent;
-      line-height: 0;
-      padding: 0;
-      margin: 0;
+      overflow: visible;
     }
 
-    .embed-frame [data-zeffy-embed] {
+    .embed-card iframe {
       width: 100%;
-      height: 1900px;
-      min-height: 1900px;
-      max-height: 1900px;
-      background: transparent;
-      display: block;
-      padding: 0;
-      margin: 0;
-      overflow: hidden;
-    }
-
-    .embed-frame iframe {
-      width: 100%;
-      height: 1900px !important;
-      min-height: 1900px !important;
-      max-height: 1900px !important;
       border: 0;
       background: transparent;
       display: block;
       overflow: hidden;
-      padding: 0;
-      margin: 0;
+    }
+
+    .zeffy-responsive-frame {
+      position: relative;
+      overflow: hidden;
+      height: 0;
+      width: 100%;
+      padding-top: 1250px;
+      background: transparent;
+    }
+
+    .zeffy-responsive-frame iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: transparent;
+      display: block;
+      overflow: hidden;
     }
 
     .site-footer .footer-top {
@@ -732,6 +728,7 @@
       <div class="container">
         <div class="hero-card">
           <div>
+            
             <h1 class="hero-title">Khel Sandhya</h1>
             <p class="hero-copy">
               A warm community evening of indoor games, friendly competition, and meaningful connection.
@@ -780,6 +777,13 @@
     </section>
 
     <section id="about" class="section">
+      <div class="container">
+        <div class="section-head">
+          
+          
+          
+        </div>
+
         <div class="about-grid">
           <article class="content-card">
             <p>
@@ -819,7 +823,6 @@
           </div>
         </div>
 
-        </div>
       </div>
     </section>
 
@@ -833,13 +836,15 @@
         </div>
 
         <div class="embed-card">
-          <div class="embed-frame">
-            <div data-zeffy-embed data-form-url="/embed/ticketing/khel-sandhya-ravps-for--58"></div>
-            <div data-zeffy-embed-fallback style="display:none;">
+          <div data-zeffy-embed data-form-url="/embed/ticketing/khel-sandhya-ravps-for--58"></div>
+
+          <div data-zeffy-embed-fallback style="display:none;">
+            <div class="zeffy-responsive-frame">
               <iframe title="Khel Sandhya RSVP form powered by Zeffy"
                       src="https://www.zeffy.com/embed/ticketing/khel-sandhya-ravps-for--58"
                       allowpaymentrequest
-                      allowTransparency="true"></iframe>
+                      allowTransparency="true"
+                      scrolling="no"></iframe>
             </div>
           </div>
         </div>
@@ -849,20 +854,19 @@
           onerror="document.querySelectorAll('[data-zeffy-embed-fallback]').forEach(function(el){el.style.display='block';});">
         </script>
         <script>
-          function resizeZeffyFrames() {
-            document.querySelectorAll('.embed-frame iframe').forEach(function(frame) {
+          function removeZeffyScrollbars() {
+            document.querySelectorAll('.embed-card iframe').forEach(function(frame) {
               frame.setAttribute('scrolling', 'no');
-              frame.style.height = window.innerWidth <= 640 ? '2100px' : '1900px';
-              frame.style.minHeight = window.innerWidth <= 640 ? '2100px' : '1900px';
               frame.style.overflow = 'hidden';
               frame.style.display = 'block';
+              frame.style.width = '100%';
+              frame.style.border = '0';
             });
           }
-          window.addEventListener('load', resizeZeffyFrames);
-          window.addEventListener('resize', resizeZeffyFrames);
-          setTimeout(resizeZeffyFrames, 800);
-          setTimeout(resizeZeffyFrames, 1800);
-          setTimeout(resizeZeffyFrames, 3200);
+          window.addEventListener('load', removeZeffyScrollbars);
+          setTimeout(removeZeffyScrollbars, 700);
+          setTimeout(removeZeffyScrollbars, 1800);
+          setTimeout(removeZeffyScrollbars, 3500);
         </script>
       </div>
     </section>

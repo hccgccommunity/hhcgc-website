@@ -36,8 +36,8 @@
             </div>
             <div class="games">
               <div class="game"><span>🏓</span>Table Tennis</div>
-              <div class="game"><span>◉</span>Carrom</div>
-              <div class="game"><span>♟️</span>Chess</div>
+              <div class="game carrom-game"><img src="carrom-icon.jpg" alt="Carrom board icon">Carrom</div>
+              <div class="game"><span>♟</span>Chess</div>
             </div>
           </div>
         </div>
@@ -45,6 +45,13 @@
     </section>
 
     <section id="about" class="section">
+      <div class="container">
+        <div class="head">
+          <span class="kicker">About the initiative</span>
+          <h2>What is Khel Sandhya?</h2>
+          <p>Khel Sandhya is HCCGC’s signature community evening dedicated to bringing people together through simple, engaging indoor games.</p>
+        </div>
+        <div class="grid">
           <article class="content">
             <p>Designed for participants across age groups, Khel Sandhya offers a welcoming space to unwind, connect, and enjoy friendly competition.</p>
             <p>From classic games like carrom, table tennis, and chess, to moments of laughter and camaraderie, Khel Sandhya is less about winning and more about building a sense of belonging within our community.</p>
@@ -71,6 +78,11 @@
               </ul>
             </article>
           </div>
+        </div>
+        <div class="info-row">
+          <div class="info"><div class="icon">🤝</div><h3>Community First</h3><p>A relaxed space to build connections and enjoy time together.</p></div>
+          <div class="info"><div class="icon">🏆</div><h3>Friendly Play</h3><p>Structured formats that keep the evening engaging and fair.</p></div>
+          <div class="info"><div class="icon">🏠</div><h3>HCCGC Spirit</h3><p>A space our community can call its own.</p></div>
         </div>
       </div>
     </section>

@@ -479,303 +479,22 @@
       .detail-card, .hero-panel { padding: 24px; min-height: auto; }
       .goals { border-left: 0; border-top: 1px solid rgba(197,106,26,.18); padding-left: 0; padding-top: 18px; }
     }
+
   
-    /* Shared HCCGC header/footer styling to support header.html and footer.html partials */
-    .site-header {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      background: rgba(255, 249, 241, 0.92);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border);
+    /* Use the same shared header/footer partials as the live HCCGC pages.
+       Keep page-specific CSS away from footer layout so footer.html/site CSS can align correctly. */
+    #header-placeholder,
+    #footer-placeholder {
+      width: 100%;
     }
 
-    .site-header .container,
-    .site-footer .container {
-      width: min(calc(100% - 32px), 1220px);
-      margin: 0 auto;
+    #footer-placeholder {
+      margin-top: 0;
     }
 
-    .site-header .nav,
-    .nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      min-height: 92px;
-      padding: 12px 0;
-    }
-
-    .site-header .brand,
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      min-width: 0;
-      text-decoration: none;
-      color: inherit;
-    }
-
-    .brand-logo-wrap {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 8px;
-      box-shadow: var(--shadow);
-      flex-shrink: 0;
-    }
-
-    .brand-logo {
-      width: 88px;
-      height: auto;
-      border-radius: 12px;
-      object-fit: contain;
-      display: block;
-    }
-
-    .brand-text h1 {
-      margin: 0;
-      font-size: 1.2rem;
-      line-height: 1.15;
-      color: var(--maroon);
-      font-family: Arial, Helvetica, sans-serif;
-      font-weight: 800;
-    }
-
-    .site-header nav ul {
-      list-style: none;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 18px;
-      margin: 0;
-      padding: 0;
-      align-items: center;
-      justify-content: flex-end;
-    }
-
-    .site-header nav a {
-      font-weight: 700;
-      color: var(--text);
-      font-size: 0.96rem;
-      text-decoration: none;
-      font-family: Arial, Helvetica, sans-serif;
-    }
-
-    .site-header nav a:hover {
-      color: var(--deep-saffron);
-    }
-
-    .menu-toggle {
-      display: none;
-      border: 0;
-      background: transparent;
-      padding: 6px 0;
-      cursor: pointer;
-      color: var(--text);
-    }
-
-    .menu-toggle .bar,
-    .menu-toggle span {
-      display: block;
-      width: 26px;
-      height: 2px;
-      margin: 5px 0;
-      background: currentColor;
-      transition: transform 0.22s ease, opacity 0.22s ease;
-    }
-
-    .menu-toggle.is-open .bar:nth-child(1),
-    .menu-toggle.is-open span:nth-child(1) {
-      transform: translateY(7px) rotate(45deg);
-    }
-
-    .menu-toggle.is-open .bar:nth-child(2),
-    .menu-toggle.is-open span:nth-child(2) {
-      opacity: 0;
-    }
-
-    .menu-toggle.is-open .bar:nth-child(3),
-    .menu-toggle.is-open span:nth-child(3) {
-      transform: translateY(-7px) rotate(-45deg);
-    }
-
-    .site-footer {
-      padding: 24px 0 44px;
-      border-top: 1px solid var(--border);
-      background: rgba(255,249,241,0.6);
-      backdrop-filter: blur(10px);
-      font-family: Arial, Helvetica, sans-serif;
-    }
-
-    .site-footer .footer-top {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      gap: 24px;
-      padding: 8px 0 0;
-    }
-
-    .site-footer .footer-nav {
-      display: flex;
-      justify-content: flex-start;
-      min-width: 0;
-    }
-
-    .site-footer .footer-nav ul {
-      list-style: none;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 0;
-      padding: 0;
-      justify-content: flex-start;
-      align-items: center;
-    }
-
-    .site-footer .footer-nav a {
-      font-weight: 700;
-      color: var(--text);
-      font-size: 0.95rem;
-      text-decoration: none;
-    }
-
-    .site-footer .footer-nav a:hover,
-    .site-footer .footer-email a:hover {
-      color: var(--deep-saffron);
-    }
-
-    .site-footer .footer-email {
-      text-align: center;
-      font-weight: 700;
-      color: var(--text);
-      white-space: nowrap;
-    }
-
-    .site-footer .footer-social {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 12px;
-      min-width: 220px;
-      color: var(--text);
-      font-weight: 700;
-    }
-
-    .site-footer .footer-social-label {
-      white-space: nowrap;
-    }
-
-    .site-footer .social-icons {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .site-footer .social-icon {
-      width: 42px;
-      height: 42px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      background: #fff;
-      border: 1px solid var(--border);
-      box-shadow: 0 6px 18px rgba(93, 43, 14, 0.10);
-      transition: transform 0.18s ease, box-shadow 0.18s ease;
-    }
-
-    .site-footer .social-icon:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 22px rgba(93, 43, 14, 0.16);
-    }
-
-    .site-footer .social-icon svg {
-      width: 20px;
-      height: 20px;
-      display: block;
-    }
-
-    .site-footer .footer-note {
-      margin-top: 18px;
-      padding-top: 18px;
-      border-top: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 0.7rem;
-      text-align: center;
-    }
-
-    .site-footer .copyright-links a {
-      text-decoration: none;
-      color: inherit;
-    }
-
-    @media (max-width: 1120px) {
-      .site-footer .footer-top {
-        grid-template-columns: 1fr;
-        justify-items: start;
-      }
-
-      .site-footer .footer-email,
-      .site-footer .footer-social {
-        text-align: left;
-        justify-content: flex-start;
-      }
-    }
-
-    @media (max-width: 860px) {
-      .site-header .nav,
-      .nav {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .brand-logo {
-        width: 74px;
-      }
-
-      .site-header nav ul {
-        justify-content: flex-start;
-        gap: 14px;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .site-header .nav,
-      .nav {
-        align-items: stretch;
-        gap: 8px;
-      }
-
-      .site-header .brand,
-      .brand {
-        width: 100%;
-      }
-
-      .menu-toggle {
-        display: inline-block;
-        margin-top: 2px;
-      }
-
-      .site-header nav {
-        display: none;
-        width: 100%;
-        background: rgba(255, 249, 241, 0.95);
-        padding: 10px 0;
-        border-top: 1px solid var(--border);
-      }
-
-      .site-header nav.is-open {
-        display: block;
-      }
-
-      .site-header nav ul {
-        flex-direction: column;
-        align-items: flex-start;
-        justify-content: flex-start;
-        gap: 14px;
-        padding-top: 4px;
-        padding-left: 4px;
-      }
+    /* Prevent Yoga page typography rules from leaking into loaded footer content */
+    #footer-placeholder * {
+      box-sizing: border-box;
     }
 
   </style>
@@ -974,7 +693,7 @@
         </div>
       </section>
     </main>
-    <div id="footer-placeholder"></div>
+    
 </div>
 
   <script>
@@ -1004,5 +723,7 @@
     initializePage();
   </script>
 
+
+  <div id="footer-placeholder"></div>
 </body>
 </html>

@@ -603,7 +603,7 @@
       <div class="container">
         <div class="hero-grid">
           <div class="hero-panel">
-            <h2>Yoga for All</h2>
+            <h1>Yoga for All</h1>
             <p class="hero-subtitle">3 Month Holistic Healing Course</p>
             <p class="hero-copy">A structured 12-week journey designed to help participants reset the body, build strength and balance, and integrate mindful practices for long-term wellness.</p>
             <div class="cta-row">
@@ -613,7 +613,7 @@
           </div>
 
           <aside class="details-panel" aria-label="Workshop details">
-            <h3>Workshop Details</h3>
+            <h2>Workshop Details</h2>
             <div class="details-grid">
               <div class="detail-item">
                 <span class="detail-label">Duration</span>

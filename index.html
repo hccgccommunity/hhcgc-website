@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -158,10 +159,8 @@
 
         .hero-banner img {
             width: 100%;
-            height: clamp(320px, 48vw, 300px);
-            min-height: 375px;
-            object-fit: cover;
-            object-position: center center;
+            height: auto;
+            display: block;
         }
 
         .section {
@@ -398,9 +397,7 @@
             }
 
             .hero-banner img {
-                height: clamp(260px, 58vw, 480px);
-                min-height: 260px;
-                object-position: center center;
+                height: auto;
             }
 
             .three-values,
@@ -416,7 +413,7 @@
             .container { width: min(calc(100% - 24px), var(--max)); }
             .venue-grid { grid-template-columns: 1fr; }
             .venue-card img { height: 210px; }
-            .hero-banner img { height: 240px; min-height: 240px; }
+            .hero-banner img { height: auto; }
 
             .value-card,
             .contact-card,

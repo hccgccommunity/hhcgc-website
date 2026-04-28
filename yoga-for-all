@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -793,16 +794,16 @@
           </div>
 
           <div class="zeffy-wrap">
-            <div data-zeffy-embed data-form-url="/embed/ticketing/yoga-for-all-2"></div>
-            <div data-zeffy-embed-fallback style="display:none;">
-              <div style="position:relative;overflow:hidden;height:450px;width:100%;padding-top:450px;background:#fff6ea;">
-                <iframe title='Donation form powered by Zeffy' style='position:absolute;border:0;top:0;left:0;bottom:0;right:0;width:100%;height:100%;background:#fff6ea;' src='https://www.zeffy.com/embed/ticketing/yoga-for-all-2' allowpaymentrequest allowTransparency="true"></iframe>
-              </div>
+            <div style="position:relative;overflow:hidden;width:100%;padding-top:650px;background:#fff6ea;">
+              <iframe
+                title="Registration form powered by Zeffy"
+                src="https://www.zeffy.com/embed/ticketing/yoga-for-all-2"
+                style="position:absolute;border:0;top:0;left:0;width:100%;height:100%;background:#fff6ea;"
+                allow="payment"
+                allowpaymentrequest
+                allowtransparency="true">
+              </iframe>
             </div>
-            <script
-              src="https://www.zeffy.com/embed/v2/zeffy-embed.js"
-              onerror="document.querySelectorAll('[data-zeffy-embed-fallback]').forEach(function(el){el.style.display='block';});">
-            </script>
           </div>
         </div>
       </div>

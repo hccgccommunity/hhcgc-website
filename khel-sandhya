@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -836,23 +837,15 @@
         </div>
 
         <div class="embed-card">
-          <div data-zeffy-embed data-form-url="/embed/ticketing/khel-sandhya-ravps-for--58"></div>
-
-          <div data-zeffy-embed-fallback style="display:none;">
-            <div class="zeffy-responsive-frame">
-              <iframe title="Khel Sandhya RSVP form powered by Zeffy"
-                      src="https://www.zeffy.com/embed/ticketing/khel-sandhya-ravps-for--58"
-                      allowpaymentrequest
-                      allowTransparency="true"
-                      scrolling="no"></iframe>
-            </div>
+          <div class="zeffy-responsive-frame">
+            <iframe title="Khel Sandhya RSVP form powered by Zeffy"
+                    src="https://www.zeffy.com/embed/ticketing/khel-sandhya-ravps-for--58"
+                    allow="payment"
+                    allowpaymentrequest
+                    allowTransparency="true"
+                    scrolling="no"></iframe>
           </div>
         </div>
-
-        <script
-          src="https://www.zeffy.com/embed/v2/zeffy-embed.js"
-          onerror="document.querySelectorAll('[data-zeffy-embed-fallback]').forEach(function(el){el.style.display='block';});">
-        </script>
         <script>
           function removeZeffyScrollbars() {
             document.querySelectorAll('.embed-card iframe').forEach(function(frame) {

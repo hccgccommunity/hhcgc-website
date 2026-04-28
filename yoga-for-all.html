@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yoga for All | Hindu Community Center of Greater Cincinnati</title>
+  <meta name="description" content="Yoga for All - 12-week holistic healing course at Hindu Community Center of Greater Cincinnati." />
+
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+
+  <style>
+    :root {
+      --saffron: #c56a1a;
+      --deep-saffron: #9b4211;
+      --maroon: #6f1f12;
+      --gold: #d9a441;
+      --cream: #fff8ea;
+      --soft-cream: #fffdf7;
+      --text: #3c2418;
+      --muted: #765746;
+      --border: rgba(197, 106, 26, 0.22);
+      --shadow: 0 18px 45px rgba(76, 39, 14, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Georgia, 'Times New Roman', serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(217,164,65,.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(197,106,26,.16), transparent 30%),
+        linear-gradient(180deg, #fffaf0 0%, #fffdf7 46%, #fff8ea 100%);
+      line-height: 1.65;
+    }
+
+    a { color: inherit; }
+
+    .page-wrap { overflow: hidden; }
+
+    .site-header {
+      background: rgba(255, 253, 247, .94);
+      border-bottom: 1px solid rgba(197,106,26,.18);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+    }
+
+    .nav {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: stretch;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .brand img {
+      width: 64px;
+      height: auto;
+      display: block;
+    }
+
+    .brand-text {
+      font-size: 13px;
+      line-height: 1.15;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--maroon);
+      font-weight: 700;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .hero {
+      position: relative;
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 58px 24px 38px;
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 38px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 14px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: rgba(255,255,255,.55);
+      color: var(--deep-saffron);
+      font-family: Arial, sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 18px 0 12px;
+      font-size: clamp(44px, 6vw, 78px);
+      line-height: .98;
+      color: var(--maroon);
+      letter-spacing: -.03em;
+    }
+
+    .subtitle {
+      font-size: clamp(20px, 2.4vw, 30px);
+      color: var(--deep-saffron);
+      margin: 0 0 16px;
+      font-weight: 600;
+    }
+
+    .intro {
+      max-width: 700px;
+      margin: 0 0 26px;
+      font-size: 18px;
+      color: var(--muted);
+    }
+
+
+    .hero-panel {
+      height: 100%;
+      min-height: 430px;
+      padding: 34px;
+      border-radius: 28px;
+      background: rgba(255,255,255,.62);
+      border: 1px solid var(--border);
+      box-shadow: 0 16px 36px rgba(76,39,14,.08);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 12px 24px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-family: Arial, sans-serif;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 10px 24px rgba(111,31,18,.14);
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, var(--deep-saffron), var(--saffron));
+      color: white;
+    }
+
+    .btn.secondary {
+      background: rgba(255,255,255,.72);
+      border-color: var(--border);
+      color: var(--maroon);
+      box-shadow: none;
+    }
+
+    .detail-card {
+      position: relative;
+      padding: 30px;
+      border-radius: 28px;
+      background: rgba(255,255,255,.78);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+      height: 100%;
+      min-height: 430px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .detail-card:after {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border: 1px solid rgba(217,164,65,.28);
+      border-radius: 22px;
+      pointer-events: none;
+    }
+
+    .detail-card h2 {
+      margin: 0 0 18px;
+      font-size: 28px;
+      color: var(--maroon);
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .detail-item {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(255,248,234,.92), rgba(255,255,255,.88));
+      border: 1px solid rgba(197,106,26,.14);
+      font-family: Arial, sans-serif;
+    }
+
+    .detail-label {
+      display: block;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--deep-saffron);
+      font-weight: 800;
+      margin-bottom: 2px;
+    }
+
+    .detail-value {
+      display: block;
+      font-size: 18px;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .section {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 46px 24px;
+    }
+
+    .section-kicker {
+      font-family: Arial, sans-serif;
+      font-weight: 800;
+      color: var(--deep-saffron);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .section h2 {
+      margin: 0 0 14px;
+      color: var(--maroon);
+      font-size: clamp(30px, 3.4vw, 44px);
+      line-height: 1.08;
+    }
+
+    .section-lead {
+      max-width: 850px;
+      color: var(--muted);
+      font-size: 18px;
+      margin: 0 0 26px;
+    }
+
+    .pill-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 28px;
+    }
+
+    .pill-card {
+      border-radius: 24px;
+      background: rgba(255,255,255,.72);
+      border: 1px solid var(--border);
+      padding: 24px;
+      box-shadow: 0 12px 30px rgba(76,39,14,.08);
+    }
+
+    .pill-icon { font-size: 32px; margin-bottom: 8px; }
+    .pill-card h3 { margin: 0 0 8px; color: var(--maroon); font-size: 22px; }
+    .pill-card p { margin: 0; color: var(--muted); }
+
+    .months {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      margin-top: 28px;
+    }
+
+    .month-card {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100%;
+      border-radius: 26px;
+      overflow: hidden;
+      background: rgba(255,255,255,.84);
+      border: 1px solid var(--border);
+      box-shadow: 0 16px 36px rgba(76,39,14,.09);
+    }
+
+    .month-head {
+      padding: 24px 24px 22px;
+      background: linear-gradient(135deg, rgba(111,31,18,.96), rgba(197,106,26,.9));
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .month-head .weeks {
+      display: inline-flex;
+      width: fit-content;
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      opacity: .9;
+      font-weight: 800;
+      margin-bottom: 8px;
+      white-space: nowrap;
+    }
+
+    .month-head h3 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.18;
+    }
+
+    .month-body {
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .month-body h4 {
+      margin: 0 0 8px;
+      color: var(--deep-saffron);
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .practice, .goals {
+      min-width: 0;
+    }
+
+    ul {
+      margin: 0 0 18px 20px;
+      padding: 0;
+    }
+
+    li { margin-bottom: 8px; color: var(--muted); }
+
+    .goals {
+      padding-top: 0;
+      border-top: 0;
+      border-left: 1px solid rgba(197,106,26,.18);
+      padding-left: 24px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .info-box {
+      padding: 28px;
+      border-radius: 26px;
+      background: rgba(255,255,255,.76);
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 30px rgba(76,39,14,.08);
+    }
+
+    .info-box h3 {
+      margin: 0 0 12px;
+      color: var(--maroon);
+      font-size: 25px;
+    }
+
+    .info-box p { margin: 0 0 14px; color: var(--muted); }
+    .info-box ul { margin-bottom: 0; }
+
+    .join {
+      margin-top: 12px;
+      padding: 34px;
+      border-radius: 32px;
+      background: linear-gradient(180deg, rgba(255,253,247,.96), rgba(255,248,234,.96));
+      color: var(--text);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .join h2 { color: var(--maroon); margin-bottom: 8px; }
+    .join p { max-width: 760px; color: var(--muted); margin: 0 0 20px; }
+    .join .section-kicker { color: var(--deep-saffron) !important; }
+    .join .btn { background: var(--maroon); color: #fff8ea; box-shadow: none; }
+
+    footer {
+      margin-top: 18px;
+      padding: 28px 24px;
+      text-align: center;
+      color: #fff8ea;
+      background: linear-gradient(135deg, var(--maroon), var(--deep-saffron));
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+    }
+
+    footer a {
+      color: #fff8ea;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .zeffy-wrap {
+      position: relative;
+      z-index: 1;
+      margin-top: 18px;
+      padding: 0;
+      border-radius: 22px;
+      background: rgba(255,248,234,.92);
+      border: 1px solid rgba(197,106,26,.18);
+      box-shadow: 0 10px 26px rgba(76,39,14,.08);
+      overflow: hidden;
+    }
+
+    .zeffy-inner {
+      border-radius: 22px;
+      overflow: hidden;
+      background: rgba(255,248,234,.92);
+      border: 0;
+      min-height: 420px;
+    }
+
+    .zeffy-inner iframe,
+    .zeffy-inner [data-zeffy-embed],
+    .zeffy-inner [data-zeffy-embed-fallback] {
+      background: rgba(255,248,234,.92) !important;
+      border-radius: 22px;
+    }
+
+    @media (max-width: 900px) {
+      .hero, .pill-row, .two-col, .month-card, .month-body { grid-template-columns: 1fr; }
+      .hero { padding-top: 28px; }
+      .nav { align-items: flex-start; }
+      .nav-links { display: none; }
+      .detail-card, .hero-panel { padding: 24px; min-height: auto; }
+      .goals { border-left: 0; border-top: 1px solid rgba(197,106,26,.18); padding-left: 0; padding-top: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+    <header class="site-header">
+      <div class="nav">
+      <a class="brand" href="https://www.hccgc.org/" aria-label="HCCGC Home">
+        <img src="hccgc-logo.png" alt="Hindu Community Center of Greater Cincinnati logo" onerror="this.style.display='none'" />
+        <span class="brand-text">Hindu Community Center<br>Greater Cincinnati</span>
+      </a>
+      <nav class="nav-links" aria-label="Page navigation">
+        <a href="#about">About</a>
+        <a href="#course">Course Details</a>
+        <a href="#join">Register</a>
+      </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-panel">
+          <h1>Yoga for All</h1>
+          <p class="subtitle">3 Month Holistic Healing Course</p>
+          <p class="intro">A structured 12-week journey designed to help participants reset the body, build strength and balance, and integrate mindful practices for long-term wellness.</p>
+          <div class="cta-row">
+            <a class="btn primary" href="#join">Register</a>
+            <a class="btn secondary" href="#course">Learn More</a>
+          </div>
+        </div>
+
+        <aside class="detail-card" aria-label="Workshop details">
+          <h2>Workshop Details</h2>
+          <div class="details-grid">
+            <div class="detail-item">
+              <span class="detail-label">Duration</span>
+              <span class="detail-value">12 Weeks / 3 Months</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Level</span>
+              <span class="detail-value">Beginner → Intermediate</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Approach</span>
+              <span class="detail-value">Reset → Build → Integrate</span>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="section" id="about">
+        <div class="section-kicker">About the course</div>
+        <h2>Build wellness one mindful step at a time.</h2>
+        <p class="section-lead">Yoga for All is a progressive holistic healing course focused on gentle movement, breathwork, meditation, strength, balance, and emotional well-being. The course is designed to support participants across different fitness levels while maintaining a calm, safe, and respectful practice environment.</p>
+
+        <div class="pill-row">
+          <div class="pill-card">
+            <div class="pill-icon">🌱</div>
+            <h3>Reset</h3>
+            <p>Start with mobility, breathing, relaxation, and body awareness.</p>
+          </div>
+          <div class="pill-card">
+            <div class="pill-icon">🌿</div>
+            <h3>Build</h3>
+            <p>Develop strength, stability, balance, stamina, and metabolic support.</p>
+          </div>
+          <div class="pill-card">
+            <div class="pill-icon">🌸</div>
+            <h3>Integrate</h3>
+            <p>Bring together breath, movement, meditation, clarity, and recovery.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="course">
+        <div class="section-kicker">Course details</div>
+        <h2>12-week progressive wellness journey</h2>
+        <p class="section-lead">The program moves gradually from foundation and nervous-system reset to strength, balance, and integrated holistic wellness.</p>
+
+        <div class="months">
+          <article class="month-card">
+            <div class="month-head">
+              <div class="weeks">Weeks 1–4</div>
+              <h3>🌱 Foundation & Reset</h3>
+            </div>
+            <div class="month-body">
+              <div class="practice">
+              <h4>Practice Focus</h4>
+              <ul>
+                <li>Sookshma Vyayam / joint rotations</li>
+                <li>Basic asanas: Tadasana, Cat-Cow, Child’s Pose</li>
+                <li>Slow, controlled movements with no forceful stretching</li>
+                <li>Deep breathing and abdominal breathing</li>
+                <li>Compulsory Shavasana and 5-minute breath awareness meditation</li>
+                <li>Daily practice time: 20–30 minutes</li>
+              </ul>
+              </div>
+              <div class="goals">
+                <h4>Goals</h4>
+                <ul>
+                  <li>Reduce stress, improve sleep, and calm the nervous system</li>
+                  <li>Improve joint mobility and reduce stiffness or pain</li>
+                  <li>Build body awareness and a healthier daily rhythm</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+
+          <article class="month-card">
+            <div class="month-head">
+              <div class="weeks">Weeks 5–8</div>
+              <h3>🌿 Strength & Metabolic Balance</h3>
+            </div>
+            <div class="month-body">
+              <div class="practice">
+              <h4>Practice Focus</h4>
+              <ul>
+                <li>Warm-up practice for 5–7 minutes</li>
+                <li>Chair squats, wall push-ups, and supported lunges</li>
+                <li>Balance poses including Vrikshasana</li>
+                <li>Slow Surya Namaskar with modifications if needed</li>
+                <li>Anulom Vilom and Ujjayi pranayama</li>
+                <li>Practice time: 30–40 minutes</li>
+              </ul>
+              </div>
+              <div class="goals">
+                <h4>Goals</h4>
+                <ul>
+                  <li>Improve muscle strength, joint stability, and balance</li>
+                  <li>Support blood sugar control and metabolism</li>
+                  <li>Help regulate blood pressure and stamina</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+
+          <article class="month-card">
+            <div class="month-head">
+              <div class="weeks">Weeks 9–12</div>
+              <h3>🌸 Integration & Hormonal Balance</h3>
+            </div>
+            <div class="month-body">
+              <div class="practice">
+              <h4>Practice Focus</h4>
+              <ul>
+                <li>Combine strength and balance into flow sequences</li>
+                <li>Gentle continuous yoga flow with no fast transitions</li>
+                <li>Bhramari pranayama for 5–7 minutes</li>
+                <li>10–15 minutes of meditation</li>
+                <li>Breath-synchronized movement and light posture holds</li>
+                <li>Practice time: 40–45 minutes</li>
+              </ul>
+              </div>
+              <div class="goals">
+                <h4>Goals</h4>
+                <ul>
+                  <li>Improve hormonal balance and cycle regularity</li>
+                  <li>Boost energy, endurance, and recovery</li>
+                  <li>Enhance mental clarity, focus, and emotional stability</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="two-col">
+          <div class="info-box">
+            <h3>What to Expect</h3>
+            <ul>
+              <li>A calm, structured, and beginner-friendly environment</li>
+              <li>Gentle progression from basic movements to integrated flows</li>
+              <li>Breathing techniques, meditation, relaxation, and mindful movement</li>
+              <li>Modifications where needed for comfort and safety</li>
+              <li>A wellness-focused community experience at HCCGC</li>
+            </ul>
+          </div>
+          <div class="info-box">
+            <h3>Who Can Join</h3>
+            <ul>
+              <li>Open to beginners and intermediate participants</li>
+              <li>Suitable for anyone looking to improve flexibility, strength, balance, and stress management</li>
+              <li>Ideal for participants seeking a slower, mindful, holistic yoga practice</li>
+              <li>No prior advanced yoga experience required</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="join">
+        <div class="join">
+          <div class="section-kicker">Registration</div>
+          <h2>Register</h2>
+          <p>Please complete the registration form below. Additional instructions, participation details, and any required updates will be shared with registered participants.</p>
+          <div class="zeffy-wrap">
+            <div class="zeffy-inner">
+              <div data-zeffy-embed data-form-url="/embed/ticketing/yoga-for-all-2"></div>
+              <div data-zeffy-embed-fallback style="display:none;">
+                <div style="position:relative;overflow:hidden;height:390px;width:100%;padding-top:390px;background:#fff8ea;border-radius:22px;"><iframe title='Donation form powered by Zeffy' style='position:absolute;border:0;top:0;left:0;bottom:0;right:0;width:100%;height:100%;background:#fff8ea;border-radius:22px;' src='https://www.zeffy.com/embed/ticketing/yoga-for-all-2' allowpaymentrequest allowTransparency="true"></iframe></div>
+              </div>
+              <script
+                src="https://www.zeffy.com/embed/v2/zeffy-embed.js"
+                onerror="document.querySelectorAll('[data-zeffy-embed-fallback]').forEach(function(el){el.style.display='block';});">
+              </script>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      Hindu Community Center of Greater Cincinnati · 7500 Industrial Row Rd, Mason, OH · <a href="https://www.hccgc.org/">www.hccgc.org</a>
+    </footer>
+  </div>
+</body>
+</html>

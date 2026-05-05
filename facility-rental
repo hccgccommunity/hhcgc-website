@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -738,6 +739,10 @@
                 <span class="detail-value">4 Spaces — Various Sizes</span>
               </div>
               <div class="detail-item">
+                <span class="detail-label">Visit Hours</span>
+                <span class="detail-value">Wed &amp; Fri, 5 – 6 PM</span>
+              </div>
+              <div class="detail-item">
                 <span class="detail-label">Weekday Discount</span>
                 <span class="detail-value">20% Off (Mon – Fri)</span>
               </div>
@@ -895,7 +900,7 @@
           <p class="section-copy">To ensure a welcoming experience for everyone, please review our rental policies before submitting your booking.</p>
         </div>
 
-        <div class="two-col">
+        <div class="two-col" style="grid-template-columns:1fr 1fr 1fr;">
           <div class="info-box">
             <h3>Discounts &amp; Pricing</h3>
             <ul>
@@ -914,6 +919,14 @@
               <li>Renters are responsible for leaving the space clean and in its original condition. Please review the <a href="https://hccgc.org/hccgc_rental_conditions.html" target="_blank" rel="noopener">Terms &amp; Conditions</a></li>
               <li>All renters agree to HCCGC's community standards of respect and inclusivity</li>
               <li>For questions, reach out via email at <a href="mailto:hccgccommunity@gmail.com">hccgccommunity@gmail.com</a></li>
+            </ul>
+          </div>
+          <div class="info-box">
+            <h3>Visit the Facility</h3>
+            <ul>
+              <li>Open hours to tour the spaces: <strong>Wednesday &amp; Friday, 5 – 6 PM</strong></li>
+              <li>Visits are by appointment — please confirm your visit via email at <a href="mailto:hccgccommunity@gmail.com">hccgccommunity@gmail.com</a> before coming</li>
+              <li>We'll walk you through the available rooms and answer any questions you may have</li>
             </ul>
           </div>
         </div>

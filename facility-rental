@@ -800,6 +800,46 @@
             <div class="rate-badge">$15 / hour</div>
           </div>
         </div>
+
+        <!-- FLOOR PLAN -->
+        <div style="margin-top:36px;border-radius:24px;background:rgba(255,255,255,0.74);border:1px solid var(--border);box-shadow:0 12px 30px rgba(93,43,14,.08);padding:28px 32px;">
+          <div style="margin-bottom:16px;text-align:center;">
+            <span class="section-kicker">Floor Plan</span>
+            <h3 style="margin:8px 0 4px;color:var(--maroon);font-family:Georgia,'Times New Roman',serif;font-size:clamp(1.4rem,2.4vw,2rem);">Facility Layout</h3>
+            <p style="margin:0;color:var(--muted);font-size:0.95rem;">See how our rooms are arranged within the facility.</p>
+          </div>
+          <svg width="100%" viewBox="0 0 680 480" role="img" xmlns="http://www.w3.org/2000/svg" style="font-family:Arial,Helvetica,sans-serif;">
+            <title>HCCGC Facility Floor Plan</title>
+            <desc>Floor plan showing Samskriti Room, Surya Hall, Nataraj Room, and Ganesh Room</desc>
+
+            <!-- Outer shell -->
+            <rect x="60" y="30" width="560" height="420" rx="4" fill="none" stroke="#7f2e16" stroke-width="2" opacity="0.15"/>
+
+            <!-- SAMSKRITI ROOM -->
+            <rect x="60" y="30" width="560" height="145" rx="4" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1.5"/>
+            <text x="340" y="98" text-anchor="middle" font-size="16" font-weight="700" fill="#085041">Samskriti Room</text>
+            <text x="340" y="120" text-anchor="middle" font-size="13" fill="#0F6E56">850 sqft &nbsp;·&nbsp; 18×47 &nbsp;·&nbsp; $40/hr</text>
+
+            <!-- SURYA HALL -->
+            <rect x="60" y="175" width="305" height="275" rx="4" fill="#FAEEDA" stroke="#854F0B" stroke-width="1.5"/>
+            <text x="213" y="298" text-anchor="middle" font-size="16" font-weight="700" fill="#633806">Surya Hall</text>
+            <text x="213" y="320" text-anchor="middle" font-size="13" fill="#854F0B">1200 sqft &nbsp;·&nbsp; 30×40 &nbsp;·&nbsp; $45/hr</text>
+
+            <!-- NATARAJ ROOM -->
+            <rect x="365" y="175" width="255" height="160" rx="4" fill="#EEEDFE" stroke="#534AB7" stroke-width="1.5"/>
+            <text x="492" y="248" text-anchor="middle" font-size="16" font-weight="700" fill="#3C3489">Nataraj Room</text>
+            <text x="492" y="270" text-anchor="middle" font-size="13" fill="#534AB7">600 sqft &nbsp;·&nbsp; 19×34 &nbsp;·&nbsp; $30/hr</text>
+
+            <!-- GANESH ROOM -->
+            <rect x="365" y="335" width="255" height="115" rx="4" fill="#FAECE7" stroke="#993C1D" stroke-width="1.5"/>
+            <text x="492" y="385" text-anchor="middle" font-size="16" font-weight="700" fill="#712B13">Ganesh Room</text>
+            <text x="492" y="407" text-anchor="middle" font-size="13" fill="#993C1D">250 sqft &nbsp;·&nbsp; 13×18 &nbsp;·&nbsp; $15/hr</text>
+
+            <!-- Caption -->
+            <text x="340" y="465" text-anchor="middle" font-size="11" fill="#6a5141" opacity="0.6">Not to scale</text>
+          </svg>
+        </div>
+
       </div>
     </section>
 

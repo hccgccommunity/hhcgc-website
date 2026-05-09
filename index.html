@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -521,16 +522,6 @@
                     </div>
 
                     <div class="card contact-card">
-                        <h3>Aum School — Summer Camp</h3>
-                        <p class="section-copy">A culturally enriching camp nurturing young minds through Hindu values, stories, shlokas, games, and creative activities.</p>
-                        <div style="display:flex;justify-content:center;margin-top:16px;">
-                            <form id="aumSchoolKnowMore">
-                                <button class="btn btn-primary" type="submit">Know More</button>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div class="card contact-card">
                         <h3>Sangeet Sandhya</h3>
                         <p class="section-copy">A community evening celebrating the joy of music — performances, participation, and togetherness for all ages.</p>
                         <div style="display:flex;justify-content:center;margin-top:16px;">
@@ -657,8 +648,7 @@
 
     <script>
         const ZEFFY_FORM_LINK = "donate-now.html";
-        const AUM_SCHOOL_LINK = "https://aum.school/cincinnati/";
-        const SAHYOGMILAN_LINK = "sahyog-milan-participation-form.html";
+const SAHYOGMILAN_LINK = "sahyog-milan-participation-form.html";
         const VOLUNTEERWUS_LINK = "volunteer-with-us.html";
 
         async function loadPartial(placeholderId, filePath) {
@@ -683,15 +673,6 @@
                 donateForm.addEventListener("submit", function (event) {
                     event.preventDefault();
                     window.open(ZEFFY_FORM_LINK, "_self");
-                });
-            }
-
-
-            const aumSchoolKnowMoreForm = document.getElementById("aumSchoolKnowMore");
-            if (aumSchoolKnowMoreForm) {
-                aumSchoolKnowMoreForm.addEventListener("submit", function (event) {
-                    event.preventDefault();
-                    window.open(AUM_SCHOOL_LINK, "_blank", "noopener,noreferrer");
                 });
             }
 

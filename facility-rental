@@ -621,6 +621,10 @@
     /* ── TWO COL ── */
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
 
+    @media (max-width: 640px) {
+      .two-col { grid-template-columns: 1fr; }
+    }
+
     ul { margin: 0 0 0 20px; padding: 0; }
     li { color: var(--muted); margin-bottom: 7px; }
     li a { color: var(--saffron-dark); font-weight: 700; text-decoration: underline; }
@@ -806,37 +810,58 @@
           <div style="margin-bottom:16px;text-align:center;">
             <span class="section-kicker">Floor Plan</span>
             <h3 style="margin:8px 0 4px;color:var(--maroon);font-family:Georgia,'Times New Roman',serif;font-size:clamp(1.4rem,2.4vw,2rem);">Facility Layout</h3>
-            <p style="margin:0;color:var(--muted);font-size:0.95rem;">See how our rooms are arranged within the facility.</p>
+            <p style="margin:0;color:var(--muted);font-size:0.95rem;">Rooms drawn approximately to scale based on actual dimensions.</p>
           </div>
-          <svg width="100%" viewBox="0 0 680 480" role="img" xmlns="http://www.w3.org/2000/svg" style="font-family:Arial,Helvetica,sans-serif;">
+          <!--
+            Scale: 8px = 1ft
+            Building: 49ft wide × 70ft tall → 392 × 560px  (x=50, y=30)
+            Patanjali Hall:  47ft × 18ft → w=376 h=144  (x=50  y=30)
+            Surya Hall:      30ft × 40ft → w=240 h=320  (x=50  y=174)
+            Nataraj Room:    19ft × 34ft → w=152 h=272  (x=290 y=174)
+            Ganesh Room:     13ft × 18ft → w=104 h=144  (x=338 y=446, right-aligned)
+            Welcome Lobby:   30ft × 12ft → w=240 h=96   (x=50  y=494, below Surya)
+            ViewBox: 0 0 492 630  (50 left margin + 392 + 50 right margin, 30 top + 560 + 40 bottom)
+          -->
+          <svg width="100%" viewBox="0 0 492 630" role="img" xmlns="http://www.w3.org/2000/svg" style="font-family:Arial,Helvetica,sans-serif;">
             <title>HCCGC Facility Floor Plan</title>
-            <desc>Floor plan showing Samskriti Room, Surya Hall, Nataraj Room, and Ganesh Room</desc>
+            <desc>To-scale floor plan at 8px per foot. Patanjali Hall top, Surya Hall bottom-left, Nataraj Room right-upper, Ganesh Room right-lower, Welcome Lobby bottom-left.</desc>
 
-            <!-- Outer shell -->
-            <rect x="60" y="30" width="560" height="420" rx="4" fill="none" stroke="#7f2e16" stroke-width="2" opacity="0.15"/>
+            <!-- Outer building shell -->
+            <rect x="50" y="30" width="392" height="560" rx="3" fill="none" stroke="#7f2e16" stroke-width="2" opacity="0.18"/>
 
-            <!-- SAMSKRITI ROOM -->
-            <rect x="60" y="30" width="560" height="145" rx="4" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1.5"/>
-            <text x="340" y="98" text-anchor="middle" font-size="16" font-weight="700" fill="#085041">Samskriti Room</text>
-            <text x="340" y="120" text-anchor="middle" font-size="13" fill="#0F6E56">850 sqft &nbsp;·&nbsp; 18×47 &nbsp;·&nbsp; $40/hr</text>
+            <!-- PATANJALI HALL — extended to align with Nataraj right edge -->
+            <rect x="50" y="30" width="392" height="144" rx="3" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1.5"/>
+            <text x="246" y="95" text-anchor="middle" font-size="15" font-weight="700" fill="#085041">Patanjali Hall</text>
+            <text x="246" y="114" text-anchor="middle" font-size="11" fill="#0F6E56">850 sqft · 18 × 47 ft · $40/hr</text>
 
-            <!-- SURYA HALL -->
-            <rect x="60" y="175" width="305" height="275" rx="4" fill="#FAEEDA" stroke="#854F0B" stroke-width="1.5"/>
-            <text x="213" y="298" text-anchor="middle" font-size="16" font-weight="700" fill="#633806">Surya Hall</text>
-            <text x="213" y="320" text-anchor="middle" font-size="13" fill="#854F0B">1200 sqft &nbsp;·&nbsp; 30×40 &nbsp;·&nbsp; $45/hr</text>
+            <!-- SURYA HALL — 30ft wide × 40ft tall -->
+            <rect x="50" y="174" width="240" height="320" rx="3" fill="#FAEEDA" stroke="#854F0B" stroke-width="1.5"/>
+            <text x="170" y="322" text-anchor="middle" font-size="15" font-weight="700" fill="#633806">Surya Hall</text>
+            <text x="170" y="342" text-anchor="middle" font-size="11" fill="#854F0B">1200 sqft · 30 × 40 ft · $45/hr</text>
 
-            <!-- NATARAJ ROOM -->
-            <rect x="365" y="175" width="255" height="160" rx="4" fill="#EEEDFE" stroke="#534AB7" stroke-width="1.5"/>
-            <text x="492" y="248" text-anchor="middle" font-size="16" font-weight="700" fill="#3C3489">Nataraj Room</text>
-            <text x="492" y="270" text-anchor="middle" font-size="13" fill="#534AB7">600 sqft &nbsp;·&nbsp; 19×34 &nbsp;·&nbsp; $30/hr</text>
+            <!-- NATARAJ ROOM — 19ft wide × 34ft tall -->
+            <rect x="290" y="174" width="152" height="272" rx="3" fill="#EEEDFE" stroke="#534AB7" stroke-width="1.5"/>
+            <text x="366" y="303" text-anchor="middle" font-size="15" font-weight="700" fill="#3C3489">Nataraj Room</text>
+            <text x="366" y="322" text-anchor="middle" font-size="11" fill="#534AB7">600 sqft · 19 × 34 ft · $30/hr</text>
 
-            <!-- GANESH ROOM -->
-            <rect x="365" y="335" width="255" height="115" rx="4" fill="#FAECE7" stroke="#993C1D" stroke-width="1.5"/>
-            <text x="492" y="385" text-anchor="middle" font-size="16" font-weight="700" fill="#712B13">Ganesh Room</text>
-            <text x="492" y="407" text-anchor="middle" font-size="13" fill="#993C1D">250 sqft &nbsp;·&nbsp; 13×18 &nbsp;·&nbsp; $15/hr</text>
+            <!-- GANESH ROOM — 13ft wide × 18ft tall (right-aligned within right column) -->
+            <rect x="338" y="446" width="104" height="144" rx="3" fill="#FAECE7" stroke="#993C1D" stroke-width="1.5"/>
+            <text x="390" y="511" text-anchor="middle" font-size="14" font-weight="700" fill="#712B13">Ganesh Room</text>
+            <text x="390" y="528" text-anchor="middle" font-size="10" fill="#993C1D">250 sqft · 13 × 18 ft</text>
+            <text x="390" y="543" text-anchor="middle" font-size="10" fill="#993C1D">$15/hr</text>
+
+            <!-- WELCOME LOBBY — 30ft wide × 12ft tall (below Surya Hall) -->
+            <rect x="50" y="494" width="240" height="96" rx="3" fill="rgba(217,164,65,0.10)" stroke="#d9a441" stroke-width="1" stroke-dasharray="5 3"/>
+            <text x="170" y="535" text-anchor="middle" font-size="13" font-weight="700" fill="#8d3e0d">Welcome &amp; Check-In</text>
+            <text x="170" y="553" text-anchor="middle" font-size="10" fill="#6a5141">Guest Arrival · Lobby</text>
+
+            <!-- Small corridor strip between Nataraj bottom and Ganesh left -->
+            <!-- Nataraj ends at y=446, Ganesh starts at x=338. Space x=290..338, y=446..590 is a gap/corridor -->
+            <rect x="290" y="446" width="48" height="144" rx="2" fill="rgba(217,164,65,0.06)" stroke="#d9a441" stroke-width="0.75" stroke-dasharray="3 3"/>
+            <text x="314" y="519" text-anchor="middle" font-size="8" fill="#6a5141" transform="rotate(-90,314,519)">corridor</text>
 
             <!-- Caption -->
-            <text x="340" y="465" text-anchor="middle" font-size="11" fill="#6a5141" opacity="0.6">Not to scale</text>
+            <text x="246" y="610" text-anchor="middle" font-size="9" fill="#6a5141" opacity="0.5">Approximately to scale · 8 px = 1 ft</text>
           </svg>
         </div>
 
@@ -945,7 +970,7 @@
           <p class="section-copy">To ensure a welcoming experience for everyone, please review our rental policies before submitting your booking.</p>
         </div>
 
-        <div class="two-col" style="grid-template-columns:1fr 1fr 1fr 1fr;">
+        <div class="two-col" style="grid-template-columns:1fr 1fr;">
           <div class="info-box">
             <h3>Discounts &amp; Pricing</h3>
             <ul>
@@ -978,7 +1003,7 @@
             <h3>Food &amp; Beverage Policy</h3>
             <ul>
               <li>🚫 <strong>No alcoholic beverages</strong> are permitted anywhere on the premises</li>
-              <li>✅ <strong>Non-vegetarian food is permitted</strong> in the facility</li>
+              <li>🚫 <strong>No non-vegetarian food</strong> is permitted in the facility</li>
               <li>Renters are responsible for proper cleanup of all food and beverages after their event</li>
             </ul>
           </div>

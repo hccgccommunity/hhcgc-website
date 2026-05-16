@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -920,7 +921,7 @@
     <section class="section" style="padding-top: 0;">
       <div class="container">
         <div class="timeline-wrap">
-          <h3>Evening Schedule</h3>
+          <h3>Morning Schedule</h3>
           <div class="timeline">
             <div class="tl-segment tl-segment-main">
               <div class="tl-time">10:00 AM</div>
@@ -947,7 +948,7 @@
           <span class="section-kicker">About the Concert</span>
           <h2>A Celebration of Timeless Melodies</h2>
           <p class="section-copy">
-            An intimate, curated evening that brings legendary film music to life through the eyes and ears of a master composer.
+            An intimate, curated morning that brings legendary film music to life through the eyes and ears of a master composer.
           </p>
         </div>
 
@@ -963,7 +964,7 @@
               Parisa Sparsh explores the thoughts, emotions, and inspirations behind timeless compositions. Through the lens of a composer, Sachin ji takes the audience on a beautiful journey through the works of legendary Marathi and Hindi film music composers, blended seamlessly with his own original compositions — a truly unique musical experience you would not want to miss.
             </p>
             <p>
-              While the program features both Marathi and Hindi songs, the narration throughout the evening will be in Marathi.
+              While the program features both Marathi and Hindi songs, the narration throughout the morning will be in Marathi.
             </p>
             <div class="highlight-line">
               Seating is on a first come, first served basis. We encourage you to arrive early to find a comfortable spot.
@@ -977,7 +978,7 @@
                 <li>A composer's insight into the minds of legendary Marathi and Hindi film music composers</li>
                 <li>Original compositions by Sachin Ingale blended seamlessly with classic works</li>
                 <li>Live violin, vocals, harmonium, tabla, and percussion</li>
-                <li>Narration in Marathi throughout the evening</li>
+                <li>Narration in Marathi throughout the morning</li>
                 <li>An intimate mahfil-style community concert setting</li>
               </ul>
             </article>
@@ -1047,7 +1048,7 @@
         <!-- Full-width heading + notices -->
         <div class="form-intro">
           <h2>Reserve Your Spot</h2>
-          <p>Secure your place for this special evening. Refreshments will be served during the interval.</p>
+          <p>Secure your place for this special morning. Refreshments will be served during the interval.</p>
           <div class="form-notices">
             <div class="form-notice form-notice-urgent">
               <span class="form-notice-icon">⏰</span>

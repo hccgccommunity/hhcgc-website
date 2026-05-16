@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parisa Sparsha | Hindu Community Center of Greater Cincinnati</title>
+  <meta name="description" content="Parisa Sparsh — An intimate musical mahfil with renowned vocalist, violinist, and composer Sachin Ingale from Pune, India. Exploring the thoughts and inspirations behind timeless Marathi and Hindi film music compositions. June 13, 2025 at HCCGC, Mason OH." />
+
+  <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' x='50%25' text-anchor='middle' font-size='82'%3E%E0%A5%90%3C/text%3E%3C/svg%3E">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-F5ZHQ4CDR9');
+  </script>
+
+  <style>
+    :root {
+      --bg: #fff9f1;
+      --surface: #ffffff;
+      --surface-soft: #fff6ea;
+      --border: rgba(121, 62, 17, 0.14);
+      --text: #2c1b10;
+      --muted: #6a5141;
+      --saffron: #b55a18;
+      --saffron-bright: #c65a12;
+      --saffron-dark: #8d3e0d;
+      --maroon: #7f2e16;
+      --shadow: 0 18px 45px rgba(93, 43, 14, 0.10);
+      --shadow-soft: 0 10px 28px rgba(93, 43, 14, 0.08);
+      --radius: 22px;
+      --max: 1220px;
+      --header-offset: 110px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(217, 138, 30, 0.12), transparent 22%),
+        radial-gradient(circle at top right, rgba(127, 46, 22, 0.05), transparent 20%),
+        var(--bg);
+      line-height: 1.65;
+    }
+
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+    button, input, select, textarea { font: inherit; }
+
+    .container {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+    }
+
+    /* ── SITE HEADER ── */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 249, 241, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-height: 92px;
+      padding: 12px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .brand-logo-wrap {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 8px;
+      box-shadow: var(--shadow);
+      flex-shrink: 0;
+    }
+
+    .brand-logo {
+      width: 88px;
+      height: auto;
+      border-radius: 12px;
+      object-fit: contain;
+    }
+
+    .brand-text h1 {
+      margin: 0;
+      font-size: 1.2rem;
+      line-height: 1.15;
+      color: var(--maroon);
+    }
+
+    .site-header nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin: 0;
+      padding: 0;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .site-header nav a {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.96rem;
+    }
+
+    .site-header nav a:hover { color: var(--saffron-dark); }
+    .site-header nav a.active { color: var(--saffron-bright); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      padding: 56px 0 28px;
+      overflow: hidden;
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
+    .hero::before {
+      top: -190px;
+      left: -150px;
+      background: radial-gradient(circle, rgba(198, 90, 18, 0.10), transparent 68%);
+    }
+
+    .hero::after {
+      right: -160px;
+      bottom: -190px;
+      background: radial-gradient(circle, rgba(127, 46, 22, 0.08), transparent 68%);
+    }
+
+    .hero-card {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+      gap: 28px;
+      align-items: center;
+      padding: clamp(24px, 4vw, 44px);
+      background: linear-gradient(135deg, rgba(255,255,255,0.92), rgba(255,246,234,0.92));
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+
+    .hero-kicker {
+      display: inline-block;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: rgba(217, 138, 30, 0.12);
+      color: var(--saffron-dark);
+      font-size: 0.83rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .hero-title {
+      margin: 8px 0 6px;
+      line-height: 1.02;
+      color: var(--maroon);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.4rem, 5vw, 4.2rem);
+      letter-spacing: -0.03em;
+    }
+
+    .hero-title-deva {
+      display: block;
+      font-size: clamp(1rem, 1.8vw, 1.35rem);
+      color: var(--saffron-dark);
+      letter-spacing: 0.06em;
+      margin-top: 6px;
+      font-style: normal;
+      font-weight: 600;
+      opacity: 0.8;
+      text-transform: uppercase;
+    }
+
+    .hero-tagline {
+      margin: 10px 0 18px;
+      color: var(--muted);
+      font-size: 1.08rem;
+      font-style: italic;
+    }
+
+    .hero-copy {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(1rem, 1.4vw, 1.12rem);
+      max-width: 640px;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      margin-top: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 12px 22px;
+      border-radius: 999px;
+      font-weight: 800;
+      border: 1px solid transparent;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 22px rgba(93, 43, 14, 0.13);
+    }
+
+    .btn-primary {
+      color: #fff;
+      background: linear-gradient(135deg, var(--saffron-bright), var(--saffron-dark));
+    }
+
+    .btn-secondary {
+      color: var(--saffron-dark);
+      background: #fff;
+      border-color: var(--border);
+    }
+
+    .hero-flyer {
+      position: relative;
+      z-index: 1;
+    }
+
+    .flyer-frame {
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .flyer-frame img {
+      width: 100%;
+      display: block;
+    }
+
+    .hero-panel {
+      display: grid;
+      gap: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .quick-card {
+      background: rgba(255,255,255,0.88);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .quick-card-icon {
+      font-size: 1.6rem;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .quick-card-body h3 {
+      margin: 0 0 3px;
+      color: var(--maroon);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .quick-card-body p {
+      margin: 0;
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .quick-card-body p small {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ── SECTIONS ── */
+    .section {
+      padding: 42px 0;
+      scroll-margin-top: var(--header-offset);
+    }
+
+    .section-head {
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .section-kicker {
+      display: inline-block;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: rgba(217, 138, 30, 0.12);
+      color: var(--saffron-dark);
+      font-size: 0.83rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .section-head h2 {
+      margin: 8px 0 10px;
+      line-height: 1.2;
+      color: var(--maroon);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2rem, 3.4vw, 3rem);
+    }
+
+    .section-copy {
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 100%;
+      text-align: center;
+    }
+
+    /* ── INFO BAND ── */
+    .info-band {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .info-card {
+      background: rgba(255,255,255,0.88);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow-soft);
+      padding: 20px;
+      text-align: center;
+    }
+
+    .info-icon {
+      font-size: 2rem;
+      margin-bottom: 8px;
+      color: var(--saffron-bright);
+    }
+
+    .info-card h3 {
+      margin: 0 0 4px;
+      color: var(--maroon);
+      font-size: 1.05rem;
+    }
+
+    .info-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    /* ── ABOUT ── */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .content-card,
+    .expect-card,
+    .join-card {
+      background: rgba(255,255,255,0.88);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .content-card {
+      padding: clamp(24px, 3vw, 34px);
+    }
+
+    .content-card p {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 1.04rem;
+    }
+
+    .content-card p:last-child { margin-bottom: 0; }
+
+    .highlight-line {
+      padding: 16px 18px;
+      border-left: 5px solid var(--saffron-bright);
+      background: var(--surface-soft);
+      border-radius: 16px;
+      margin-top: 18px;
+      color: var(--maroon);
+      font-weight: 800;
+    }
+
+    .side-stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .expect-card,
+    .join-card {
+      padding: 22px;
+    }
+
+    .expect-card h3,
+    .join-card h3 {
+      margin: 0 0 14px;
+      font-size: 1.55rem;
+      line-height: 1.2;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--maroon);
+    }
+
+    .clean-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 12px;
+    }
+
+    .clean-list li {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      color: var(--muted);
+      align-items: start;
+    }
+
+    .clean-list li::before {
+      content: "✓";
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(198, 90, 18, 0.12);
+      color: var(--saffron-dark);
+      font-weight: 900;
+      line-height: 1;
+      margin-top: 2px;
+    }
+
+    /* ── TIMELINE ── */
+    .timeline-wrap {
+      margin-top: 24px;
+      background: rgba(255,255,255,0.88);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+      padding: 24px 28px;
+    }
+
+    .timeline-wrap h3 {
+      margin: 0 0 18px;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--maroon);
+      font-size: 1.2rem;
+      text-align: center;
+    }
+
+    .timeline {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .tl-segment {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 14px 16px;
+      text-align: center;
+      position: relative;
+    }
+
+    .tl-segment-main {
+      background: linear-gradient(135deg, rgba(198,90,18,0.12), rgba(255,246,234,0.9));
+      flex: 5.5;
+    }
+
+    .tl-segment-interval {
+      background: var(--surface-soft);
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      flex: 1.5;
+    }
+
+    .tl-segment-main2 {
+      background: linear-gradient(135deg, rgba(198,90,18,0.12), rgba(255,246,234,0.9));
+      flex: 4;
+    }
+
+    .tl-time {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--saffron-dark);
+      letter-spacing: 0.04em;
+      margin-bottom: 3px;
+    }
+
+    .tl-label {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 0.95rem;
+      color: var(--maroon);
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .tl-sublabel {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .tl-interval-icon {
+      font-size: 1.2rem;
+      margin-bottom: 2px;
+    }
+
+    /* ── ARTISTS — single row, photo top ── */
+    .artists-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+    }
+
+    .artist-card {
+      background: rgba(255,255,255,0.88);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+      padding: 20px 16px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .artist-card-emoji {
+      font-size: 2rem;
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+
+    .artist-card h3 {
+      margin: 0 0 4px;
+      color: var(--maroon);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.05rem;
+      line-height: 1.2;
+    }
+
+    .artist-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-style: italic;
+    }
+
+    /* Photo styles */
+    .artist-photo-wrap {
+      margin-bottom: 12px;
+    }
+
+    .artist-photo-placeholder,
+    .artist-photo-wrap img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow-soft);
+      display: block;
+    }
+
+    .artist-location {
+      font-size: 0.78rem !important;
+      font-style: normal !important;
+      color: var(--saffron-dark) !important;
+      font-weight: 700;
+      margin-top: 4px !important;
+      letter-spacing: 0.02em;
+    }
+
+    /* ── TICKETS ── */
+    .form-section {
+      padding-top: 24px;
+      padding-bottom: 0;
+    }
+
+    .form-intro {
+      max-width: 100%;
+      margin: 0 0 0;
+      text-align: center;
+      padding: 24px 26px;
+      background: linear-gradient(135deg, rgba(198, 90, 18, 0.10), rgba(255, 246, 234, 0.9));
+      border: 1px solid var(--border);
+      border-radius: 26px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .form-intro h2 {
+      margin: 0 0 8px;
+      color: var(--maroon);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.8rem, 3vw, 2.45rem);
+    }
+
+    .form-intro p {
+      margin: 0 auto;
+      color: var(--muted);
+      max-width: 100%;
+    }
+
+    .form-notices {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+      text-align: left;
+    }
+
+    .form-notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .form-notice-urgent {
+      background: rgba(127, 46, 22, 0.07);
+      border-color: rgba(127, 46, 22, 0.25);
+      color: var(--maroon);
+      font-weight: 600;
+    }
+
+    .form-notice-icon {
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── TICKETS TWO-COLUMN ── */
+    .tickets-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      align-items: stretch;
+      margin-top: 24px;
+    }
+
+    .tickets-flyer {
+      display: flex;
+    }
+
+    .tickets-flyer .flyer-frame {
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: calc(var(--header-offset) + 16px);
+      width: 100%;
+    }
+
+    .tickets-flyer .flyer-frame img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .form-section .embed-card {
+      max-width: none;
+      overflow: hidden;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      border-radius: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    .form-section .embed-card > div {
+      height: 100%;
+    }
+
+    .form-section [data-zeffy-embed],
+    .form-section .zeffy-responsive-frame {
+      height: 100% !important;
+      min-height: 700px;
+      padding-top: 0 !important;
+    }
+
+    .form-section .zeffy-responsive-frame iframe {
+      position: relative !important;
+      height: 100% !important;
+      min-height: 700px;
+      width: 100%;
+      border: 0;
+      display: block;
+    }
+
+    /* Seamless Zeffy embed */
+    .embed-card {
+      overflow: visible;
+      background: transparent;
+      border-radius: 0;
+      box-shadow: none;
+      border: 0;
+      max-width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    .zeffy-responsive-frame {
+      position: relative;
+      overflow: hidden;
+      height: 0;
+      width: 100%;
+      padding-top: 1250px;
+      background: transparent;
+    }
+
+    .zeffy-responsive-frame iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: transparent;
+      display: block;
+      overflow: hidden;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1100px) {
+      .artists-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 980px) {
+      .hero-card { grid-template-columns: 1fr; }
+      .about-grid { grid-template-columns: 1fr; }
+      .info-band { grid-template-columns: 1fr; }
+      .tickets-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 860px) {
+      .nav { flex-direction: column; align-items: flex-start; }
+      .site-header nav ul { justify-content: flex-start; gap: 14px; }
+      .brand-logo { width: 74px; }
+      .section { padding: 34px 0; }
+      .hero { padding: 38px 0 22px; }
+    }
+
+    @media (max-width: 680px) {
+      .artists-grid { grid-template-columns: repeat(2, 1fr); }
+      .hero-actions .btn { width: 100%; }
+    }
+
+    @media (max-width: 640px) {
+      .container { width: min(calc(100% - 24px), var(--max)); }
+      .hero-card { border-radius: 24px; padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- AdRoll -->
+  <script type="text/javascript">
+    adroll_adv_id = "BTDHW3J6VNF3HDDBJ5WGFX";
+    adroll_pix_id = "SJ52SD7GOFG4VKBVJU7XOJ";
+    adroll_version = "2.0";
+    (function(w, d, e, o, a) {
+      w.adroll_tag_source = w.adroll_tag_source || "manual";
+      w.__adroll_loaded = true;
+      w.adroll = w.adroll || [];
+      w.adroll.f = ['setProperties', 'identify', 'track', 'identify_email', 'get_cookie'];
+      var roundtripUrl = "https://s.adroll.com/j/" + adroll_adv_id + "/roundtrip.js";
+      for (a = 0; a < w.adroll.f.length; a++) {
+        w.adroll[w.adroll.f[a]] = w.adroll[w.adroll.f[a]] || (function(n) {
+          return function() { w.adroll.push([n, arguments]); }
+        })(w.adroll.f[a]);
+      }
+      e = d.createElement('script'); o = d.getElementsByTagName('script')[0];
+      e.async = 1; e.src = roundtripUrl; o.parentNode.insertBefore(e, o);
+    })(window, document);
+    adroll.track("pageView");
+  </script>
+
+  <!-- GTM -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-TPBF5VKB');</script>
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TPBF5VKB" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+  <!-- Meta Pixel -->
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '967958922481959');
+    fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=967958922481959&ev=PageView&noscript=1"/></noscript>
+
+  <!-- Header partial (shared across site) -->
+  <div id="header-placeholder"></div>
+
+  <main>
+
+    <!-- ── HERO ── -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-card">
+
+          <div>
+            <span class="hero-kicker">HCCGC Presents</span>
+            <h1 class="hero-title">
+              परीस स्पर्श
+              <span class="hero-title-deva">Parisa Sparsh</span>
+            </h1>
+            <p class="hero-tagline">A composer's insight into a composer's mind.</p>
+            <p class="hero-copy">
+              An intimate musical mahfil with renowned vocalist, violinist, composer, and music arranger Sachin Ingale from Pune, India. Parisa Sparsh explores the thoughts, emotions, and inspirations behind timeless compositions through the lens of a composer.
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="#tickets">Register Now</a>
+              <a class="btn btn-secondary" href="#about">About the Event</a>
+            </div>
+          </div>
+
+          <div class="hero-panel">
+            <div class="quick-card">
+              <div class="quick-card-icon">📅</div>
+              <div class="quick-card-body">
+                <h3>Date</h3>
+                <p>Saturday, June 13, 2025</p>
+              </div>
+            </div>
+            <div class="quick-card">
+              <div class="quick-card-icon">🕙</div>
+              <div class="quick-card-body">
+                <h3>Time</h3>
+                <p>10:00 AM – 12:30 PM<small>with a 15-min interval</small></p>
+              </div>
+            </div>
+            <div class="quick-card">
+              <div class="quick-card-icon">📍</div>
+              <div class="quick-card-body">
+                <h3>Venue</h3>
+                <p>HCCGC<small>7500 Industrial Row Dr, Mason, OH 45040</small></p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── TIMELINE ── -->
+    <section class="section" style="padding-top: 0;">
+      <div class="container">
+        <div class="timeline-wrap">
+          <h3>Evening Schedule</h3>
+          <div class="timeline">
+            <div class="tl-segment tl-segment-main">
+              <div class="tl-time">10:00 AM</div>
+              <div class="tl-label">First Half</div>
+              <div class="tl-sublabel">~1 hr 15 min</div>
+            </div>
+            <div class="tl-segment tl-segment-interval">
+              <div class="tl-interval-icon">☕</div>
+              <div class="tl-label" style="font-size:0.82rem;">Interval</div>
+              <div class="tl-sublabel">15 min · Refreshments</div>
+            </div>
+            <div class="tl-segment tl-segment-main2">
+              <div class="tl-time">11:30 AM</div>
+              <div class="tl-label">Second Half</div>
+              <div class="tl-sublabel">~1 hr · Ends 12:30 PM</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="about" class="section">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-kicker">About the Concert</span>
+          <h2>A Celebration of Timeless Melodies</h2>
+          <p class="section-copy">
+            An intimate, curated evening that brings legendary film music to life through the eyes and ears of a master composer.
+          </p>
+        </div>
+
+        <div class="about-grid">
+          <article class="content-card">
+            <p>
+              HCCGC proudly presents Parisa Sparsh — an intimate musical mahfil with renowned vocalist, violinist, composer, and music arranger Sachin Ingale from Pune, India. Sachin ji is an All India Radio approved singer and an 'A' grade music composer with a distinguished career spanning Marathi plays, daily soaps, jingles, feature films, and documentaries.
+            </p>
+            <p>
+              He has performed as a singer, violinist, harmonium player, and music arranger in celebrated programs such as Soor Taal, Nakshatranche Dene, Jeevan Gane, and Saam Gurukul.
+            </p>
+            <p>
+              Parisa Sparsh explores the thoughts, emotions, and inspirations behind timeless compositions. Through the lens of a composer, Sachin ji takes the audience on a beautiful journey through the works of legendary Marathi and Hindi film music composers, blended seamlessly with his own original compositions — a truly unique musical experience you would not want to miss.
+            </p>
+            <p>
+              While the program features both Marathi and Hindi songs, the narration throughout the evening will be in Marathi.
+            </p>
+            <div class="highlight-line">
+              Seating is on a first come, first served basis. We encourage you to arrive early to find a comfortable spot.
+            </div>
+          </article>
+
+          <div class="side-stack">
+            <article class="expect-card">
+              <h3>What to Expect</h3>
+              <ul class="clean-list">
+                <li>A composer's insight into the minds of legendary Marathi and Hindi film music composers</li>
+                <li>Original compositions by Sachin Ingale blended seamlessly with classic works</li>
+                <li>Live violin, vocals, harmonium, tabla, and percussion</li>
+                <li>Narration in Marathi throughout the evening</li>
+                <li>An intimate mahfil-style community concert setting</li>
+              </ul>
+            </article>
+
+            <article class="join-card">
+              <h3>Who Should Attend</h3>
+              <ul class="clean-list">
+                <li>Lovers of Marathi and Hindi film music traditions</li>
+                <li>Those who understand or appreciate the Marathi language</li>
+                <li>Families and community members of all ages</li>
+                <li>Anyone who wishes to support HCCGC</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── ARTISTS ── -->
+    <section id="artists" class="section">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-kicker">Performers</span>
+          <h2>Meet the Artists</h2>
+        </div>
+
+        <div class="artists-grid">
+
+          <div class="artist-card">
+            <h3>Sachin Ingale</h3>
+            <p>Vocalist · Violinist<br>Composer · Music Arranger</p>
+            <p class="artist-location">Pune, India</p>
+          </div>
+
+          <div class="artist-card">
+            <h3>Ruchir Ingale</h3>
+            <p>Vocalist · Violinist</p>
+            <p class="artist-location">Pune, India</p>
+          </div>
+
+          <div class="artist-card">
+            <h3>Shruti Bhavsar</h3>
+            <p>Vocalist</p>
+            <p class="artist-location">Local Artist</p>
+          </div>
+
+          <div class="artist-card">
+            <h3>Pooja Pandit</h3>
+            <p>Vocalist</p>
+            <p class="artist-location">Local Artist</p>
+          </div>
+
+          <div class="artist-card">
+            <h3>Atul Sathe</h3>
+            <p>Tabla &amp; Percussions</p>
+            <p class="artist-location">Local Artist</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── TICKETS ── -->
+    <section id="tickets" class="section form-section">
+      <div class="container">
+
+        <!-- Full-width heading + notices -->
+        <div class="form-intro">
+          <h2>Reserve Your Spot</h2>
+          <p>Secure your place for this special evening. Refreshments will be served during the interval.</p>
+          <div class="form-notices">
+            <div class="form-notice form-notice-urgent">
+              <span class="form-notice-icon">⏰</span>
+              <span><strong>Early registration price: $15.</strong> Price increases to $20 on May 18th — register now to save!</span>
+            </div>
+            <div class="form-notice">
+              <span class="form-notice-icon">🪑</span>
+              <span>Seating is on a first come, first served basis — please arrive early to find a comfortable spot.</span>
+            </div>
+            <div class="form-notice">
+              <span class="form-notice-icon">🪷</span>
+              <span>We are planning traditional Indian floor seating for this intimate mahfil. Should registrations be limited, we will arrange chair seating instead.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Two-column: flyer left, Zeffy right -->
+        <div class="tickets-grid">
+
+          <div class="tickets-flyer">
+            <div class="flyer-frame">
+              <img src="Parisa_Sparsha.jpg"
+                   alt="Parisa Sparsha event flyer — Sachin Ingale, June 13 2025 at HCCGC Mason OH" />
+            </div>
+          </div>
+
+          <div class="embed-card">
+            <div>
+              <div data-zeffy-embed data-form-url="/embed/ticketing/parisa-sparsha"></div>
+              <div data-zeffy-embed-fallback style="display:none;">
+                <div class="zeffy-responsive-frame">
+                  <iframe title="Parisa Sparsha ticketing form powered by Zeffy"
+                          src="https://www.zeffy.com/embed/ticketing/parisa-sparsha"
+                          allowpaymentrequest
+                          allowTransparency="true"
+                          scrolling="no"></iframe>
+                </div>
+              </div>
+              <script
+                src="https://www.zeffy.com/embed/v2/zeffy-embed.js"
+                onerror="document.querySelectorAll('[data-zeffy-embed-fallback]').forEach(function(el){el.style.display='block';});">
+              </script>
+            </div>
+          </div>
+
+        </div>
+
+        <script>
+          function removeZeffyScrollbars() {
+            document.querySelectorAll('.embed-card iframe').forEach(function(frame) {
+              frame.setAttribute('scrolling', 'no');
+              frame.style.overflow = 'hidden';
+              frame.style.display = 'block';
+              frame.style.width = '100%';
+              frame.style.border = '0';
+            });
+          }
+          window.addEventListener('load', removeZeffyScrollbars);
+          setTimeout(removeZeffyScrollbars, 700);
+          setTimeout(removeZeffyScrollbars, 1800);
+          setTimeout(removeZeffyScrollbars, 3500);
+        </script>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer partial (shared across site) -->
+  <div id="footer-placeholder"></div>
+
+  <script>
+    async function loadPartial(placeholderId, filePath) {
+      const target = document.getElementById(placeholderId);
+      if (!target) return;
+      try {
+        const response = await fetch(filePath);
+        if (!response.ok) throw new Error("Unable to load " + filePath);
+        target.innerHTML = await response.text();
+      } catch (error) {
+        console.error(error);
+        target.innerHTML = "";
+      }
+    }
+
+    async function initializePage() {
+      await loadPartial("header-placeholder", "header.html");
+      await loadPartial("footer-placeholder", "footer.html");
+      const year = document.getElementById("year");
+      if (year) year.textContent = new Date().getFullYear();
+    }
+
+    initializePage();
+  </script>
+
+</body>
+</html>

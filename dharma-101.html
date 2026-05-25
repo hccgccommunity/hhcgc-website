@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dharma 101 | Hindu Community Center of Greater Cincinnati</title>
+  <meta name="description" content="Dharma 101: Introduction to Hindu Dharma — 12-week program at Hindu Community Center of Greater Cincinnati, starting June 9, 2026." />
+
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' x='50%25' text-anchor='middle' font-size='82'%3E%E0%A5%90%3C/text%3E%3C/svg%3E">
+
+  <style>
+    :root {
+      --bg: #fff9f1;
+      --surface: #ffffff;
+      --surface-soft: #fff6ea;
+      --border: rgba(121, 62, 17, 0.14);
+      --text: #2c1b10;
+      --muted: #6a5141;
+      --saffron: #b55a18;
+      --saffron-dark: #8d3e0d;
+      --maroon: #7f2e16;
+      --shadow: 0 18px 45px rgba(93, 43, 14, 0.10);
+      --radius: 22px;
+      --max: 1220px;
+      --header-offset: 110px;
+      --gold: #d9a441;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(217, 138, 30, 0.12), transparent 22%),
+        radial-gradient(circle at top right, rgba(127, 46, 22, 0.05), transparent 20%),
+        var(--bg);
+      line-height: 1.65;
+    }
+
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+    button, input, select, textarea { font: inherit; }
+
+    .container {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+    }
+
+    .content-width {
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 249, 241, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-height: 92px;
+      padding: 12px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .brand-logo-wrap {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 8px;
+      box-shadow: var(--shadow);
+      flex-shrink: 0;
+    }
+
+    .brand-logo {
+      width: 88px;
+      height: auto;
+      border-radius: 12px;
+      object-fit: contain;
+    }
+
+    .brand-text h1 {
+      margin: 0;
+      font-size: 1.2rem;
+      line-height: 1.15;
+      color: var(--maroon);
+    }
+
+    .site-header nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin: 0;
+      padding: 0;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .site-header nav a {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.96rem;
+    }
+
+    .site-header nav a:hover {
+      color: var(--saffron-dark);
+    }
+
+    .section {
+      padding: 42px 0;
+      scroll-margin-top: var(--header-offset);
+    }
+
+    .section-head {
+      margin-bottom: 18px;
+      text-align: center;
+    }
+
+    .section-kicker {
+      display: inline-block;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: rgba(217, 138, 30, 0.12);
+      color: var(--saffron-dark);
+      font-size: 0.83rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .section-head h2,
+    .section-title {
+      margin: 8px 0 10px;
+      line-height: 1.2;
+      color: var(--maroon);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2rem, 3.4vw, 3rem);
+    }
+
+    .section-copy {
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 820px;
+      text-align: center;
+    }
+
+    /* Hero */
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 26px;
+      align-items: stretch;
+      margin-top: 4px;
+    }
+
+    .hero-panel,
+    .details-panel {
+      min-height: 360px;
+      border-radius: 26px;
+      background: rgba(255, 255, 255, 0.74);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 34px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .hero-panel h1 {
+      margin: 0 0 10px;
+      color: var(--maroon);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      line-height: 0.98;
+      letter-spacing: -0.035em;
+    }
+
+    .hero-subtitle {
+      margin: 0 0 16px;
+      color: var(--saffron-dark);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.35rem, 2.5vw, 1.9rem);
+      font-weight: 700;
+    }
+
+    .hero-copy {
+      margin: 0 0 24px;
+      color: var(--muted);
+      max-width: 720px;
+      font-size: 1.05rem;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 11px 22px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, var(--saffron-dark), var(--saffron));
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(127, 46, 22, 0.14);
+    }
+
+    .btn.secondary {
+      background: rgba(255, 255, 255, 0.7);
+      border-color: var(--border);
+      color: var(--maroon);
+    }
+
+    .details-panel h2 {
+      margin: 0 0 16px;
+      color: var(--maroon);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.7rem, 3vw, 2.35rem);
+    }
+
+    .details-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .detail-item {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(255,246,234,0.92), rgba(255,255,255,0.86));
+      border: 1px solid rgba(121, 62, 17, 0.12);
+    }
+
+    .detail-label {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--saffron-dark);
+      font-size: 0.76rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .detail-value {
+      display: block;
+      color: var(--text);
+      font-weight: 800;
+      font-size: 1.08rem;
+    }
+
+    /* Pill cards */
+    .pill-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 28px;
+    }
+
+    .pill-card,
+    .info-box {
+      border-radius: 24px;
+      background: rgba(255,255,255,.74);
+      border: 1px solid var(--border);
+      padding: 24px;
+      box-shadow: 0 12px 30px rgba(93,43,14,.08);
+    }
+
+    .pill-icon {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .pill-card h3,
+    .info-box h3 {
+      margin: 0 0 8px;
+      color: var(--maroon);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.45rem;
+    }
+
+    .pill-card p,
+    .info-box p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    /* Weekly schedule */
+    .weeks-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    .week-card {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      border-radius: 22px;
+      overflow: hidden;
+      background: rgba(255,255,255,.84);
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 28px rgba(93,43,14,.08);
+    }
+
+    .week-head {
+      padding: 20px 22px;
+      background: linear-gradient(135deg, var(--maroon), var(--saffron));
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .week-num {
+      display: inline-flex;
+      width: fit-content;
+      margin-bottom: 6px;
+      font-size: 0.76rem;
+      font-weight: 900;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      opacity: 0.88;
+    }
+
+    .week-head h3 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.25rem;
+      line-height: 1.25;
+    }
+
+    .week-body {
+      padding: 20px 24px;
+    }
+
+    .week-theme {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--saffron-dark);
+      font-size: 0.8rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .week-body ul {
+      margin: 0 0 0 18px;
+      padding: 0;
+    }
+
+    .week-body li {
+      color: var(--muted);
+      margin-bottom: 5px;
+      font-size: 0.95rem;
+    }
+
+    /* Two col info */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    /* Register */
+    .register-card {
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(255,255,255,.86), rgba(255,246,234,.94));
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 30px;
+    }
+
+    .register-card .section-head {
+      margin-bottom: 20px;
+    }
+
+    .register-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border-radius: 22px;
+      overflow: hidden;
+      border: 1px solid rgba(121,62,17,.12);
+      min-height: 700px;
+    }
+
+    .register-flyer {
+      overflow: hidden;
+      display: flex;
+    }
+
+    .register-flyer img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .register-form {
+      background: rgba(255,246,234,.9);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .register-form [data-zeffy-embed] {
+      flex: 1;
+      min-height: 700px;
+      background: rgba(255,246,234,.9);
+    }
+
+    .zeffy-wrap {
+      border-radius: 22px;
+      background: rgba(255,246,234,.9);
+      border: 1px solid rgba(121,62,17,.12);
+      overflow: hidden;
+    }
+
+    [data-zeffy-embed] {
+      min-height: 450px;
+      background: rgba(255,246,234,.9);
+    }
+
+    /* Footer */
+    .site-footer .footer-top {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 24px;
+      padding: 8px 0 0;
+    }
+
+    .site-footer .footer-nav {
+      display: flex;
+      justify-content: flex-start;
+      min-width: 0;
+    }
+
+    .site-footer .footer-nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    .site-footer .footer-nav a {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .site-footer .footer-nav a:hover { color: var(--saffron-dark); }
+
+    .site-footer .footer-email {
+      text-align: center;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .site-footer .footer-email a:hover { color: var(--saffron-dark); }
+
+    .site-footer .footer-social {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      min-width: 220px;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .site-footer .footer-social-label { white-space: nowrap; }
+
+    .site-footer .social-icons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .site-footer .social-icon {
+      width: 42px;
+      height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: #fff;
+      border: 1px solid var(--border);
+      box-shadow: 0 6px 18px rgba(93, 43, 14, 0.10);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .site-footer .social-icon:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(93, 43, 14, 0.16);
+    }
+
+    .site-footer .social-icon svg {
+      width: 20px;
+      height: 20px;
+      display: block;
+    }
+
+    .site-footer .footer-note {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.7rem;
+      text-align: center;
+    }
+
+    /* Responsive */
+    @media (max-width: 1120px) {
+      .site-footer .footer-top {
+        grid-template-columns: 1fr;
+        justify-items: start;
+      }
+      .site-footer .footer-email,
+      .site-footer .footer-social {
+        text-align: left;
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid,
+      .pill-row,
+      .week-card,
+      .two-col,
+      .register-split {
+        grid-template-columns: 1fr;
+      }
+      .hero-panel,
+      .details-panel {
+        min-height: auto;
+        padding: 26px;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .nav {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .site-header nav ul {
+        justify-content: flex-start;
+        gap: 14px;
+      }
+      .brand-logo { width: 74px; }
+      .section { padding: 34px 0; }
+    }
+
+    @media (max-width: 640px) {
+      .container { width: min(calc(100% - 24px), var(--max)); }
+      .hero-panel,
+      .details-panel,
+      .register-card { padding: 22px; border-radius: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="header-placeholder"></div>
+
+  <main>
+    <!-- Hero -->
+    <section class="section">
+      <div class="container">
+        <div class="hero-grid">
+          <div class="hero-panel">
+            <h1>Dharma 101</h1>
+            <p class="hero-subtitle">Introduction to Hindu Dharma</p>
+            <p class="hero-copy">A 12-week journey through the foundational ideas, scriptures, practices, and philosophy of Hindu Dharma — guided by Shri Koti Krishna ji. Open to beginners, students, families, and all seekers.</p>
+            <div class="cta-row">
+              <a class="btn primary" href="#join">Register</a>
+              <a class="btn secondary" href="#course">Learn More</a>
+            </div>
+          </div>
+
+          <aside class="details-panel" aria-label="Program details">
+            <h2>Program Details</h2>
+            <div class="details-grid">
+              <div class="detail-item">
+                <span class="detail-label">Duration</span>
+                <span class="detail-value">12 Weeks</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Dates</span>
+                <span class="detail-value">June 9 – August 25, 2026</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Format</span>
+                <span class="detail-value">Weekly 60-minute sessions</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Guided by</span>
+                <span class="detail-value">Shri Koti Krishna ji</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Day &amp; Time</span>
+                <span class="detail-value">Every Tuesday, 6:00 PM – 7:00 PM</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Audience</span>
+                <span class="detail-value">Beginners, students &amp; all seekers</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section class="section" id="about">
+      <div class="container">
+        <div class="section-head content-width">
+          <span class="section-kicker">About the program</span>
+          <h2>Discover the wisdom of Sanatana Dharma.</h2>
+          <p class="section-copy">Dharma 101 is an informational, discussion-based program designed to help participants understand the meaning of Dharma, explore core Hindu philosophical ideas, and appreciate the rich diversity of Hindu thought and worship. No prior knowledge is required.</p>
+        </div>
+
+        <div class="pill-row">
+          <div class="pill-card">
+            <div class="pill-icon">📖</div>
+            <h3>Learn</h3>
+            <p>Explore foundational Sanskrit concepts, major scriptures, and core Hindu philosophy.</p>
+          </div>
+          <div class="pill-card">
+            <div class="pill-icon">🙏</div>
+            <h3>Practice</h3>
+            <p>Discover yoga, meditation, puja, festivals, and the ethics of daily Dharmic living.</p>
+          </div>
+          <div class="pill-card">
+            <div class="pill-icon">🌏</div>
+            <h3>Connect</h3>
+            <p>Build community with fellow seekers and deepen your respect for Hindu culture and spirituality.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Program Goals -->
+    <section class="section">
+      <div class="container">
+        <div class="two-col">
+          <div class="info-box">
+            <h3>What You Will Learn</h3>
+            <ul>
+              <li>The meaning of Dharma and core Hindu philosophical ideas</li>
+              <li>Major scriptures, traditions, and practices</li>
+              <li>The diversity of Hindu thought and worship</li>
+              <li>Foundational Sanskrit concepts and terminology</li>
+              <li>Ethics, yoga, meditation, festivals, and daily living</li>
+            </ul>
+          </div>
+          <div class="info-box">
+            <h3>Who Should Join</h3>
+            <ul>
+              <li>Highly recommended for high school students and young professionals</li>
+              <li>Open to beginners, families, and community learners</li>
+              <li>Ideal for mid-career individuals exploring their roots</li>
+              <li>Welcoming to all seekers — no prior knowledge required</li>
+              <li>Anyone seeking a deeper understanding of Hindu Dharma</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12-Week Schedule -->
+    <section class="section" id="course">
+      <div class="container">
+        <div class="section-head content-width">
+          <span class="section-kicker">Course details</span>
+          <h2>12-week program curriculum</h2>
+          <p class="section-copy">Each 60-minute session includes an opening reflection, main teaching and presentation, and group discussion. The syllabus is designed as a guide and may evolve based on the needs and flow of the group.</p>
+        </div>
+
+        <div class="weeks-grid">
+
+          <article class="week-card">
+            <div class="week-head">
+              <span class="week-num">Week 1</span>
+              <h3>What Is Dharma?</h3>
+            </div>
+            <div class="week-body">
+              <span class="week-theme">Introduction to Hindu Dharma and its worldview</span>
+              <ul>
+                <li>Meaning of "Dharma"</li>
+                <li>Hinduism vs. Sanatana Dharma</li>
+                <li>Overview of Hindu history and civilization</li>
+                <li>Core ideas: karma, rebirth, moksha, duty, and harmony</li>
+                <li>Diversity within Hindu traditions</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="week-card">
+            <div class="week-head">
+              <span class="week-num">Week 2</span>
+              <h3>The Vedas &amp; Sacred Knowledge</h3>
+            </div>
+            <div class="week-body">
+              <span class="week-theme">Understanding Hindu scriptures</span>
+              <ul>
+                <li>What are the Vedas?</li>
+                <li>Shruti and Smriti</li>
+                <li>Upanishads and philosophical inquiry</li>
+                <li>Epics and Puranas</li>
+                <li>Oral tradition and memorization</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="week-card">
+            <div class="week-head">
+              <span class="week-num">Week 3</span>
+              <h3>The Divine in Hindu Dharma</h3>
+            </div>
+            <div class="week-body">
+              <span class="week-theme">Understanding God, gods, and ultimate reality</span>
+              <ul>
+                <li>Brahman and Atman</li>
+                <li>One reality, many forms</li>
+                <li>Trimurti: Brahma, Vishnu, Shiva</li>
+                <li>Devi and the Divine Feminine</li>
+                <li>Is Hindu Dharma polytheistic, monotheistic, or something else?</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="week-card">
+            <div class="week-head">
+              <span class="week-num">Week 4</span>
+              <h3>Karma, Rebirth &amp; Liberation</h3>
+            </div>
+            <div class="week-body">
+              <span class="week-theme">The Hindu understanding of life and destiny</span>
+              <ul>
+                <li>Law of karma</li>
+                <li>Reincarnation and samsara</li>
+                <li>Paths toward moksha</li>
+                <li>Free will and responsibility</li>
+                <li>Ethics and consequences</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="week-card">
+            <div class="week-head">
+              <span class="week-num">Week 5</span>
+              <h3>Yoga Beyond Exercise</h3>
+            </div>
+            <div class="week-body">
+              <span class="week-theme">The spiritual meaning of yoga</span>
+              <ul>
+                <li>Meaning of yoga</li>
+                <li>Four paths: Karma, Bhakti, Jnana, and Raja Yoga</li>
+                <li>Meditation and discipline</li>
+                <li>Yoga in modern society</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="week-card">
+            <div class="week-head">
+              <span class="week-num">Week 6</span>
+              <h3>Daily Practice &amp; Puja</h3>
+            </div>
+            <div class="week-body">
+              <span class="week-theme">How Hindu Dharma is practiced in everyday life</span>
+              <ul>
+                <li>Puja and ritual worship</li>
+                <li>Temple and home traditions</li>
+                <li>Aarti, mantra, and prayer</li>
+                <li>Importance of intention and devotion</li>
+                <li>Sacred symbols and offerings</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="week-card">
+            <div class="week-head">
+              <span class="week-num">Week 7</span>
+              <h3>The Bhagavad Gita &amp; Life Guidance</h3>
+            </div>
+            <div class="week-body">
+              <span class="week-theme">Lessons from the Bhagavad Gita</span>
+              <ul>
+                <li>Context of the Bhagavad Gita</li>
+                <li>Arjuna's dilemma</li>
+                <li>Duty and inner conflict</li>
+                <li>Selfless action</li>
+                <li>Leadership and character</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="week-card">
+            <div class="week-head">
+              <span class="week-num">Week 8</span>
+              <h3>Festivals &amp; Celebrations</h3>
+            </div>
+            <div class="week-body">
+              <span class="week-theme">Understanding Hindu festivals and sacred time</span>
+              <ul>
+                <li>Diwali, Holi, and Navaratri</li>
+                <li>Janmashtami and Raksha Bandhan</li>
+                <li>Regional diversity in celebration</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="week-card">
+            <div class="week-head">
+              <span class="week-num">Week 9</span>
+              <h3>Ethics, Values &amp; Society</h3>
+            </div>
+            <div class="week-body">
+              <span class="week-theme">Living Dharma in society</span>
+              <ul>
+                <li>Truthfulness and compassion</li>
+                <li>Respect for nature</li>
+                <li>Family and community responsibilities</li>
+                <li>Sewa (selfless service)</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="week-card">
+            <div class="week-head">
+              <span class="week-num">Week 10</span>
+              <h3>Hindu Philosophical Schools</h3>
+            </div>
+            <div class="week-body">
+              <span class="week-theme">Exploring different schools of thought</span>
+              <ul>
+                <li>Overview of major darshanas</li>
+                <li>Vedanta, Sankhya, and Yoga philosophy</li>
+                <li>Bhakti traditions</li>
+                <li>Diversity of interpretation</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="week-card">
+            <div class="week-head">
+              <span class="week-num">Week 11</span>
+              <h3>Hindu Dharma in the Modern World</h3>
+            </div>
+            <div class="week-body">
+              <span class="week-theme">Contemporary relevance and global influence</span>
+              <ul>
+                <li>Hindu communities worldwide</li>
+                <li>Yoga and meditation globally</li>
+                <li>Hindu contributions to philosophy, arts, and science</li>
+                <li>Misconceptions, stereotypes, and interfaith understanding</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="week-card">
+            <div class="week-head">
+              <span class="week-num">Week 12</span>
+              <h3>Reflection, Integration &amp; Celebration</h3>
+            </div>
+            <div class="week-body">
+              <span class="week-theme">Bringing the learning together</span>
+              <ul>
+                <li>Review of key concepts</li>
+                <li>Personal reflections</li>
+                <li>Dharma in daily life</li>
+                <li>Continuing the learning journey</li>
+              </ul>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Registration -->
+    <section class="section" id="join">
+      <div class="container">
+        <div class="register-card">
+          <div class="section-head content-width">
+            <span class="section-kicker">Registration</span>
+            <h2>Register</h2>
+            <p class="section-copy">Please complete the registration form below. Additional instructions, participation details, and any required updates will be shared with registered participants.</p>
+          </div>
+
+          <div class="register-split">
+            <div class="register-flyer">
+              <img src="caed221da43e72c9fe9b4f763e49c61730a663b06c7a92e31b0256d96c1ec323.jpg" alt="Dharma 101 Program Flyer" />
+            </div>
+            <div class="register-form">
+              <div data-zeffy-embed data-form-url="/embed/ticketing/dharma-101-introduction-to-hindu-dharma"></div>
+              <div data-zeffy-embed-fallback style="display:none;">
+                <div style="position:relative;overflow:hidden;height:100%;width:100%;padding-top:650px;">
+                  <iframe title='Donation form powered by Zeffy' style='position: absolute; border: 0; top:0;left:0;bottom:0;right:0;width:100%;height:100%' src='https://www.zeffy.com/embed/ticketing/dharma-101-introduction-to-hindu-dharma' allowpaymentrequest allowTransparency="true"></iframe>
+                </div>
+              </div>
+              <script
+                src="https://www.zeffy.com/embed/v2/zeffy-embed.js"
+                onerror="document.querySelectorAll('[data-zeffy-embed-fallback]').forEach(function(el){el.style.display='block';});">
+              </script>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-placeholder"></div>
+
+  <script>
+    async function loadPartial(placeholderId, filePath) {
+      const target = document.getElementById(placeholderId);
+      if (!target) return;
+      try {
+        const response = await fetch(filePath);
+        if (!response.ok) throw new Error("Unable to load " + filePath);
+        target.innerHTML = await response.text();
+      } catch (error) {
+        console.error(error);
+        target.innerHTML = "";
+      }
+    }
+
+    async function initializePage() {
+      await loadPartial("header-placeholder", "header.html");
+      await loadPartial("footer-placeholder", "footer.html");
+
+      const year = document.getElementById("year");
+      if (year) {
+        year.textContent = new Date().getFullYear();
+      }
+    }
+
+    initializePage();
+  </script>
+</body>
+</html>

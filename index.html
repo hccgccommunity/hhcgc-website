@@ -171,41 +171,61 @@
         .hero-carousel {
             position: relative;
             width: 100%;
-            padding-top: 43.75%; /* 16:7 ratio */
-            overflow: hidden;
+            padding: 18px 36px 14px;
+            --hero-h: 280px;
         }
 
-        .hero-slides {
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+        .hero-stage {
+            position: relative;
+            height: var(--hero-h);
+            overflow: hidden;
         }
 
         .hero-slide {
             position: absolute;
+            top: 50%;
+            margin: 0;
+            opacity: 0.6;
+            cursor: pointer;
+            z-index: 1;
+        }
+
+        .hero-slide.hero-main {
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 1;
+            cursor: default;
+            z-index: 2;
+        }
+
+        #heroSlidePrev {
+            left: 0;
+            transform: translate(-50%, -50%);
+        }
+
+        #heroSlideNext {
+            left: 100%;
+            transform: translate(-50%, -50%);
+        }
+
+        .hero-slide-inner {
+            position: relative;
+            height: var(--hero-h);
+            width: calc(var(--hero-h) * 1.25);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+        }
+
+        .hero-slide img {
+            position: absolute;
             top: 0;
             right: 0;
             bottom: 0;
             left: 0;
-            margin: 0;
-            opacity: 0;
-            transition: opacity 0.9s ease;
-        }
-
-        .hero-slide.is-active {
-            opacity: 1;
-            z-index: 1;
-        }
-
-        .hero-slide img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            object-position: center;
         }
 
         .hero-nav {
@@ -213,18 +233,18 @@
             top: 50%;
             transform: translateY(-50%);
             z-index: 3;
-            width: 42px;
-            height: 42px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             border: none;
-            background: rgba(255, 249, 241, 0.85);
+            background: rgba(255, 249, 241, 0.92);
             color: var(--maroon);
-            font-size: 1rem;
+            font-size: 0.95rem;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
             transition: transform 0.18s ease, background 0.18s ease;
         }
 
@@ -233,18 +253,14 @@
             transform: translateY(-50%) scale(1.06);
         }
 
-        .hero-prev { left: 16px; }
-        .hero-next { right: 16px; }
+        .hero-prev { left: 10px; }
+        .hero-next { right: 10px; }
 
         .hero-dots {
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 16px;
-            z-index: 3;
             display: flex;
             justify-content: center;
             gap: 9px;
+            margin-top: 12px;
         }
 
         .hero-dot {
@@ -264,13 +280,10 @@
             border-color: var(--saffron);
         }
 
-        @media (max-width: 860px) {
-            .hero-carousel { padding-top: 75%; } /* 4:3 */
-        }
-
         @media (max-width: 640px) {
-            .hero-carousel { padding-top: 100%; } /* 1:1 */
-            .hero-nav { width: 36px; height: 36px; }
+            .hero-carousel { padding: 14px 24px 12px; }
+            .hero-slide.hero-side { display: none; }
+            .hero-nav { width: 30px; height: 30px; font-size: 0.8rem; }
         }
 
         .section {
@@ -579,26 +592,28 @@
     <main id="home">
         <section class="hero-banner" aria-label="Community moments at HCCGC">
             <div class="hero-carousel" id="heroCarousel">
-                <div class="hero-slides">
-                    <figure class="hero-slide is-active">
-                        <img src="hero-1.jpg" alt="Khel Sandhya game night with chess, carrom, table tennis, and darts" loading="eager" />
-                    </figure>
-                    <figure class="hero-slide">
-                        <img src="hero-2.jpg" alt="Parisa Sparsha musical evening with violin, tabla, harmonium, and guitar performers" loading="lazy" />
-                    </figure>
-                    <figure class="hero-slide">
-                        <img src="hero-3.jpg" alt="Yoga For All community session at HCCGC" loading="lazy" />
-                    </figure>
-                    <figure class="hero-slide">
-                        <img src="hero-4.jpg" alt="Sangeet Sandhya community singers performing on stage" loading="lazy" />
-                    </figure>
-                    <figure class="hero-slide">
-                        <img src="hero-5.jpg" alt="Children taking part in an HCCGC cultural and educational program" loading="lazy" />
-                    </figure>
-                </div>
-
                 <button class="hero-nav hero-prev" type="button" aria-label="Previous slide">&#10094;</button>
                 <button class="hero-nav hero-next" type="button" aria-label="Next slide">&#10095;</button>
+
+                <div class="hero-stage">
+                    <figure class="hero-slide hero-side" id="heroSlidePrev">
+                        <div class="hero-slide-inner">
+                            <img id="heroImgPrev" src="" alt="" loading="lazy" />
+                        </div>
+                    </figure>
+
+                    <figure class="hero-slide hero-main" id="heroSlideCurrent">
+                        <div class="hero-slide-inner">
+                            <img id="heroImgCurrent" src="" alt="" loading="eager" />
+                        </div>
+                    </figure>
+
+                    <figure class="hero-slide hero-side" id="heroSlideNext">
+                        <div class="hero-slide-inner">
+                            <img id="heroImgNext" src="" alt="" loading="lazy" />
+                        </div>
+                    </figure>
+                </div>
 
                 <div class="hero-dots" role="tablist" aria-label="Choose slide">
                     <button class="hero-dot is-active" type="button" aria-label="Show slide 1" aria-selected="true"></button>
@@ -849,24 +864,70 @@ const SAHYOGMILAN_LINK = "sahyog-milan-participation-form.html";
             const carousel = document.getElementById("heroCarousel");
             if (!carousel) return;
 
-            const slides = Array.from(carousel.querySelectorAll(".hero-slide"));
+            const images = [
+                { src: "hero-1.jpg", alt: "Khel Sandhya game night with chess, carrom, table tennis, and darts" },
+                { src: "hero-2.jpg", alt: "Parisa Sparsha musical evening with violin, tabla, harmonium, and guitar performers" },
+                { src: "hero-3.jpg", alt: "Yoga For All community session at HCCGC" },
+                { src: "hero-4.jpg", alt: "Sangeet Sandhya community singers performing on stage" },
+                { src: "hero-5.jpg", alt: "Children taking part in an HCCGC cultural and educational program" }
+            ];
+
+            const imgPrev = document.getElementById("heroImgPrev");
+            const imgCurrent = document.getElementById("heroImgCurrent");
+            const imgNext = document.getElementById("heroImgNext");
+            const slidePrev = document.getElementById("heroSlidePrev");
+            const slideNext = document.getElementById("heroSlideNext");
             const dots = Array.from(carousel.querySelectorAll(".hero-dot"));
             const prevBtn = carousel.querySelector(".hero-prev");
             const nextBtn = carousel.querySelector(".hero-next");
             const intervalMs = 5500;
+            const total = images.length;
             let current = 0;
             let timer = null;
 
+            const ASPECT = 1.25; // width / height for the photos' 5:4 ratio
+
+            function applySize() {
+                const stagePadding = parseFloat(window.getComputedStyle(carousel).paddingLeft) +
+                    parseFloat(window.getComputedStyle(carousel).paddingRight);
+                const availableWidth = carousel.clientWidth - stagePadding;
+                const sideVisible = window.getComputedStyle(slidePrev).display !== "none";
+
+                // Side cards are pinned with their center exactly on the stage edge, so
+                // only half their width shows. To keep that half-peek clear of the
+                // center card, the center card's width should not exceed half the stage.
+                const hMaxByWidth = sideVisible
+                    ? (availableWidth / 2 - 4) / ASPECT
+                    : availableWidth / ASPECT;
+
+                const viewportH = window.innerHeight;
+                const hMaxByHeight = Math.min(Math.max(viewportH * 0.68, 280), 680);
+
+                const h = Math.max(160, Math.min(hMaxByWidth, hMaxByHeight));
+                carousel.style.setProperty("--hero-h", h + "px");
+            }
+
+            function setImage(imgEl, dataIndex) {
+                const data = images[(dataIndex + total) % total];
+                imgEl.src = data.src;
+                imgEl.alt = data.alt;
+            }
+
+            function render() {
+                setImage(imgPrev, current - 1);
+                setImage(imgCurrent, current);
+                setImage(imgNext, current + 1);
+
+                dots.forEach(function (dot, index) {
+                    const isActive = index === current;
+                    dot.classList.toggle("is-active", isActive);
+                    dot.setAttribute("aria-selected", isActive ? "true" : "false");
+                });
+            }
+
             function goTo(index) {
-                slides[current].classList.remove("is-active");
-                dots[current].classList.remove("is-active");
-                dots[current].setAttribute("aria-selected", "false");
-
-                current = (index + slides.length) % slides.length;
-
-                slides[current].classList.add("is-active");
-                dots[current].classList.add("is-active");
-                dots[current].setAttribute("aria-selected", "true");
+                current = (index + total) % total;
+                render();
             }
 
             function next() { goTo(current + 1); }
@@ -905,6 +966,20 @@ const SAHYOGMILAN_LINK = "sahyog-milan-participation-form.html";
                 });
             });
 
+            if (slidePrev) {
+                slidePrev.addEventListener("click", function () {
+                    prev();
+                    startAutoplay();
+                });
+            }
+
+            if (slideNext) {
+                slideNext.addEventListener("click", function () {
+                    next();
+                    startAutoplay();
+                });
+            }
+
             carousel.addEventListener("mouseenter", stopAutoplay);
             carousel.addEventListener("mouseleave", startAutoplay);
             carousel.addEventListener("focusin", stopAutoplay);
@@ -925,6 +1000,15 @@ const SAHYOGMILAN_LINK = "sahyog-milan-participation-form.html";
                 touchStartX = null;
                 startAutoplay();
             }, { passive: true });
+
+            let resizeTimer = null;
+            window.addEventListener("resize", function () {
+                window.clearTimeout(resizeTimer);
+                resizeTimer = window.setTimeout(applySize, 120);
+            });
+
+            applySize();
+            render();
 
             const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
             if (!prefersReducedMotion) {

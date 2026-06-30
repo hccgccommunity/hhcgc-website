@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -540,8 +539,10 @@
         }
 
         async function initializePage() {
-            await loadPartial("header-placeholder", "header.html");
-            await loadPartial("footer-placeholder", "footer.html");
+            // Load header/footer in the background — don't await them,
+            // so a network failure fetching partials never blocks event loading.
+            loadPartial("header-placeholder", "/header.html").catch(function(){});
+            loadPartial("footer-placeholder", "/footer.html").catch(function(){});
 
             const year = document.getElementById("year");
             if (year) {

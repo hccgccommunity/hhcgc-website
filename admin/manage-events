@@ -744,8 +744,8 @@ function fixHeaderLinksForSubfolder(headerEl) {
   });
 }
 
-loadPartial('site-header', '../header.html');
-loadPartial('site-footer', '../footer.html');
+loadPartial('site-header', '/header.html');
+loadPartial('site-footer', '/footer.html');
 
 var allEvents = [];
 var currentUser = null;

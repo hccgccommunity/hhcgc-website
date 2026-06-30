@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -191,14 +192,6 @@
             font-weight: 700;
         }
 
-        .event-card-image {
-            width: 100%;
-            height: 170px;
-            object-fit: cover;
-            border-radius: 14px;
-            margin-bottom: 4px;
-        }
-
         .event-card h3 {
             margin: 0;
             color: var(--maroon);
@@ -312,7 +305,42 @@
             try {
                 const response = await fetch(filePath);
                 if (!response.ok) throw new Error("Unable to load " + filePath);
-                target.innerHTML = await response.text();
+                const html = await response.text();
+
+                // Some partials (e.g. footer.html) are full HTML documents with
+                // their own <html>/<head>/<body>. Parse properly so <style> tags
+                // land in <head> and only real body content goes into the page.
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                const styleTags = doc.head ? doc.head.querySelectorAll('style') : [];
+                styleTags.forEach(function (styleEl) {
+                    const marker = filePath + '::' + (styleEl.textContent || '').length;
+                    if (!document.head.querySelector('style[data-partial-src="' + marker + '"]')) {
+                        const clone = styleEl.cloneNode(true);
+                        clone.setAttribute('data-partial-src', marker);
+                        document.head.appendChild(clone);
+                    }
+                });
+
+                if (doc.body && doc.body.innerHTML.trim() !== '') {
+                    target.innerHTML = doc.body.innerHTML;
+                } else {
+                    target.innerHTML = html;
+                }
+
+                // innerHTML doesn't execute <script> tags, so re-create them.
+                const oldScripts = target.querySelectorAll('script');
+                oldScripts.forEach(function (oldScript) {
+                    const newScript = document.createElement('script');
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+
             } catch (error) {
                 console.error(error);
                 target.innerHTML = "";
@@ -371,7 +399,6 @@
             upcoming.forEach(function (e) {
                 html +=
                     '<article class="event-card">' +
-                        (e.imageUrl ? '<img class="event-card-image" src="' + escHtml(e.imageUrl) + '" alt="' + escHtml(e.name) + '">' : '') +
                         '<span class="event-date-badge">' +
                             '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' +
                             formatDate(e.date) +

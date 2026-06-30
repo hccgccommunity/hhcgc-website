@@ -305,42 +305,7 @@
             try {
                 const response = await fetch(filePath);
                 if (!response.ok) throw new Error("Unable to load " + filePath);
-                const html = await response.text();
-
-                // Some partials (e.g. footer.html) are full HTML documents with
-                // their own <html>/<head>/<body>. Parse properly so <style> tags
-                // land in <head> and only real body content goes into the page.
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-
-                const styleTags = doc.head ? doc.head.querySelectorAll('style') : [];
-                styleTags.forEach(function (styleEl) {
-                    const marker = filePath + '::' + (styleEl.textContent || '').length;
-                    if (!document.head.querySelector('style[data-partial-src="' + marker + '"]')) {
-                        const clone = styleEl.cloneNode(true);
-                        clone.setAttribute('data-partial-src', marker);
-                        document.head.appendChild(clone);
-                    }
-                });
-
-                if (doc.body && doc.body.innerHTML.trim() !== '') {
-                    target.innerHTML = doc.body.innerHTML;
-                } else {
-                    target.innerHTML = html;
-                }
-
-                // innerHTML doesn't execute <script> tags, so re-create them.
-                const oldScripts = target.querySelectorAll('script');
-                oldScripts.forEach(function (oldScript) {
-                    const newScript = document.createElement('script');
-                    if (oldScript.src) {
-                        newScript.src = oldScript.src;
-                    } else {
-                        newScript.textContent = oldScript.textContent;
-                    }
-                    oldScript.parentNode.replaceChild(newScript, oldScript);
-                });
-
+                target.innerHTML = await response.text();
             } catch (error) {
                 console.error(error);
                 target.innerHTML = "";

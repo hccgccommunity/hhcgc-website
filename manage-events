@@ -317,6 +317,123 @@ textarea { resize: vertical; }
   .form-row { grid-template-columns: 1fr; }
   .toolbar { flex-direction: column; align-items: stretch; }
 }
+/* Header partial styling — required by header.html's markup.
+   Copied to match the rest of the site so header.html renders
+   identically here as it does everywhere else. */
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(255, 249, 241, 0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    min-height: 92px;
+    padding: 12px 0;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+}
+
+.brand-logo-wrap {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 8px;
+    box-shadow: var(--shadow);
+    flex-shrink: 0;
+}
+
+.brand-logo {
+    width: 88px;
+    height: auto;
+    border-radius: 12px;
+    object-fit: contain;
+}
+
+.brand-text h1 {
+    margin: 0;
+    font-size: 1.2rem;
+    line-height: 1.15;
+    color: var(--maroon);
+}
+
+.site-header nav ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.site-header nav a {
+    font-weight: 700;
+    color: var(--text);
+    font-size: 0.96rem;
+}
+
+.site-header nav a:hover {
+    color: var(--saffron-dark);
+}
+
+.menu-toggle {
+    display: none;
+    border: 0;
+    background: transparent;
+    padding: 6px 0;
+    cursor: pointer;
+    color: #2c1b10;
+    align-self: flex-end;
+}
+
+.menu-toggle .bar {
+    display: block;
+    width: 26px;
+    height: 2px;
+    margin: 5px 0;
+    background: currentColor;
+}
+
+@media (max-width: 768px) {
+    .nav {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .menu-toggle {
+        display: inline-block;
+    }
+
+    .site-header nav {
+        display: none;
+        width: 100%;
+        background: rgba(255, 249, 241, 0.95);
+        padding: 10px 0;
+    }
+
+    .site-header nav.is-open {
+        display: block;
+    }
+
+    .site-header nav ul {
+        flex-direction: column;
+        gap: 14px;
+    }
+}
 </style>
 </head>
 <body>
@@ -469,7 +586,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/fireba
 import {
   getAuth,
   GoogleAuthProvider,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
@@ -514,11 +632,23 @@ document.getElementById("btn-signin").addEventListener("click", function () {
   var errorBox = document.getElementById("signin-error");
   errorBox.style.display = "none";
 
-  signInWithPopup(auth, provider).catch(function (err) {
+  // Using redirect instead of popup: Safari's cross-site tracking
+  // prevention blocks the storage access popup-based sign-in relies on,
+  // which surfaces as a generic "string did not match the expected
+  // pattern" error. Redirect-based sign-in works reliably everywhere.
+  signInWithRedirect(auth, provider).catch(function (err) {
     console.error(err);
     errorBox.textContent = "Sign-in failed. Please try again.";
     errorBox.style.display = "block";
   });
+});
+
+// After being redirected back from Google, this picks up the result.
+getRedirectResult(auth).catch(function (err) {
+  console.error(err);
+  var errorBox = document.getElementById("signin-error");
+  errorBox.textContent = "Sign-in failed. Please try again.";
+  errorBox.style.display = "block";
 });
 
 document.getElementById("btn-signout").addEventListener("click", function () {
@@ -662,11 +792,11 @@ function buildEventRowHtml(e, isPast) {
         createdLine +
       '</div>' +
       '<div class="event-row-actions">' +
-        '<button class="btn-icon" onclick="editEvent(\'' + e.id + '\')">' +
+        '<button class="btn-icon btn-edit-event" data-event-id="' + escHtml(e.id) + '">' +
           '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
           ' Edit' +
         '</button>' +
-        '<button class="btn-icon danger" onclick="deleteEvent(\'' + e.id + '\')">' +
+        '<button class="btn-icon danger btn-delete-event" data-event-id="' + escHtml(e.id) + '">' +
           '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>' +
           ' Delete' +
         '</button>' +
@@ -753,7 +883,24 @@ function closeModal() {
   document.getElementById('modal-overlay').classList.remove('show');
 }
 
-window.editEvent = openModal;
+// Event delegation for dynamically-rendered Edit/Delete buttons.
+// Using addEventListener with data attributes instead of inline onclick="..."
+// avoids any risk of malformed inline JS strings (e.g. from special
+// characters in IDs), which is safer across all browsers including Safari.
+document.getElementById('events-list').addEventListener('click', handleEventListClick);
+document.getElementById('past-events-list').addEventListener('click', handleEventListClick);
+
+function handleEventListClick(evt) {
+  var editBtn = evt.target.closest('.btn-edit-event');
+  if (editBtn) {
+    openModal(editBtn.getAttribute('data-event-id'));
+    return;
+  }
+  var deleteBtn = evt.target.closest('.btn-delete-event');
+  if (deleteBtn) {
+    deleteEventById(deleteBtn.getAttribute('data-event-id'));
+  }
+}
 
 function clearFieldErrors() {
   ['name', 'description', 'date', 'from-time'].forEach(function (f) {
@@ -829,7 +976,7 @@ document.getElementById('btn-save-event').addEventListener('click', function () 
     });
 });
 
-window.deleteEvent = function (id) {
+function deleteEventById(id) {
   if (!confirm('Delete this event? This cannot be undone.')) return;
 
   var fb = window.__hccgc;
@@ -842,7 +989,7 @@ window.deleteEvent = function (id) {
       console.error(err);
       showStatus('Error deleting event: ' + (err.message || 'unknown error'), 'error');
     });
-};
+}
 </script>
 </body>
 </html>

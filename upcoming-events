@@ -439,12 +439,15 @@
         }
 
         function isPast(dateStr) {
-            const parts = dateStr.split('-');
-            if (parts.length !== 3) return false;
-            const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            return d < today;
+            // Compare date strings directly (YYYY-MM-DD format sorts lexicographically)
+            // to avoid timezone/device-clock issues with new Date() on mobile devices.
+            if (!dateStr || dateStr.length !== 10) return false;
+            var today = new Date();
+            var yyyy = today.getFullYear();
+            var mm = String(today.getMonth() + 1).padStart(2, '0');
+            var dd = String(today.getDate()).padStart(2, '0');
+            var todayStr = yyyy + '-' + mm + '-' + dd;
+            return dateStr < todayStr;
         }
 
         function escHtml(str) {

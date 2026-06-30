@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,6 +10,9 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F5ZHQ4CDR9');</script>
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-TPBF5VKB');</script>
+
+<!-- Google Identity Services (real sign-in) -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 
 <style>
 :root {
@@ -459,15 +463,8 @@ textarea { resize: vertical; }
     <img src="hccgc-logo.jpeg" alt="HCCGC Logo" style="width:100px;height:100px;object-fit:contain;border-radius:50%;margin:0 auto 1.25rem;display:block;border:3px solid var(--border);">
     <h3>Sign in to continue</h3>
     <p>This tool is for authorized HCCGC members only. Sign in with your HCCGC Google account to manage events.</p>
-    <button class="btn-google" onclick="handleGoogleSignIn()">
-      <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-        <path d="M19.6 10.23c0-.68-.06-1.36-.17-2H10v3.77h5.4a4.63 4.63 0 01-2.01 3.04v2.52h3.25c1.9-1.75 3-4.33 3-7.33z" fill="#4285F4"/>
-        <path d="M10 20c2.7 0 4.97-.9 6.63-2.44l-3.25-2.52c-.9.6-2.05.96-3.38.96-2.6 0-4.8-1.75-5.59-4.11H1.07v2.6A10 10 0 0010 20z" fill="#34A853"/>
-        <path d="M4.41 11.89A5.98 5.98 0 014.1 10c0-.65.11-1.29.31-1.89V5.51H1.07A10 10 0 000 10c0 1.61.38 3.13 1.07 4.49l3.34-2.6z" fill="#FBBC05"/>
-        <path d="M10 3.98c1.46 0 2.77.5 3.8 1.49l2.85-2.85C14.96.99 12.7 0 10 0A10 10 0 001.07 5.51l3.34 2.6C5.2 5.73 7.4 3.98 10 3.98z" fill="#EA4335"/>
-      </svg>
-      Sign in with Google
-    </button>
+    <div id="google-signin-button" style="display:flex; justify-content:center; margin-bottom: 0.5rem;"></div>
+    <div id="signin-error" style="display:none; color:#c0392b; font-size:0.82rem; margin-top:0.5rem;"></div>
     <p class="gate-note">Need access? Contact <a href="mailto:admin@hccgc.org">admin@hccgc.org</a></p>
   </div>
 </div>
@@ -580,11 +577,6 @@ textarea { resize: vertical; }
           <input type="url" id="event-rsvp" placeholder="https://www.hccgc.org/your-event.html">
         </div>
       </div>
-
-      <div class="form-group">
-        <label for="event-image">Image URL</label>
-        <input type="url" id="event-image" placeholder="https://www.hccgc.org/images/your-flyer.jpg">
-      </div>
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
@@ -596,10 +588,45 @@ textarea { resize: vertical; }
 <script>
 /* ── Load header / footer partials ──────────────────────── */
 function loadPartial(id, file) {
+  var target = document.getElementById(id);
+  if (!target) return;
   fetch(file)
     .then(function(r){ return r.text(); })
-    .then(function(html){ document.getElementById(id).innerHTML = html; })
-    .catch(function(){});
+    .then(function(html){
+      // Some partials (e.g. footer.html) are full HTML documents with their
+      // own <html>/<head>/<body>. Parse properly so <style> tags land in
+      // <head> and only real body content goes into the placeholder div.
+      var parser = new DOMParser();
+      var doc = parser.parseFromString(html, 'text/html');
+
+      var styleTags = doc.head ? doc.head.querySelectorAll('style') : [];
+      styleTags.forEach(function (styleEl) {
+        var marker = file + '::' + (styleEl.textContent || '').length;
+        if (!document.head.querySelector('style[data-partial-src="' + marker + '"]')) {
+          var clone = styleEl.cloneNode(true);
+          clone.setAttribute('data-partial-src', marker);
+          document.head.appendChild(clone);
+        }
+      });
+
+      if (doc.body && doc.body.innerHTML.trim() !== '') {
+        target.innerHTML = doc.body.innerHTML;
+      } else {
+        target.innerHTML = html;
+      }
+
+      var oldScripts = target.querySelectorAll('script');
+      oldScripts.forEach(function (oldScript) {
+        var newScript = document.createElement('script');
+        if (oldScript.src) {
+          newScript.src = oldScript.src;
+        } else {
+          newScript.textContent = oldScript.textContent;
+        }
+        oldScript.parentNode.replaceChild(newScript, oldScript);
+      });
+    })
+    .catch(function(err){ console.error(err); });
 }
 loadPartial('site-header', 'header.html');
 loadPartial('site-footer', 'footer.html');
@@ -607,24 +634,75 @@ loadPartial('site-footer', 'footer.html');
 /* ── Auth (stub — wire up Google Identity Services) ─────── */
 var currentUser = null;
 
-function handleGoogleSignIn() {
-  /* TODO: Replace mock with real Google Identity Services
-     Step 1 – add to <head>:
-       <script src="https://accounts.google.com/gsi/client" async><\/script>
-     Step 2 – initialize:
-       google.accounts.id.initialize({
-         client_id: 'YOUR_CLIENT_ID',
-         callback: onGoogleToken,
-         hd: 'hccgc.org'
-       });
-       google.accounts.id.prompt();
-     Step 3 – handle token:
-       function onGoogleToken(resp) {
-         var p = JSON.parse(atob(resp.credential.split('.')[1]));
-         signIn({ name: p.name, email: p.email, initials: p.name.split(' ').map(function(n){return n[0];}).join('').slice(0,2).toUpperCase() });
-       }
-  */
-  signIn({ name: 'HCCGC Member', email: 'member@hccgc.org', initials: 'HM' });
+var GOOGLE_CLIENT_ID = '216480028000-df2u0s1q9t7dggo5ke0redmk6nhbjj5i.apps.googleusercontent.com';
+var ALLOWED_DOMAIN = 'hccgc.org'; // only accounts on this Google Workspace domain can sign in
+
+function base64UrlDecode(str) {
+  // JWT payloads are base64url encoded, not plain base64
+  str = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (str.length % 4) { str += '='; }
+  return atob(str);
+}
+
+function decodeJwt(token) {
+  var parts = token.split('.');
+  if (parts.length !== 3) throw new Error('Malformed token');
+  return JSON.parse(base64UrlDecode(parts[1]));
+}
+
+function onGoogleToken(response) {
+  var errorBox = document.getElementById('signin-error');
+  errorBox.style.display = 'none';
+
+  try {
+    var payload = decodeJwt(response.credential);
+
+    // Restrict to the HCCGC Google Workspace domain.
+    // payload.hd is only present for Workspace accounts; personal Gmail
+    // accounts won't have it, so they are rejected here too.
+    if (payload.hd !== ALLOWED_DOMAIN) {
+      errorBox.textContent = 'Please sign in with your @' + ALLOWED_DOMAIN + ' account.';
+      errorBox.style.display = 'block';
+      return;
+    }
+
+    var initials = (payload.name || payload.email || '?')
+      .split(' ')
+      .map(function (n) { return n[0]; })
+      .join('')
+      .slice(0, 2)
+      .toUpperCase();
+
+    signIn({
+      name: payload.name || payload.email,
+      email: payload.email,
+      initials: initials,
+      idToken: response.credential
+    });
+  } catch (err) {
+    errorBox.textContent = 'Sign-in failed. Please try again.';
+    errorBox.style.display = 'block';
+    console.error(err);
+  }
+}
+
+function initGoogleSignIn() {
+  if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
+    // Google script hasn't loaded yet — retry shortly.
+    setTimeout(initGoogleSignIn, 300);
+    return;
+  }
+
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: onGoogleToken,
+    hd: ALLOWED_DOMAIN
+  });
+
+  google.accounts.id.renderButton(
+    document.getElementById('google-signin-button'),
+    { theme: 'outline', size: 'large', text: 'signin_with', shape: 'pill', width: 280 }
+  );
 }
 
 function signIn(user) {
@@ -640,7 +718,12 @@ function handleSignOut() {
   currentUser = null;
   document.getElementById('app').style.display = 'none';
   document.getElementById('gate').style.display = 'flex';
+  if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+    google.accounts.id.disableAutoSelect();
+  }
 }
+
+initGoogleSignIn();
 
 /* ── State ───────────────────────────────────────────────── */
 var allEvents = [];
@@ -783,7 +866,6 @@ function openModal(eventId) {
     document.getElementById('event-to-time').value = e.toTime || '';
     document.getElementById('event-category').value = e.category || '';
     document.getElementById('event-cost').value = e.cost || '';
-    document.getElementById('event-image').value = e.imageUrl || '';
     document.getElementById('event-rsvp').value = e.rsvpUrl || '';
   } else {
     title.textContent = 'Add Event';
@@ -795,7 +877,6 @@ function openModal(eventId) {
     document.getElementById('event-to-time').value = '';
     document.getElementById('event-category').value = '';
     document.getElementById('event-cost').value = '';
-    document.getElementById('event-image').value = '';
     document.getElementById('event-rsvp').value = '';
   }
 
@@ -828,7 +909,6 @@ function saveEvent() {
   var toTime = document.getElementById('event-to-time').value.trim();
   var category = document.getElementById('event-category').value;
   var cost = document.getElementById('event-cost').value.trim();
-  var imageUrl = document.getElementById('event-image').value.trim();
   var rsvpUrl = document.getElementById('event-rsvp').value.trim();
 
   var hasError = false;
@@ -846,7 +926,6 @@ function saveEvent() {
     toTime: toTime,
     category: category,
     cost: cost,
-    imageUrl: imageUrl,
     rsvpUrl: rsvpUrl
   };
 

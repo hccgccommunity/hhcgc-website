@@ -8,7 +8,6 @@
     "toTime": "9:00 PM",
     "category": "Cultural",
     "cost": "Free",
-    "imageUrl": "",
     "rsvpUrl": "https://www.hccgc.org/sangeet-sandhya.html"
   },
   {
@@ -20,7 +19,6 @@
     "toTime": "",
     "category": "Kids",
     "cost": "$5 per person",
-    "imageUrl": "",
     "rsvpUrl": "https://www.hccgc.org/khel-sandhya.html"
   }
 ]

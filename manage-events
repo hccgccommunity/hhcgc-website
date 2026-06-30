@@ -632,20 +632,26 @@ document.getElementById("btn-signin").addEventListener("click", function () {
   var errorBox = document.getElementById("signin-error");
   errorBox.style.display = "none";
 
-  // Using redirect instead of popup: Safari's cross-site tracking
-  // prevention blocks the storage access popup-based sign-in relies on,
-  // which surfaces as a generic "string did not match the expected
-  // pattern" error. Redirect-based sign-in works reliably everywhere.
+  console.log("[HCCGC AUTH] Sign-in button clicked, starting redirect...");
+
   signInWithRedirect(auth, provider).catch(function (err) {
-    console.error(err);
+    console.error("[HCCGC AUTH] signInWithRedirect failed:", err.code, err.message, err);
     errorBox.textContent = "Sign-in failed. Please try again.";
     errorBox.style.display = "block";
   });
 });
 
+console.log("[HCCGC AUTH] Page loaded, checking getRedirectResult...");
+
 // After being redirected back from Google, this picks up the result.
-getRedirectResult(auth).catch(function (err) {
-  console.error(err);
+getRedirectResult(auth).then(function (result) {
+  if (result && result.user) {
+    console.log("[HCCGC AUTH] getRedirectResult SUCCESS:", result.user.email);
+  } else {
+    console.log("[HCCGC AUTH] getRedirectResult returned no user (normal on first page load before sign-in).");
+  }
+}).catch(function (err) {
+  console.error("[HCCGC AUTH] getRedirectResult FAILED:", err.code, err.message, err);
   var errorBox = document.getElementById("signin-error");
   errorBox.textContent = "Sign-in failed. Please try again.";
   errorBox.style.display = "block";
@@ -656,6 +662,8 @@ document.getElementById("btn-signout").addEventListener("click", function () {
 });
 
 onAuthStateChanged(auth, function (user) {
+  console.log("[HCCGC AUTH] onAuthStateChanged fired. User:", user ? user.email : null);
+
   var errorBox = document.getElementById("signin-error");
 
   if (!user) {
@@ -665,12 +673,17 @@ onAuthStateChanged(auth, function (user) {
   }
 
   var email = user.email || "";
+  console.log("[HCCGC AUTH] Checking domain. Email:", email, "Required domain:", ALLOWED_DOMAIN);
+
   if (!email.toLowerCase().endsWith("@" + ALLOWED_DOMAIN)) {
+    console.warn("[HCCGC AUTH] Domain check FAILED for:", email);
     errorBox.textContent = "Please sign in with your @" + ALLOWED_DOMAIN + " account.";
     errorBox.style.display = "block";
     signOut(auth);
     return;
   }
+
+  console.log("[HCCGC AUTH] Domain check passed. Showing app.");
 
   document.getElementById("gate").style.display = "none";
   document.getElementById("app").style.display = "block";

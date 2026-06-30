@@ -586,8 +586,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/fireba
 import {
   getAuth,
   GoogleAuthProvider,
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithPopup,
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
@@ -632,30 +631,26 @@ document.getElementById("btn-signin").addEventListener("click", function () {
   var errorBox = document.getElementById("signin-error");
   errorBox.style.display = "none";
 
-  console.log("[HCCGC AUTH] Sign-in button clicked, starting redirect...");
+  console.log("[HCCGC AUTH] Sign-in button clicked, opening popup...");
 
-  signInWithRedirect(auth, provider).catch(function (err) {
-    console.error("[HCCGC AUTH] signInWithRedirect failed:", err.code, err.message, err);
-    errorBox.textContent = "Sign-in failed. Please try again.";
+  signInWithPopup(auth, provider).then(function (result) {
+    console.log("[HCCGC AUTH] signInWithPopup SUCCESS:", result.user.email);
+  }).catch(function (err) {
+    console.error("[HCCGC AUTH] signInWithPopup failed:", err.code, err.message, err);
+
+    if (err.code === "auth/popup-blocked") {
+      errorBox.textContent = "Your browser blocked the sign-in popup. Please allow popups for this site and try again.";
+    } else if (err.code === "auth/cancelled-popup-request" || err.code === "auth/popup-closed-by-user") {
+      // User closed the popup themselves — not a real error, don't show a message.
+      return;
+    } else {
+      errorBox.textContent = "Sign-in failed. Please try again.";
+    }
     errorBox.style.display = "block";
   });
 });
 
-console.log("[HCCGC AUTH] Page loaded, checking getRedirectResult...");
-
-// After being redirected back from Google, this picks up the result.
-getRedirectResult(auth).then(function (result) {
-  if (result && result.user) {
-    console.log("[HCCGC AUTH] getRedirectResult SUCCESS:", result.user.email);
-  } else {
-    console.log("[HCCGC AUTH] getRedirectResult returned no user (normal on first page load before sign-in).");
-  }
-}).catch(function (err) {
-  console.error("[HCCGC AUTH] getRedirectResult FAILED:", err.code, err.message, err);
-  var errorBox = document.getElementById("signin-error");
-  errorBox.textContent = "Sign-in failed. Please try again.";
-  errorBox.style.display = "block";
-});
+console.log("[HCCGC AUTH] Page loaded.");
 
 document.getElementById("btn-signout").addEventListener("click", function () {
   signOut(auth);

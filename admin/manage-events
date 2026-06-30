@@ -460,7 +460,7 @@ textarea { resize: vertical; }
 
 <div id="gate">
   <div class="gate-card">
-    <img src="hccgc-logo.jpeg" alt="HCCGC Logo" style="width:100px;height:100px;object-fit:contain;border-radius:50%;margin:0 auto 1.25rem;display:block;border:3px solid var(--border);">
+    <img src="/hccgc-logo.jpeg" alt="HCCGC Logo" style="width:100px;height:100px;object-fit:contain;border-radius:50%;margin:0 auto 1.25rem;display:block;border:3px solid var(--border);">
     <h3 id="gate-title">Checking access&hellip;</h3>
     <p id="gate-message">One moment while we verify your access to this tool.</p>
     <a class="btn-google" id="btn-go-portal" href="/admin/admin-portal" style="display:none; text-decoration:none;">
@@ -715,11 +715,37 @@ function loadPartial(id, file) {
   if (!target) return;
   fetch(file)
     .then(function (r) { return r.text(); })
-    .then(function (html) { target.innerHTML = html; })
+    .then(function (html) {
+      target.innerHTML = html;
+      if (id === 'site-header') {
+        fixHeaderLinksForSubfolder(target);
+      }
+    })
     .catch(function () {});
 }
-loadPartial('site-header', 'header.html');
-loadPartial('site-footer', 'footer.html');
+
+// header.html uses relative paths (e.g. src="hccgc-logo.jpeg") that break
+// when loaded from a subfolder like /admin/. This patches the loaded copy
+// to use root-relative paths without touching the shared header.html file.
+function fixHeaderLinksForSubfolder(headerEl) {
+  var logo = headerEl.querySelector('.brand-logo');
+  if (logo) {
+    var src = logo.getAttribute('src');
+    if (src && !src.startsWith('/') && !src.startsWith('http')) {
+      logo.setAttribute('src', '/' + src);
+    }
+  }
+  var links = headerEl.querySelectorAll('a[href]');
+  links.forEach(function (link) {
+    var href = link.getAttribute('href');
+    if (!href) return;
+    if (href.startsWith('http') || href.startsWith('/') || href.startsWith('#')) return;
+    link.setAttribute('href', '/' + href);
+  });
+}
+
+loadPartial('site-header', '../header.html');
+loadPartial('site-footer', '../footer.html');
 
 var allEvents = [];
 var currentUser = null;

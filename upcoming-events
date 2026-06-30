@@ -269,6 +269,123 @@
             .events-grid { grid-template-columns: 1fr; }
             .page-hero { padding: 40px 0 28px; }
         }
+        /* Header partial styling — required by header.html's markup.
+           Copied to match the rest of the site (see khel-sandhya.html etc.)
+           so header.html renders identically on every page. */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(255, 249, 241, 0.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            min-height: 92px;
+            padding: 12px 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-width: 0;
+        }
+
+        .brand-logo-wrap {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 8px;
+            box-shadow: var(--shadow);
+            flex-shrink: 0;
+        }
+
+        .brand-logo {
+            width: 88px;
+            height: auto;
+            border-radius: 12px;
+            object-fit: contain;
+        }
+
+        .brand-text h1 {
+            margin: 0;
+            font-size: 1.2rem;
+            line-height: 1.15;
+            color: var(--maroon);
+        }
+
+        .site-header nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin: 0;
+            padding: 0;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .site-header nav a {
+            font-weight: 700;
+            color: var(--text);
+            font-size: 0.96rem;
+        }
+
+        .site-header nav a:hover {
+            color: var(--saffron-dark);
+        }
+
+        .menu-toggle {
+            display: none;
+            border: 0;
+            background: transparent;
+            padding: 6px 0;
+            cursor: pointer;
+            color: #2c1b10;
+            align-self: flex-end;
+        }
+
+        .menu-toggle .bar {
+            display: block;
+            width: 26px;
+            height: 2px;
+            margin: 5px 0;
+            background: currentColor;
+        }
+
+        @media (max-width: 768px) {
+            .nav {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+
+            .menu-toggle {
+                display: inline-block;
+            }
+
+            .site-header nav {
+                display: none;
+                width: 100%;
+                background: rgba(255, 249, 241, 0.95);
+                padding: 10px 0;
+            }
+
+            .site-header nav.is-open {
+                display: block;
+            }
+
+            .site-header nav ul {
+                flex-direction: column;
+                gap: 14px;
+            }
+        }
     </style>
 </head>
 <body>

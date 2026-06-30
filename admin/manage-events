@@ -5,6 +5,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Manage Events – HCCGC</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
@@ -472,11 +476,14 @@ textarea { resize: vertical; }
 <div id="app">
   <div class="container">
 
+    <p style="padding:1.25rem 0 0; font-size:0.82rem;">
+      <a href="/admin/admin-portal" style="color:var(--saffron-dark); text-decoration:none;">&larr; Back to apps</a>
+    </p>
+
     <div class="toolbar">
       <div class="toolbar-left">
         <h3>Event List</h3>
         <p>Changes here update the public Upcoming Events page immediately.</p>
-        <p style="margin-top:6px;"><a href="/admin/admin-portal" style="font-size:0.8rem; color:var(--saffron-dark); text-decoration:none;">&larr; Back to apps</a></p>
       </div>
       <div style="display:flex; align-items:center; gap:14px;">
         <div class="user-chip">

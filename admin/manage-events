@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -337,6 +338,12 @@ textarea { resize: vertical; }
     padding: 12px 0;
 }
 
+.site-header a.brand,
+.site-header a.brand:link,
+.site-header a.brand:visited {
+    text-decoration: none;
+    color: inherit;
+}
 .brand {
     display: flex;
     align-items: center;
@@ -378,10 +385,13 @@ textarea { resize: vertical; }
     justify-content: flex-end;
 }
 
-.site-header nav a {
+.site-header nav a,
+.site-header nav a:link,
+.site-header nav a:visited {
     font-weight: 700;
     color: var(--text);
     font-size: 0.96rem;
+    text-decoration: none;
 }
 
 .site-header nav a:hover {
@@ -466,6 +476,7 @@ textarea { resize: vertical; }
       <div class="toolbar-left">
         <h3>Event List</h3>
         <p>Changes here update the public Upcoming Events page immediately.</p>
+        <p style="margin-top:6px;"><a href="/admin/admin-portal" style="font-size:0.8rem; color:var(--saffron-dark); text-decoration:none;">&larr; Back to apps</a></p>
       </div>
       <div style="display:flex; align-items:center; gap:14px;">
         <div class="user-chip">

@@ -213,6 +213,12 @@ body {
     min-height: 92px;
     padding: 12px 0;
 }
+.site-header a.brand,
+.site-header a.brand:link,
+.site-header a.brand:visited {
+  text-decoration: none;
+  color: inherit;
+}
 .brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
 .brand-logo-wrap {
     background: #fff;
@@ -234,7 +240,9 @@ body {
     align-items: center;
     justify-content: flex-end;
 }
-.site-header nav a { font-weight: 700; color: var(--text); font-size: 0.96rem; }
+.site-header nav a,
+.site-header nav a:link,
+.site-header nav a:visited { font-weight: 700; color: var(--text); font-size: 0.96rem; text-decoration: none; }
 .site-header nav a:hover { color: var(--saffron-dark); }
 .menu-toggle {
     display: none;

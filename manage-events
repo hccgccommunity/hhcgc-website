@@ -574,7 +574,7 @@ textarea { resize: vertical; }
         </div>
         <div class="form-group">
           <label for="event-rsvp">RSVP URL</label>
-          <input type="url" id="event-rsvp" placeholder="https://www.hccgc.org/your-event.html">
+          <input type="text" id="event-rsvp" placeholder="https://www.hccgc.org/your-event.html">
         </div>
       </div>
     </div>
@@ -587,47 +587,19 @@ textarea { resize: vertical; }
 
 <script>
 /* ── Load header / footer partials ──────────────────────── */
-function loadPartial(id, file) {
-  var target = document.getElementById(id);
+async function loadPartial(placeholderId, filePath) {
+  const target = document.getElementById(placeholderId);
   if (!target) return;
-  fetch(file)
-    .then(function(r){ return r.text(); })
-    .then(function(html){
-      // Some partials (e.g. footer.html) are full HTML documents with their
-      // own <html>/<head>/<body>. Parse properly so <style> tags land in
-      // <head> and only real body content goes into the placeholder div.
-      var parser = new DOMParser();
-      var doc = parser.parseFromString(html, 'text/html');
-
-      var styleTags = doc.head ? doc.head.querySelectorAll('style') : [];
-      styleTags.forEach(function (styleEl) {
-        var marker = file + '::' + (styleEl.textContent || '').length;
-        if (!document.head.querySelector('style[data-partial-src="' + marker + '"]')) {
-          var clone = styleEl.cloneNode(true);
-          clone.setAttribute('data-partial-src', marker);
-          document.head.appendChild(clone);
-        }
-      });
-
-      if (doc.body && doc.body.innerHTML.trim() !== '') {
-        target.innerHTML = doc.body.innerHTML;
-      } else {
-        target.innerHTML = html;
-      }
-
-      var oldScripts = target.querySelectorAll('script');
-      oldScripts.forEach(function (oldScript) {
-        var newScript = document.createElement('script');
-        if (oldScript.src) {
-          newScript.src = oldScript.src;
-        } else {
-          newScript.textContent = oldScript.textContent;
-        }
-        oldScript.parentNode.replaceChild(newScript, oldScript);
-      });
-    })
-    .catch(function(err){ console.error(err); });
+  try {
+    const response = await fetch(filePath);
+    if (!response.ok) throw new Error("Unable to load " + filePath);
+    target.innerHTML = await response.text();
+  } catch (error) {
+    console.error(error);
+    target.innerHTML = "";
+  }
 }
+
 loadPartial('site-header', 'header.html');
 loadPartial('site-footer', 'footer.html');
 

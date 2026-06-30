@@ -1,9 +1,14 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HCCGC Admin Portal</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F5ZHQ4CDR9');</script>
@@ -42,11 +47,14 @@ body {
 .page-hero {
   padding: 48px 0 36px;
   text-align: center;
+  background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%);
+  color: #fff;
+  position: relative;
 }
 .page-hero h1 {
   font-family: Georgia, "Times New Roman", serif;
   font-size: 2rem;
-  color: var(--maroon);
+  color: #fff;
   margin-bottom: 10px;
 }
 .page-hero p {
@@ -271,32 +279,38 @@ body {
 .user-status-row {
   display: none;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 10px;
   font-size: 0.82rem;
-  color: var(--muted);
-  margin-top: -8px;
-  margin-bottom: 8px;
+  color: rgba(255,255,255,0.85);
+  position: absolute;
+  top: 14px;
+  right: 0;
 }
 .user-status-row.show { display: flex; }
 .user-status-avatar {
-  width: 24px; height: 24px;
+  width: 28px; height: 28px;
   border-radius: 50%;
   overflow: hidden;
-  background: var(--surface-soft);
+  background: rgba(255,255,255,0.2);
+  border: 1.5px solid rgba(255,255,255,0.4);
   display: flex; align-items: center; justify-content: center;
-  font-size: 0.68rem; font-weight: 700; color: var(--saffron-dark);
+  font-size: 0.72rem; font-weight: 700; color: #fff;
+  flex-shrink: 0;
 }
 .user-status-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .btn-signout-inline {
-  background: none;
-  border: none;
-  color: var(--saffron-dark);
-  font-size: 0.78rem;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  font-size: 0.76rem;
   cursor: pointer;
-  text-decoration: underline;
+  padding: 4px 12px;
+  border-radius: 999px;
   font-family: Arial, Helvetica, sans-serif;
+  transition: background 0.15s;
 }
+.btn-signout-inline:hover { background: rgba(255,255,255,0.25); }
 </style>
 </head>
 <body>
@@ -305,15 +319,14 @@ body {
 <div id="site-header"></div>
 
 <div class="page-hero">
-  <div class="container">
-    <h1>Welcome to the Admin Portal</h1>
-    <p>Sign in with your HCCGC Google account to access the tools you've been granted.</p>
+  <div class="container" style="position:relative;">
     <div class="user-status-row" id="user-status-row">
       <div class="user-status-avatar" id="status-avatar">?</div>
       <span id="status-name"></span>
-      &middot;
       <button class="btn-signout-inline" id="btn-signout">Sign out</button>
     </div>
+    <h1>Welcome to the Admin Portal</h1>
+    <p>Sign in with your HCCGC Google account to access the tools you've been granted.</p>
   </div>
 </div>
 

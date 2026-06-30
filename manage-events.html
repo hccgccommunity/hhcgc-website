@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Events – HCCGC</title>
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F5ZHQ4CDR9');</script>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-TPBF5VKB');</script>
+
+<style>
+:root {
+  --bg: #fff9f1;
+  --surface: #ffffff;
+  --surface-soft: #fff6ea;
+  --border: rgba(121,62,17,0.14);
+  --text: #2c1b10;
+  --muted: #6a5141;
+  --saffron: #b55a18;
+  --saffron-dark: #8d3e0d;
+  --maroon: #7f2e16;
+  --radius: 22px;
+  --shadow: 0 18px 45px rgba(93,43,14,0.10);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%),
+    radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%),
+    var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.container { width: min(calc(100% - 32px), 1220px); margin: 0 auto; }
+
+/* PAGE HERO */
+.page-hero {
+  background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%);
+  color: #fff;
+  padding: 48px 0 42px;
+  text-align: center;
+}
+.page-hero h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 2rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+.page-hero p {
+  font-size: 0.95rem;
+  opacity: 0.85;
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.65;
+}
+.hero-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 0.72rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  font-weight: 700;
+}
+
+/* GATE */
+#gate { padding: 60px 16px; display: flex; justify-content: center; }
+.gate-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2.5rem 2rem;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.gate-card h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.4rem;
+  color: var(--maroon);
+  margin-bottom: 0.5rem;
+}
+.gate-card > p { color: var(--muted); font-size: 0.88rem; line-height: 1.65; margin-bottom: 1.75rem; }
+.btn-google {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 0.72rem 1rem; background: #fff;
+  border: 1.5px solid var(--border); border-radius: 10px;
+  font-size: 0.95rem; font-weight: 600; color: #3c4043;
+  cursor: pointer; transition: background 0.15s, box-shadow 0.15s;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.btn-google:hover { background: #f8f9fa; box-shadow: 0 1px 8px rgba(0,0,0,0.13); }
+.gate-note { margin-top: 1.2rem; font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+.gate-note a { color: var(--saffron-dark); text-decoration: none; }
+.gate-note a:hover { text-decoration: underline; }
+
+/* APP */
+#app { display: none; }
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 2rem 0 1.5rem;
+}
+
+.toolbar-left h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.5rem;
+  color: var(--maroon);
+}
+.toolbar-left p { font-size: 0.86rem; color: var(--muted); margin-top: 4px; }
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 14px 6px 6px;
+}
+.user-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--maroon); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; font-weight: 700; flex-shrink: 0;
+}
+.user-name { font-size: 0.82rem; font-weight: 700; }
+.btn-signout {
+  background: none; border: none; font-size: 0.72rem; color: var(--muted);
+  cursor: pointer; padding: 2px 4px; font-family: Arial, Helvetica, sans-serif;
+}
+.btn-signout:hover { color: var(--maroon); }
+
+.btn-add {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 0.7rem 1.4rem; background: var(--maroon); color: #fff;
+  border: none; border-radius: 999px; font-size: 0.9rem; font-weight: 700;
+  cursor: pointer; font-family: Arial, Helvetica, sans-serif;
+  transition: background 0.15s, transform 0.1s;
+}
+.btn-add:hover { background: #5a1e0a; }
+.btn-add:active { transform: scale(0.98); }
+
+/* SAVE STATUS BAR */
+.status-bar {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 0.75rem 1.1rem;
+  border-radius: 12px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+}
+.status-bar.show { display: flex; }
+.status-bar.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+.status-bar.error { background: #fdecea; color: #c0392b; border: 1px solid #f5c6cb; }
+.status-bar.info { background: var(--surface-soft); color: var(--saffron-dark); border: 1px solid var(--border); }
+
+/* EVENT LIST */
+.events-list { display: flex; flex-direction: column; gap: 14px; margin-bottom: 2.5rem; }
+
+.event-row {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: start;
+  box-shadow: 0 4px 16px rgba(93,43,14,0.05);
+}
+
+.event-row.is-past {
+  opacity: 0.6;
+  background: var(--surface-soft);
+}
+
+.past-badge {
+  display: inline-block;
+  background: rgba(108,108,108,0.12);
+  color: #6a5141;
+  border: 1px solid var(--border);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-left: 8px;
+}
+
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 2rem 0 1rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.section-divider .line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.section-divider span.label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.section-divider .chevron {
+  transition: transform 0.15s;
+  color: var(--muted);
+}
+
+.section-divider.collapsed .chevron {
+  transform: rotate(-90deg);
+}
+
+.past-events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.past-events-list.collapsed {
+  display: none;
+}
+
+.event-row-main h4 {
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--maroon);
+  font-size: 1.15rem;
+  margin-bottom: 6px;
+}
+
+.event-row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.82rem;
+  color: var(--saffron-dark);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.event-row-desc {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.55;
+  margin-bottom: 6px;
+}
+
+.event-row-link {
+  font-size: 0.8rem;
+  color: var(--muted);
+  word-break: break-all;
+}
+.event-row-link a { color: var(--saffron-dark); }
+
+.event-row-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.45rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: Arial, Helvetica, sans-serif;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+.btn-icon:hover { border-color: var(--saffron); color: var(--saffron-dark); }
+.btn-icon.danger:hover { border-color: #c0392b; color: #c0392b; }
+
+.empty-state {
+  text-align: center;
+  padding: 50px 20px;
+  color: var(--muted);
+  background: #fff;
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+}
+
+/* MODAL */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(44,27,16,0.45);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.show { display: flex; }
+
+.modal-card {
+  background: #fff;
+  border-radius: 18px;
+  max-width: 540px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow);
+}
+
+.modal-header {
+  padding: 1.4rem 1.6rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modal-header h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--maroon);
+  font-size: 1.2rem;
+}
+.modal-close {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 1.3rem; line-height: 1;
+  padding: 4px;
+}
+.modal-close:hover { color: var(--maroon); }
+
+.modal-body { padding: 1.5rem 1.6rem; }
+
+.form-group { margin-bottom: 1.1rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+label { display: block; font-size: 0.82rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+
+input[type="text"], input[type="date"], input[type="time"], input[type="url"], textarea {
+  width: 100%; padding: 0.6rem 0.85rem;
+  border: 1.5px solid var(--border); border-radius: 10px;
+  font-size: 0.9rem; font-family: Arial, Helvetica, sans-serif;
+  background: #fff; color: var(--text);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+input:focus, textarea:focus {
+  outline: none; border-color: var(--saffron);
+  box-shadow: 0 0 0 3px rgba(181,90,24,0.14);
+}
+textarea { resize: vertical; }
+
+.field-error {
+  font-size: 0.76rem;
+  color: #c0392b;
+  margin-top: 4px;
+  display: none;
+}
+.field-error.show { display: block; }
+
+.modal-footer {
+  padding: 1.2rem 1.6rem 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.btn-secondary {
+  padding: 0.65rem 1.3rem;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.btn-secondary:hover { border-color: var(--saffron); color: var(--saffron-dark); }
+
+.btn-save {
+  padding: 0.65rem 1.5rem;
+  border-radius: 10px;
+  border: none;
+  background: var(--maroon);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  font-family: Arial, Helvetica, sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-save:hover { background: #5a1e0a; }
+.btn-save:disabled { background: #b8907e; cursor: not-allowed; }
+
+.spinner {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff;
+  border-radius: 50%; animation: spin 0.7s linear infinite;
+  display: inline-block; flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 640px) {
+  .event-row { grid-template-columns: 1fr; }
+  .event-row-actions { flex-direction: row; }
+  .form-row { grid-template-columns: 1fr; }
+  .toolbar { flex-direction: column; align-items: stretch; }
+}
+</style>
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TPBF5VKB" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<!-- HEADER partial -->
+<div id="site-header"></div>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="container">
+    <span class="hero-badge">Internal Tool</span>
+    <h2>Manage Events</h2>
+    <p>Add, edit, and remove events shown on the public Upcoming Events page.</p>
+  </div>
+</div>
+
+<!-- SIGN-IN GATE -->
+<div id="gate">
+  <div class="gate-card">
+    <img src="hccgc-logo.jpeg" alt="HCCGC Logo" style="width:100px;height:100px;object-fit:contain;border-radius:50%;margin:0 auto 1.25rem;display:block;border:3px solid var(--border);">
+    <h3>Sign in to continue</h3>
+    <p>This tool is for authorized HCCGC members only. Sign in with your HCCGC Google account to manage events.</p>
+    <button class="btn-google" onclick="handleGoogleSignIn()">
+      <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <path d="M19.6 10.23c0-.68-.06-1.36-.17-2H10v3.77h5.4a4.63 4.63 0 01-2.01 3.04v2.52h3.25c1.9-1.75 3-4.33 3-7.33z" fill="#4285F4"/>
+        <path d="M10 20c2.7 0 4.97-.9 6.63-2.44l-3.25-2.52c-.9.6-2.05.96-3.38.96-2.6 0-4.8-1.75-5.59-4.11H1.07v2.6A10 10 0 0010 20z" fill="#34A853"/>
+        <path d="M4.41 11.89A5.98 5.98 0 014.1 10c0-.65.11-1.29.31-1.89V5.51H1.07A10 10 0 000 10c0 1.61.38 3.13 1.07 4.49l3.34-2.6z" fill="#FBBC05"/>
+        <path d="M10 3.98c1.46 0 2.77.5 3.8 1.49l2.85-2.85C14.96.99 12.7 0 10 0A10 10 0 001.07 5.51l3.34 2.6C5.2 5.73 7.4 3.98 10 3.98z" fill="#EA4335"/>
+      </svg>
+      Sign in with Google
+    </button>
+    <p class="gate-note">Need access? Contact <a href="mailto:admin@hccgc.org">admin@hccgc.org</a></p>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <div class="container">
+
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <h3>Event List</h3>
+        <p>Changes here update the public Upcoming Events page immediately.</p>
+      </div>
+      <div style="display:flex; align-items:center; gap:14px;">
+        <div class="user-chip">
+          <div class="user-avatar" id="user-initials">?</div>
+          <span class="user-name" id="user-name">&mdash;</span>
+          <button class="btn-signout" onclick="handleSignOut()">Sign out</button>
+        </div>
+        <button class="btn-add" onclick="openModal()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Event
+        </button>
+      </div>
+    </div>
+
+    <div class="status-bar" id="status-bar"></div>
+
+    <div class="events-list" id="events-list">
+      <div class="empty-state">Loading events&hellip;</div>
+    </div>
+
+    <div id="past-events-section" style="display:none;">
+      <div class="section-divider collapsed" id="past-events-toggle" onclick="togglePastEvents()">
+        <span class="line"></span>
+        <span class="label" id="past-events-label">Past Events</span>
+        <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        <span class="line"></span>
+      </div>
+      <div class="past-events-list collapsed" id="past-events-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER partial -->
+<div id="site-footer"></div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 id="modal-title">Add Event</h3>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="event-id">
+
+      <div class="form-group">
+        <label for="event-name">Event Name *</label>
+        <input type="text" id="event-name" placeholder="e.g. Sangeet Sandhya \u2013 Summer Edition">
+        <div class="field-error" id="err-name">Please enter an event name.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="event-description">Description *</label>
+        <textarea id="event-description" rows="3" placeholder="Brief description of the event"></textarea>
+        <div class="field-error" id="err-description">Please enter a description.</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="event-date">Date *</label>
+          <input type="date" id="event-date">
+          <div class="field-error" id="err-date">Please select a date.</div>
+        </div>
+        <div class="form-group">
+          <label for="event-category">Category</label>
+          <select id="event-category" style="width:100%; padding:0.6rem 0.85rem; border:1.5px solid var(--border); border-radius:10px; font-size:0.9rem; font-family:Arial, Helvetica, sans-serif; background:#fff; color:var(--text);">
+            <option value="">None</option>
+            <option value="Cultural">Cultural</option>
+            <option value="Spiritual">Spiritual</option>
+            <option value="Kids">Kids</option>
+            <option value="Wellness">Wellness</option>
+            <option value="Community">Community</option>
+            <option value="Education">Education</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="event-from-time">From Time *</label>
+          <input type="text" id="event-from-time" placeholder="e.g. 6:30 PM">
+          <div class="field-error" id="err-from-time">Please enter a start time.</div>
+        </div>
+        <div class="form-group">
+          <label for="event-to-time">To Time</label>
+          <input type="text" id="event-to-time" placeholder="e.g. 9:00 PM (optional)">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="event-cost">Cost</label>
+          <input type="text" id="event-cost" placeholder="e.g. Free or $5 per person">
+        </div>
+        <div class="form-group">
+          <label for="event-rsvp">RSVP URL</label>
+          <input type="url" id="event-rsvp" placeholder="https://www.hccgc.org/your-event.html">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="event-image">Image URL</label>
+        <input type="url" id="event-image" placeholder="https://www.hccgc.org/images/your-flyer.jpg">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" id="btn-save-event" onclick="saveEvent()">Save Event</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Load header / footer partials ──────────────────────── */
+function loadPartial(id, file) {
+  fetch(file)
+    .then(function(r){ return r.text(); })
+    .then(function(html){ document.getElementById(id).innerHTML = html; })
+    .catch(function(){});
+}
+loadPartial('site-header', 'header.html');
+loadPartial('site-footer', 'footer.html');
+
+/* ── Auth (stub — wire up Google Identity Services) ─────── */
+var currentUser = null;
+
+function handleGoogleSignIn() {
+  /* TODO: Replace mock with real Google Identity Services
+     Step 1 – add to <head>:
+       <script src="https://accounts.google.com/gsi/client" async><\/script>
+     Step 2 – initialize:
+       google.accounts.id.initialize({
+         client_id: 'YOUR_CLIENT_ID',
+         callback: onGoogleToken,
+         hd: 'hccgc.org'
+       });
+       google.accounts.id.prompt();
+     Step 3 – handle token:
+       function onGoogleToken(resp) {
+         var p = JSON.parse(atob(resp.credential.split('.')[1]));
+         signIn({ name: p.name, email: p.email, initials: p.name.split(' ').map(function(n){return n[0];}).join('').slice(0,2).toUpperCase() });
+       }
+  */
+  signIn({ name: 'HCCGC Member', email: 'member@hccgc.org', initials: 'HM' });
+}
+
+function signIn(user) {
+  currentUser = user;
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('user-name').textContent = user.name;
+  document.getElementById('user-initials').textContent = user.initials || user.name.charAt(0).toUpperCase();
+  loadEvents();
+}
+
+function handleSignOut() {
+  currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('gate').style.display = 'flex';
+}
+
+/* ── State ───────────────────────────────────────────────── */
+var allEvents = [];
+
+/* ── Status bar ──────────────────────────────────────────── */
+function showStatus(message, type) {
+  var bar = document.getElementById('status-bar');
+  bar.textContent = message;
+  bar.className = 'status-bar show ' + type;
+  if (type !== 'error') {
+    setTimeout(function () {
+      bar.classList.remove('show');
+    }, 3500);
+  }
+}
+
+/* ── Load events from server ─────────────────────────────── */
+function loadEvents() {
+  fetch('events.php', { cache: 'no-store' })
+    .then(function (r) { return r.json(); })
+    .then(function (events) {
+      allEvents = Array.isArray(events) ? events : [];
+      renderEventsList();
+    })
+    .catch(function (err) {
+      document.getElementById('events-list').innerHTML =
+        '<div class="empty-state">Could not load events. ' + err.message + '</div>';
+    });
+}
+
+/* ── Render the list ─────────────────────────────────────── */
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function formatDateDisplay(dateStr) {
+  var parts = dateStr.split('-');
+  if (parts.length !== 3) return dateStr;
+  var d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  if (isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function isPastDate(dateStr) {
+  var parts = (dateStr || '').split('-');
+  if (parts.length !== 3) return false;
+  var d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return d < today;
+}
+
+function buildEventRowHtml(e, isPast) {
+  return (
+    '<div class="event-row' + (isPast ? ' is-past' : '') + '">' +
+      '<div class="event-row-main">' +
+        '<h4>' + escHtml(e.name) + (isPast ? '<span class="past-badge">Past</span>' : '') + '</h4>' +
+        '<div class="event-row-meta">' +
+          '<span>&#128197; ' + formatDateDisplay(e.date) + '</span>' +
+          '<span>&#128340; ' + escHtml(formatTimeRange(e.fromTime, e.toTime)) + '</span>' +
+          (e.category ? '<span>&#127991; ' + escHtml(e.category) + '</span>' : '') +
+          (e.cost ? '<span>&#128176; ' + escHtml(e.cost) + '</span>' : '') +
+        '</div>' +
+        '<p class="event-row-desc">' + escHtml(e.description) + '</p>' +
+        (e.rsvpUrl ? '<div class="event-row-link">RSVP: <a href="' + escHtml(e.rsvpUrl) + '" target="_blank" rel="noopener noreferrer">' + escHtml(e.rsvpUrl) + '</a></div>' : '') +
+      '</div>' +
+      '<div class="event-row-actions">' +
+        '<button class="btn-icon" onclick="editEvent(\'' + e.id + '\')">' +
+          '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+          ' Edit' +
+        '</button>' +
+        '<button class="btn-icon danger" onclick="deleteEvent(\'' + e.id + '\')">' +
+          '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>' +
+          ' Delete' +
+        '</button>' +
+      '</div>' +
+    '</div>'
+  );
+}
+
+function renderEventsList() {
+  var upcomingContainer = document.getElementById('events-list');
+  var pastSection = document.getElementById('past-events-section');
+  var pastContainer = document.getElementById('past-events-list');
+  var pastLabel = document.getElementById('past-events-label');
+
+  if (allEvents.length === 0) {
+    upcomingContainer.innerHTML = '<div class="empty-state">No events yet. Click "Add Event" to create the first one.</div>';
+    pastSection.style.display = 'none';
+    return;
+  }
+
+  var sorted = allEvents.slice().sort(function (a, b) {
+    return (a.date || '').localeCompare(b.date || '');
+  });
+
+  var upcoming = sorted.filter(function (e) { return !isPastDate(e.date); });
+  var past = sorted.filter(function (e) { return isPastDate(e.date); }).reverse(); // most recently past first
+
+  if (upcoming.length === 0) {
+    upcomingContainer.innerHTML = '<div class="empty-state">No upcoming events. Click "Add Event" to create one.</div>';
+  } else {
+    upcomingContainer.innerHTML = upcoming.map(function (e) { return buildEventRowHtml(e, false); }).join('');
+  }
+
+  if (past.length === 0) {
+    pastSection.style.display = 'none';
+  } else {
+    pastSection.style.display = 'block';
+    pastLabel.textContent = 'Past Events (' + past.length + ') \u2014 hidden from public page';
+    pastContainer.innerHTML = past.map(function (e) { return buildEventRowHtml(e, true); }).join('');
+  }
+}
+
+function togglePastEvents() {
+  document.getElementById('past-events-toggle').classList.toggle('collapsed');
+  document.getElementById('past-events-list').classList.toggle('collapsed');
+}
+
+/* ── Modal handling ──────────────────────────────────────── */
+function openModal(eventId) {
+  var overlay = document.getElementById('modal-overlay');
+  var title = document.getElementById('modal-title');
+
+  clearFieldErrors();
+
+  if (eventId) {
+    var e = allEvents.find(function (ev) { return ev.id === eventId; });
+    if (!e) return;
+    title.textContent = 'Edit Event';
+    document.getElementById('event-id').value = e.id;
+    document.getElementById('event-name').value = e.name;
+    document.getElementById('event-description').value = e.description;
+    document.getElementById('event-date').value = e.date;
+    document.getElementById('event-from-time').value = e.fromTime || '';
+    document.getElementById('event-to-time').value = e.toTime || '';
+    document.getElementById('event-category').value = e.category || '';
+    document.getElementById('event-cost').value = e.cost || '';
+    document.getElementById('event-image').value = e.imageUrl || '';
+    document.getElementById('event-rsvp').value = e.rsvpUrl || '';
+  } else {
+    title.textContent = 'Add Event';
+    document.getElementById('event-id').value = '';
+    document.getElementById('event-name').value = '';
+    document.getElementById('event-description').value = '';
+    document.getElementById('event-date').value = '';
+    document.getElementById('event-from-time').value = '';
+    document.getElementById('event-to-time').value = '';
+    document.getElementById('event-category').value = '';
+    document.getElementById('event-cost').value = '';
+    document.getElementById('event-image').value = '';
+    document.getElementById('event-rsvp').value = '';
+  }
+
+  overlay.classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+}
+
+function editEvent(id) {
+  openModal(id);
+}
+
+function clearFieldErrors() {
+  ['name', 'description', 'date', 'from-time'].forEach(function (f) {
+    document.getElementById('err-' + f).classList.remove('show');
+  });
+}
+
+/* ── Save (add or update) ────────────────────────────────── */
+function saveEvent() {
+  clearFieldErrors();
+
+  var id = document.getElementById('event-id').value;
+  var name = document.getElementById('event-name').value.trim();
+  var description = document.getElementById('event-description').value.trim();
+  var date = document.getElementById('event-date').value;
+  var fromTime = document.getElementById('event-from-time').value.trim();
+  var toTime = document.getElementById('event-to-time').value.trim();
+  var category = document.getElementById('event-category').value;
+  var cost = document.getElementById('event-cost').value.trim();
+  var imageUrl = document.getElementById('event-image').value.trim();
+  var rsvpUrl = document.getElementById('event-rsvp').value.trim();
+
+  var hasError = false;
+  if (!name) { document.getElementById('err-name').classList.add('show'); hasError = true; }
+  if (!description) { document.getElementById('err-description').classList.add('show'); hasError = true; }
+  if (!date) { document.getElementById('err-date').classList.add('show'); hasError = true; }
+  if (!fromTime) { document.getElementById('err-from-time').classList.add('show'); hasError = true; }
+  if (hasError) return;
+
+  var eventData = {
+    name: name,
+    description: description,
+    date: date,
+    fromTime: fromTime,
+    toTime: toTime,
+    category: category,
+    cost: cost,
+    imageUrl: imageUrl,
+    rsvpUrl: rsvpUrl
+  };
+
+  var updated;
+  if (id) {
+    updated = allEvents.map(function (e) {
+      if (e.id === id) {
+        return Object.assign({ id: id }, eventData);
+      }
+      return e;
+    });
+  } else {
+    var newId = 'evt_' + Date.now();
+    updated = allEvents.concat([Object.assign({ id: newId }, eventData)]);
+  }
+
+  persistEvents(updated, function (success) {
+    if (success) {
+      allEvents = updated;
+      renderEventsList();
+      closeModal();
+      showStatus('Event saved successfully.', 'success');
+    }
+  });
+}
+
+/* ── Delete ──────────────────────────────────────────────── */
+function deleteEvent(id) {
+  if (!confirm('Delete this event? This cannot be undone.')) return;
+
+  var updated = allEvents.filter(function (e) { return e.id !== id; });
+
+  persistEvents(updated, function (success) {
+    if (success) {
+      allEvents = updated;
+      renderEventsList();
+      showStatus('Event deleted.', 'success');
+    }
+  });
+}
+
+/* ── Persist to server via events.php ───────────────────── */
+function persistEvents(events, callback) {
+  var btn = document.getElementById('btn-save-event');
+  var origHTML = btn ? btn.innerHTML : null;
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div> Saving\u2026';
+  }
+
+  fetch('events.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(events)
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.error) {
+        showStatus('Error: ' + data.error, 'error');
+        callback(false);
+      } else {
+        callback(true);
+      }
+    })
+    .catch(function (err) {
+      showStatus('Network error: ' + err.message, 'error');
+      callback(false);
+    })
+    .finally(function () {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = origHTML;
+      }
+    });
+}
+</script>
+</body>
+</html>

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -361,7 +362,7 @@ body {
     "key": "user-management",
     "name": "User Management",
     "description": "Grant or revoke portal access for HCCGC members. Admins only.",
-    "url": "users",
+    "url": "user-management",
     "icon": "users"
   }
 ]
@@ -563,9 +564,36 @@ function loadPartial(id, file) {
   if (!target) return;
   fetch(file)
     .then(function (r) { return r.text(); })
-    .then(function (html) { target.innerHTML = html; })
+    .then(function (html) {
+      target.innerHTML = html;
+      if (id === 'site-header') {
+        fixHeaderLinksForSubfolder(target);
+      }
+    })
     .catch(function () {});
 }
+
+// header.html uses paths that are relative to the page calling it
+// (e.g. src="hccgc-logo.jpeg", href="index.html#about"). That works fine
+// for pages at the site root, but breaks when header.html is loaded from
+// a subfolder like /admin/. Rather than edit the shared header.html file
+// itself, we patch the loaded copy here so it points to the right place.
+function fixHeaderLinksForSubfolder(headerEl) {
+  var logo = headerEl.querySelector('.brand-logo');
+  if (logo && logo.getAttribute('src') && !logo.getAttribute('src').startsWith('/') && !logo.getAttribute('src').startsWith('http')) {
+    logo.setAttribute('src', '/' + logo.getAttribute('src'));
+  }
+
+  var links = headerEl.querySelectorAll('a[href]');
+  links.forEach(function (link) {
+    var href = link.getAttribute('href');
+    if (!href) return;
+    // Leave absolute URLs (http/https) and already-root-relative links alone.
+    if (href.startsWith('http') || href.startsWith('/') || href.startsWith('#')) return;
+    link.setAttribute('href', '/' + href);
+  });
+}
+
 loadPartial('site-header', '../header.html');
 loadPartial('site-footer', '../footer.html');
 </script>

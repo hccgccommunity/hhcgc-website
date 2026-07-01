@@ -9,6 +9,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' x='50%25' text-anchor='middle' font-size='82'%3E%E0%A5%90%3C/text%3E%3C/svg%3E">
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F5ZHQ4CDR9');</script>
@@ -392,6 +393,7 @@ body {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import {
   getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect,
+  getRedirectResult, browserLocalPersistence, setPersistence,
   signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 import {
@@ -427,21 +429,34 @@ document.getElementById("btn-signin").addEventListener("click", function () {
   var errorBox = document.getElementById("signin-error");
   errorBox.style.display = "none";
 
-  if (isMobileDevice()) {
-    signInWithRedirect(auth, provider).catch(function (err) {
-      console.error(err);
-      errorBox.textContent = "Sign-in failed. Please try again.";
-      errorBox.style.display = "block";
-    });
-    return;
-  }
-
-  signInWithPopup(auth, provider).catch(function (err) {
-    console.error(err);
+  // Explicitly set local persistence before signing in — ensures the session
+  // is stored in localStorage on all browsers including mobile Safari,
+  // which can default to sessionStorage in certain in-app browser contexts.
+  setPersistence(auth, browserLocalPersistence).then(function () {
+    if (isMobileDevice()) {
+      console.log("[HCCGC AUTH] Mobile — using redirect sign-in...");
+      return signInWithRedirect(auth, provider);
+    }
+    console.log("[HCCGC AUTH] Desktop — opening popup...");
+    return signInWithPopup(auth, provider);
+  }).catch(function (err) {
+    console.error("[HCCGC AUTH] Sign-in failed:", err.code, err.message);
     if (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request") return;
     errorBox.textContent = "Sign-in failed. Please try again.";
     errorBox.style.display = "block";
   });
+});
+
+// Belt-and-suspenders: attempt to pick up the redirect result directly,
+// in case onAuthStateChanged fires before Firebase fully restores the session.
+getRedirectResult(auth).then(function (result) {
+  if (result && result.user) {
+    console.log("[HCCGC AUTH] getRedirectResult caught session:", result.user.email);
+  }
+}).catch(function (err) {
+  if (err.code !== "auth/no-current-user") {
+    console.error("[HCCGC AUTH] getRedirectResult error:", err.code);
+  }
 });
 
 document.getElementById("btn-signout").addEventListener("click", function () {

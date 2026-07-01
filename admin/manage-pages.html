@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Pages – HCCGC</title>
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' x='50%25' text-anchor='middle' font-size='82'%3E%E0%A5%90%3C/text%3E%3C/svg%3E">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F5ZHQ4CDR9');</script>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-TPBF5VKB');</script>
+
+<style>
+:root {
+  --bg: #fff9f1;
+  --surface: #ffffff;
+  --surface-soft: #fff6ea;
+  --border: rgba(121,62,17,0.14);
+  --text: #2c1b10;
+  --muted: #6a5141;
+  --saffron: #b55a18;
+  --saffron-dark: #8d3e0d;
+  --maroon: #7f2e16;
+  --radius: 22px;
+  --shadow: 0 18px 45px rgba(93,43,14,0.10);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%),
+              radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%),
+              var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.container { width: min(calc(100% - 32px), 1100px); margin: 0 auto; }
+
+/* HEADER */
+.site-header {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(255,249,241,0.92); backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 92px; padding: 12px 0; }
+.brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.brand-logo-wrap { background: #7f2e16; border-radius: 18px; padding: 8px; flex-shrink: 0; }
+.brand-logo { width: 88px; height: auto; border-radius: 12px; object-fit: contain; }
+.brand-text h1 { margin: 0; font-size: 1.2rem; line-height: 1.15; color: var(--maroon); font-family: Georgia, serif; }
+.site-header a.brand, .site-header a.brand:link, .site-header a.brand:visited { text-decoration: none; color: inherit; }
+.site-header nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 18px; margin: 0; padding: 0; align-items: center; justify-content: flex-end; }
+.site-header nav a, .site-header nav a:link, .site-header nav a:visited { font-weight: 700; color: var(--text); font-size: 0.96rem; text-decoration: none; }
+.site-header nav a:hover { color: var(--saffron-dark); }
+.menu-toggle { display: none; border: 0; background: transparent; padding: 6px 0; cursor: pointer; color: #2c1b10; align-self: flex-end; }
+.menu-toggle .bar { display: block; width: 26px; height: 2px; margin: 5px 0; background: currentColor; }
+@media (max-width: 768px) {
+  .nav { flex-direction: column; align-items: stretch; gap: 8px; }
+  .menu-toggle { display: inline-block; }
+  .site-header nav { display: none; width: 100%; background: rgba(255,249,241,0.95); padding: 10px 0; }
+  .site-header nav.is-open { display: block; }
+  .site-header nav ul { flex-direction: column; gap: 14px; }
+}
+
+/* GATE */
+#gate { padding: 60px 16px; display: flex; justify-content: center; }
+.gate-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 2.5rem 2rem; max-width: 420px; width: 100%; text-align: center; box-shadow: var(--shadow);
+}
+.gate-card h3 { font-family: Georgia, serif; font-size: 1.3rem; color: var(--maroon); margin-bottom: 0.5rem; }
+.gate-card p { color: var(--muted); font-size: 0.88rem; line-height: 1.6; }
+.gate-card a { color: var(--saffron-dark); }
+
+#app { display: none; }
+
+/* PAGE HEADER */
+.page-header { padding: 36px 0 20px; }
+.page-header h1 { font-family: Georgia, serif; font-size: 1.8rem; color: var(--maroon); margin-bottom: 6px; }
+.page-header p { color: var(--muted); font-size: 0.9rem; }
+.back-link { font-size: 0.82rem; color: var(--saffron-dark); text-decoration: none; display: inline-block; margin-bottom: 10px; }
+.back-link:hover { text-decoration: underline; }
+
+/* STATUS BAR */
+.status-bar { display: none; align-items: center; gap: 10px; padding: 0.75rem 1.1rem; border-radius: 12px; font-size: 0.86rem; font-weight: 600; margin: 0 0 1.25rem; }
+.status-bar.show { display: flex; }
+.status-bar.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+.status-bar.error { background: #fdecea; color: #c0392b; border: 1px solid #f5c6cb; }
+
+/* PAGES LIST */
+.pages-list { display: flex; flex-direction: column; gap: 14px; padding-bottom: 60px; }
+
+.page-row {
+  background: #fff; border: 1px solid var(--border); border-radius: 16px;
+  padding: 1.2rem 1.5rem; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.page-row-status {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  background: #c8e6c9;
+}
+.page-row-status.live { background: #4caf50; }
+.page-row-info { flex: 1; min-width: 200px; }
+.page-row-info h4 { font-family: Georgia, serif; font-size: 1rem; color: var(--maroon); margin-bottom: 3px; }
+.page-row-info .meta { font-size: 0.78rem; color: var(--muted); }
+.page-row-info .meta a { color: var(--saffron-dark); text-decoration: none; }
+.page-row-info .meta a:hover { text-decoration: underline; }
+.type-badge {
+  font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em;
+  padding: 2px 9px; border-radius: 999px;
+}
+.type-badge.event { background: rgba(127,46,22,0.1); color: var(--maroon); }
+.type-badge.initiative { background: rgba(181,90,24,0.12); color: var(--saffron-dark); }
+
+.btn-edit-page {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 0.45rem 0.9rem; border: 1px solid var(--border); border-radius: 8px;
+  background: #fff; font-size: 0.8rem; font-weight: 600; color: var(--muted);
+  cursor: pointer; font-family: Arial, Helvetica, sans-serif; white-space: nowrap;
+}
+.btn-edit-page:hover { border-color: var(--saffron); color: var(--saffron-dark); }
+
+.empty-state {
+  text-align: center; padding: 50px 20px; color: var(--muted);
+  background: #fff; border: 1px dashed var(--border); border-radius: 16px;
+}
+
+/* MODAL */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(44,27,16,0.45);
+  z-index: 200; align-items: flex-start; justify-content: center; padding: 20px;
+  overflow-y: auto;
+}
+.modal-overlay.show { display: flex; }
+.modal-card {
+  background: #fff; border-radius: 18px; max-width: 620px; width: 100%;
+  box-shadow: var(--shadow); margin: auto;
+}
+.modal-header {
+  padding: 1.4rem 1.6rem; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: #fff; border-radius: 18px 18px 0 0; z-index: 1;
+}
+.modal-header h3 { font-family: Georgia, serif; color: var(--maroon); font-size: 1.15rem; }
+.modal-close { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 1.3rem; }
+.modal-close:hover { color: var(--maroon); }
+
+/* TABS */
+.modal-tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 1.6rem; background: #fff; }
+.modal-tab {
+  padding: 0.75rem 1rem; font-size: 0.84rem; font-weight: 700; color: var(--muted);
+  cursor: pointer; border: none; background: none; border-bottom: 2.5px solid transparent;
+  margin-bottom: -1px; font-family: Arial, Helvetica, sans-serif;
+}
+.modal-tab.active { color: var(--maroon); border-bottom-color: var(--maroon); }
+.modal-tab:hover { color: var(--saffron-dark); }
+.modal-panel { display: none; padding: 1.4rem 1.6rem; }
+.modal-panel.active { display: block; }
+
+.modal-footer {
+  padding: 1.2rem 1.6rem 1.5rem; display: flex; justify-content: space-between;
+  align-items: center; gap: 10px; border-top: 1px solid var(--border);
+}
+.modal-footer-actions { display: flex; gap: 10px; }
+
+/* FORM */
+.form-group { margin-bottom: 1.1rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+label { display: block; font-size: 0.82rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+label .hint { font-weight: 400; color: var(--muted); }
+input[type="text"], input[type="url"], textarea, select {
+  width: 100%; padding: 0.6rem 0.85rem; border: 1.5px solid var(--border);
+  border-radius: 10px; font-size: 0.9rem; font-family: Arial, Helvetica, sans-serif;
+  background: #fff; color: var(--text);
+}
+input:focus, textarea:focus, select:focus {
+  outline: none; border-color: var(--saffron);
+  box-shadow: 0 0 0 3px rgba(181,90,24,0.14);
+}
+textarea { resize: vertical; }
+.field-hint { font-size: 0.76rem; color: var(--muted); margin-top: 4px; }
+.field-error { font-size: 0.76rem; color: #c0392b; margin-top: 4px; display: none; }
+.field-error.show { display: block; }
+
+.slug-preview {
+  font-size: 0.78rem; color: var(--muted); margin-top: 4px;
+}
+.slug-preview span { font-weight: 700; color: var(--saffron-dark); }
+
+.toggle-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; background: var(--surface-soft);
+  border: 1px solid var(--border); border-radius: 10px; cursor: pointer;
+}
+.toggle-row label { margin: 0; cursor: pointer; font-size: 0.9rem; }
+.toggle-row input[type="checkbox"] { width: auto; cursor: pointer; }
+.toggle-row .page-url { font-size: 0.78rem; color: var(--saffron-dark); margin-left: auto; text-decoration: none; }
+
+.btn-secondary {
+  padding: 0.6rem 1.2rem; border-radius: 10px; border: 1.5px solid var(--border);
+  background: #fff; color: var(--muted); font-weight: 700; font-size: 0.86rem; cursor: pointer; font-family: Arial, Helvetica, sans-serif;
+}
+.btn-save {
+  padding: 0.6rem 1.4rem; border-radius: 10px; border: none;
+  background: var(--maroon); color: #fff; font-weight: 700; font-size: 0.86rem; cursor: pointer; font-family: Arial, Helvetica, sans-serif;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-save:hover { background: #5a1e0a; }
+.btn-save:disabled { background: #b8907e; cursor: not-allowed; }
+.spinner {
+  width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.section-divider {
+  font-size: 0.72rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--saffron-dark); margin: 1.4rem 0 0.8rem;
+  padding-bottom: 6px; border-bottom: 1px dashed var(--border);
+}
+
+@media (max-width: 600px) {
+  .form-row { grid-template-columns: 1fr; }
+  .page-row { flex-direction: column; align-items: stretch; }
+}
+</style>
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TPBF5VKB" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<div id="site-header"></div>
+
+<div id="gate">
+  <div class="gate-card">
+    <h3>Checking access&hellip;</h3>
+    <p>Please sign in from the <a href="/admin/admin-portal">Admin Portal</a> first.</p>
+  </div>
+</div>
+
+<div id="app">
+  <div class="container">
+    <div class="page-header">
+      <a class="back-link" href="/admin/admin-portal">&larr; Back to apps</a>
+      <h1>Manage Pages</h1>
+      <p>Create and edit public event and initiative pages. Changes go live instantly — no deploy needed.</p>
+    </div>
+
+    <div class="status-bar" id="status-bar"></div>
+
+    <div class="pages-list" id="pages-list">
+      <div class="empty-state">Loading&hellip;</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE EDITOR MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 id="modal-title">Edit Page</h3>
+      <button class="modal-close" id="modal-close-btn">&times;</button>
+    </div>
+
+    <div class="modal-tabs">
+      <button class="modal-tab active" data-tab="basics">Basics</button>
+      <button class="modal-tab" data-tab="content">Content</button>
+      <button class="modal-tab" data-tab="people">People</button>
+      <button class="modal-tab" data-tab="curriculum">Schedule / Curriculum</button>
+      <button class="modal-tab" data-tab="media">Media &amp; Registration</button>
+    </div>
+
+    <!-- BASICS -->
+    <div class="modal-panel active" id="panel-basics">
+      <input type="hidden" id="edit-event-id">
+
+      <div class="form-group">
+        <div class="toggle-row">
+          <input type="checkbox" id="page-enabled">
+          <label for="page-enabled">Page is live and publicly visible</label>
+          <a id="page-live-link" href="#" target="_blank" rel="noopener noreferrer" class="page-url" style="display:none;">View page ↗</a>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="page-slug">URL Slug *</label>
+        <input type="text" id="page-slug" placeholder="e.g. sangeet-sandhya">
+        <div class="slug-preview">hccgc.org/<span id="slug-display">your-slug</span></div>
+        <div class="field-error" id="err-slug">Please enter a valid slug (lowercase letters, numbers, hyphens only).</div>
+      </div>
+
+      <div class="form-group">
+        <label for="page-tagline">Tagline</label>
+        <input type="text" id="page-tagline" placeholder="e.g. A composer's insight into a composer's mind">
+      </div>
+
+      <div class="form-group">
+        <label for="page-hero-desc">Hero Description</label>
+        <textarea id="page-hero-desc" rows="2" placeholder="Short paragraph shown under the title in the hero section"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="page-venue">Venue</label>
+          <input type="text" id="page-venue" placeholder="HCCGC (leave blank for default)">
+        </div>
+        <div class="form-group">
+          <label for="page-cost-display">Cost Display</label>
+          <input type="text" id="page-cost-display" placeholder="e.g. $15 early / $20 at door">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="page-contact-name">Contact Name</label>
+          <input type="text" id="page-contact-name" placeholder="e.g. Ajay Bhosale">
+        </div>
+        <div class="form-group">
+          <label for="page-contact-phone">Contact Phone</label>
+          <input type="text" id="page-contact-phone" placeholder="e.g. +1 (513) 680-9379">
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="modal-panel" id="panel-content">
+      <div class="form-group">
+        <label for="page-about-title">About Section Title</label>
+        <input type="text" id="page-about-title" placeholder="e.g. A Celebration of Timeless Melodies">
+      </div>
+
+      <div class="form-group">
+        <label for="page-about-body">About Section Body</label>
+        <textarea id="page-about-body" rows="6" placeholder="Full description. Use new lines for separate paragraphs."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="page-what-to-expect">What to Expect <span class="hint">(one item per line)</span></label>
+        <textarea id="page-what-to-expect" rows="4" placeholder="Live violin, vocals, harmonium&#10;Narration in Marathi&#10;Intimate mahfil-style setting"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="page-who-should-attend">Who Should Attend <span class="hint">(one item per line)</span></label>
+        <textarea id="page-who-should-attend" rows="3" placeholder="Lovers of Marathi and Hindi film music&#10;Families of all ages"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="page-registration-note">Registration Note</label>
+        <textarea id="page-registration-note" rows="2" placeholder="e.g. Early registration price: $15. Price increases on May 18th."></textarea>
+      </div>
+    </div>
+
+    <!-- PEOPLE -->
+    <div class="modal-panel" id="panel-people">
+      <!-- Event: Performers -->
+      <div id="people-event-section">
+        <div class="section-divider">Performers</div>
+        <div class="form-group">
+          <label for="page-performers">Performers <span class="hint">(one per line: Name | Role | Location)</span></label>
+          <textarea id="page-performers" rows="5" placeholder="Sachin Ingale | Vocalist · Violinist · Composer | Pune, India&#10;Ruchir Ingale | Vocalist | Pune, India&#10;Atul Sathe | Tabla & Percussions | Local Artist"></textarea>
+          <div class="field-hint">Separate Name, Role, and Location with a pipe character |</div>
+        </div>
+      </div>
+
+      <!-- Initiative: Instructor -->
+      <div id="people-initiative-section" style="display:none;">
+        <div class="section-divider">Instructor</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="page-instructor-name">Name</label>
+            <input type="text" id="page-instructor-name" placeholder="e.g. Shri Koti Krishna ji">
+          </div>
+          <div class="form-group">
+            <label for="page-instructor-role">Role</label>
+            <input type="text" id="page-instructor-role" placeholder="e.g. Yoga Instructor">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="page-instructor-photo">Instructor Photo URL</label>
+          <input type="text" id="page-instructor-photo" placeholder="https://www.hccgc.org/instructor-photo.jpg">
+        </div>
+        <div class="form-group">
+          <label for="page-instructor-bio">Bio</label>
+          <textarea id="page-instructor-bio" rows="3" placeholder="Brief bio of the instructor"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHEDULE / CURRICULUM -->
+    <div class="modal-panel" id="panel-curriculum">
+      <!-- Event: Schedule -->
+      <div id="curriculum-event-section">
+        <div class="section-divider">Event Schedule</div>
+        <div class="form-group">
+          <label for="page-schedule-items">Schedule Items <span class="hint">(one per line: Time | Label | Duration)</span></label>
+          <textarea id="page-schedule-items" rows="5" placeholder="10:00 AM | First Half | ~1 hr 15 min&#10;11:15 AM | Interval | 15 min · Refreshments&#10;11:30 AM | Second Half | ~1 hr · Ends 12:30 PM"></textarea>
+          <div class="field-hint">Separate Time, Label, and Duration with a pipe character |</div>
+        </div>
+      </div>
+
+      <!-- Initiative: Curriculum -->
+      <div id="curriculum-initiative-section" style="display:none;">
+        <div class="section-divider">Curriculum</div>
+        <div class="form-group">
+          <label for="page-curriculum-title">Curriculum Section Title</label>
+          <input type="text" id="page-curriculum-title" placeholder="e.g. 12-week progressive wellness journey">
+        </div>
+        <div class="form-group">
+          <label for="page-curriculum">Curriculum Weeks <span class="hint">(one per line: Week Label | Title | Description)</span></label>
+          <textarea id="page-curriculum" rows="8" placeholder="Weeks 1–4 | Foundation & Reset | Start with mobility, breathing, and body awareness&#10;Weeks 5–8 | Strength & Balance | Develop strength, stability, and stamina&#10;Weeks 9–12 | Integration | Bring together breath, movement, and meditation"></textarea>
+          <div class="field-hint">Separate Week Label, Title, and Description with a pipe character |</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEDIA & REGISTRATION -->
+    <div class="modal-panel" id="panel-media">
+      <div class="form-group">
+        <label for="page-zeffy-url">Zeffy Embed URL</label>
+        <input type="text" id="page-zeffy-url" placeholder="https://www.zeffy.com/embed/ticketing/your-event">
+        <div class="field-hint">The full Zeffy embed URL — starts with https://www.zeffy.com/embed/ticketing/</div>
+      </div>
+
+      <div class="form-group">
+        <label for="page-flyer-url">Flyer Image URL</label>
+        <input type="text" id="page-flyer-url" placeholder="https://www.hccgc.org/your-flyer.jpg">
+        <div class="field-hint">Upload your flyer to the site first, then paste the full URL here.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="page-meta-desc">Meta Description <span class="hint">(for search engines, ~150 chars)</span></label>
+        <textarea id="page-meta-desc" rows="2" placeholder="Brief description for Google search results"></textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <div style="font-size:0.78rem; color:var(--muted);" id="modal-event-name-display"></div>
+      <div class="modal-footer-actions">
+        <button class="btn-secondary" id="modal-cancel-btn">Cancel</button>
+        <button class="btn-save" id="btn-save-page">Save Page</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="site-footer"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import {
+  getFirestore, collection, getDocs, doc, getDoc, setDoc, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA6IzLjWTg7Rq04HsTH-iA3eDmSzKI7xME",
+  authDomain: "hccgc-a7a54.firebaseapp.com",
+  projectId: "hccgc-a7a54",
+  storageBucket: "hccgc-a7a54.firebasestorage.app",
+  messagingSenderId: "75757201418",
+  appId: "1:75757201418:web:c31e9361921242145717f3"
+};
+
+const ALLOWED_DOMAIN = "hccgc.org";
+const REQUIRED_APP_KEY = "manage-pages";
+const USERS_COLLECTION = "portalUsers";
+const EVENTS_COLLECTION = "events";
+const PORTAL_URL = "/admin/admin-portal";
+
+const fbApp = initializeApp(firebaseConfig);
+const auth = getAuth(fbApp);
+const db = getFirestore(fbApp);
+
+window.__hccgcMP = { db, collection, getDocs, doc, getDoc, setDoc, serverTimestamp, EVENTS_COLLECTION };
+
+async function loadPartial(id, file) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  try {
+    const r = await fetch(file);
+    if (r.ok) {
+      el.innerHTML = await r.text();
+      if (id === 'site-header') fixHeaderLinks(el);
+    }
+  } catch (e) {}
+}
+function fixHeaderLinks(el) {
+  const logo = el.querySelector('.brand-logo');
+  if (logo) { const s = logo.getAttribute('src'); if (s && !s.startsWith('/') && !s.startsWith('http')) logo.setAttribute('src', '/' + s); }
+  el.querySelectorAll('a[href]').forEach(function(a) {
+    const h = a.getAttribute('href');
+    if (h && !h.startsWith('http') && !h.startsWith('/') && !h.startsWith('#')) a.setAttribute('href', '/' + h);
+  });
+}
+loadPartial('site-header', '/header.html');
+loadPartial('site-footer', '/footer.html');
+
+function showGate(title, msg) {
+  document.getElementById('gate').querySelector('h3').textContent = title;
+  document.getElementById('gate').querySelector('p').innerHTML = msg;
+  document.getElementById('gate').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+onAuthStateChanged(auth, async function(user) {
+  if (!user) { showGate('Sign in required', 'Please sign in from the <a href="' + PORTAL_URL + '">Admin Portal</a> first.'); return; }
+  const email = (user.email || '').toLowerCase();
+  if (!email.endsWith('@' + ALLOWED_DOMAIN)) { showGate('Access denied', 'Please sign in with an @' + ALLOWED_DOMAIN + ' account.'); return; }
+
+  try {
+    const snap = await getDoc(doc(db, USERS_COLLECTION, email));
+    const data = snap.exists() ? snap.data() : {};
+    const isAdmin = !!data.isAdmin;
+    const allowed = Array.isArray(data.allowedApps) && data.allowedApps.includes(REQUIRED_APP_KEY);
+    if (!isAdmin && !allowed) {
+      showGate('Access not granted', "You don't have access to Manage Pages. Ask an admin to grant it from User Management.");
+      return;
+    }
+  } catch(e) {
+    showGate('Error', 'Could not verify your access. Please try again.');
+    return;
+  }
+
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  window.dispatchEvent(new CustomEvent('hccgc-mp-ready'));
+});
+</script>
+
+<script>
+var allRecords = [];
+
+window.addEventListener('hccgc-mp-ready', function() {
+  loadPages();
+});
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  var p = dateStr.split('-');
+  if (p.length !== 3) return dateStr;
+  var d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function showStatus(msg, type) {
+  var bar = document.getElementById('status-bar');
+  bar.textContent = msg;
+  bar.className = 'status-bar show ' + type;
+  if (type !== 'error') setTimeout(function() { bar.classList.remove('show'); }, 3500);
+}
+
+function loadPages() {
+  var fb = window.__hccgcMP;
+  fb.getDocs(fb.collection(fb.db, fb.EVENTS_COLLECTION)).then(function(snapshot) {
+    allRecords = [];
+    snapshot.forEach(function(docSnap) {
+      var d = docSnap.data(); d.id = docSnap.id;
+      allRecords.push(d);
+    });
+    allRecords.sort(function(a, b) { return (a.date || '').localeCompare(b.date || ''); });
+    renderPagesList();
+  }).catch(function(err) {
+    document.getElementById('pages-list').innerHTML = '<div class="empty-state">Could not load records. ' + escHtml(err.message) + '</div>';
+  });
+}
+
+function renderPagesList() {
+  var container = document.getElementById('pages-list');
+  if (!allRecords.length) {
+    container.innerHTML = '<div class="empty-state">No events or initiatives found. Add some in Manage Events first.</div>';
+    return;
+  }
+
+  var html = '';
+  allRecords.forEach(function(e) {
+    var isInit = e.type === 'initiative';
+    var isLive = e.pageEnabled && e.slug;
+    var dateStr = isInit
+      ? (formatDate(e.date) + (e.endDate ? ' – ' + formatDate(e.endDate) : ''))
+      : formatDate(e.date);
+
+    var pageUrlHtml = isLive
+      ? '<a href="/' + escHtml(e.slug) + '" target="_blank" rel="noopener noreferrer">hccgc.org/' + escHtml(e.slug) + ' ↗</a>'
+      : '<span>No page yet</span>';
+
+    html +=
+      '<div class="page-row">' +
+        '<div class="page-row-status' + (isLive ? ' live' : '') + '" title="' + (isLive ? 'Live' : 'No page') + '"></div>' +
+        '<div class="page-row-info">' +
+          '<h4>' + escHtml(e.name) + ' <span class="type-badge ' + (isInit ? 'initiative' : 'event') + '">' + (isInit ? 'Initiative' : 'Event') + '</span></h4>' +
+          '<div class="meta">' + escHtml(dateStr) + ' &nbsp;·&nbsp; ' + pageUrlHtml + '</div>' +
+        '</div>' +
+        '<button class="btn-edit-page" data-id="' + escHtml(e.id) + '">' +
+          '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+          (isLive ? ' Edit Page' : ' Set Up Page') +
+        '</button>' +
+      '</div>';
+  });
+
+  container.innerHTML = html;
+}
+
+// Tab switching
+document.querySelectorAll('.modal-tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.modal-tab').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.modal-panel').forEach(function(p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.getAttribute('data-tab')).classList.add('active');
+  });
+});
+
+// Slug sanitize + preview
+document.getElementById('page-slug').addEventListener('input', function() {
+  var clean = this.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  document.getElementById('slug-display').textContent = clean || 'your-slug';
+  updateLiveLink(clean, document.getElementById('page-enabled').checked);
+});
+
+document.getElementById('page-enabled').addEventListener('change', function() {
+  var slug = document.getElementById('page-slug').value.trim();
+  updateLiveLink(slug, this.checked);
+});
+
+function updateLiveLink(slug, enabled) {
+  var link = document.getElementById('page-live-link');
+  if (enabled && slug) {
+    link.href = '/' + slug;
+    link.style.display = 'inline';
+  } else {
+    link.style.display = 'none';
+  }
+}
+
+// Open modal
+document.getElementById('pages-list').addEventListener('click', function(evt) {
+  var btn = evt.target.closest('.btn-edit-page');
+  if (!btn) return;
+  var id = btn.getAttribute('data-id');
+  var e = allRecords.find(function(r) { return r.id === id; });
+  if (!e) return;
+  openModal(e);
+});
+
+function openModal(e) {
+  var isInit = e.type === 'initiative';
+  var pg = e.page || {};
+
+  document.getElementById('modal-title').textContent = 'Page Setup — ' + (e.name || '');
+  document.getElementById('modal-event-name-display').textContent = (isInit ? 'Initiative' : 'Event') + ': ' + (e.name || '');
+  document.getElementById('edit-event-id').value = e.id;
+
+  // Reset to basics tab
+  document.querySelectorAll('.modal-tab').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelectorAll('.modal-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelector('.modal-tab[data-tab="basics"]').classList.add('active');
+  document.getElementById('panel-basics').classList.add('active');
+
+  // Show/hide people and curriculum sections
+  document.getElementById('people-event-section').style.display = isInit ? 'none' : 'block';
+  document.getElementById('people-initiative-section').style.display = isInit ? 'block' : 'none';
+  document.getElementById('curriculum-event-section').style.display = isInit ? 'none' : 'block';
+  document.getElementById('curriculum-initiative-section').style.display = isInit ? 'block' : 'none';
+
+  // Update curriculum tab label
+  document.querySelector('.modal-tab[data-tab="curriculum"]').textContent = isInit ? 'Curriculum' : 'Schedule';
+
+  // Basics
+  var slug = e.slug || '';
+  document.getElementById('page-enabled').checked = !!e.pageEnabled;
+  document.getElementById('page-slug').value = slug;
+  document.getElementById('slug-display').textContent = slug || 'your-slug';
+  updateLiveLink(slug, !!e.pageEnabled);
+  document.getElementById('page-tagline').value = pg.tagline || '';
+  document.getElementById('page-hero-desc').value = pg.heroDescription || '';
+  document.getElementById('page-venue').value = pg.venue || '';
+  document.getElementById('page-cost-display').value = pg.costDisplay || '';
+  document.getElementById('page-contact-name').value = (pg.contact && pg.contact.name) || '';
+  document.getElementById('page-contact-phone').value = (pg.contact && pg.contact.phone) || '';
+
+  // Content
+  document.getElementById('page-about-title').value = pg.aboutTitle || '';
+  document.getElementById('page-about-body').value = pg.aboutBody || '';
+  document.getElementById('page-what-to-expect').value = (pg.whatToExpect || []).join('\n');
+  document.getElementById('page-who-should-attend').value = (pg.whoShouldAttend || []).join('\n');
+  document.getElementById('page-registration-note').value = pg.registrationNote || '';
+
+  // People
+  if (!isInit) {
+    document.getElementById('page-performers').value = (pg.performers || []).map(function(p) {
+      return [p.name, p.role, p.location].filter(Boolean).join(' | ');
+    }).join('\n');
+  } else {
+    var inst = pg.instructor || {};
+    document.getElementById('page-instructor-name').value = inst.name || '';
+    document.getElementById('page-instructor-role').value = inst.role || '';
+    document.getElementById('page-instructor-photo').value = inst.photoUrl || '';
+    document.getElementById('page-instructor-bio').value = inst.bio || '';
+  }
+
+  // Schedule / Curriculum
+  if (!isInit) {
+    document.getElementById('page-schedule-items').value = (pg.scheduleItems || []).map(function(s) {
+      return [s.time, s.label, s.duration].filter(Boolean).join(' | ');
+    }).join('\n');
+  } else {
+    document.getElementById('page-curriculum-title').value = pg.curriculumTitle || '';
+    document.getElementById('page-curriculum').value = (pg.curriculum || []).map(function(w) {
+      return [w.weekLabel, w.title, w.description].filter(Boolean).join(' | ');
+    }).join('\n');
+  }
+
+  // Media
+  document.getElementById('page-zeffy-url').value = pg.zeffyUrl || '';
+  document.getElementById('page-flyer-url').value = pg.flyerImageUrl || '';
+  document.getElementById('page-meta-desc').value = pg.metaDescription || '';
+
+  // Clear errors
+  document.getElementById('err-slug').classList.remove('show');
+
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+}
+
+document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
+
+// Save
+document.getElementById('btn-save-page').addEventListener('click', function() {
+  var id = document.getElementById('edit-event-id').value;
+  var e = allRecords.find(function(r) { return r.id === id; });
+  if (!e) return;
+  var isInit = e.type === 'initiative';
+
+  var slug = document.getElementById('page-slug').value.trim()
+    .toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  var pageEnabled = document.getElementById('page-enabled').checked;
+
+  if (pageEnabled && !slug) {
+    document.getElementById('err-slug').classList.add('show');
+    document.querySelector('.modal-tab[data-tab="basics"]').click();
+    return;
+  }
+
+  function parseLines(id) {
+    return document.getElementById(id).value.split('\n').map(function(l) { return l.trim(); }).filter(Boolean);
+  }
+  function parsePiped(id, keys) {
+    return parseLines(id).map(function(line) {
+      var parts = line.split('|').map(function(p) { return p.trim(); });
+      var obj = {};
+      keys.forEach(function(k, i) { obj[k] = parts[i] || ''; });
+      return obj;
+    });
+  }
+
+  var pageData = {
+    tagline: document.getElementById('page-tagline').value.trim(),
+    heroDescription: document.getElementById('page-hero-desc').value.trim(),
+    aboutTitle: document.getElementById('page-about-title').value.trim(),
+    aboutBody: document.getElementById('page-about-body').value.trim(),
+    venue: document.getElementById('page-venue').value.trim(),
+    costDisplay: document.getElementById('page-cost-display').value.trim(),
+    contact: {
+      name: document.getElementById('page-contact-name').value.trim(),
+      phone: document.getElementById('page-contact-phone').value.trim()
+    },
+    whatToExpect: parseLines('page-what-to-expect'),
+    whoShouldAttend: parseLines('page-who-should-attend'),
+    registrationNote: document.getElementById('page-registration-note').value.trim(),
+    zeffyUrl: document.getElementById('page-zeffy-url').value.trim(),
+    flyerImageUrl: document.getElementById('page-flyer-url').value.trim(),
+    metaDescription: document.getElementById('page-meta-desc').value.trim()
+  };
+
+  if (!isInit) {
+    pageData.performers = parsePiped('page-performers', ['name', 'role', 'location']);
+    pageData.scheduleItems = parsePiped('page-schedule-items', ['time', 'label', 'duration']);
+  } else {
+    pageData.instructor = {
+      name: document.getElementById('page-instructor-name').value.trim(),
+      role: document.getElementById('page-instructor-role').value.trim(),
+      photoUrl: document.getElementById('page-instructor-photo').value.trim(),
+      bio: document.getElementById('page-instructor-bio').value.trim()
+    };
+    pageData.curriculumTitle = document.getElementById('page-curriculum-title').value.trim();
+    pageData.curriculum = parsePiped('page-curriculum', ['weekLabel', 'title', 'description']);
+  }
+
+  var btn = document.getElementById('btn-save-page');
+  var origHTML = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Saving\u2026';
+
+  var fb = window.__hccgcMP;
+  fb.setDoc(fb.doc(fb.db, fb.EVENTS_COLLECTION, id), {
+    pageEnabled: pageEnabled,
+    slug: slug,
+    page: pageData
+  }, { merge: true }).then(function() {
+    // Update local record
+    e.pageEnabled = pageEnabled;
+    e.slug = slug;
+    e.page = pageData;
+    btn.disabled = false;
+    btn.innerHTML = origHTML;
+    closeModal();
+    showStatus('Page saved. ' + (pageEnabled && slug ? 'Live at hccgc.org/' + slug : 'Page disabled.'), 'success');
+    renderPagesList();
+  }).catch(function(err) {
+    btn.disabled = false;
+    btn.innerHTML = origHTML;
+    showStatus('Error saving: ' + (err.message || 'unknown error'), 'error');
+  });
+});
+</script>
+</body>
+</html>

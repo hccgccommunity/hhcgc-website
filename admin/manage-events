@@ -265,10 +265,6 @@ body {
   color: var(--muted); font-size: 1.3rem; line-height: 1; padding: 4px;
 }
 .modal-close:hover { color: var(--maroon); }
-.modal-tabs {
-  display: flex; border-bottom: 1px solid var(--border);
-  padding: 0 1.6rem; gap: 0;
-}
 .modal-tab {
   padding: 0.75rem 1.1rem; font-size: 0.86rem; font-weight: 700;
   color: var(--muted); cursor: pointer; border: none; background: none;
@@ -582,12 +578,7 @@ textarea { resize: vertical; }
       <h3 id="modal-title">Add Event</h3>
       <button class="modal-close" id="modal-close-btn">&times;</button>
     </div>
-    <div class="modal-tabs">
-      <button class="modal-tab active" data-tab="details">Details</button>
-      <button class="modal-tab" data-tab="page">Page Setup</button>
-    </div>
     <div class="modal-body">
-      <div class="modal-panel active" id="panel-details">
       <input type="hidden" id="event-id">
 
       <!-- Type selector -->
@@ -678,138 +669,7 @@ textarea { resize: vertical; }
           <input type="text" id="event-rsvp" placeholder="Leave blank to show 'Registrations will open soon!'">
         </div>
       </div>
-    </div><!-- end panel-details -->
-
-      <!-- PAGE SETUP PANEL -->
-      <div class="modal-panel" id="panel-page">
-
-        <div class="form-group" style="margin-bottom:0.6rem;">
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-            <input type="checkbox" id="page-enabled">
-            <span>Enable public page for this event/initiative</span>
-          </label>
-          <div style="font-size:0.76rem;color:var(--muted);margin-top:4px;">
-            When enabled, a page will be live at hccgc.org/<span id="slug-preview" style="font-weight:700;color:var(--saffron-dark);">your-slug</span>
-          </div>
-        </div>
-
-        <div id="page-fields">
-          <div class="form-group">
-            <label for="page-slug">URL Slug *</label>
-            <input type="text" id="page-slug" placeholder="e.g. sangeet-sandhya (lowercase, hyphens only)">
-            <div style="font-size:0.76rem;color:var(--muted);margin-top:4px;">hccgc.org/<span id="slug-preview-2" style="font-weight:700;">your-slug</span></div>
-            <div class="field-error" id="err-slug">Please enter a valid URL slug (lowercase letters, numbers, hyphens only).</div>
-          </div>
-
-          <div class="form-group">
-            <label for="page-tagline">Tagline</label>
-            <input type="text" id="page-tagline" placeholder="e.g. A composer's insight into a composer's mind">
-          </div>
-
-          <div class="form-group">
-            <label for="page-hero-desc">Hero Description</label>
-            <textarea id="page-hero-desc" rows="2" placeholder="Short paragraph shown under the title in the hero section"></textarea>
-          </div>
-
-          <div class="form-group">
-            <label for="page-about-title">About Section Title</label>
-            <input type="text" id="page-about-title" placeholder="e.g. A Celebration of Timeless Melodies">
-          </div>
-
-          <div class="form-group">
-            <label for="page-about-body">About Section Body</label>
-            <textarea id="page-about-body" rows="4" placeholder="Full description of the event or initiative. Use new lines for separate paragraphs."></textarea>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="page-venue">Venue</label>
-              <input type="text" id="page-venue" placeholder="HCCGC (leave blank for default)">
-            </div>
-            <div class="form-group">
-              <label for="page-cost-display">Cost Display</label>
-              <input type="text" id="page-cost-display" placeholder="e.g. $15 early / $20 at door">
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="page-contact-name">Contact Name</label>
-              <input type="text" id="page-contact-name" placeholder="e.g. Ajay Bhosale">
-            </div>
-            <div class="form-group">
-              <label for="page-contact-phone">Contact Phone</label>
-              <input type="text" id="page-contact-phone" placeholder="e.g. +1 (513) 680-9379">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="page-zeffy-url">Zeffy Embed URL</label>
-            <input type="text" id="page-zeffy-url" placeholder="https://www.zeffy.com/embed/ticketing/your-event">
-          </div>
-
-          <div class="form-group">
-            <label for="page-flyer-url">Flyer Image URL</label>
-            <input type="text" id="page-flyer-url" placeholder="https://www.hccgc.org/your-flyer.jpg">
-          </div>
-
-          <div class="form-group">
-            <label for="page-what-to-expect">What to Expect <span style="font-weight:400;color:var(--muted)">(one item per line)</span></label>
-            <textarea id="page-what-to-expect" rows="4" placeholder="Live violin, vocals, harmonium&#10;Narration in Marathi&#10;Intimate mahfil-style setting"></textarea>
-          </div>
-
-          <div class="form-group">
-            <label for="page-who-should-attend">Who Should Attend <span style="font-weight:400;color:var(--muted)">(one item per line)</span></label>
-            <textarea id="page-who-should-attend" rows="3" placeholder="Lovers of Marathi and Hindi film music&#10;Families of all ages&#10;Anyone who loves great community events"></textarea>
-          </div>
-
-          <div class="form-group">
-            <label for="page-registration-note">Registration Note</label>
-            <textarea id="page-registration-note" rows="2" placeholder="e.g. Early registration price: $15. Price increases on May 18th."></textarea>
-          </div>
-
-          <!-- EVENT-ONLY: Performers & Schedule -->
-          <div id="page-event-fields">
-            <div class="form-group">
-              <label for="page-performers">Performers <span style="font-weight:400;color:var(--muted)">(one per line: Name | Role | Location)</span></label>
-              <textarea id="page-performers" rows="4" placeholder="Sachin Ingale | Vocalist · Violinist · Composer | Pune, India&#10;Ruchir Ingale | Vocalist | Pune, India"></textarea>
-            </div>
-            <div class="form-group">
-              <label for="page-schedule">Schedule <span style="font-weight:400;color:var(--muted)">(one item per line: Time | Label | Duration)</span></label>
-              <textarea id="page-schedule-items" rows="4" placeholder="10:00 AM | First Half | ~1 hr 15 min&#10;11:15 AM | Interval | 15 min&#10;11:30 AM | Second Half | ~1 hr"></textarea>
-            </div>
-          </div>
-
-          <!-- INITIATIVE-ONLY: Instructor & Curriculum -->
-          <div id="page-initiative-fields" style="display:none;">
-            <div class="form-row">
-              <div class="form-group">
-                <label for="page-instructor-name">Instructor Name</label>
-                <input type="text" id="page-instructor-name" placeholder="e.g. Shri Koti Krishna ji">
-              </div>
-              <div class="form-group">
-                <label for="page-instructor-role">Instructor Role</label>
-                <input type="text" id="page-instructor-role" placeholder="e.g. Yoga Instructor">
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="page-instructor-bio">Instructor Bio</label>
-              <textarea id="page-instructor-bio" rows="3" placeholder="Brief bio of the instructor"></textarea>
-            </div>
-            <div class="form-group">
-              <label for="page-curriculum-title">Curriculum Section Title</label>
-              <input type="text" id="page-curriculum-title" placeholder="e.g. 12-week progressive wellness journey">
-            </div>
-            <div class="form-group">
-              <label for="page-curriculum">Curriculum <span style="font-weight:400;color:var(--muted)">(one week per line: Week Label | Title | Description)</span></label>
-              <textarea id="page-curriculum" rows="6" placeholder="Weeks 1–4 | Foundation & Reset | Start with mobility and breathing&#10;Weeks 5–8 | Strength & Balance | Develop strength and stability&#10;Weeks 9–12 | Integration | Bring together breath and movement"></textarea>
-            </div>
-          </div>
-
-        </div><!-- end page-fields -->
-      </div><!-- end panel-page -->
-
-    </div><!-- end modal-body -->
+    </div>
     <div class="modal-footer">
       <button class="btn-secondary" id="modal-cancel-btn">Cancel</button>
       <button class="btn-save" id="btn-save-event">Save</button>
@@ -1078,9 +938,6 @@ function buildEventRowHtml(e, isPast) {
     ? '<div class="event-row-link">RSVP: <a href="' + escHtml(e.rsvpUrl) + '" target="_blank" rel="noopener noreferrer">' + escHtml(e.rsvpUrl) + '</a></div>'
     : '<div class="event-row-link" style="color:var(--saffron-dark);">Registrations will open soon!</div>';
 
-  var pageLink = (e.pageEnabled && e.slug)
-    ? '<div class="event-row-link">Page: <a href="/' + escHtml(e.slug) + '" target="_blank" rel="noopener noreferrer">hccgc.org/' + escHtml(e.slug) + '</a></div>'
-    : '';
 
   return (
     '<div class="event-row' + (isPast ? ' is-past' : '') + '">' +
@@ -1094,7 +951,6 @@ function buildEventRowHtml(e, isPast) {
         '</div>' +
         '<p class="event-row-desc">' + escHtml(e.description) + '</p>' +
         rsvpLine +
-        pageLink +
         createdLine +
       '</div>' +
       '<div class="event-row-actions">' +
@@ -1164,7 +1020,6 @@ function setType(type) {
   document.getElementById('initiative-schedule-group').style.display = isInit ? 'block' : 'none';
   document.getElementById('end-date-group').style.display = isInit ? 'block' : 'none';
   document.getElementById('category-group').style.display = isInit ? 'none' : 'block';
-  updatePageFields(type);
 
   // Update labels and title
   var nameLabel = document.getElementById('label-name');
@@ -1193,8 +1048,7 @@ function openModal(eventId) {
     if (!e) return;
     var type = e.type || 'event';
     setType(type);
-    updatePageFields(type);
-    title.textContent = type === 'initiative' ? 'Edit Initiative' : 'Edit Event';
+      title.textContent = type === 'initiative' ? 'Edit Initiative' : 'Edit Event';
     document.getElementById('event-id').value = e.id;
     document.getElementById('event-name').value = e.name || '';
     document.getElementById('event-description').value = e.description || '';
@@ -1206,70 +1060,6 @@ function openModal(eventId) {
     document.getElementById('event-category').value = e.category || '';
     document.getElementById('event-cost').value = e.cost || '';
     document.getElementById('event-rsvp').value = e.rsvpUrl || '';
-    // Page fields
-    var pg = e.page || {};
-    document.getElementById('page-enabled').checked = !!e.pageEnabled;
-    document.getElementById('page-slug').value = e.slug || '';
-    updateSlugPreview(e.slug || '');
-    document.getElementById('page-tagline').value = pg.tagline || '';
-    document.getElementById('page-hero-desc').value = pg.heroDescription || '';
-    document.getElementById('page-about-title').value = pg.aboutTitle || '';
-    document.getElementById('page-about-body').value = pg.aboutBody || '';
-    document.getElementById('page-venue').value = pg.venue || '';
-    document.getElementById('page-cost-display').value = pg.costDisplay || '';
-    document.getElementById('page-contact-name').value = (pg.contact && pg.contact.name) || '';
-    document.getElementById('page-contact-phone').value = (pg.contact && pg.contact.phone) || '';
-    document.getElementById('page-zeffy-url').value = pg.zeffyUrl || '';
-    document.getElementById('page-flyer-url').value = pg.flyerImageUrl || '';
-    document.getElementById('page-what-to-expect').value = (pg.whatToExpect || []).join('\n');
-    document.getElementById('page-who-should-attend').value = (pg.whoShouldAttend || []).join('\n');
-    document.getElementById('page-registration-note').value = pg.registrationNote || '';
-    document.getElementById('page-performers').value = (pg.performers || []).map(function(p) { return [p.name, p.role, p.location].join(' | '); }).join('\n');
-    document.getElementById('page-schedule-items').value = (pg.scheduleItems || []).map(function(s) { return [s.time, s.label, s.duration].join(' | '); }).join('\n');
-    document.getElementById('page-instructor-name').value = (pg.instructor && pg.instructor.name) || '';
-    document.getElementById('page-instructor-role').value = (pg.instructor && pg.instructor.role) || '';
-    document.getElementById('page-instructor-bio').value = (pg.instructor && pg.instructor.bio) || '';
-    document.getElementById('page-curriculum-title').value = pg.curriculumTitle || '';
-    document.getElementById('page-curriculum').value = (pg.curriculum || []).map(function(w) { return [w.weekLabel, w.title, w.description].join(' | '); }).join('\n');
-  } else {
-    setType('event');
-    updatePageFields('event');
-    document.getElementById('event-id').value = '';
-    document.getElementById('event-name').value = '';
-    document.getElementById('event-description').value = '';
-    document.getElementById('event-date').value = '';
-    document.getElementById('event-end-date').value = '';
-    document.getElementById('event-from-time').value = '';
-    document.getElementById('event-to-time').value = '';
-    document.getElementById('event-schedule').value = '';
-    document.getElementById('event-category').value = '';
-    document.getElementById('event-cost').value = '';
-    document.getElementById('event-rsvp').value = '';
-    // Clear page fields
-    document.getElementById('page-enabled').checked = false;
-    document.getElementById('page-slug').value = '';
-    updateSlugPreview('');
-    document.getElementById('page-tagline').value = '';
-    document.getElementById('page-hero-desc').value = '';
-    document.getElementById('page-about-title').value = '';
-    document.getElementById('page-about-body').value = '';
-    document.getElementById('page-venue').value = '';
-    document.getElementById('page-cost-display').value = '';
-    document.getElementById('page-contact-name').value = '';
-    document.getElementById('page-contact-phone').value = '';
-    document.getElementById('page-zeffy-url').value = '';
-    document.getElementById('page-flyer-url').value = '';
-    document.getElementById('page-what-to-expect').value = '';
-    document.getElementById('page-who-should-attend').value = '';
-    document.getElementById('page-registration-note').value = '';
-    document.getElementById('page-performers').value = '';
-    document.getElementById('page-schedule-items').value = '';
-    document.getElementById('page-instructor-name').value = '';
-    document.getElementById('page-instructor-role').value = '';
-    document.getElementById('page-instructor-bio').value = '';
-    document.getElementById('page-curriculum-title').value = '';
-    document.getElementById('page-curriculum').value = '';
-  }
 
   overlay.classList.add('show');
 }
@@ -1285,28 +1075,11 @@ document.querySelectorAll('.modal-tab').forEach(function(btn) {
 });
 
 /* Slug preview */
-function updateSlugPreview(val) {
-  var clean = val.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-  document.getElementById('slug-preview').textContent = clean || 'your-slug';
-  document.getElementById('slug-preview-2').textContent = clean || 'your-slug';
-}
-document.getElementById('page-slug').addEventListener('input', function() {
-  updateSlugPreview(this.value);
-});
 
 /* Show/hide event vs initiative page fields */
-function updatePageFields(type) {
-  document.getElementById('page-event-fields').style.display = type === 'initiative' ? 'none' : 'block';
-  document.getElementById('page-initiative-fields').style.display = type === 'initiative' ? 'block' : 'none';
-}
 
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('show');
-  // Reset to Details tab
-  document.querySelectorAll('.modal-tab').forEach(function(b) { b.classList.remove('active'); });
-  document.querySelectorAll('.modal-panel').forEach(function(p) { p.classList.remove('active'); });
-  document.querySelector('.modal-tab[data-tab="details"]').classList.add('active');
-  document.getElementById('panel-details').classList.add('active');
 }
 
 document.getElementById('events-list').addEventListener('click', handleEventListClick);
@@ -1358,73 +1131,6 @@ document.getElementById('btn-save-event').addEventListener('click', function () 
   if (type === 'event' && !fromTime) { document.getElementById('err-from-time').classList.add('show'); hasError = true; }
   if (type === 'initiative' && !endDate) { document.getElementById('err-end-date').classList.add('show'); hasError = true; }
   if (type === 'initiative' && !schedule) { document.getElementById('err-schedule').classList.add('show'); hasError = true; }
-
-  // Page fields
-  var pageEnabled = document.getElementById('page-enabled').checked;
-  var slug = document.getElementById('page-slug').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-  if (pageEnabled && !slug) {
-    document.getElementById('err-slug').classList.add('show');
-    hasError = true;
-  }
-
-  if (hasError) return;
-
-  // Parse multi-line textarea fields into arrays/objects
-  function parseLines(id) {
-    return document.getElementById(id).value.split('\n').map(function(l) { return l.trim(); }).filter(Boolean);
-  }
-  function parsePiped(id, keys) {
-    return parseLines(id).map(function(line) {
-      var parts = line.split('|').map(function(p) { return p.trim(); });
-      var obj = {};
-      keys.forEach(function(k, i) { obj[k] = parts[i] || ''; });
-      return obj;
-    });
-  }
-
-  var pageData = {
-    tagline: document.getElementById('page-tagline').value.trim(),
-    heroDescription: document.getElementById('page-hero-desc').value.trim(),
-    aboutTitle: document.getElementById('page-about-title').value.trim(),
-    aboutBody: document.getElementById('page-about-body').value.trim(),
-    venue: document.getElementById('page-venue').value.trim(),
-    costDisplay: document.getElementById('page-cost-display').value.trim(),
-    contact: {
-      name: document.getElementById('page-contact-name').value.trim(),
-      phone: document.getElementById('page-contact-phone').value.trim()
-    },
-    zeffyUrl: document.getElementById('page-zeffy-url').value.trim(),
-    flyerImageUrl: document.getElementById('page-flyer-url').value.trim(),
-    whatToExpect: parseLines('page-what-to-expect'),
-    whoShouldAttend: parseLines('page-who-should-attend'),
-    registrationNote: document.getElementById('page-registration-note').value.trim()
-  };
-
-  if (type === 'event') {
-    pageData.performers = parsePiped('page-performers', ['name', 'role', 'location']);
-    pageData.scheduleItems = parsePiped('page-schedule-items', ['time', 'label', 'duration']);
-  } else {
-    pageData.instructor = {
-      name: document.getElementById('page-instructor-name').value.trim(),
-      role: document.getElementById('page-instructor-role').value.trim(),
-      bio: document.getElementById('page-instructor-bio').value.trim()
-    };
-    pageData.curriculumTitle = document.getElementById('page-curriculum-title').value.trim();
-    pageData.curriculum = parsePiped('page-curriculum', ['weekLabel', 'title', 'description']);
-  }
-
-  var eventData = {
-    type: type,
-    name: name,
-    description: description,
-    date: date,
-    category: category,
-    cost: cost,
-    rsvpUrl: rsvpUrl,
-    pageEnabled: pageEnabled,
-    slug: slug,
-    page: pageData
-  };
 
   if (type === 'event') {
     eventData.fromTime = fromTime;

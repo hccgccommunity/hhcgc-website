@@ -284,6 +284,47 @@ input:focus, textarea:focus, select:focus {
 }
 textarea { resize: vertical; }
 
+.type-toggle {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.type-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0.65rem 0.8rem;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: Arial, Helvetica, sans-serif;
+  transition: all 0.12s;
+  text-align: center;
+}
+.type-btn:hover { border-color: var(--saffron); color: var(--saffron-dark); }
+.type-btn.active { background: var(--maroon); border-color: var(--maroon); color: #fff; }
+.type-btn.active svg { filter: brightness(10); }
+
+.initiative-badge {
+  display: inline-block;
+  background: rgba(127,46,22,0.1);
+  color: var(--maroon);
+  border: 1px solid rgba(127,46,22,0.2);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-left: 8px;
+}
+
 .field-error { font-size: 0.76rem; color: #c0392b; margin-top: 4px; display: none; }
 .field-error.show { display: block; }
 
@@ -528,25 +569,46 @@ textarea { resize: vertical; }
     <div class="modal-body">
       <input type="hidden" id="event-id">
 
+      <!-- Type selector -->
       <div class="form-group">
-        <label for="event-name">Event Name *</label>
+        <label>Type *</label>
+        <div class="type-toggle">
+          <button type="button" class="type-btn active" data-type="event" id="type-btn-event">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="12" cy="16" r="2"/></svg>
+            Event <span style="font-weight:400;font-size:0.75rem;">(single occurrence)</span>
+          </button>
+          <button type="button" class="type-btn" data-type="initiative" id="type-btn-initiative">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+            Initiative <span style="font-weight:400;font-size:0.75rem;">(recurring program)</span>
+          </button>
+        </div>
+        <input type="hidden" id="event-type" value="event">
+      </div>
+
+      <div class="form-group">
+        <label for="event-name" id="label-name">Event Name *</label>
         <input type="text" id="event-name" placeholder="e.g. Sangeet Sandhya – Summer Edition">
-        <div class="field-error" id="err-name">Please enter an event name.</div>
+        <div class="field-error" id="err-name">Please enter a name.</div>
       </div>
 
       <div class="form-group">
         <label for="event-description">Description *</label>
-        <textarea id="event-description" rows="3" placeholder="Brief description of the event"></textarea>
+        <textarea id="event-description" rows="3" placeholder="Brief description"></textarea>
         <div class="field-error" id="err-description">Please enter a description.</div>
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label for="event-date">Date *</label>
+          <label for="event-date" id="label-date">Date *</label>
           <input type="date" id="event-date">
           <div class="field-error" id="err-date">Please select a date.</div>
         </div>
-        <div class="form-group">
+        <div class="form-group" id="end-date-group" style="display:none;">
+          <label for="event-end-date">End Date *</label>
+          <input type="date" id="event-end-date">
+          <div class="field-error" id="err-end-date">Please select an end date.</div>
+        </div>
+        <div class="form-group" id="category-group">
           <label for="event-category">Category</label>
           <select id="event-category">
             <option value="">None</option>
@@ -560,15 +622,28 @@ textarea { resize: vertical; }
         </div>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="event-from-time">From Time *</label>
-          <input type="text" id="event-from-time" placeholder="e.g. 6:30 PM">
-          <div class="field-error" id="err-from-time">Please enter a start time.</div>
+      <!-- Event-only: from/to time -->
+      <div id="event-time-group">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="event-from-time">From Time *</label>
+            <input type="text" id="event-from-time" placeholder="e.g. 6:30 PM">
+            <div class="field-error" id="err-from-time">Please enter a start time.</div>
+          </div>
+          <div class="form-group">
+            <label for="event-to-time">To Time</label>
+            <input type="text" id="event-to-time" placeholder="e.g. 9:00 PM (optional)">
+          </div>
         </div>
+      </div>
+
+      <!-- Initiative-only: schedule -->
+      <div id="initiative-schedule-group" style="display:none;">
         <div class="form-group">
-          <label for="event-to-time">To Time</label>
-          <input type="text" id="event-to-time" placeholder="e.g. 9:00 PM (optional)">
+          <label for="event-schedule">Weekly Schedule *</label>
+          <input type="text" id="event-schedule" placeholder="e.g. Tuesdays 6–7 PM, Thursdays 7–8 PM">
+          <div class="field-error" id="err-schedule">Please enter the schedule.</div>
+          <div style="font-size:0.76rem;color:var(--muted);margin-top:4px;">Describe the recurring days and times in plain text.</div>
         </div>
       </div>
 
@@ -579,13 +654,13 @@ textarea { resize: vertical; }
         </div>
         <div class="form-group">
           <label for="event-rsvp">RSVP URL</label>
-          <input type="text" id="event-rsvp" placeholder="https://www.hccgc.org/your-event.html">
+          <input type="text" id="event-rsvp" placeholder="Leave blank to show 'Registrations will open soon!'">
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" id="modal-cancel-btn">Cancel</button>
-      <button class="btn-save" id="btn-save-event">Save Event</button>
+      <button class="btn-save" id="btn-save-event">Save</button>
     </div>
   </div>
 </div>
@@ -813,16 +888,19 @@ function formatTimeRange(fromTime, toTime) {
   return fromTime + ' onward';
 }
 
-function isPastDate(dateStr) {
-  var parts = (dateStr || '').split('-');
-  if (parts.length !== 3) return false;
-  var d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+function isPastDate(e) {
+  // For initiatives, use endDate; for events (or legacy records), use date.
+  var dateStr = (e.type === 'initiative' && e.endDate) ? e.endDate : (e.date || '');
+  if (!dateStr || dateStr.length !== 10) return false;
   var today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return d < today;
+  var yyyy = today.getFullYear();
+  var mm = String(today.getMonth() + 1).padStart(2, '0');
+  var dd = String(today.getDate()).padStart(2, '0');
+  return dateStr < (yyyy + '-' + mm + '-' + dd);
 }
 
 function buildEventRowHtml(e, isPast) {
+  var isInitiative = e.type === 'initiative';
   var createdLine = '';
   if (e.createdByName || e.createdByEmail) {
     createdLine =
@@ -832,18 +910,34 @@ function buildEventRowHtml(e, isPast) {
       '</div>';
   }
 
+  var typeBadge = isInitiative
+    ? '<span class="initiative-badge">Initiative</span>'
+    : '';
+
+  var dateLine = isInitiative
+    ? formatDateDisplay(e.date) + ' \u2013 ' + (e.endDate ? formatDateDisplay(e.endDate) : 'TBD')
+    : formatDateDisplay(e.date);
+
+  var timeLine = isInitiative
+    ? (e.schedule ? escHtml(e.schedule) : '')
+    : escHtml(formatTimeRange(e.fromTime, e.toTime));
+
+  var rsvpLine = e.rsvpUrl
+    ? '<div class="event-row-link">RSVP: <a href="' + escHtml(e.rsvpUrl) + '" target="_blank" rel="noopener noreferrer">' + escHtml(e.rsvpUrl) + '</a></div>'
+    : '<div class="event-row-link" style="color:var(--saffron-dark);">Registrations will open soon!</div>';
+
   return (
     '<div class="event-row' + (isPast ? ' is-past' : '') + '">' +
       '<div class="event-row-main">' +
-        '<h4>' + escHtml(e.name) + (isPast ? '<span class="past-badge">Past</span>' : '') + '</h4>' +
+        '<h4>' + escHtml(e.name) + typeBadge + (isPast ? '<span class="past-badge">Past</span>' : '') + '</h4>' +
         '<div class="event-row-meta">' +
-          '<span>&#128197; ' + formatDateDisplay(e.date) + '</span>' +
-          '<span>&#128340; ' + escHtml(formatTimeRange(e.fromTime, e.toTime)) + '</span>' +
+          '<span>&#128197; ' + dateLine + '</span>' +
+          (timeLine ? '<span>&#128340; ' + timeLine + '</span>' : '') +
           (e.category ? '<span>&#127991; ' + escHtml(e.category) + '</span>' : '') +
           (e.cost ? '<span>&#128176; ' + escHtml(e.cost) + '</span>' : '') +
         '</div>' +
         '<p class="event-row-desc">' + escHtml(e.description) + '</p>' +
-        (e.rsvpUrl ? '<div class="event-row-link">RSVP: <a href="' + escHtml(e.rsvpUrl) + '" target="_blank" rel="noopener noreferrer">' + escHtml(e.rsvpUrl) + '</a></div>' : '') +
+        rsvpLine +
         createdLine +
       '</div>' +
       '<div class="event-row-actions">' +
@@ -876,8 +970,8 @@ function renderEventsList() {
     return (a.date || '').localeCompare(b.date || '');
   });
 
-  var upcoming = sorted.filter(function (e) { return !isPastDate(e.date); });
-  var past = sorted.filter(function (e) { return isPastDate(e.date); }).reverse();
+  var upcoming = sorted.filter(function (e) { return !isPastDate(e); });
+  var past = sorted.filter(function (e) { return isPastDate(e); }).reverse();
 
   if (upcoming.length === 0) {
     upcomingContainer.innerHTML = '<div class="empty-state">No upcoming events. Click "Add Event" to create one.</div>';
@@ -899,6 +993,37 @@ document.getElementById('past-events-toggle').addEventListener('click', function
   document.getElementById('past-events-list').classList.toggle('collapsed');
 });
 
+/* ── Type toggle ─────────────────────────────────────────── */
+function setType(type) {
+  document.getElementById('event-type').value = type;
+
+  // Toggle buttons
+  document.getElementById('type-btn-event').classList.toggle('active', type === 'event');
+  document.getElementById('type-btn-initiative').classList.toggle('active', type === 'initiative');
+
+  // Show/hide fields
+  var isInit = type === 'initiative';
+  document.getElementById('event-time-group').style.display = isInit ? 'none' : 'block';
+  document.getElementById('initiative-schedule-group').style.display = isInit ? 'block' : 'none';
+  document.getElementById('end-date-group').style.display = isInit ? 'block' : 'none';
+  document.getElementById('category-group').style.display = isInit ? 'none' : 'block';
+
+  // Update labels and title
+  var nameLabel = document.getElementById('label-name');
+  var dateLabel = document.getElementById('label-date');
+  nameLabel.textContent = isInit ? 'Initiative Name *' : 'Event Name *';
+  dateLabel.textContent = isInit ? 'Start Date *' : 'Date *';
+
+  var modalTitle = document.getElementById('modal-title');
+  var id = document.getElementById('event-id').value;
+  if (!id) {
+    modalTitle.textContent = isInit ? 'Add Initiative' : 'Add Event';
+  }
+}
+
+document.getElementById('type-btn-event').addEventListener('click', function() { setType('event'); });
+document.getElementById('type-btn-initiative').addEventListener('click', function() { setType('initiative'); });
+
 function openModal(eventId) {
   var overlay = document.getElementById('modal-overlay');
   var title = document.getElementById('modal-title');
@@ -908,24 +1033,30 @@ function openModal(eventId) {
   if (eventId) {
     var e = allEvents.find(function (ev) { return ev.id === eventId; });
     if (!e) return;
-    title.textContent = 'Edit Event';
+    var type = e.type || 'event';
+    setType(type);
+    title.textContent = type === 'initiative' ? 'Edit Initiative' : 'Edit Event';
     document.getElementById('event-id').value = e.id;
     document.getElementById('event-name').value = e.name || '';
     document.getElementById('event-description').value = e.description || '';
     document.getElementById('event-date').value = e.date || '';
+    document.getElementById('event-end-date').value = e.endDate || '';
     document.getElementById('event-from-time').value = e.fromTime || '';
     document.getElementById('event-to-time').value = e.toTime || '';
+    document.getElementById('event-schedule').value = e.schedule || '';
     document.getElementById('event-category').value = e.category || '';
     document.getElementById('event-cost').value = e.cost || '';
     document.getElementById('event-rsvp').value = e.rsvpUrl || '';
   } else {
-    title.textContent = 'Add Event';
+    setType('event');
     document.getElementById('event-id').value = '';
     document.getElementById('event-name').value = '';
     document.getElementById('event-description').value = '';
     document.getElementById('event-date').value = '';
+    document.getElementById('event-end-date').value = '';
     document.getElementById('event-from-time').value = '';
     document.getElementById('event-to-time').value = '';
+    document.getElementById('event-schedule').value = '';
     document.getElementById('event-category').value = '';
     document.getElementById('event-cost').value = '';
     document.getElementById('event-rsvp').value = '';
@@ -938,10 +1069,6 @@ function closeModal() {
   document.getElementById('modal-overlay').classList.remove('show');
 }
 
-// Event delegation for dynamically-rendered Edit/Delete buttons.
-// Using addEventListener with data attributes instead of inline onclick="..."
-// avoids any risk of malformed inline JS strings (e.g. from special
-// characters in IDs), which is safer across all browsers including Safari.
 document.getElementById('events-list').addEventListener('click', handleEventListClick);
 document.getElementById('past-events-list').addEventListener('click', handleEventListClick);
 
@@ -958,8 +1085,9 @@ function handleEventListClick(evt) {
 }
 
 function clearFieldErrors() {
-  ['name', 'description', 'date', 'from-time'].forEach(function (f) {
-    document.getElementById('err-' + f).classList.remove('show');
+  ['name', 'description', 'date', 'end-date', 'from-time', 'schedule'].forEach(function (f) {
+    var el = document.getElementById('err-' + f);
+    if (el) el.classList.remove('show');
   });
 }
 
@@ -971,11 +1099,14 @@ document.getElementById('btn-save-event').addEventListener('click', function () 
   clearFieldErrors();
 
   var id = document.getElementById('event-id').value;
+  var type = document.getElementById('event-type').value || 'event';
   var name = document.getElementById('event-name').value.trim();
   var description = document.getElementById('event-description').value.trim();
   var date = document.getElementById('event-date').value;
+  var endDate = document.getElementById('event-end-date').value;
   var fromTime = document.getElementById('event-from-time').value.trim();
   var toTime = document.getElementById('event-to-time').value.trim();
+  var schedule = document.getElementById('event-schedule').value.trim();
   var category = document.getElementById('event-category').value;
   var cost = document.getElementById('event-cost').value.trim();
   var rsvpUrl = document.getElementById('event-rsvp').value.trim();
@@ -984,19 +1115,28 @@ document.getElementById('btn-save-event').addEventListener('click', function () 
   if (!name) { document.getElementById('err-name').classList.add('show'); hasError = true; }
   if (!description) { document.getElementById('err-description').classList.add('show'); hasError = true; }
   if (!date) { document.getElementById('err-date').classList.add('show'); hasError = true; }
-  if (!fromTime) { document.getElementById('err-from-time').classList.add('show'); hasError = true; }
+  if (type === 'event' && !fromTime) { document.getElementById('err-from-time').classList.add('show'); hasError = true; }
+  if (type === 'initiative' && !endDate) { document.getElementById('err-end-date').classList.add('show'); hasError = true; }
+  if (type === 'initiative' && !schedule) { document.getElementById('err-schedule').classList.add('show'); hasError = true; }
   if (hasError) return;
 
   var eventData = {
+    type: type,
     name: name,
     description: description,
     date: date,
-    fromTime: fromTime,
-    toTime: toTime,
     category: category,
     cost: cost,
     rsvpUrl: rsvpUrl
   };
+
+  if (type === 'event') {
+    eventData.fromTime = fromTime;
+    eventData.toTime = toTime;
+  } else {
+    eventData.endDate = endDate;
+    eventData.schedule = schedule;
+  }
 
   var btn = document.getElementById('btn-save-event');
   var origHTML = btn.innerHTML;
@@ -1015,10 +1155,12 @@ document.getElementById('btn-save-event').addEventListener('click', function () 
     savePromise = fb.addDoc(fb.collection(fb.db, fb.EVENTS_COLLECTION), eventData);
   }
 
+  var label = type === 'initiative' ? 'Initiative' : 'Event';
+
   savePromise
     .then(function () {
       closeModal();
-      showStatus('Event saved successfully.', 'success');
+      showStatus(label + ' saved successfully.', 'success');
       loadEvents();
     })
     .catch(function (err) {

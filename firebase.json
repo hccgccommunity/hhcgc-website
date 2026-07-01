@@ -18,6 +18,12 @@
           }
         ]
       }
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/event-page.html"
+      }
     ]
   }
 }

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Upcoming Events | Hindu Community Center Greater Cincinnati</title>
+    <title>Upcoming Events &amp; Initiatives | Hindu Community Center Greater Cincinnati</title>
     <meta name="description" content="Upcoming events, programs, and gatherings at the Hindu Community Center of Greater Cincinnati." />
 
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -396,18 +396,30 @@
         <section class="page-hero">
             <div class="container">
                 <span class="section-kicker">Stay Connected</span>
-                <h1>Upcoming Events</h1>
-                <p>Join us for cultural programs, community gatherings, and celebrations throughout the year. Check back often — new events are added regularly.</p>
+                <h1>Upcoming Events &amp; Initiatives</h1>
+                <p>Join us for cultural programs, community gatherings, and ongoing initiatives throughout the year. Check back often — new events are added regularly.</p>
             </div>
         </section>
 
         <section class="section">
             <div class="container">
-                <div id="events-container">
+                <!-- Events section -->
+                <div id="events-section">
                     <div class="loading-state">
                         <div class="spinner"></div>
                         Loading upcoming events&hellip;
                     </div>
+                </div>
+
+                <!-- Initiatives section — shown below events -->
+                <div id="initiatives-section" style="display:none; margin-top:3rem;">
+                    <div style="display:flex; align-items:center; gap:16px; margin-bottom:1.5rem;">
+                        <div style="flex:1; height:1px; background:var(--border);"></div>
+                        <h2 style="font-family:Georgia,'Times New Roman',serif; font-size:1.6rem; color:var(--maroon); white-space:nowrap;">Ongoing Initiatives</h2>
+                        <div style="flex:1; height:1px; background:var(--border);"></div>
+                    </div>
+                    <p style="color:var(--muted); font-size:0.9rem; margin-bottom:1.5rem; text-align:center;">Recurring programs running over multiple weeks.</p>
+                    <div id="initiatives-container"></div>
                 </div>
             </div>
         </section>
@@ -462,7 +474,9 @@
                 .replace(/"/g, '&quot;');
         }
 
-        function isPast(dateStr) {
+        function isPast(e) {
+            // For initiatives, use endDate; for events, use date.
+            const dateStr = (e.type === 'initiative' && e.endDate) ? e.endDate : (e.date || '');
             if (!dateStr || dateStr.length !== 10) return false;
             const today = new Date();
             const yyyy = today.getFullYear();
@@ -484,42 +498,85 @@
             return fromTime + ' onward';
         }
 
-        function renderEvents(events) {
-            const container = document.getElementById('events-container');
-            const upcoming = events.filter(e => !isPast(e.date));
+        function buildEventCard(e) {
+            const rsvpBtn = e.rsvpUrl
+                ? '<a class="btn btn-primary" href="' + escHtml(e.rsvpUrl) + '" target="_blank" rel="noopener noreferrer">RSVP Now</a>'
+                : '<p style="font-size:0.85rem; color:var(--saffron-dark); font-weight:600; margin-top:4px;">Registrations will open soon!</p>';
 
-            if (upcoming.length === 0) {
-                container.innerHTML =
+            return '<article class="event-card">' +
+                '<span class="event-date-badge">' +
+                    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' +
+                    formatDate(e.date) +
+                '</span>' +
+                '<h3>' + escHtml(e.name) + '</h3>' +
+                '<div class="event-meta">' +
+                    '<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>' +
+                    escHtml(formatTimeRange(e.fromTime, e.toTime)) + '</span>' +
+                '</div>' +
+                '<div class="event-badges">' +
+                    (e.category ? '<span class="event-category-badge">' + escHtml(e.category) + '</span>' : '') +
+                    (e.cost ? '<span class="event-cost-badge">' + escHtml(e.cost) + '</span>' : '') +
+                '</div>' +
+                '<p class="event-desc">' + escHtml(e.description) + '</p>' +
+                rsvpBtn +
+            '</article>';
+        }
+
+        function buildInitiativeCard(e) {
+            const dateRange = formatDate(e.date) +
+                (e.endDate ? ' \u2013 ' + formatDate(e.endDate) : '');
+
+            const rsvpBtn = e.rsvpUrl
+                ? '<a class="btn btn-primary" href="' + escHtml(e.rsvpUrl) + '" target="_blank" rel="noopener noreferrer">Register Now</a>'
+                : '<p style="font-size:0.85rem; color:var(--saffron-dark); font-weight:600; margin-top:4px;">Registrations will open soon!</p>';
+
+            return '<article class="event-card">' +
+                '<span class="event-date-badge" style="background:linear-gradient(135deg,#4e1a09,#7f2e16)">' +
+                    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>' +
+                    'Initiative' +
+                '</span>' +
+                '<h3>' + escHtml(e.name) + '</h3>' +
+                '<div class="event-meta">' +
+                    '<span>&#128197; ' + dateRange + '</span>' +
+                '</div>' +
+                (e.schedule ? '<div class="event-meta" style="margin-top:-6px;"><span>&#128340; ' + escHtml(e.schedule) + '</span></div>' : '') +
+                '<div class="event-badges">' +
+                    (e.cost ? '<span class="event-cost-badge">' + escHtml(e.cost) + '</span>' : '') +
+                '</div>' +
+                '<p class="event-desc">' + escHtml(e.description) + '</p>' +
+                rsvpBtn +
+            '</article>';
+        }
+
+        function renderAll(records) {
+            const upcoming = records.filter(e => !isPast(e));
+
+            const events = upcoming.filter(e => (e.type || 'event') === 'event')
+                .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+            const initiatives = upcoming.filter(e => e.type === 'initiative')
+                .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+
+            // Render events
+            const evtSection = document.getElementById('events-section');
+            if (events.length === 0) {
+                evtSection.innerHTML =
                     '<div class="empty-state">' +
                         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' +
                         '<p>No upcoming events at the moment. Please check back soon!</p>' +
                     '</div>';
-                return;
+            } else {
+                evtSection.innerHTML = '<div class="events-grid">' + events.map(buildEventCard).join('') + '</div>';
             }
 
-            let html = '<div class="events-grid">';
-            upcoming.forEach(e => {
-                html +=
-                    '<article class="event-card">' +
-                        '<span class="event-date-badge">' +
-                            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' +
-                            formatDate(e.date) +
-                        '</span>' +
-                        '<h3>' + escHtml(e.name) + '</h3>' +
-                        '<div class="event-meta">' +
-                            '<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>' +
-                            escHtml(formatTimeRange(e.fromTime, e.toTime)) + '</span>' +
-                        '</div>' +
-                        '<div class="event-badges">' +
-                            (e.category ? '<span class="event-category-badge">' + escHtml(e.category) + '</span>' : '') +
-                            (e.cost ? '<span class="event-cost-badge">' + escHtml(e.cost) + '</span>' : '') +
-                        '</div>' +
-                        '<p class="event-desc">' + escHtml(e.description) + '</p>' +
-                        (e.rsvpUrl ? '<a class="btn btn-primary" href="' + escHtml(e.rsvpUrl) + '" target="_blank" rel="noopener noreferrer">RSVP Now</a>' : '') +
-                    '</article>';
-            });
-            html += '</div>';
-            container.innerHTML = html;
+            // Render initiatives
+            const initSection = document.getElementById('initiatives-section');
+            if (initiatives.length > 0) {
+                initSection.style.display = 'block';
+                document.getElementById('initiatives-container').innerHTML =
+                    '<div class="events-grid">' + initiatives.map(buildInitiativeCard).join('') + '</div>';
+            } else {
+                initSection.style.display = 'none';
+            }
         }
 
         // Fetch events and render — all in one module, no cross-script coordination needed.
@@ -531,513 +588,7 @@
                 data.id = docSnap.id;
                 events.push(data);
             });
-            renderEvents(events);
-        } catch (err) {
-            console.error(err);
-            document.getElementById('events-container').innerHTML =
-                '<div class="empty-state"><p>We couldn\'t load events right now. Please try again later.</p></div>';
-        }
-    </script>
-</body>
-</html>
-        * { box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            color: var(--text);
-            background:
-                radial-gradient(circle at top left, rgba(217, 138, 30, 0.12), transparent 22%),
-                radial-gradient(circle at top right, rgba(127, 46, 22, 0.05), transparent 20%),
-                var(--bg);
-            line-height: 1.65;
-        }
-
-        img { max-width: 100%; display: block; }
-        a { color: inherit; text-decoration: none; }
-        button, input, select, textarea { font: inherit; }
-
-        .container {
-            width: min(calc(100% - 32px), var(--max));
-            margin: 0 auto;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            border: none;
-            cursor: pointer;
-            padding: 13px 20px;
-            border-radius: 999px;
-            font-weight: 700;
-            transition: transform 0.18s ease, box-shadow 0.18s ease;
-            white-space: nowrap;
-        }
-
-        .btn:hover { transform: translateY(-1px); }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--saffron), #d17621);
-            color: #fff;
-            box-shadow: 0 10px 24px rgba(181, 90, 24, 0.20);
-        }
-
-        .btn-outline {
-            background: #fff;
-            color: var(--saffron-dark);
-            border: 1px solid rgba(181, 90, 24, 0.18);
-        }
-
-        /* Page hero */
-        .page-hero {
-            padding: 56px 0 36px;
-            text-align: center;
-        }
-
-        .section-kicker {
-            display: inline-block;
-            padding: 7px 14px;
-            border-radius: 999px;
-            background: rgba(217, 138, 30, 0.12);
-            color: var(--saffron-dark);
-            font-size: 0.83rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 10px;
-        }
-
-        .page-hero h1 {
-            margin: 8px 0 14px;
-            line-height: 1.15;
-            color: var(--maroon);
-            font-family: Georgia, "Times New Roman", serif;
-            font-size: clamp(2rem, 3.6vw, 3rem);
-        }
-
-        .page-hero p {
-            margin: 0 auto;
-            max-width: 620px;
-            color: var(--muted);
-            font-size: 1.05rem;
-        }
-
-        /* Events grid */
-        .section { padding: 24px 0 64px; }
-
-        .events-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 22px;
-            margin-top: 8px;
-        }
-
-        .event-card {
-            background: rgba(255, 255, 255, 0.55);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            border-radius: var(--radius);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10), inset 0 1px 1px rgba(255, 255, 255, 0.4);
-            padding: 26px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            transition: transform 0.18s ease, box-shadow 0.18s ease;
-        }
-
-        .event-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 14px 36px rgba(93, 43, 14, 0.16);
-        }
-
-        .event-date-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            align-self: flex-start;
-            background: linear-gradient(135deg, var(--maroon), #5a1e0a);
-            color: #fff;
-            padding: 7px 14px;
-            border-radius: 999px;
-            font-size: 0.82rem;
-            font-weight: 700;
-            letter-spacing: 0.02em;
-        }
-
-        .event-badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .event-category-badge {
-            display: inline-block;
-            background: rgba(217, 138, 30, 0.14);
-            color: var(--saffron-dark);
-            padding: 5px 12px;
-            border-radius: 999px;
-            font-size: 0.76rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-
-        .event-cost-badge {
-            display: inline-block;
-            background: var(--surface-soft);
-            color: var(--maroon);
-            border: 1px solid var(--border);
-            padding: 5px 12px;
-            border-radius: 999px;
-            font-size: 0.78rem;
-            font-weight: 700;
-        }
-
-        .event-card h3 {
-            margin: 0;
-            color: var(--maroon);
-            font-family: Georgia, "Times New Roman", serif;
-            font-size: 1.3rem;
-            line-height: 1.3;
-        }
-
-        .event-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 14px;
-            font-size: 0.88rem;
-            color: var(--saffron-dark);
-            font-weight: 700;
-        }
-
-        .event-meta span {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .event-meta svg { width: 15px; height: 15px; flex-shrink: 0; }
-
-        .event-desc {
-            margin: 0;
-            color: var(--muted);
-            font-size: 0.95rem;
-            line-height: 1.6;
-            flex-grow: 1;
-        }
-
-        .event-card .btn {
-            align-self: flex-start;
-            margin-top: 4px;
-            padding: 10px 22px;
-            font-size: 0.9rem;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--muted);
-        }
-
-        .empty-state svg {
-            width: 56px;
-            height: 56px;
-            margin: 0 auto 14px;
-            color: var(--saffron-dark);
-            opacity: 0.5;
-        }
-
-        .loading-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--muted);
-            font-size: 0.95rem;
-        }
-
-        .spinner {
-            width: 22px;
-            height: 22px;
-            border: 3px solid rgba(141, 62, 13, 0.18);
-            border-top-color: var(--saffron-dark);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 14px;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        @media (max-width: 640px) {
-            .events-grid { grid-template-columns: 1fr; }
-            .page-hero { padding: 40px 0 28px; }
-        }
-        /* Header partial styling — required by header.html's markup.
-           Copied to match the rest of the site (see khel-sandhya.html etc.)
-           so header.html renders identically on every page. */
-        .site-header {
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            background: rgba(255, 249, 241, 0.92);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 24px;
-            min-height: 92px;
-            padding: 12px 0;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            min-width: 0;
-        }
-
-        .brand-logo-wrap {
-            background: #fff;
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 8px;
-            box-shadow: var(--shadow);
-            flex-shrink: 0;
-        }
-
-        .brand-logo {
-            width: 88px;
-            height: auto;
-            border-radius: 12px;
-            object-fit: contain;
-        }
-
-        .brand-text h1 {
-            margin: 0;
-            font-size: 1.2rem;
-            line-height: 1.15;
-            color: var(--maroon);
-        }
-
-        .site-header nav ul {
-            list-style: none;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 18px;
-            margin: 0;
-            padding: 0;
-            align-items: center;
-            justify-content: flex-end;
-        }
-
-        .site-header nav a {
-            font-weight: 700;
-            color: var(--text);
-            font-size: 0.96rem;
-        }
-
-        .site-header nav a:hover {
-            color: var(--saffron-dark);
-        }
-
-        .menu-toggle {
-            display: none;
-            border: 0;
-            background: transparent;
-            padding: 6px 0;
-            cursor: pointer;
-            color: #2c1b10;
-            align-self: flex-end;
-        }
-
-        .menu-toggle .bar {
-            display: block;
-            width: 26px;
-            height: 2px;
-            margin: 5px 0;
-            background: currentColor;
-        }
-
-        @media (max-width: 768px) {
-            .nav {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 8px;
-            }
-
-            .menu-toggle {
-                display: inline-block;
-            }
-
-            .site-header nav {
-                display: none;
-                width: 100%;
-                background: rgba(255, 249, 241, 0.95);
-                padding: 10px 0;
-            }
-
-            .site-header nav.is-open {
-                display: block;
-            }
-
-            .site-header nav ul {
-                flex-direction: column;
-                gap: 14px;
-            }
-        }
-    </style>
-</head>
-<body>
-
-    <div id="header-placeholder"></div>
-
-    <main>
-        <section class="page-hero">
-            <div class="container">
-                <span class="section-kicker">Stay Connected</span>
-                <h1>Upcoming Events</h1>
-                <p>Join us for cultural programs, community gatherings, and celebrations throughout the year. Check back often — new events are added regularly.</p>
-            </div>
-        </section>
-
-        <section class="section">
-            <div class="container">
-                <div id="events-container">
-                    <div class="loading-state">
-                        <div class="spinner"></div>
-                        Loading upcoming events&hellip;
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <div id="footer-placeholder"></div>
-
-
-
-    <!-- Single self-contained module: loads Firebase and renders events directly.
-         No polling, no window.__hccgc, no timing dependency between scripts. -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyA6IzLjWTg7Rq04HsTH-iA3eDmSzKI7xME",
-            authDomain: "hccgc-a7a54.firebaseapp.com",
-            projectId: "hccgc-a7a54",
-            storageBucket: "hccgc-a7a54.firebasestorage.app",
-            messagingSenderId: "75757201418",
-            appId: "1:75757201418:web:c31e9361921242145717f3",
-            measurementId: "G-F9K6GVD5CS"
-        };
-
-        const fbApp = initializeApp(firebaseConfig);
-        const db = getFirestore(fbApp);
-
-        // Load header/footer in background — failure never blocks event loading.
-        async function loadPartial(id, file) {
-            const target = document.getElementById(id);
-            if (!target) return;
-            try {
-                const r = await fetch(file);
-                if (!r.ok) throw new Error("Unable to load " + file);
-                target.innerHTML = await r.text();
-            } catch (e) {
-                console.error(e);
-            }
-        }
-        loadPartial("header-placeholder", "/header.html");
-        loadPartial("footer-placeholder", "/footer.html");
-
-        const year = document.getElementById("year");
-        if (year) year.textContent = new Date().getFullYear();
-
-        function escHtml(str) {
-            return String(str || '')
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;');
-        }
-
-        function isPast(dateStr) {
-            if (!dateStr || dateStr.length !== 10) return false;
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const dd = String(today.getDate()).padStart(2, '0');
-            return dateStr < `${yyyy}-${mm}-${dd}`;
-        }
-
-        function formatDate(dateStr) {
-            const parts = dateStr.split('-');
-            if (parts.length !== 3) return dateStr;
-            const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
-            if (isNaN(d.getTime())) return dateStr;
-            return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-        }
-
-        function formatTimeRange(fromTime, toTime) {
-            if (toTime && toTime.trim() !== '') return fromTime + ' \u2013 ' + toTime;
-            return fromTime + ' onward';
-        }
-
-        function renderEvents(events) {
-            const container = document.getElementById('events-container');
-            const upcoming = events.filter(e => !isPast(e.date));
-
-            if (upcoming.length === 0) {
-                container.innerHTML =
-                    '<div class="empty-state">' +
-                        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' +
-                        '<p>No upcoming events at the moment. Please check back soon!</p>' +
-                    '</div>';
-                return;
-            }
-
-            let html = '<div class="events-grid">';
-            upcoming.forEach(e => {
-                html +=
-                    '<article class="event-card">' +
-                        '<span class="event-date-badge">' +
-                            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' +
-                            formatDate(e.date) +
-                        '</span>' +
-                        '<h3>' + escHtml(e.name) + '</h3>' +
-                        '<div class="event-meta">' +
-                            '<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>' +
-                            escHtml(formatTimeRange(e.fromTime, e.toTime)) + '</span>' +
-                        '</div>' +
-                        '<div class="event-badges">' +
-                            (e.category ? '<span class="event-category-badge">' + escHtml(e.category) + '</span>' : '') +
-                            (e.cost ? '<span class="event-cost-badge">' + escHtml(e.cost) + '</span>' : '') +
-                        '</div>' +
-                        '<p class="event-desc">' + escHtml(e.description) + '</p>' +
-                        (e.rsvpUrl ? '<a class="btn btn-primary" href="' + escHtml(e.rsvpUrl) + '" target="_blank" rel="noopener noreferrer">RSVP Now</a>' : '') +
-                    '</article>';
-            });
-            html += '</div>';
-            container.innerHTML = html;
-        }
-
-        // Fetch events and render — all in one module, no cross-script coordination needed.
-        try {
-            const snapshot = await getDocs(collection(db, "events"));
-            const events = [];
-            snapshot.forEach(docSnap => {
-                const data = docSnap.data();
-                data.id = docSnap.id;
-                events.push(data);
-            });
-            renderEvents(events);
+            renderAll(events);
         } catch (err) {
             console.error(err);
             document.getElementById('events-container').innerHTML =

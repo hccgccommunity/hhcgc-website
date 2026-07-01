@@ -4,12 +4,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>User Management – HCCGC Admin Portal</title>
+<title>Manage Events – HCCGC</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' x='50%25' text-anchor='middle' font-size='82'%3E%E0%A5%90%3C/text%3E%3C/svg%3E">
 
+<!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F5ZHQ4CDR9');</script>
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-TPBF5VKB');</script>
@@ -41,9 +43,329 @@ body {
   min-height: 100vh;
 }
 
-.container { width: min(calc(100% - 32px), 1000px); margin: 0 auto; }
+.container { width: min(calc(100% - 32px), 1220px); margin: 0 auto; }
 
-/* Header partial styling — required by header.html's markup. */
+.page-hero {
+  background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%);
+  color: #fff;
+  padding: 48px 0 42px;
+  text-align: center;
+}
+.page-hero h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 2rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+.page-hero p {
+  font-size: 0.95rem;
+  opacity: 0.85;
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.65;
+}
+.hero-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 0.72rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  font-weight: 700;
+}
+
+#gate { padding: 60px 16px; display: flex; justify-content: center; }
+.gate-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2.5rem 2rem;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.gate-card h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.4rem;
+  color: var(--maroon);
+  margin-bottom: 0.5rem;
+}
+.gate-card > p { color: var(--muted); font-size: 0.88rem; line-height: 1.65; margin-bottom: 1.75rem; }
+
+.btn-google {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 0.72rem 1rem; background: #fff;
+  border: 1.5px solid var(--border); border-radius: 10px;
+  font-size: 0.95rem; font-weight: 600; color: #3c4043;
+  cursor: pointer; transition: background 0.15s, box-shadow 0.15s;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.btn-google:hover { background: #f8f9fa; box-shadow: 0 1px 8px rgba(0,0,0,0.13); }
+.btn-google:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.gate-note { margin-top: 1.2rem; font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+.gate-note a { color: var(--saffron-dark); text-decoration: none; }
+.gate-note a:hover { text-decoration: underline; }
+
+#signin-error {
+  display: none;
+  color: #c0392b;
+  background: #fdecea;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  margin-top: 1rem;
+  text-align: left;
+}
+
+#app { display: none; }
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 2rem 0 1.5rem;
+}
+.toolbar-left h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.5rem;
+  color: var(--maroon);
+}
+.toolbar-left p { font-size: 0.86rem; color: var(--muted); margin-top: 4px; }
+
+.user-chip {
+  display: flex; align-items: center; gap: 10px;
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 999px; padding: 6px 14px 6px 6px;
+}
+.user-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--maroon); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; font-weight: 700; flex-shrink: 0;
+  overflow: hidden;
+}
+.user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.user-name { font-size: 0.82rem; font-weight: 700; }
+.btn-signout {
+  background: none; border: none; font-size: 0.72rem; color: var(--muted);
+  cursor: pointer; padding: 2px 4px; font-family: Arial, Helvetica, sans-serif;
+}
+.btn-signout:hover { color: var(--maroon); }
+
+.btn-add {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 0.7rem 1.4rem; background: var(--maroon); color: #fff;
+  border: none; border-radius: 999px; font-size: 0.9rem; font-weight: 700;
+  cursor: pointer; font-family: Arial, Helvetica, sans-serif;
+  transition: background 0.15s, transform 0.1s;
+}
+.btn-add:hover { background: #5a1e0a; }
+.btn-add:active { transform: scale(0.98); }
+
+.status-bar {
+  display: none; align-items: center; gap: 10px;
+  padding: 0.75rem 1.1rem; border-radius: 12px;
+  font-size: 0.86rem; font-weight: 600; margin-bottom: 1.25rem;
+}
+.status-bar.show { display: flex; }
+.status-bar.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+.status-bar.error { background: #fdecea; color: #c0392b; border: 1px solid #f5c6cb; }
+.status-bar.info { background: var(--surface-soft); color: var(--saffron-dark); border: 1px solid var(--border); }
+
+.events-list { display: flex; flex-direction: column; gap: 14px; margin-bottom: 1.5rem; }
+
+.event-row {
+  background: #fff; border: 1px solid var(--border); border-radius: 16px;
+  padding: 1.25rem 1.5rem; display: grid; grid-template-columns: 1fr auto;
+  gap: 16px; align-items: start; box-shadow: 0 4px 16px rgba(93,43,14,0.05);
+}
+.event-row.is-past { opacity: 0.6; background: var(--surface-soft); }
+
+.past-badge {
+  display: inline-block; background: rgba(108,108,108,0.12); color: #6a5141;
+  border: 1px solid var(--border); padding: 3px 10px; border-radius: 999px;
+  font-size: 0.7rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.04em; margin-left: 8px;
+}
+
+.event-row-main h4 {
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--maroon); font-size: 1.15rem; margin-bottom: 6px;
+}
+.event-row-meta {
+  display: flex; flex-wrap: wrap; gap: 12px; font-size: 0.82rem;
+  color: var(--saffron-dark); font-weight: 700; margin-bottom: 8px;
+}
+.event-row-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.55; margin-bottom: 6px; }
+.event-row-link { font-size: 0.8rem; color: var(--muted); word-break: break-all; }
+.event-row-link a { color: var(--saffron-dark); }
+.event-row-created {
+  font-size: 0.74rem; color: var(--muted); opacity: 0.8; margin-top: 6px;
+  border-top: 1px dashed var(--border); padding-top: 6px;
+}
+
+.event-row-actions { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+
+.btn-icon {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 0.45rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: #fff; font-size: 0.78rem; font-weight: 600; color: var(--muted);
+  cursor: pointer; font-family: Arial, Helvetica, sans-serif;
+  transition: all 0.12s; white-space: nowrap;
+}
+.btn-icon:hover { border-color: var(--saffron); color: var(--saffron-dark); }
+.btn-icon.danger:hover { border-color: #c0392b; color: #c0392b; }
+
+.empty-state {
+  text-align: center; padding: 50px 20px; color: var(--muted);
+  background: #fff; border: 1px dashed var(--border); border-radius: 16px;
+}
+
+.section-divider {
+  display: flex; align-items: center; gap: 10px; margin: 2rem 0 1rem;
+  cursor: pointer; user-select: none;
+}
+.section-divider .line { flex: 1; height: 1px; background: var(--border); }
+.section-divider span.label {
+  font-size: 0.8rem; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap;
+}
+.section-divider .chevron { transition: transform 0.15s; color: var(--muted); }
+.section-divider.collapsed .chevron { transform: rotate(-90deg); }
+.past-events-list { display: flex; flex-direction: column; gap: 14px; }
+.past-events-list.collapsed { display: none; }
+
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(44,27,16,0.45);
+  z-index: 200; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.show { display: flex; }
+.modal-card {
+  background: #fff; border-radius: 18px; max-width: 540px; width: 100%;
+  max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow);
+}
+.modal-header {
+  padding: 1.4rem 1.6rem; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-header h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--maroon); font-size: 1.2rem;
+}
+.modal-close {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 1.3rem; line-height: 1; padding: 4px;
+}
+.modal-close:hover { color: var(--maroon); }
+.modal-body { padding: 1.5rem 1.6rem; }
+
+.form-group { margin-bottom: 1.1rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+label { display: block; font-size: 0.82rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+
+input[type="text"], input[type="date"], input[type="time"], select, textarea {
+  width: 100%; padding: 0.6rem 0.85rem;
+  border: 1.5px solid var(--border); border-radius: 10px;
+  font-size: 0.9rem; font-family: Arial, Helvetica, sans-serif;
+  background: #fff; color: var(--text);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+input:focus, textarea:focus, select:focus {
+  outline: none; border-color: var(--saffron);
+  box-shadow: 0 0 0 3px rgba(181,90,24,0.14);
+}
+textarea { resize: vertical; }
+
+.type-toggle {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.type-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0.65rem 0.8rem;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: Arial, Helvetica, sans-serif;
+  transition: all 0.12s;
+  text-align: center;
+}
+.type-btn:hover { border-color: var(--saffron); color: var(--saffron-dark); }
+.type-btn.active { background: var(--maroon); border-color: var(--maroon); color: #fff; }
+.type-btn.active svg { filter: brightness(10); }
+
+.initiative-badge {
+  display: inline-block;
+  background: rgba(127,46,22,0.1);
+  color: var(--maroon);
+  border: 1px solid rgba(127,46,22,0.2);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-left: 8px;
+}
+
+.field-error { font-size: 0.76rem; color: #c0392b; margin-top: 4px; display: none; }
+.field-error.show { display: block; }
+
+.modal-footer {
+  padding: 1.2rem 1.6rem 1.5rem; display: flex; justify-content: flex-end;
+  gap: 10px; border-top: 1px solid var(--border);
+}
+
+.btn-secondary {
+  padding: 0.65rem 1.3rem; border-radius: 10px; border: 1.5px solid var(--border);
+  background: #fff; color: var(--muted); font-weight: 700; font-size: 0.88rem;
+  cursor: pointer; font-family: Arial, Helvetica, sans-serif;
+}
+.btn-secondary:hover { border-color: var(--saffron); color: var(--saffron-dark); }
+
+.btn-save {
+  padding: 0.65rem 1.5rem; border-radius: 10px; border: none;
+  background: var(--maroon); color: #fff; font-weight: 700; font-size: 0.88rem;
+  cursor: pointer; font-family: Arial, Helvetica, sans-serif;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-save:hover { background: #5a1e0a; }
+.btn-save:disabled { background: #b8907e; cursor: not-allowed; }
+
+.spinner {
+  width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite;
+  display: inline-block; flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 640px) {
+  .event-row { grid-template-columns: 1fr; }
+  .event-row-actions { flex-direction: row; }
+  .form-row { grid-template-columns: 1fr; }
+  .toolbar { flex-direction: column; align-items: stretch; }
+}
+/* Header partial styling — required by header.html's markup.
+   Copied to match the rest of the site so header.html renders
+   identically here as it does everywhere else. */
 .site-header {
     position: sticky;
     top: 0;
@@ -52,6 +374,7 @@ body {
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border);
 }
+
 .nav {
     display: flex;
     align-items: center;
@@ -60,13 +383,20 @@ body {
     min-height: 92px;
     padding: 12px 0;
 }
+
 .site-header a.brand,
 .site-header a.brand:link,
 .site-header a.brand:visited {
-  text-decoration: none;
-  color: inherit;
+    text-decoration: none;
+    color: inherit;
 }
-.brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+}
+
 .brand-logo-wrap {
     background: #fff;
     border: 1px solid var(--border);
@@ -75,8 +405,21 @@ body {
     box-shadow: var(--shadow);
     flex-shrink: 0;
 }
-.brand-logo { width: 88px; height: auto; border-radius: 12px; object-fit: contain; }
-.brand-text h1 { margin: 0; font-size: 1.2rem; line-height: 1.15; color: var(--maroon); }
+
+.brand-logo {
+    width: 88px;
+    height: auto;
+    border-radius: 12px;
+    object-fit: contain;
+}
+
+.brand-text h1 {
+    margin: 0;
+    font-size: 1.2rem;
+    line-height: 1.15;
+    color: var(--maroon);
+}
+
 .site-header nav ul {
     list-style: none;
     display: flex;
@@ -87,10 +430,20 @@ body {
     align-items: center;
     justify-content: flex-end;
 }
+
 .site-header nav a,
 .site-header nav a:link,
-.site-header nav a:visited { font-weight: 700; color: var(--text); font-size: 0.96rem; text-decoration: none; }
-.site-header nav a:hover { color: var(--saffron-dark); }
+.site-header nav a:visited {
+    font-weight: 700;
+    color: var(--text);
+    font-size: 0.96rem;
+    text-decoration: none;
+}
+
+.site-header nav a:hover {
+    color: var(--saffron-dark);
+}
+
 .menu-toggle {
     display: none;
     border: 0;
@@ -100,148 +453,41 @@ body {
     color: #2c1b10;
     align-self: flex-end;
 }
-.menu-toggle .bar { display: block; width: 26px; height: 2px; margin: 5px 0; background: currentColor; }
+
+.menu-toggle .bar {
+    display: block;
+    width: 26px;
+    height: 2px;
+    margin: 5px 0;
+    background: currentColor;
+}
+
 @media (max-width: 768px) {
-    .nav { flex-direction: column; align-items: stretch; gap: 8px; }
-    .menu-toggle { display: inline-block; }
+    .nav {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .menu-toggle {
+        display: inline-block;
+    }
+
     .site-header nav {
         display: none;
         width: 100%;
         background: rgba(255, 249, 241, 0.95);
         padding: 10px 0;
     }
-    .site-header nav.is-open { display: block; }
-    .site-header nav ul { flex-direction: column; gap: 14px; }
-}
 
-.back-link-row {
-  padding: 16px 0 0;
-  font-size: 0.82rem;
-}
-.back-link-row a { color: var(--saffron-dark); text-decoration: none; }
-.back-link-row a:hover { text-decoration: underline; }
+    .site-header nav.is-open {
+        display: block;
+    }
 
-#gate { padding: 60px 16px; display: flex; justify-content: center; }
-.gate-card {
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 2.5rem 2rem; max-width: 420px; width: 100%; text-align: center; box-shadow: var(--shadow);
-}
-.gate-card h3 { font-family: Georgia, serif; font-size: 1.3rem; color: var(--maroon); margin-bottom: 0.5rem; }
-.gate-card p { color: var(--muted); font-size: 0.88rem; line-height: 1.6; }
-.gate-card a { color: var(--saffron-dark); }
-
-#app { display: none; }
-
-.page-header { padding: 40px 0 20px; }
-.page-header h1 { font-family: Georgia, "Times New Roman", serif; font-size: 1.8rem; color: var(--maroon); margin-bottom: 8px; }
-.page-header p { color: var(--muted); font-size: 0.9rem; }
-
-.status-bar {
-  display: none; align-items: center; gap: 10px;
-  padding: 0.75rem 1.1rem; border-radius: 12px;
-  font-size: 0.86rem; font-weight: 600; margin: 0 0 1.25rem;
-}
-.status-bar.show { display: flex; }
-.status-bar.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
-.status-bar.error { background: #fdecea; color: #c0392b; border: 1px solid #f5c6cb; }
-
-.btn-add {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 0.7rem 1.4rem; background: var(--maroon); color: #fff;
-  border: none; border-radius: 999px; font-size: 0.9rem; font-weight: 700;
-  cursor: pointer; font-family: Arial, Helvetica, sans-serif; margin-bottom: 1.5rem;
-}
-.btn-add:hover { background: #5a1e0a; }
-
-.user-table { display: flex; flex-direction: column; gap: 12px; padding-bottom: 60px; }
-
-.user-row {
-  background: #fff; border: 1px solid var(--border); border-radius: 14px;
-  padding: 1.1rem 1.4rem; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
-}
-
-.user-avatar-sm {
-  width: 38px; height: 38px; border-radius: 50%;
-  background: var(--maroon); color: #fff;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.8rem; font-weight: 700; flex-shrink: 0;
-}
-
-.user-info { flex: 1; min-width: 180px; }
-.user-info .name { font-weight: 700; font-size: 0.92rem; }
-.user-info .email { font-size: 0.8rem; color: var(--muted); }
-
-.admin-pill {
-  font-size: 0.68rem; font-weight: 800; text-transform: uppercase;
-  letter-spacing: 0.04em; color: var(--saffron-dark);
-  background: rgba(217,138,30,0.14); padding: 2px 9px; border-radius: 999px; margin-left: 8px;
-}
-
-.app-checkboxes { display: flex; flex-wrap: wrap; gap: 10px; flex: 2; min-width: 220px; }
-
-.app-check {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 0.82rem; color: var(--text);
-  background: var(--surface-soft); border: 1px solid var(--border);
-  padding: 5px 10px; border-radius: 8px; cursor: pointer;
-}
-.app-check input { cursor: pointer; }
-
-.row-actions { display: flex; align-items: center; gap: 8px; }
-.admin-toggle { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--muted); cursor: pointer; }
-
-.btn-icon {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 0.4rem 0.75rem; border: 1px solid var(--border); border-radius: 8px;
-  background: #fff; font-size: 0.76rem; font-weight: 600; color: var(--muted);
-  cursor: pointer; font-family: Arial, Helvetica, sans-serif;
-}
-.btn-icon:hover { border-color: var(--saffron); color: var(--saffron-dark); }
-.btn-icon.danger:hover { border-color: #c0392b; color: #c0392b; }
-.btn-icon:disabled { opacity: 0.4; cursor: not-allowed; }
-
-.empty-state {
-  text-align: center; padding: 50px 20px; color: var(--muted);
-  background: #fff; border: 1px dashed var(--border); border-radius: 16px;
-}
-
-.modal-overlay {
-  display: none; position: fixed; inset: 0; background: rgba(44,27,16,0.45);
-  z-index: 200; align-items: center; justify-content: center; padding: 20px;
-}
-.modal-overlay.show { display: flex; }
-.modal-card { background: #fff; border-radius: 18px; max-width: 460px; width: 100%; box-shadow: var(--shadow); }
-.modal-header {
-  padding: 1.4rem 1.6rem; border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-}
-.modal-header h3 { font-family: Georgia, serif; color: var(--maroon); font-size: 1.15rem; }
-.modal-close { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 1.3rem; }
-.modal-body { padding: 1.5rem 1.6rem; }
-.form-group { margin-bottom: 1.1rem; }
-label { display: block; font-size: 0.82rem; font-weight: 700; margin-bottom: 0.4rem; }
-input[type="text"], input[type="email"] {
-  width: 100%; padding: 0.6rem 0.85rem; border: 1.5px solid var(--border);
-  border-radius: 10px; font-size: 0.9rem; font-family: Arial, Helvetica, sans-serif;
-}
-input:focus { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 3px rgba(181,90,24,0.14); }
-.modal-footer {
-  padding: 1.2rem 1.6rem 1.5rem; display: flex; justify-content: flex-end;
-  gap: 10px; border-top: 1px solid var(--border);
-}
-.btn-secondary {
-  padding: 0.6rem 1.2rem; border-radius: 10px; border: 1.5px solid var(--border);
-  background: #fff; color: var(--muted); font-weight: 700; font-size: 0.86rem; cursor: pointer;
-}
-.btn-save {
-  padding: 0.6rem 1.4rem; border-radius: 10px; border: none;
-  background: var(--maroon); color: #fff; font-weight: 700; font-size: 0.86rem; cursor: pointer;
-}
-.btn-save:hover { background: #5a1e0a; }
-.field-hint { font-size: 0.76rem; color: var(--muted); margin-top: 4px; }
-
-@media (max-width: 640px) {
-  .user-row { flex-direction: column; align-items: stretch; }
+    .site-header nav ul {
+        flex-direction: column;
+        gap: 14px;
+    }
 }
 </style>
 </head>
@@ -250,34 +496,66 @@ input:focus { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 3px
 
 <div id="site-header"></div>
 
-<div class="container back-link-row">
-  <a href="admin-portal">&larr; Back to apps</a>
+<div class="page-hero">
+  <div class="container">
+    <span class="hero-badge">Internal Tool</span>
+    <h2>Manage Events</h2>
+    <p>Add, edit, and remove events shown on the public Upcoming Events page.</p>
+  </div>
 </div>
 
 <div id="gate">
   <div class="gate-card">
-    <h3>Checking access&hellip;</h3>
-    <p>Please sign in from the <a href="admin-portal">main portal page</a> first.</p>
+    <img src="/hccgc-logo.jpeg" alt="HCCGC Logo" style="width:100px;height:100px;object-fit:contain;border-radius:50%;margin:0 auto 1.25rem;display:block;border:3px solid var(--border);">
+    <h3 id="gate-title">Checking access&hellip;</h3>
+    <p id="gate-message">One moment while we verify your access to this tool.</p>
+    <a class="btn-google" id="btn-go-portal" href="/admin/admin-portal" style="display:none; text-decoration:none;">
+      Go to Admin Portal
+    </a>
   </div>
 </div>
 
 <div id="app">
   <div class="container">
-    <div class="page-header">
-      <h1>User Management</h1>
-      <p>Grant or revoke access to portal apps for HCCGC members.</p>
+
+    <p style="padding:1.25rem 0 0; font-size:0.82rem;">
+      <a href="/admin/admin-portal" style="color:var(--saffron-dark); text-decoration:none;">&larr; Back to apps</a>
+    </p>
+
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <h3>Event List</h3>
+        <p>Changes here update the public Upcoming Events page immediately.</p>
+      </div>
+      <div style="display:flex; align-items:center; gap:14px;">
+        <div class="user-chip">
+          <div class="user-avatar" id="user-avatar">?</div>
+          <span class="user-name" id="user-name">&mdash;</span>
+          <button class="btn-signout" id="btn-signout">Sign out</button>
+        </div>
+        <button class="btn-add" id="btn-add-event">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Event
+        </button>
+      </div>
     </div>
 
     <div class="status-bar" id="status-bar"></div>
 
-    <button class="btn-add" id="btn-add-user">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Add User
-    </button>
-
-    <div class="user-table" id="user-table">
-      <div class="empty-state">Loading users&hellip;</div>
+    <div class="events-list" id="events-list">
+      <div class="empty-state">Loading events&hellip;</div>
     </div>
+
+    <div id="past-events-section" style="display:none;">
+      <div class="section-divider collapsed" id="past-events-toggle">
+        <span class="line"></span>
+        <span class="label" id="past-events-label">Past Events</span>
+        <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        <span class="line"></span>
+      </div>
+      <div class="past-events-list collapsed" id="past-events-list"></div>
+    </div>
+
   </div>
 </div>
 
@@ -286,32 +564,125 @@ input:focus { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 3px
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal-card">
     <div class="modal-header">
-      <h3 id="modal-title">Add User</h3>
+      <h3 id="modal-title">Add Event</h3>
       <button class="modal-close" id="modal-close-btn">&times;</button>
     </div>
     <div class="modal-body">
+      <input type="hidden" id="event-id">
+
+      <!-- Type selector -->
       <div class="form-group">
-        <label for="user-email">Email address *</label>
-        <input type="email" id="user-email" placeholder="name@hccgc.org">
-        <div class="field-hint">Must be an @hccgc.org address. They'll get access the next time they sign in.</div>
+        <label>Type *</label>
+        <div class="type-toggle">
+          <button type="button" class="type-btn active" data-type="event" id="type-btn-event">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="12" cy="16" r="2"/></svg>
+            Event <span style="font-weight:400;font-size:0.75rem;">(single occurrence)</span>
+          </button>
+          <button type="button" class="type-btn" data-type="initiative" id="type-btn-initiative">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+            Initiative <span style="font-weight:400;font-size:0.75rem;">(recurring program)</span>
+          </button>
+        </div>
+        <input type="hidden" id="event-type" value="event">
       </div>
+
       <div class="form-group">
-        <label for="user-name">Name (optional)</label>
-        <input type="text" id="user-name" placeholder="Full name">
+        <label for="event-name" id="label-name">Event Name *</label>
+        <input type="text" id="event-name" placeholder="e.g. Sangeet Sandhya – Summer Edition">
+        <div class="field-error" id="err-name">Please enter a name.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="event-description">Description *</label>
+        <textarea id="event-description" rows="3" placeholder="Brief description"></textarea>
+        <div class="field-error" id="err-description">Please enter a description.</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="event-date" id="label-date">Date *</label>
+          <input type="date" id="event-date">
+          <div class="field-error" id="err-date">Please select a date.</div>
+        </div>
+        <div class="form-group" id="end-date-group" style="display:none;">
+          <label for="event-end-date">End Date *</label>
+          <input type="date" id="event-end-date">
+          <div class="field-error" id="err-end-date">Please select an end date.</div>
+        </div>
+        <div class="form-group" id="category-group">
+          <label for="event-category">Category</label>
+          <select id="event-category">
+            <option value="">None</option>
+            <option value="Cultural">Cultural</option>
+            <option value="Spiritual">Spiritual</option>
+            <option value="Kids">Kids</option>
+            <option value="Wellness">Wellness</option>
+            <option value="Community">Community</option>
+            <option value="Education">Education</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Event-only: from/to time -->
+      <div id="event-time-group">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="event-from-time">From Time *</label>
+            <input type="text" id="event-from-time" placeholder="e.g. 6:30 PM">
+            <div class="field-error" id="err-from-time">Please enter a start time.</div>
+          </div>
+          <div class="form-group">
+            <label for="event-to-time">To Time</label>
+            <input type="text" id="event-to-time" placeholder="e.g. 9:00 PM (optional)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Initiative-only: schedule -->
+      <div id="initiative-schedule-group" style="display:none;">
+        <div class="form-group">
+          <label for="event-schedule">Weekly Schedule *</label>
+          <input type="text" id="event-schedule" placeholder="e.g. Tuesdays 6–7 PM, Thursdays 7–8 PM">
+          <div class="field-error" id="err-schedule">Please enter the schedule.</div>
+          <div style="font-size:0.76rem;color:var(--muted);margin-top:4px;">Describe the recurring days and times in plain text.</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="event-cost">Cost</label>
+          <input type="text" id="event-cost" placeholder="e.g. Free or $5 per person">
+        </div>
+        <div class="form-group">
+          <label for="event-rsvp">RSVP URL</label>
+          <input type="text" id="event-rsvp" placeholder="Leave blank to show 'Registrations will open soon!'">
+        </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" id="modal-cancel-btn">Cancel</button>
-      <button class="btn-save" id="btn-save-user">Add User</button>
+      <button class="btn-save" id="btn-save-event">Save</button>
     </div>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, serverTimestamp
+  getAuth,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  getDoc,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -325,252 +696,103 @@ const firebaseConfig = {
 };
 
 const ALLOWED_DOMAIN = "hccgc.org";
+const REQUIRED_APP_KEY = "manage-events";
 const USERS_COLLECTION = "portalUsers";
+const PORTAL_URL = "/admin/admin-portal";
 
 const fbApp = initializeApp(firebaseConfig);
 const auth = getAuth(fbApp);
 const db = getFirestore(fbApp);
 
-window.__hccgcUM = { auth, db, doc, getDoc, setDoc, deleteDoc, collection, getDocs, serverTimestamp, USERS_COLLECTION };
+const EVENTS_COLLECTION = "events";
 
+window.__hccgc = {
+  auth, db,
+  collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp,
+  EVENTS_COLLECTION, ALLOWED_DOMAIN
+};
+
+function showGateMessage(title, message, showPortalButton) {
+  document.getElementById("gate-title").textContent = title;
+  document.getElementById("gate-message").textContent = message;
+  document.getElementById("btn-go-portal").style.display = showPortalButton ? "flex" : "none";
+}
+
+document.getElementById("btn-signout").addEventListener("click", function () {
+  signOut(auth).then(function () {
+    window.location.href = PORTAL_URL;
+  });
+});
+
+// Authentication is handled centrally by the Admin Portal (admin/admin-portal).
+// This page does NOT show its own sign-in UI — it silently checks whether
+// the person already has a Firebase session (since both pages share the
+// same Firebase project and origin, the session carries over automatically
+// once they've signed in at the portal), then checks Firestore to confirm
+// they've specifically been granted access to this app.
 onAuthStateChanged(auth, function (user) {
+  console.log("[HCCGC AUTH] onAuthStateChanged fired. User:", user ? user.email : null);
+
   if (!user) {
-    document.getElementById('app').style.display = 'none';
-    document.getElementById('gate').style.display = 'flex';
+    showGateMessage(
+      "Sign in required",
+      "Please sign in through the Admin Portal first.",
+      true
+    );
     return;
   }
 
-  var email = (user.email || '').toLowerCase();
-  if (!email.endsWith('@' + ALLOWED_DOMAIN)) {
-    document.getElementById('gate').innerHTML =
-      '<div class="gate-card"><h3>Access denied</h3><p>Please sign in with an @' + ALLOWED_DOMAIN + ' account.</p></div>';
+  var email = (user.email || "").toLowerCase();
+
+  if (!email.endsWith("@" + ALLOWED_DOMAIN)) {
+    showGateMessage(
+      "Access denied",
+      "Please sign in with an @" + ALLOWED_DOMAIN + " account through the Admin Portal.",
+      true
+    );
     return;
   }
 
+  // Check the portal's per-app permission list before showing anything.
   getDoc(doc(db, USERS_COLLECTION, email)).then(function (snap) {
+    var allowedApps = snap.exists() && Array.isArray(snap.data().allowedApps) ? snap.data().allowedApps : [];
     var isAdmin = snap.exists() && !!snap.data().isAdmin;
-    if (!isAdmin) {
-      document.getElementById('gate').innerHTML =
-        '<div class="gate-card"><h3>Admins only</h3><p>You do not have permission to manage users. Contact an existing admin if you believe this is a mistake.</p></div>';
-      document.getElementById('gate').style.display = 'flex';
+
+    if (!isAdmin && allowedApps.indexOf(REQUIRED_APP_KEY) === -1) {
+      showGateMessage(
+        "Access not granted",
+        "You don't have access to Manage Events yet. Ask an admin to grant it from User Management.",
+        true
+      );
       return;
     }
 
-    document.getElementById('gate').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    window.dispatchEvent(new CustomEvent('hccgc-um-ready', { detail: { currentUserEmail: email } }));
+    console.log("[HCCGC AUTH] Access confirmed. Showing app.");
+
+    document.getElementById("gate").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    document.getElementById("user-name").textContent = user.displayName || email;
+
+    var avatarEl = document.getElementById("user-avatar");
+    if (user.photoURL) {
+      avatarEl.innerHTML = '<img src="' + user.photoURL + '" alt="">';
+    } else {
+      avatarEl.textContent = (user.displayName || email).charAt(0).toUpperCase();
+    }
+
+    window.dispatchEvent(new CustomEvent("hccgc-signed-in", { detail: { user: user } }));
+  }).catch(function (err) {
+    console.error("[HCCGC AUTH] Permission check failed:", err);
+    showGateMessage(
+      "Something went wrong",
+      "We couldn't verify your access. Please try again or contact admin@hccgc.org.",
+      true
+    );
   });
 });
 </script>
 
 <script>
-var APP_REGISTRY = [
-  { key: 'manage-events', name: 'Manage Events' },
-  { key: 'marketing-assistant', name: 'Marketing Assistant' }
-];
-
-var allUsers = [];
-var currentUserEmail = null;
-
-window.addEventListener('hccgc-um-ready', function (e) {
-  currentUserEmail = e.detail.currentUserEmail;
-  loadUsers();
-});
-
-function showStatus(message, type) {
-  var bar = document.getElementById('status-bar');
-  bar.textContent = message;
-  bar.className = 'status-bar show ' + type;
-  if (type !== 'error') {
-    setTimeout(function () { bar.classList.remove('show'); }, 3500);
-  }
-}
-
-function escHtml(str) {
-  return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-function loadUsers() {
-  var fb = window.__hccgcUM;
-  fb.getDocs(fb.collection(fb.db, fb.USERS_COLLECTION))
-    .then(function (snapshot) {
-      allUsers = [];
-      snapshot.forEach(function (docSnap) {
-        var data = docSnap.data();
-        data.id = docSnap.id;
-        allUsers.push(data);
-      });
-      renderUsers();
-    })
-    .catch(function (err) {
-      console.error(err);
-      document.getElementById('user-table').innerHTML = '<div class="empty-state">Could not load users.</div>';
-    });
-}
-
-function renderUsers() {
-  var container = document.getElementById('user-table');
-
-  if (allUsers.length === 0) {
-    container.innerHTML = '<div class="empty-state">No users yet.</div>';
-    return;
-  }
-
-  var sorted = allUsers.slice().sort(function (a, b) {
-    return (a.email || '').localeCompare(b.email || '');
-  });
-
-  var html = '';
-  sorted.forEach(function (u) {
-    var allowedApps = Array.isArray(u.allowedApps) ? u.allowedApps : [];
-    var initials = (u.name || u.email || '?').charAt(0).toUpperCase();
-
-    var checkboxes = APP_REGISTRY.map(function (app) {
-      var checked = allowedApps.indexOf(app.key) !== -1 ? 'checked' : '';
-      return (
-        '<label class="app-check">' +
-          '<input type="checkbox" data-user-id="' + escHtml(u.id) + '" data-app-key="' + escHtml(app.key) + '" ' + checked + '>' +
-          escHtml(app.name) +
-        '</label>'
-      );
-    }).join('');
-
-    html +=
-      '<div class="user-row">' +
-        '<div class="user-avatar-sm">' + initials + '</div>' +
-        '<div class="user-info">' +
-          '<div class="name">' + escHtml(u.name || u.email) + (u.isAdmin ? '<span class="admin-pill">Admin</span>' : '') + '</div>' +
-          '<div class="email">' + escHtml(u.email) + '</div>' +
-        '</div>' +
-        '<div class="app-checkboxes">' + checkboxes + '</div>' +
-        '<div class="row-actions">' +
-          '<label class="admin-toggle">' +
-            '<input type="checkbox" class="admin-checkbox" data-user-id="' + escHtml(u.id) + '" ' + (u.isAdmin ? 'checked' : '') + (u.id === currentUserEmail ? ' disabled title="You cannot remove your own admin access"' : '') + '>' +
-            'Admin' +
-          '</label>' +
-          '<button class="btn-icon danger btn-remove-user" data-user-id="' + escHtml(u.id) + '"' + (u.id === currentUserEmail ? ' disabled title="You cannot remove yourself"' : '') + '>Remove</button>' +
-        '</div>' +
-      '</div>';
-  });
-
-  container.innerHTML = html;
-}
-
-document.getElementById('user-table').addEventListener('change', function (evt) {
-  if (evt.target.matches('input[data-app-key]')) {
-    var userId = evt.target.getAttribute('data-user-id');
-    var appKey = evt.target.getAttribute('data-app-key');
-    toggleAppAccess(userId, appKey, evt.target.checked);
-  } else if (evt.target.matches('.admin-checkbox')) {
-    var userId = evt.target.getAttribute('data-user-id');
-    toggleAdmin(userId, evt.target.checked);
-  }
-});
-
-document.getElementById('user-table').addEventListener('click', function (evt) {
-  var btn = evt.target.closest('.btn-remove-user');
-  if (btn && !btn.disabled) {
-    removeUser(btn.getAttribute('data-user-id'));
-  }
-});
-
-function toggleAppAccess(userId, appKey, granted) {
-  var fb = window.__hccgcUM;
-  var user = allUsers.find(function (u) { return u.id === userId; });
-  if (!user) return;
-
-  var allowedApps = Array.isArray(user.allowedApps) ? user.allowedApps.slice() : [];
-  if (granted && allowedApps.indexOf(appKey) === -1) {
-    allowedApps.push(appKey);
-  } else if (!granted) {
-    allowedApps = allowedApps.filter(function (k) { return k !== appKey; });
-  }
-
-  fb.setDoc(fb.doc(fb.db, fb.USERS_COLLECTION, userId), { allowedApps: allowedApps }, { merge: true })
-    .then(function () {
-      user.allowedApps = allowedApps;
-      showStatus('Access updated for ' + user.email + '.', 'success');
-    })
-    .catch(function (err) {
-      console.error(err);
-      showStatus('Error updating access: ' + (err.message || 'unknown error'), 'error');
-      renderUsers();
-    });
-}
-
-function toggleAdmin(userId, isAdmin) {
-  var fb = window.__hccgcUM;
-  var user = allUsers.find(function (u) { return u.id === userId; });
-  if (!user) return;
-
-  fb.setDoc(fb.doc(fb.db, fb.USERS_COLLECTION, userId), { isAdmin: isAdmin }, { merge: true })
-    .then(function () {
-      user.isAdmin = isAdmin;
-      showStatus((isAdmin ? 'Granted' : 'Removed') + ' admin access for ' + user.email + '.', 'success');
-      renderUsers();
-    })
-    .catch(function (err) {
-      console.error(err);
-      showStatus('Error updating admin status: ' + (err.message || 'unknown error'), 'error');
-      renderUsers();
-    });
-}
-
-function removeUser(userId) {
-  if (!confirm('Remove ' + userId + ' from the portal? They will lose all app access.')) return;
-
-  var fb = window.__hccgcUM;
-  fb.deleteDoc(fb.doc(fb.db, fb.USERS_COLLECTION, userId))
-    .then(function () {
-      showStatus('User removed.', 'success');
-      loadUsers();
-    })
-    .catch(function (err) {
-      console.error(err);
-      showStatus('Error removing user: ' + (err.message || 'unknown error'), 'error');
-    });
-}
-
-document.getElementById('btn-add-user').addEventListener('click', function () {
-  document.getElementById('user-email').value = '';
-  document.getElementById('user-name').value = '';
-  document.getElementById('modal-overlay').classList.add('show');
-});
-document.getElementById('modal-close-btn').addEventListener('click', closeAddModal);
-document.getElementById('modal-cancel-btn').addEventListener('click', closeAddModal);
-
-function closeAddModal() {
-  document.getElementById('modal-overlay').classList.remove('show');
-}
-
-document.getElementById('btn-save-user').addEventListener('click', function () {
-  var email = document.getElementById('user-email').value.trim().toLowerCase();
-  var name = document.getElementById('user-name').value.trim();
-
-  if (!email || !email.endsWith('@hccgc.org')) {
-    alert('Please enter a valid @hccgc.org email address.');
-    return;
-  }
-
-  var fb = window.__hccgcUM;
-  fb.setDoc(fb.doc(fb.db, fb.USERS_COLLECTION, email), {
-    email: email,
-    name: name,
-    allowedApps: [],
-    isAdmin: false,
-    createdAt: fb.serverTimestamp()
-  }, { merge: true })
-    .then(function () {
-      closeAddModal();
-      showStatus('User added. Grant them app access below.', 'success');
-      loadUsers();
-    })
-    .catch(function (err) {
-      console.error(err);
-      alert('Error adding user: ' + (err.message || 'unknown error'));
-    });
-});
-
 function loadPartial(id, file) {
   var target = document.getElementById(id);
   if (!target) return;
@@ -585,15 +807,17 @@ function loadPartial(id, file) {
     .catch(function () {});
 }
 
-// header.html uses paths relative to the calling page (e.g.
-// src="hccgc-logo.jpeg"), which breaks from a subfolder like /admin/.
-// We patch the loaded copy here rather than editing the shared file.
+// header.html uses relative paths (e.g. src="hccgc-logo.jpeg") that break
+// when loaded from a subfolder like /admin/. This patches the loaded copy
+// to use root-relative paths without touching the shared header.html file.
 function fixHeaderLinksForSubfolder(headerEl) {
   var logo = headerEl.querySelector('.brand-logo');
-  if (logo && logo.getAttribute('src') && !logo.getAttribute('src').startsWith('/') && !logo.getAttribute('src').startsWith('http')) {
-    logo.setAttribute('src', '/' + logo.getAttribute('src'));
+  if (logo) {
+    var src = logo.getAttribute('src');
+    if (src && !src.startsWith('/') && !src.startsWith('http')) {
+      logo.setAttribute('src', '/' + src);
+    }
   }
-
   var links = headerEl.querySelectorAll('a[href]');
   links.forEach(function (link) {
     var href = link.getAttribute('href');
@@ -605,6 +829,365 @@ function fixHeaderLinksForSubfolder(headerEl) {
 
 loadPartial('site-header', '/header.html');
 loadPartial('site-footer', '/footer.html');
+
+var allEvents = [];
+var currentUser = null;
+
+window.addEventListener('hccgc-signed-in', function (e) {
+  currentUser = e.detail.user;
+  loadEvents();
+});
+
+function showStatus(message, type) {
+  var bar = document.getElementById('status-bar');
+  bar.textContent = message;
+  bar.className = 'status-bar show ' + type;
+  if (type !== 'error') {
+    setTimeout(function () { bar.classList.remove('show'); }, 3500);
+  }
+}
+
+function loadEvents() {
+  var fb = window.__hccgc;
+  fb.getDocs(fb.collection(fb.db, fb.EVENTS_COLLECTION))
+    .then(function (snapshot) {
+      allEvents = [];
+      snapshot.forEach(function (docSnap) {
+        var data = docSnap.data();
+        data.id = docSnap.id;
+        allEvents.push(data);
+      });
+      renderEventsList();
+    })
+    .catch(function (err) {
+      console.error(err);
+      document.getElementById('events-list').innerHTML =
+        '<div class="empty-state">Could not load events. ' + (err.message || '') + '</div>';
+    });
+}
+
+function escHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function formatDateDisplay(dateStr) {
+  var parts = (dateStr || '').split('-');
+  if (parts.length !== 3) return dateStr;
+  var d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  if (isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function formatTimeRange(fromTime, toTime) {
+  if (toTime && toTime.trim() !== '') {
+    return fromTime + ' \u2013 ' + toTime;
+  }
+  return fromTime + ' onward';
+}
+
+function isPastDate(e) {
+  // For initiatives, use endDate; for events (or legacy records), use date.
+  var dateStr = (e.type === 'initiative' && e.endDate) ? e.endDate : (e.date || '');
+  if (!dateStr || dateStr.length !== 10) return false;
+  var today = new Date();
+  var yyyy = today.getFullYear();
+  var mm = String(today.getMonth() + 1).padStart(2, '0');
+  var dd = String(today.getDate()).padStart(2, '0');
+  return dateStr < (yyyy + '-' + mm + '-' + dd);
+}
+
+function buildEventRowHtml(e, isPast) {
+  var isInitiative = e.type === 'initiative';
+  var createdLine = '';
+  if (e.createdByName || e.createdByEmail) {
+    createdLine =
+      '<div class="event-row-created">Added by ' +
+      escHtml(e.createdByName || e.createdByEmail) +
+      (e.createdByName && e.createdByEmail ? ' (' + escHtml(e.createdByEmail) + ')' : '') +
+      '</div>';
+  }
+
+  var typeBadge = isInitiative
+    ? '<span class="initiative-badge">Initiative</span>'
+    : '';
+
+  var dateLine = isInitiative
+    ? formatDateDisplay(e.date) + ' \u2013 ' + (e.endDate ? formatDateDisplay(e.endDate) : 'TBD')
+    : formatDateDisplay(e.date);
+
+  var timeLine = isInitiative
+    ? (e.schedule ? escHtml(e.schedule) : '')
+    : escHtml(formatTimeRange(e.fromTime, e.toTime));
+
+  var rsvpLine = e.rsvpUrl
+    ? '<div class="event-row-link">RSVP: <a href="' + escHtml(e.rsvpUrl) + '" target="_blank" rel="noopener noreferrer">' + escHtml(e.rsvpUrl) + '</a></div>'
+    : '<div class="event-row-link" style="color:var(--saffron-dark);">Registrations will open soon!</div>';
+
+  return (
+    '<div class="event-row' + (isPast ? ' is-past' : '') + '">' +
+      '<div class="event-row-main">' +
+        '<h4>' + escHtml(e.name) + typeBadge + (isPast ? '<span class="past-badge">Past</span>' : '') + '</h4>' +
+        '<div class="event-row-meta">' +
+          '<span>&#128197; ' + dateLine + '</span>' +
+          (timeLine ? '<span>&#128340; ' + timeLine + '</span>' : '') +
+          (e.category ? '<span>&#127991; ' + escHtml(e.category) + '</span>' : '') +
+          (e.cost ? '<span>&#128176; ' + escHtml(e.cost) + '</span>' : '') +
+        '</div>' +
+        '<p class="event-row-desc">' + escHtml(e.description) + '</p>' +
+        rsvpLine +
+        createdLine +
+      '</div>' +
+      '<div class="event-row-actions">' +
+        '<button class="btn-icon btn-edit-event" data-event-id="' + escHtml(e.id) + '">' +
+          '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+          ' Edit' +
+        '</button>' +
+        '<button class="btn-icon danger btn-delete-event" data-event-id="' + escHtml(e.id) + '">' +
+          '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>' +
+          ' Delete' +
+        '</button>' +
+      '</div>' +
+    '</div>'
+  );
+}
+
+function renderEventsList() {
+  var upcomingContainer = document.getElementById('events-list');
+  var pastSection = document.getElementById('past-events-section');
+  var pastContainer = document.getElementById('past-events-list');
+  var pastLabel = document.getElementById('past-events-label');
+
+  if (allEvents.length === 0) {
+    upcomingContainer.innerHTML = '<div class="empty-state">No events yet. Click "Add Event" to create the first one.</div>';
+    pastSection.style.display = 'none';
+    return;
+  }
+
+  var sorted = allEvents.slice().sort(function (a, b) {
+    return (a.date || '').localeCompare(b.date || '');
+  });
+
+  var upcoming = sorted.filter(function (e) { return !isPastDate(e); });
+  var past = sorted.filter(function (e) { return isPastDate(e); }).reverse();
+
+  if (upcoming.length === 0) {
+    upcomingContainer.innerHTML = '<div class="empty-state">No upcoming events. Click "Add Event" to create one.</div>';
+  } else {
+    upcomingContainer.innerHTML = upcoming.map(function (e) { return buildEventRowHtml(e, false); }).join('');
+  }
+
+  if (past.length === 0) {
+    pastSection.style.display = 'none';
+  } else {
+    pastSection.style.display = 'block';
+    pastLabel.textContent = 'Past Events (' + past.length + ') \u2014 hidden from public page';
+    pastContainer.innerHTML = past.map(function (e) { return buildEventRowHtml(e, true); }).join('');
+  }
+}
+
+document.getElementById('past-events-toggle').addEventListener('click', function () {
+  document.getElementById('past-events-toggle').classList.toggle('collapsed');
+  document.getElementById('past-events-list').classList.toggle('collapsed');
+});
+
+/* ── Type toggle ─────────────────────────────────────────── */
+function setType(type) {
+  document.getElementById('event-type').value = type;
+
+  // Toggle buttons
+  document.getElementById('type-btn-event').classList.toggle('active', type === 'event');
+  document.getElementById('type-btn-initiative').classList.toggle('active', type === 'initiative');
+
+  // Show/hide fields
+  var isInit = type === 'initiative';
+  document.getElementById('event-time-group').style.display = isInit ? 'none' : 'block';
+  document.getElementById('initiative-schedule-group').style.display = isInit ? 'block' : 'none';
+  document.getElementById('end-date-group').style.display = isInit ? 'block' : 'none';
+  document.getElementById('category-group').style.display = isInit ? 'none' : 'block';
+
+  // Update labels and title
+  var nameLabel = document.getElementById('label-name');
+  var dateLabel = document.getElementById('label-date');
+  nameLabel.textContent = isInit ? 'Initiative Name *' : 'Event Name *';
+  dateLabel.textContent = isInit ? 'Start Date *' : 'Date *';
+
+  var modalTitle = document.getElementById('modal-title');
+  var id = document.getElementById('event-id').value;
+  if (!id) {
+    modalTitle.textContent = isInit ? 'Add Initiative' : 'Add Event';
+  }
+}
+
+document.getElementById('type-btn-event').addEventListener('click', function() { setType('event'); });
+document.getElementById('type-btn-initiative').addEventListener('click', function() { setType('initiative'); });
+
+function openModal(eventId) {
+  var overlay = document.getElementById('modal-overlay');
+  var title = document.getElementById('modal-title');
+
+  clearFieldErrors();
+
+  if (eventId) {
+    var e = allEvents.find(function (ev) { return ev.id === eventId; });
+    if (!e) return;
+    var type = e.type || 'event';
+    setType(type);
+    title.textContent = type === 'initiative' ? 'Edit Initiative' : 'Edit Event';
+    document.getElementById('event-id').value = e.id;
+    document.getElementById('event-name').value = e.name || '';
+    document.getElementById('event-description').value = e.description || '';
+    document.getElementById('event-date').value = e.date || '';
+    document.getElementById('event-end-date').value = e.endDate || '';
+    document.getElementById('event-from-time').value = e.fromTime || '';
+    document.getElementById('event-to-time').value = e.toTime || '';
+    document.getElementById('event-schedule').value = e.schedule || '';
+    document.getElementById('event-category').value = e.category || '';
+    document.getElementById('event-cost').value = e.cost || '';
+    document.getElementById('event-rsvp').value = e.rsvpUrl || '';
+  } else {
+    setType('event');
+    document.getElementById('event-id').value = '';
+    document.getElementById('event-name').value = '';
+    document.getElementById('event-description').value = '';
+    document.getElementById('event-date').value = '';
+    document.getElementById('event-end-date').value = '';
+    document.getElementById('event-from-time').value = '';
+    document.getElementById('event-to-time').value = '';
+    document.getElementById('event-schedule').value = '';
+    document.getElementById('event-category').value = '';
+    document.getElementById('event-cost').value = '';
+    document.getElementById('event-rsvp').value = '';
+  }
+
+  overlay.classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+}
+
+document.getElementById('events-list').addEventListener('click', handleEventListClick);
+document.getElementById('past-events-list').addEventListener('click', handleEventListClick);
+
+function handleEventListClick(evt) {
+  var editBtn = evt.target.closest('.btn-edit-event');
+  if (editBtn) {
+    openModal(editBtn.getAttribute('data-event-id'));
+    return;
+  }
+  var deleteBtn = evt.target.closest('.btn-delete-event');
+  if (deleteBtn) {
+    deleteEventById(deleteBtn.getAttribute('data-event-id'));
+  }
+}
+
+function clearFieldErrors() {
+  ['name', 'description', 'date', 'end-date', 'from-time', 'schedule'].forEach(function (f) {
+    var el = document.getElementById('err-' + f);
+    if (el) el.classList.remove('show');
+  });
+}
+
+document.getElementById('btn-add-event').addEventListener('click', function () { openModal(); });
+document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
+
+document.getElementById('btn-save-event').addEventListener('click', function () {
+  clearFieldErrors();
+
+  var id = document.getElementById('event-id').value;
+  var type = document.getElementById('event-type').value || 'event';
+  var name = document.getElementById('event-name').value.trim();
+  var description = document.getElementById('event-description').value.trim();
+  var date = document.getElementById('event-date').value;
+  var endDate = document.getElementById('event-end-date').value;
+  var fromTime = document.getElementById('event-from-time').value.trim();
+  var toTime = document.getElementById('event-to-time').value.trim();
+  var schedule = document.getElementById('event-schedule').value.trim();
+  var category = document.getElementById('event-category').value;
+  var cost = document.getElementById('event-cost').value.trim();
+  var rsvpUrl = document.getElementById('event-rsvp').value.trim();
+
+  var hasError = false;
+  if (!name) { document.getElementById('err-name').classList.add('show'); hasError = true; }
+  if (!description) { document.getElementById('err-description').classList.add('show'); hasError = true; }
+  if (!date) { document.getElementById('err-date').classList.add('show'); hasError = true; }
+  if (type === 'event' && !fromTime) { document.getElementById('err-from-time').classList.add('show'); hasError = true; }
+  if (type === 'initiative' && !endDate) { document.getElementById('err-end-date').classList.add('show'); hasError = true; }
+  if (type === 'initiative' && !schedule) { document.getElementById('err-schedule').classList.add('show'); hasError = true; }
+  if (hasError) return;
+
+  var eventData = {
+    type: type,
+    name: name,
+    description: description,
+    date: date,
+    category: category,
+    cost: cost,
+    rsvpUrl: rsvpUrl
+  };
+
+  if (type === 'event') {
+    eventData.fromTime = fromTime;
+    eventData.toTime = toTime;
+  } else {
+    eventData.endDate = endDate;
+    eventData.schedule = schedule;
+  }
+
+  var btn = document.getElementById('btn-save-event');
+  var origHTML = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Saving\u2026';
+
+  var fb = window.__hccgc;
+
+  var savePromise;
+  if (id) {
+    savePromise = fb.updateDoc(fb.doc(fb.db, fb.EVENTS_COLLECTION, id), eventData);
+  } else {
+    eventData.createdByName = currentUser ? (currentUser.displayName || '') : '';
+    eventData.createdByEmail = currentUser ? (currentUser.email || '') : '';
+    eventData.createdAt = fb.serverTimestamp();
+    savePromise = fb.addDoc(fb.collection(fb.db, fb.EVENTS_COLLECTION), eventData);
+  }
+
+  var label = type === 'initiative' ? 'Initiative' : 'Event';
+
+  savePromise
+    .then(function () {
+      closeModal();
+      showStatus(label + ' saved successfully.', 'success');
+      loadEvents();
+    })
+    .catch(function (err) {
+      console.error(err);
+      showStatus('Error saving event: ' + (err.message || 'unknown error'), 'error');
+    })
+    .finally(function () {
+      btn.disabled = false;
+      btn.innerHTML = origHTML;
+    });
+});
+
+function deleteEventById(id) {
+  if (!confirm('Delete this event? This cannot be undone.')) return;
+
+  var fb = window.__hccgc;
+  fb.deleteDoc(fb.doc(fb.db, fb.EVENTS_COLLECTION, id))
+    .then(function () {
+      showStatus('Event deleted.', 'success');
+      loadEvents();
+    })
+    .catch(function (err) {
+      console.error(err);
+      showStatus('Error deleting event: ' + (err.message || 'unknown error'), 'error');
+    });
+}
 </script>
 </body>
 </html>

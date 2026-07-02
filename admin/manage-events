@@ -791,7 +791,14 @@ onAuthStateChanged(auth, function (user) {
       avatarEl.textContent = (user.displayName || email).charAt(0).toUpperCase();
     }
 
+    // Store user globally so regular script can access it
+    window.__hccgcUser = user;
+    // Dispatch event AND call loadEvents directly if regular script already ready
     window.dispatchEvent(new CustomEvent("hccgc-signed-in", { detail: { user: user } }));
+    // Fallback: if listener missed the event, trigger directly
+    if (typeof window.__hccgcLoadEvents === 'function') {
+      window.__hccgcLoadEvents(user);
+    }
   }).catch(function (err) {
     console.error("[HCCGC AUTH] Permission check failed:", err);
     showGateMessage(
@@ -844,10 +851,24 @@ loadPartial('site-footer', '/footer.html');
 var allEvents = [];
 var currentUser = null;
 
-window.addEventListener('hccgc-signed-in', function (e) {
-  currentUser = e.detail.user;
+function __hccgcTriggerLoad(user) {
+  if (currentUser) return; // already loaded
+  currentUser = user;
   loadEvents();
+}
+
+// Register as fallback for module script to call directly
+window.__hccgcLoadEvents = __hccgcTriggerLoad;
+
+// Also listen for the event in case it fires after this script loads
+window.addEventListener('hccgc-signed-in', function (e) {
+  __hccgcTriggerLoad(e.detail.user);
 });
+
+// In case module already fired before this script registered the listener
+if (window.__hccgcUser) {
+  __hccgcTriggerLoad(window.__hccgcUser);
+}
 
 function showStatus(message, type) {
   var bar = document.getElementById('status-bar');
@@ -1190,36 +1211,6 @@ function deleteEventById(id) {
       showStatus('Error deleting event: ' + (err.message || 'unknown error'), 'error');
     });
 }
-
-function loadPartial(id, file) {
-  var target = document.getElementById(id);
-  if (!target) return;
-  fetch(file)
-    .then(function (r) { return r.text(); })
-    .then(function (html) {
-      target.innerHTML = html;
-      if (id === 'site-header') fixHeaderLinksForSubfolder(target);
-    })
-    .catch(function () {});
-}
-
-function fixHeaderLinksForSubfolder(headerEl) {
-  var logo = headerEl.querySelector('.brand-logo');
-  if (logo) {
-    var src = logo.getAttribute('src');
-    if (src && !src.startsWith('/') && !src.startsWith('http')) logo.setAttribute('src', '/' + src);
-  }
-  var links = headerEl.querySelectorAll('a[href]');
-  links.forEach(function (link) {
-    var href = link.getAttribute('href');
-    if (!href) return;
-    if (href.startsWith('http') || href.startsWith('/') || href.startsWith('#')) return;
-    link.setAttribute('href', '/' + href);
-  });
-}
-
-loadPartial('site-header', '/header.html');
-loadPartial('site-footer', '/footer.html');
 </script>
 </body>
 </html>

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +8,6 @@
 
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' x='50%25' text-anchor='middle' font-size='82'%3E%E0%A5%90%3C/text%3E%3C/svg%3E">
 
@@ -29,26 +29,17 @@
   --radius: 22px;
   --shadow: 0 18px 45px rgba(93,43,14,0.10);
 }
-
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 body {
   font-family: Arial, Helvetica, sans-serif;
   background: radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%),
-              radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%),
-              var(--bg);
-  color: var(--text);
-  min-height: 100vh;
+              radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%), var(--bg);
+  color: var(--text); min-height: 100vh;
 }
-
 .container { width: min(calc(100% - 32px), 1100px); margin: 0 auto; }
 
 /* HEADER */
-.site-header {
-  position: sticky; top: 0; z-index: 50;
-  background: rgba(255,249,241,0.92); backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border);
-}
+.site-header { position: sticky; top: 0; z-index: 50; background: rgba(255,249,241,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
 .nav { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 92px; padding: 12px 0; }
 .brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
 .brand-logo-wrap { background: #7f2e16; border-radius: 18px; padding: 8px; flex-shrink: 0; }
@@ -70,14 +61,10 @@ body {
 
 /* GATE */
 #gate { padding: 60px 16px; display: flex; justify-content: center; }
-.gate-card {
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 2.5rem 2rem; max-width: 420px; width: 100%; text-align: center; box-shadow: var(--shadow);
-}
+.gate-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 2.5rem 2rem; max-width: 420px; width: 100%; text-align: center; box-shadow: var(--shadow); }
 .gate-card h3 { font-family: Georgia, serif; font-size: 1.3rem; color: var(--maroon); margin-bottom: 0.5rem; }
 .gate-card p { color: var(--muted); font-size: 0.88rem; line-height: 1.6; }
 .gate-card a { color: var(--saffron-dark); }
-
 #app { display: none; }
 
 /* PAGE HEADER */
@@ -87,7 +74,7 @@ body {
 .back-link { font-size: 0.82rem; color: var(--saffron-dark); text-decoration: none; display: inline-block; margin-bottom: 10px; }
 .back-link:hover { text-decoration: underline; }
 
-/* STATUS BAR */
+/* STATUS */
 .status-bar { display: none; align-items: center; gap: 10px; padding: 0.75rem 1.1rem; border-radius: 12px; font-size: 0.86rem; font-weight: 600; margin: 0 0 1.25rem; }
 .status-bar.show { display: flex; }
 .status-bar.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
@@ -95,138 +82,90 @@ body {
 
 /* PAGES LIST */
 .pages-list { display: flex; flex-direction: column; gap: 14px; padding-bottom: 60px; }
-
-.page-row {
-  background: #fff; border: 1px solid var(--border); border-radius: 16px;
-  padding: 1.2rem 1.5rem; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
-}
-.page-row-status {
-  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
-  background: #c8e6c9;
-}
-.page-row-status.live { background: #4caf50; }
+.page-row { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 1.2rem 1.5rem; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.page-row-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; background: #e0e0e0; }
+.page-row-dot.live { background: #4caf50; }
 .page-row-info { flex: 1; min-width: 200px; }
 .page-row-info h4 { font-family: Georgia, serif; font-size: 1rem; color: var(--maroon); margin-bottom: 3px; }
 .page-row-info .meta { font-size: 0.78rem; color: var(--muted); }
 .page-row-info .meta a { color: var(--saffron-dark); text-decoration: none; }
 .page-row-info .meta a:hover { text-decoration: underline; }
-.type-badge {
-  font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em;
-  padding: 2px 9px; border-radius: 999px;
-}
-.type-badge.event { background: rgba(127,46,22,0.1); color: var(--maroon); }
-.type-badge.initiative { background: rgba(181,90,24,0.12); color: var(--saffron-dark); }
-
-.btn-edit-page {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 0.45rem 0.9rem; border: 1px solid var(--border); border-radius: 8px;
-  background: #fff; font-size: 0.8rem; font-weight: 600; color: var(--muted);
-  cursor: pointer; font-family: Arial, Helvetica, sans-serif; white-space: nowrap;
-}
-.btn-edit-page:hover { border-color: var(--saffron); color: var(--saffron-dark); }
-
-.empty-state {
-  text-align: center; padding: 50px 20px; color: var(--muted);
-  background: #fff; border: 1px dashed var(--border); border-radius: 16px;
-}
+.type-pill { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; padding: 2px 9px; border-radius: 999px; }
+.type-pill.event { background: rgba(127,46,22,0.1); color: var(--maroon); }
+.type-pill.initiative { background: rgba(181,90,24,0.12); color: var(--saffron-dark); }
+.btn-edit { display: inline-flex; align-items: center; gap: 6px; padding: 0.45rem 0.9rem; border: 1px solid var(--border); border-radius: 8px; background: #fff; font-size: 0.8rem; font-weight: 600; color: var(--muted); cursor: pointer; font-family: Arial, Helvetica, sans-serif; white-space: nowrap; }
+.btn-edit:hover { border-color: var(--saffron); color: var(--saffron-dark); }
+.empty-state { text-align: center; padding: 50px 20px; color: var(--muted); background: #fff; border: 1px dashed var(--border); border-radius: 16px; }
 
 /* MODAL */
-.modal-overlay {
-  display: none; position: fixed; inset: 0; background: rgba(44,27,16,0.45);
-  z-index: 200; align-items: flex-start; justify-content: center; padding: 20px;
-  overflow-y: auto;
-}
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(44,27,16,0.45); z-index: 200; align-items: flex-start; justify-content: center; padding: 16px; overflow-y: auto; }
 .modal-overlay.show { display: flex; }
-.modal-card {
-  background: #fff; border-radius: 18px; max-width: 620px; width: 100%;
-  box-shadow: var(--shadow); margin: auto;
-}
-.modal-header {
-  padding: 1.4rem 1.6rem; border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: #fff; border-radius: 18px 18px 0 0; z-index: 1;
-}
-.modal-header h3 { font-family: Georgia, serif; color: var(--maroon); font-size: 1.15rem; }
+.modal-card { background: #fff; border-radius: 18px; max-width: 620px; width: 100%; box-shadow: var(--shadow); margin: auto; }
+
+/* WIZARD HEADER */
+.wizard-header { padding: 1.4rem 1.6rem 0; border-bottom: none; }
+.wizard-header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.wizard-header-top h3 { font-family: Georgia, serif; color: var(--maroon); font-size: 1.1rem; }
 .modal-close { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 1.3rem; }
 .modal-close:hover { color: var(--maroon); }
 
-/* TABS */
-.modal-tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 1.6rem; background: #fff; }
-.modal-tab {
-  padding: 0.75rem 1rem; font-size: 0.84rem; font-weight: 700; color: var(--muted);
-  cursor: pointer; border: none; background: none; border-bottom: 2.5px solid transparent;
-  margin-bottom: -1px; font-family: Arial, Helvetica, sans-serif;
-}
-.modal-tab.active { color: var(--maroon); border-bottom-color: var(--maroon); }
-.modal-tab:hover { color: var(--saffron-dark); }
-.modal-panel { display: none; padding: 1.4rem 1.6rem; }
-.modal-panel.active { display: block; }
+/* STEP INDICATORS */
+.step-indicators { display: flex; gap: 6px; margin-bottom: 20px; }
+.step-dot { height: 4px; border-radius: 2px; flex: 1; background: var(--border); transition: background 0.2s; }
+.step-dot.active { background: var(--maroon); }
+.step-dot.done { background: var(--saffron); }
+.step-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--saffron-dark); margin-bottom: 12px; padding: 0 1.6rem; }
 
-.modal-footer {
-  padding: 1.2rem 1.6rem 1.5rem; display: flex; justify-content: space-between;
-  align-items: center; gap: 10px; border-top: 1px solid var(--border);
-}
-.modal-footer-actions { display: flex; gap: 10px; }
+/* STEPS */
+.wizard-step { display: none; padding: 0 1.6rem 1.4rem; }
+.wizard-step.active { display: block; }
 
 /* FORM */
 .form-group { margin-bottom: 1.1rem; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 label { display: block; font-size: 0.82rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
 label .hint { font-weight: 400; color: var(--muted); }
-input[type="text"], input[type="url"], textarea, select {
-  width: 100%; padding: 0.6rem 0.85rem; border: 1.5px solid var(--border);
-  border-radius: 10px; font-size: 0.9rem; font-family: Arial, Helvetica, sans-serif;
-  background: #fff; color: var(--text);
-}
-input:focus, textarea:focus, select:focus {
-  outline: none; border-color: var(--saffron);
-  box-shadow: 0 0 0 3px rgba(181,90,24,0.14);
-}
+input[type="text"], input[type="url"], textarea, select { width: 100%; padding: 0.6rem 0.85rem; border: 1.5px solid var(--border); border-radius: 10px; font-size: 0.9rem; font-family: Arial, Helvetica, sans-serif; background: #fff; color: var(--text); }
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 3px rgba(181,90,24,0.14); }
 textarea { resize: vertical; }
-.field-hint { font-size: 0.76rem; color: var(--muted); margin-top: 4px; }
+.field-hint { font-size: 0.76rem; color: var(--muted); margin-top: 4px; line-height: 1.5; }
 .field-error { font-size: 0.76rem; color: #c0392b; margin-top: 4px; display: none; }
 .field-error.show { display: block; }
-
-.slug-preview {
-  font-size: 0.78rem; color: var(--muted); margin-top: 4px;
-}
+.slug-preview { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
 .slug-preview span { font-weight: 700; color: var(--saffron-dark); }
-
-.toggle-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 12px 14px; background: var(--surface-soft);
-  border: 1px solid var(--border); border-radius: 10px; cursor: pointer;
-}
-.toggle-row label { margin: 0; cursor: pointer; font-size: 0.9rem; }
+.toggle-row { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--surface-soft); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 1.1rem; }
+.toggle-row label { margin: 0; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
 .toggle-row input[type="checkbox"] { width: auto; cursor: pointer; }
-.toggle-row .page-url { font-size: 0.78rem; color: var(--saffron-dark); margin-left: auto; text-decoration: none; }
+.section-label { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em; color: var(--saffron-dark); margin: 1.2rem 0 0.6rem; padding-bottom: 6px; border-bottom: 1px dashed var(--border); display: block; }
 
-.btn-secondary {
-  padding: 0.6rem 1.2rem; border-radius: 10px; border: 1.5px solid var(--border);
-  background: #fff; color: var(--muted); font-weight: 700; font-size: 0.86rem; cursor: pointer; font-family: Arial, Helvetica, sans-serif;
-}
-.btn-save {
-  padding: 0.6rem 1.4rem; border-radius: 10px; border: none;
-  background: var(--maroon); color: #fff; font-weight: 700; font-size: 0.86rem; cursor: pointer; font-family: Arial, Helvetica, sans-serif;
-  display: inline-flex; align-items: center; gap: 8px;
-}
+/* DRIVE HELPER */
+.drive-helper { background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 10px; padding: 10px 14px; font-size: 0.78rem; color: #2e7d32; margin-top: 6px; line-height: 1.6; }
+.drive-helper strong { display: block; margin-bottom: 4px; }
+
+/* IMAGE PREVIEW */
+.img-preview { margin-top: 8px; display: none; }
+.img-preview img { max-width: 100%; border-radius: 8px; border: 1px solid var(--border); max-height: 160px; object-fit: contain; }
+
+/* WIZARD FOOTER */
+.wizard-footer { padding: 1.2rem 1.6rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); gap: 10px; }
+.wizard-footer-left { display: flex; gap: 8px; }
+.btn-secondary { padding: 0.6rem 1.2rem; border-radius: 10px; border: 1.5px solid var(--border); background: #fff; color: var(--muted); font-weight: 700; font-size: 0.86rem; cursor: pointer; font-family: Arial, Helvetica, sans-serif; }
+.btn-secondary:hover { border-color: var(--saffron); color: var(--saffron-dark); }
+.btn-next { padding: 0.6rem 1.4rem; border-radius: 10px; border: none; background: var(--saffron-dark); color: #fff; font-weight: 700; font-size: 0.86rem; cursor: pointer; font-family: Arial, Helvetica, sans-serif; display: inline-flex; align-items: center; gap: 6px; }
+.btn-next:hover { background: #6a2e09; }
+.btn-save { padding: 0.6rem 1.4rem; border-radius: 10px; border: none; background: var(--maroon); color: #fff; font-weight: 700; font-size: 0.86rem; cursor: pointer; font-family: Arial, Helvetica, sans-serif; display: inline-flex; align-items: center; gap: 8px; }
 .btn-save:hover { background: #5a1e0a; }
 .btn-save:disabled { background: #b8907e; cursor: not-allowed; }
-.spinner {
-  width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4);
-  border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite;
-  display: inline-block;
-}
+.spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.section-divider {
-  font-size: 0.72rem; font-weight: 800; text-transform: uppercase;
-  letter-spacing: 0.07em; color: var(--saffron-dark); margin: 1.4rem 0 0.8rem;
-  padding-bottom: 6px; border-bottom: 1px dashed var(--border);
-}
+.live-link { font-size: 0.78rem; color: var(--saffron-dark); text-decoration: none; }
+.live-link:hover { text-decoration: underline; }
 
 @media (max-width: 600px) {
   .form-row { grid-template-columns: 1fr; }
   .page-row { flex-direction: column; align-items: stretch; }
+  .wizard-footer { flex-wrap: wrap; }
 }
 </style>
 </head>
@@ -247,73 +186,69 @@ textarea { resize: vertical; }
     <div class="page-header">
       <a class="back-link" href="/admin/admin-portal">&larr; Back to apps</a>
       <h1>Manage Pages</h1>
-      <p>Create and edit public event and initiative pages. Changes go live instantly — no deploy needed.</p>
+      <p>Create and publish public event and initiative pages. Changes go live instantly — no deploy needed.</p>
     </div>
-
     <div class="status-bar" id="status-bar"></div>
-
     <div class="pages-list" id="pages-list">
       <div class="empty-state">Loading&hellip;</div>
     </div>
   </div>
 </div>
 
-<!-- PAGE EDITOR MODAL -->
+<!-- WIZARD MODAL -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal-card">
-    <div class="modal-header">
-      <h3 id="modal-title">Edit Page</h3>
-      <button class="modal-close" id="modal-close-btn">&times;</button>
-    </div>
-
-    <div class="modal-tabs">
-      <button class="modal-tab active" data-tab="basics">Basics</button>
-      <button class="modal-tab" data-tab="content">Content</button>
-      <button class="modal-tab" data-tab="people">People</button>
-      <button class="modal-tab" data-tab="curriculum">Schedule / Curriculum</button>
-      <button class="modal-tab" data-tab="media">Media &amp; Registration</button>
-    </div>
-
-    <!-- BASICS -->
-    <div class="modal-panel active" id="panel-basics">
-      <input type="hidden" id="edit-event-id">
-
-      <div class="form-group">
-        <div class="toggle-row">
-          <input type="checkbox" id="page-enabled">
-          <label for="page-enabled">Page is live and publicly visible</label>
-          <a id="page-live-link" href="#" target="_blank" rel="noopener noreferrer" class="page-url" style="display:none;">View page ↗</a>
-        </div>
+    <div class="wizard-header">
+      <div class="wizard-header-top">
+        <h3 id="modal-event-name">Edit Page</h3>
+        <button class="modal-close" id="modal-close-btn">&times;</button>
       </div>
+      <div class="step-indicators" id="step-indicators"></div>
+    </div>
+    <div class="step-label" id="step-label"></div>
+    <input type="hidden" id="edit-event-id">
+    <input type="hidden" id="edit-event-type">
 
+    <!-- STEP 1: Basics -->
+    <div class="wizard-step active" id="step-1">
+      <div class="toggle-row">
+        <input type="checkbox" id="page-enabled">
+        <label for="page-enabled">Page is live and publicly visible</label>
+      </div>
       <div class="form-group">
         <label for="page-slug">URL Slug *</label>
-        <input type="text" id="page-slug" placeholder="e.g. sangeet-sandhya">
+        <input type="text" id="page-slug" placeholder="e.g. sangeet-sandhya (lowercase, hyphens only)">
         <div class="slug-preview">hccgc.org/<span id="slug-display">your-slug</span></div>
-        <div class="field-error" id="err-slug">Please enter a valid slug (lowercase letters, numbers, hyphens only).</div>
+        <div class="field-error" id="err-slug">Please enter a valid slug (lowercase, hyphens, numbers only).</div>
       </div>
-
+      <div class="form-group">
+        <label for="page-title">Page Title *</label>
+        <input type="text" id="page-title" placeholder="e.g. Parisa Sparsha – An Evening of Classical Music">
+        <div class="field-hint">This is the main heading shown on the public page. Can be different from the event name.</div>
+        <div class="field-error" id="err-title">Please enter a page title.</div>
+      </div>
       <div class="form-group">
         <label for="page-tagline">Tagline</label>
         <input type="text" id="page-tagline" placeholder="e.g. A composer's insight into a composer's mind">
       </div>
-
       <div class="form-group">
         <label for="page-hero-desc">Hero Description</label>
-        <textarea id="page-hero-desc" rows="2" placeholder="Short paragraph shown under the title in the hero section"></textarea>
+        <textarea id="page-hero-desc" rows="2" placeholder="Short paragraph shown in the hero section under the title"></textarea>
       </div>
+    </div>
 
+    <!-- STEP 2: Details -->
+    <div class="wizard-step" id="step-2">
       <div class="form-row">
         <div class="form-group">
           <label for="page-venue">Venue</label>
-          <input type="text" id="page-venue" placeholder="HCCGC (leave blank for default)">
+          <input type="text" id="page-venue" placeholder="HCCGC (default if blank)">
         </div>
         <div class="form-group">
-          <label for="page-cost-display">Cost Display</label>
+          <label for="page-cost-display">Cost</label>
           <input type="text" id="page-cost-display" placeholder="e.g. $15 early / $20 at door">
         </div>
       </div>
-
       <div class="form-row">
         <div class="form-group">
           <label for="page-contact-name">Contact Name</label>
@@ -321,67 +256,59 @@ textarea { resize: vertical; }
         </div>
         <div class="form-group">
           <label for="page-contact-phone">Contact Phone</label>
-          <input type="text" id="page-contact-phone" placeholder="e.g. +1 (513) 680-9379">
+          <input type="text" id="page-contact-phone" placeholder="e.g. (513) 680-9379">
         </div>
       </div>
-    </div>
-
-    <!-- CONTENT -->
-    <div class="modal-panel" id="panel-content">
       <div class="form-group">
         <label for="page-about-title">About Section Title</label>
         <input type="text" id="page-about-title" placeholder="e.g. A Celebration of Timeless Melodies">
       </div>
-
       <div class="form-group">
         <label for="page-about-body">About Section Body</label>
-        <textarea id="page-about-body" rows="6" placeholder="Full description. Use new lines for separate paragraphs."></textarea>
+        <textarea id="page-about-body" rows="5" placeholder="Full description. Use a new line for each paragraph."></textarea>
       </div>
-
       <div class="form-group">
         <label for="page-what-to-expect">What to Expect <span class="hint">(one item per line)</span></label>
-        <textarea id="page-what-to-expect" rows="4" placeholder="Live violin, vocals, harmonium&#10;Narration in Marathi&#10;Intimate mahfil-style setting"></textarea>
+        <textarea id="page-what-to-expect" rows="3" placeholder="Live violin, vocals, harmonium&#10;Narration in Marathi&#10;Intimate mahfil-style setting"></textarea>
       </div>
-
       <div class="form-group">
         <label for="page-who-should-attend">Who Should Attend <span class="hint">(one item per line)</span></label>
         <textarea id="page-who-should-attend" rows="3" placeholder="Lovers of Marathi and Hindi film music&#10;Families of all ages"></textarea>
       </div>
-
-      <div class="form-group">
-        <label for="page-registration-note">Registration Note</label>
-        <textarea id="page-registration-note" rows="2" placeholder="e.g. Early registration price: $15. Price increases on May 18th."></textarea>
-      </div>
     </div>
 
-    <!-- PEOPLE -->
-    <div class="modal-panel" id="panel-people">
-      <!-- Event: Performers -->
-      <div id="people-event-section">
-        <div class="section-divider">Performers</div>
+    <!-- STEP 3: People (event = performers, initiative = instructor) -->
+    <div class="wizard-step" id="step-3">
+      <!-- Event performers -->
+      <div id="step3-event">
         <div class="form-group">
           <label for="page-performers">Performers <span class="hint">(one per line: Name | Role | Location)</span></label>
-          <textarea id="page-performers" rows="5" placeholder="Sachin Ingale | Vocalist · Violinist · Composer | Pune, India&#10;Ruchir Ingale | Vocalist | Pune, India&#10;Atul Sathe | Tabla & Percussions | Local Artist"></textarea>
-          <div class="field-hint">Separate Name, Role, and Location with a pipe character |</div>
+          <textarea id="page-performers" rows="5" placeholder="Sachin Ingale | Vocalist · Violinist · Composer | Pune, India&#10;Ruchir Ingale | Vocalist | Pune, India"></textarea>
+          <div class="field-hint">Separate Name, Role, and Location with the pipe character |</div>
         </div>
       </div>
-
-      <!-- Initiative: Instructor -->
-      <div id="people-initiative-section" style="display:none;">
-        <div class="section-divider">Instructor</div>
+      <!-- Initiative instructor -->
+      <div id="step3-initiative" style="display:none;">
         <div class="form-row">
           <div class="form-group">
-            <label for="page-instructor-name">Name</label>
+            <label for="page-instructor-name">Instructor Name</label>
             <input type="text" id="page-instructor-name" placeholder="e.g. Shri Koti Krishna ji">
           </div>
           <div class="form-group">
-            <label for="page-instructor-role">Role</label>
+            <label for="page-instructor-role">Role / Title</label>
             <input type="text" id="page-instructor-role" placeholder="e.g. Yoga Instructor">
           </div>
         </div>
         <div class="form-group">
-          <label for="page-instructor-photo">Instructor Photo URL</label>
-          <input type="text" id="page-instructor-photo" placeholder="https://www.hccgc.org/instructor-photo.jpg">
+          <label for="page-instructor-photo">Instructor Photo</label>
+          <input type="text" id="page-instructor-photo" placeholder="Paste Google Drive share link or direct image URL">
+          <div class="drive-helper">
+            <strong>Using Google Drive?</strong>
+            1. Upload photo to Google Drive<br>
+            2. Right-click → Share → Change to "Anyone with the link"<br>
+            3. Paste the share link here — we'll convert it automatically
+          </div>
+          <div class="img-preview" id="instructor-photo-preview"><img id="instructor-photo-img" src="" alt="Preview"></div>
         </div>
         <div class="form-group">
           <label for="page-instructor-bio">Bio</label>
@@ -390,58 +317,67 @@ textarea { resize: vertical; }
       </div>
     </div>
 
-    <!-- SCHEDULE / CURRICULUM -->
-    <div class="modal-panel" id="panel-curriculum">
-      <!-- Event: Schedule -->
-      <div id="curriculum-event-section">
-        <div class="section-divider">Event Schedule</div>
+    <!-- STEP 4: Schedule / Curriculum -->
+    <div class="wizard-step" id="step-4">
+      <!-- Event schedule -->
+      <div id="step4-event">
         <div class="form-group">
-          <label for="page-schedule-items">Schedule Items <span class="hint">(one per line: Time | Label | Duration)</span></label>
-          <textarea id="page-schedule-items" rows="5" placeholder="10:00 AM | First Half | ~1 hr 15 min&#10;11:15 AM | Interval | 15 min · Refreshments&#10;11:30 AM | Second Half | ~1 hr · Ends 12:30 PM"></textarea>
-          <div class="field-hint">Separate Time, Label, and Duration with a pipe character |</div>
+          <label for="page-schedule-items">Program Schedule <span class="hint">(one item per line: Time | Label | Duration)</span></label>
+          <textarea id="page-schedule-items" rows="6" placeholder="10:00 AM | First Half | ~1 hr 15 min&#10;11:15 AM | Interval | 15 min · Refreshments&#10;11:30 AM | Second Half | ~1 hr"></textarea>
+          <div class="field-hint">Separate Time, Label, and Duration with the pipe character |</div>
         </div>
       </div>
-
-      <!-- Initiative: Curriculum -->
-      <div id="curriculum-initiative-section" style="display:none;">
-        <div class="section-divider">Curriculum</div>
+      <!-- Initiative curriculum -->
+      <div id="step4-initiative" style="display:none;">
         <div class="form-group">
           <label for="page-curriculum-title">Curriculum Section Title</label>
           <input type="text" id="page-curriculum-title" placeholder="e.g. 12-week progressive wellness journey">
         </div>
         <div class="form-group">
           <label for="page-curriculum">Curriculum Weeks <span class="hint">(one per line: Week Label | Title | Description)</span></label>
-          <textarea id="page-curriculum" rows="8" placeholder="Weeks 1–4 | Foundation & Reset | Start with mobility, breathing, and body awareness&#10;Weeks 5–8 | Strength & Balance | Develop strength, stability, and stamina&#10;Weeks 9–12 | Integration | Bring together breath, movement, and meditation"></textarea>
-          <div class="field-hint">Separate Week Label, Title, and Description with a pipe character |</div>
+          <textarea id="page-curriculum" rows="7" placeholder="Weeks 1–4 | Foundation & Reset | Start with mobility, breathing, and body awareness&#10;Weeks 5–8 | Strength & Balance | Develop strength, stability, and stamina&#10;Weeks 9–12 | Integration | Bring together breath, movement, and meditation"></textarea>
+          <div class="field-hint">Separate Week Label, Title, and Description with the pipe character |</div>
         </div>
       </div>
     </div>
 
-    <!-- MEDIA & REGISTRATION -->
-    <div class="modal-panel" id="panel-media">
+    <!-- STEP 5: Media & Registration -->
+    <div class="wizard-step" id="step-5">
       <div class="form-group">
-        <label for="page-zeffy-url">Zeffy Embed URL</label>
+        <label for="page-zeffy-url">Zeffy Registration URL</label>
         <input type="text" id="page-zeffy-url" placeholder="https://www.zeffy.com/embed/ticketing/your-event">
-        <div class="field-hint">The full Zeffy embed URL — starts with https://www.zeffy.com/embed/ticketing/</div>
+        <div class="field-hint">The full Zeffy embed URL. Leave blank to show "Registrations will open soon!"</div>
       </div>
-
       <div class="form-group">
-        <label for="page-flyer-url">Flyer Image URL</label>
-        <input type="text" id="page-flyer-url" placeholder="https://www.hccgc.org/your-flyer.jpg">
-        <div class="field-hint">Upload your flyer to the site first, then paste the full URL here.</div>
+        <label for="page-registration-note">Registration Note</label>
+        <textarea id="page-registration-note" rows="2" placeholder="e.g. Early bird price ends May 18th. Register soon!"></textarea>
       </div>
-
       <div class="form-group">
-        <label for="page-meta-desc">Meta Description <span class="hint">(for search engines, ~150 chars)</span></label>
-        <textarea id="page-meta-desc" rows="2" placeholder="Brief description for Google search results"></textarea>
+        <label for="page-flyer-url">Event Flyer Image</label>
+        <input type="text" id="page-flyer-url" placeholder="Paste Google Drive share link or direct image URL">
+        <div class="drive-helper">
+          <strong>Using Google Drive?</strong>
+          1. Upload flyer to Google Drive<br>
+          2. Right-click → Share → Change to "Anyone with the link"<br>
+          3. Paste the share link here — we'll convert it automatically
+        </div>
+        <div class="img-preview" id="flyer-preview"><img id="flyer-img" src="" alt="Flyer preview"></div>
+      </div>
+      <div class="form-group">
+        <label for="page-meta-desc">Search Engine Description <span class="hint">(optional, ~150 chars)</span></label>
+        <textarea id="page-meta-desc" rows="2" placeholder="Brief description shown in Google search results"></textarea>
       </div>
     </div>
 
-    <div class="modal-footer">
-      <div style="font-size:0.78rem; color:var(--muted);" id="modal-event-name-display"></div>
-      <div class="modal-footer-actions">
-        <button class="btn-secondary" id="modal-cancel-btn">Cancel</button>
-        <button class="btn-save" id="btn-save-page">Save Page</button>
+    <div class="wizard-footer">
+      <div class="wizard-footer-left">
+        <button class="btn-secondary" id="btn-cancel">Cancel</button>
+        <button class="btn-secondary" id="btn-back" style="display:none;">← Back</button>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <a id="live-page-link" href="#" target="_blank" class="live-link" style="display:none;">View live page ↗</a>
+        <button class="btn-next" id="btn-next">Next →</button>
+        <button class="btn-save" id="btn-save" style="display:none;">Save &amp; Publish</button>
       </div>
     </div>
   </div>
@@ -452,16 +388,14 @@ textarea { resize: vertical; }
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-import {
-  getFirestore, collection, getDocs, doc, getDoc, setDoc, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA6IzLjWTg7Rq04HsTH-iA3eDmSzKI7xME",
   authDomain: "hccgc-a7a54.firebaseapp.com",
   projectId: "hccgc-a7a54",
   storageBucket: "hccgc-a7a54.firebasestorage.app",
-  messagingSenderId: "75757201418",
+  messagingSenderId: "75757201448",
   appId: "1:75757201418:web:c31e9361921242145717f3"
 };
 
@@ -471,11 +405,10 @@ const USERS_COLLECTION = "portalUsers";
 const EVENTS_COLLECTION = "events";
 const PORTAL_URL = "/admin/admin-portal";
 
-const fbApp = initializeApp(firebaseConfig);
-const auth = getAuth(fbApp);
-const db = getFirestore(fbApp);
-
-window.__hccgcMP = { db, collection, getDocs, doc, getDoc, setDoc, serverTimestamp, EVENTS_COLLECTION };
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+window.__hccgcMP = { db, collection, getDocs, doc, getDoc, setDoc, EVENTS_COLLECTION };
 
 async function loadPartial(id, file) {
   const el = document.getElementById(id);
@@ -484,17 +417,13 @@ async function loadPartial(id, file) {
     const r = await fetch(file);
     if (r.ok) {
       el.innerHTML = await r.text();
-      if (id === 'site-header') fixHeaderLinks(el);
+      if (id === 'site-header') {
+        const logo = el.querySelector('.brand-logo');
+        if (logo) { const s = logo.getAttribute('src'); if (s && !s.startsWith('/') && !s.startsWith('http')) logo.setAttribute('src', '/' + s); }
+        el.querySelectorAll('a[href]').forEach(a => { const h = a.getAttribute('href'); if (h && !h.startsWith('http') && !h.startsWith('/') && !h.startsWith('#')) a.setAttribute('href', '/' + h); });
+      }
     }
-  } catch (e) {}
-}
-function fixHeaderLinks(el) {
-  const logo = el.querySelector('.brand-logo');
-  if (logo) { const s = logo.getAttribute('src'); if (s && !s.startsWith('/') && !s.startsWith('http')) logo.setAttribute('src', '/' + s); }
-  el.querySelectorAll('a[href]').forEach(function(a) {
-    const h = a.getAttribute('href');
-    if (h && !h.startsWith('http') && !h.startsWith('/') && !h.startsWith('#')) a.setAttribute('href', '/' + h);
-  });
+  } catch(e) {}
 }
 loadPartial('site-header', '/header.html');
 loadPartial('site-footer', '/footer.html');
@@ -506,25 +435,18 @@ function showGate(title, msg) {
   document.getElementById('app').style.display = 'none';
 }
 
-onAuthStateChanged(auth, async function(user) {
+onAuthStateChanged(auth, async user => {
   if (!user) { showGate('Sign in required', 'Please sign in from the <a href="' + PORTAL_URL + '">Admin Portal</a> first.'); return; }
   const email = (user.email || '').toLowerCase();
   if (!email.endsWith('@' + ALLOWED_DOMAIN)) { showGate('Access denied', 'Please sign in with an @' + ALLOWED_DOMAIN + ' account.'); return; }
-
   try {
     const snap = await getDoc(doc(db, USERS_COLLECTION, email));
     const data = snap.exists() ? snap.data() : {};
-    const isAdmin = !!data.isAdmin;
-    const allowed = Array.isArray(data.allowedApps) && data.allowedApps.includes(REQUIRED_APP_KEY);
-    if (!isAdmin && !allowed) {
+    if (!data.isAdmin && !(Array.isArray(data.allowedApps) && data.allowedApps.includes(REQUIRED_APP_KEY))) {
       showGate('Access not granted', "You don't have access to Manage Pages. Ask an admin to grant it from User Management.");
       return;
     }
-  } catch(e) {
-    showGate('Error', 'Could not verify your access. Please try again.');
-    return;
-  }
-
+  } catch(e) { showGate('Error', 'Could not verify your access. Please try again.'); return; }
   document.getElementById('gate').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   window.dispatchEvent(new CustomEvent('hccgc-mp-ready'));
@@ -533,295 +455,324 @@ onAuthStateChanged(auth, async function(user) {
 
 <script>
 var allRecords = [];
+var currentStep = 1;
+var totalSteps = 5;
 
-window.addEventListener('hccgc-mp-ready', function() {
-  loadPages();
-});
+var STEP_NAMES = ['Basics', 'Details', 'People', 'Schedule', 'Media & Registration'];
 
-function escHtml(str) {
-  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+window.addEventListener('hccgc-mp-ready', loadPages);
 
-function formatDate(dateStr) {
-  if (!dateStr) return '';
-  var p = dateStr.split('-');
-  if (p.length !== 3) return dateStr;
-  var d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function formatDate(d) {
+  if (!d) return '';
+  var p = d.split('-');
+  if (p.length !== 3) return d;
+  return new Date(+p[0], +p[1]-1, +p[2]).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
 }
 
 function showStatus(msg, type) {
   var bar = document.getElementById('status-bar');
-  bar.textContent = msg;
-  bar.className = 'status-bar show ' + type;
-  if (type !== 'error') setTimeout(function() { bar.classList.remove('show'); }, 3500);
+  bar.textContent = msg; bar.className = 'status-bar show ' + type;
+  if (type !== 'error') setTimeout(() => bar.classList.remove('show'), 3500);
+}
+
+// Convert Google Drive share link to direct image URL
+function convertDriveUrl(url) {
+  if (!url) return url;
+  // Format: https://drive.google.com/file/d/FILE_ID/view?usp=sharing
+  var match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (match) return 'https://drive.google.com/uc?export=view&id=' + match[1];
+  // Already a direct URL or other format
+  return url;
 }
 
 function loadPages() {
   var fb = window.__hccgcMP;
-  fb.getDocs(fb.collection(fb.db, fb.EVENTS_COLLECTION)).then(function(snapshot) {
+  fb.getDocs(fb.collection(fb.db, fb.EVENTS_COLLECTION)).then(snapshot => {
     allRecords = [];
-    snapshot.forEach(function(docSnap) {
-      var d = docSnap.data(); d.id = docSnap.id;
-      allRecords.push(d);
-    });
-    allRecords.sort(function(a, b) { return (a.date || '').localeCompare(b.date || ''); });
-    renderPagesList();
-  }).catch(function(err) {
+    snapshot.forEach(d => { var data = d.data(); data.id = d.id; allRecords.push(data); });
+    allRecords.sort((a,b) => (a.date||'').localeCompare(b.date||''));
+    renderList();
+  }).catch(err => {
     document.getElementById('pages-list').innerHTML = '<div class="empty-state">Could not load records. ' + escHtml(err.message) + '</div>';
   });
 }
 
-function renderPagesList() {
+function renderList() {
   var container = document.getElementById('pages-list');
-  if (!allRecords.length) {
-    container.innerHTML = '<div class="empty-state">No events or initiatives found. Add some in Manage Events first.</div>';
-    return;
-  }
+  if (!allRecords.length) { container.innerHTML = '<div class="empty-state">No events or initiatives yet. Add some in Manage Events first.</div>'; return; }
 
-  var html = '';
-  allRecords.forEach(function(e) {
+  container.innerHTML = allRecords.map(e => {
     var isInit = e.type === 'initiative';
     var isLive = e.pageEnabled && e.slug;
-    var dateStr = isInit
-      ? (formatDate(e.date) + (e.endDate ? ' – ' + formatDate(e.endDate) : ''))
-      : formatDate(e.date);
-
-    var pageUrlHtml = isLive
-      ? '<a href="/' + escHtml(e.slug) + '" target="_blank" rel="noopener noreferrer">hccgc.org/' + escHtml(e.slug) + ' ↗</a>'
-      : '<span>No page yet</span>';
-
-    html +=
-      '<div class="page-row">' +
-        '<div class="page-row-status' + (isLive ? ' live' : '') + '" title="' + (isLive ? 'Live' : 'No page') + '"></div>' +
-        '<div class="page-row-info">' +
-          '<h4>' + escHtml(e.name) + ' <span class="type-badge ' + (isInit ? 'initiative' : 'event') + '">' + (isInit ? 'Initiative' : 'Event') + '</span></h4>' +
-          '<div class="meta">' + escHtml(dateStr) + ' &nbsp;·&nbsp; ' + pageUrlHtml + '</div>' +
-        '</div>' +
-        '<button class="btn-edit-page" data-id="' + escHtml(e.id) + '">' +
-          '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
-          (isLive ? ' Edit Page' : ' Set Up Page') +
-        '</button>' +
-      '</div>';
-  });
-
-  container.innerHTML = html;
+    var dates = isInit ? (formatDate(e.date) + (e.endDate ? ' – ' + formatDate(e.endDate) : '')) : formatDate(e.date);
+    var pageInfo = isLive ? '<a href="/' + escHtml(e.slug) + '" target="_blank">hccgc.org/' + escHtml(e.slug) + ' ↗</a>' : '<span>No page yet</span>';
+    return '<div class="page-row">' +
+      '<div class="page-row-dot' + (isLive ? ' live' : '') + '"></div>' +
+      '<div class="page-row-info">' +
+        '<h4>' + escHtml(e.name) + ' <span class="type-pill ' + (isInit?'initiative':'event') + '">' + (isInit?'Initiative':'Event') + '</span></h4>' +
+        '<div class="meta">' + escHtml(dates) + ' &nbsp;·&nbsp; ' + pageInfo + '</div>' +
+      '</div>' +
+      '<button class="btn-edit" data-id="' + escHtml(e.id) + '">' +
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+        (isLive ? ' Edit Page' : ' Set Up Page') +
+      '</button>' +
+    '</div>';
+  }).join('');
 }
 
-// Tab switching
-document.querySelectorAll('.modal-tab').forEach(function(btn) {
-  btn.addEventListener('click', function() {
-    document.querySelectorAll('.modal-tab').forEach(function(b) { b.classList.remove('active'); });
-    document.querySelectorAll('.modal-panel').forEach(function(p) { p.classList.remove('active'); });
-    btn.classList.add('active');
-    document.getElementById('panel-' + btn.getAttribute('data-tab')).classList.add('active');
-  });
+document.getElementById('pages-list').addEventListener('click', evt => {
+  var btn = evt.target.closest('.btn-edit');
+  if (!btn) return;
+  var e = allRecords.find(r => r.id === btn.getAttribute('data-id'));
+  if (e) openModal(e);
 });
 
-// Slug sanitize + preview
+// Slug sanitize
 document.getElementById('page-slug').addEventListener('input', function() {
-  var clean = this.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  var clean = this.value.toLowerCase().replace(/[^a-z0-9-]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
   document.getElementById('slug-display').textContent = clean || 'your-slug';
-  updateLiveLink(clean, document.getElementById('page-enabled').checked);
+  var liveLink = document.getElementById('live-page-link');
+  var enabled = document.getElementById('page-enabled').checked;
+  if (clean && enabled) { liveLink.href = '/' + clean; liveLink.style.display = 'inline'; }
+  else { liveLink.style.display = 'none'; }
 });
 
 document.getElementById('page-enabled').addEventListener('change', function() {
   var slug = document.getElementById('page-slug').value.trim();
-  updateLiveLink(slug, this.checked);
+  var liveLink = document.getElementById('live-page-link');
+  if (this.checked && slug) { liveLink.href = '/' + slug; liveLink.style.display = 'inline'; }
+  else { liveLink.style.display = 'none'; }
 });
 
-function updateLiveLink(slug, enabled) {
-  var link = document.getElementById('page-live-link');
-  if (enabled && slug) {
-    link.href = '/' + slug;
-    link.style.display = 'inline';
-  } else {
-    link.style.display = 'none';
+// Image preview on input
+function setupImagePreview(inputId, previewContainerId, imgId) {
+  document.getElementById(inputId).addEventListener('blur', function() {
+    var url = convertDriveUrl(this.value.trim());
+    var container = document.getElementById(previewContainerId);
+    var img = document.getElementById(imgId);
+    if (url) { img.src = url; container.style.display = 'block'; }
+    else { container.style.display = 'none'; }
+  });
+}
+setupImagePreview('page-flyer-url', 'flyer-preview', 'flyer-img');
+setupImagePreview('page-instructor-photo', 'instructor-photo-preview', 'instructor-photo-img');
+
+// WIZARD NAVIGATION
+function updateWizardUI() {
+  // Steps
+  for (var i = 1; i <= totalSteps; i++) {
+    document.getElementById('step-' + i).classList.toggle('active', i === currentStep);
   }
+  // Step label
+  document.getElementById('step-label').textContent = 'Step ' + currentStep + ' of ' + totalSteps + ' — ' + STEP_NAMES[currentStep-1];
+  // Dots
+  var dots = document.getElementById('step-indicators');
+  dots.innerHTML = '';
+  for (var i = 1; i <= totalSteps; i++) {
+    var d = document.createElement('div');
+    d.className = 'step-dot' + (i < currentStep ? ' done' : i === currentStep ? ' active' : '');
+    dots.appendChild(d);
+  }
+  // Buttons
+  document.getElementById('btn-back').style.display = currentStep > 1 ? 'inline-flex' : 'none';
+  document.getElementById('btn-next').style.display = currentStep < totalSteps ? 'inline-flex' : 'none';
+  document.getElementById('btn-save').style.display = currentStep === totalSteps ? 'inline-flex' : 'none';
 }
 
-// Open modal
-document.getElementById('pages-list').addEventListener('click', function(evt) {
-  var btn = evt.target.closest('.btn-edit-page');
-  if (!btn) return;
-  var id = btn.getAttribute('data-id');
-  var e = allRecords.find(function(r) { return r.id === id; });
-  if (!e) return;
-  openModal(e);
+document.getElementById('btn-next').addEventListener('click', () => {
+  if (!validateStep(currentStep)) return;
+  currentStep = Math.min(currentStep + 1, totalSteps);
+  updateWizardUI();
 });
+document.getElementById('btn-back').addEventListener('click', () => {
+  currentStep = Math.max(currentStep - 1, 1);
+  updateWizardUI();
+});
+
+function validateStep(step) {
+  if (step === 1) {
+    var slug = document.getElementById('page-slug').value.trim();
+    var title = document.getElementById('page-title').value.trim();
+    var enabled = document.getElementById('page-enabled').checked;
+    var slugErr = document.getElementById('err-slug');
+    var titleErr = document.getElementById('err-title');
+    var valid = true;
+    slugErr.classList.remove('show');
+    titleErr.classList.remove('show');
+    if (enabled && (!slug || !/^[a-z0-9-]+$/.test(slug))) { slugErr.classList.add('show'); valid = false; }
+    if (!title) { titleErr.classList.add('show'); valid = false; }
+    return valid;
+  }
+  return true;
+}
 
 function openModal(e) {
   var isInit = e.type === 'initiative';
   var pg = e.page || {};
 
-  document.getElementById('modal-title').textContent = 'Page Setup — ' + (e.name || '');
-  document.getElementById('modal-event-name-display').textContent = (isInit ? 'Initiative' : 'Event') + ': ' + (e.name || '');
   document.getElementById('edit-event-id').value = e.id;
+  document.getElementById('edit-event-type').value = e.type || 'event';
+  document.getElementById('modal-event-name').textContent = e.name || 'Edit Page';
 
-  // Reset to basics tab
-  document.querySelectorAll('.modal-tab').forEach(function(b) { b.classList.remove('active'); });
-  document.querySelectorAll('.modal-panel').forEach(function(p) { p.classList.remove('active'); });
-  document.querySelector('.modal-tab[data-tab="basics"]').classList.add('active');
-  document.getElementById('panel-basics').classList.add('active');
+  // Show/hide type-specific sections
+  document.getElementById('step3-event').style.display = isInit ? 'none' : 'block';
+  document.getElementById('step3-initiative').style.display = isInit ? 'block' : 'none';
+  document.getElementById('step4-event').style.display = isInit ? 'none' : 'block';
+  document.getElementById('step4-initiative').style.display = isInit ? 'block' : 'none';
+  STEP_NAMES[2] = isInit ? 'Instructor' : 'Performers';
+  STEP_NAMES[3] = isInit ? 'Curriculum' : 'Schedule';
 
-  // Show/hide people and curriculum sections
-  document.getElementById('people-event-section').style.display = isInit ? 'none' : 'block';
-  document.getElementById('people-initiative-section').style.display = isInit ? 'block' : 'none';
-  document.getElementById('curriculum-event-section').style.display = isInit ? 'none' : 'block';
-  document.getElementById('curriculum-initiative-section').style.display = isInit ? 'block' : 'none';
-
-  // Update curriculum tab label
-  document.querySelector('.modal-tab[data-tab="curriculum"]').textContent = isInit ? 'Curriculum' : 'Schedule';
-
-  // Basics
+  // Step 1: Basics
   var slug = e.slug || '';
   document.getElementById('page-enabled').checked = !!e.pageEnabled;
   document.getElementById('page-slug').value = slug;
   document.getElementById('slug-display').textContent = slug || 'your-slug';
-  updateLiveLink(slug, !!e.pageEnabled);
+  document.getElementById('page-title').value = pg.pageTitle || e.name || '';
   document.getElementById('page-tagline').value = pg.tagline || '';
   document.getElementById('page-hero-desc').value = pg.heroDescription || '';
+
+  // Live link
+  var liveLink = document.getElementById('live-page-link');
+  if (e.pageEnabled && slug) { liveLink.href = '/' + slug; liveLink.style.display = 'inline'; }
+  else { liveLink.style.display = 'none'; }
+
+  // Step 2: Details
   document.getElementById('page-venue').value = pg.venue || '';
   document.getElementById('page-cost-display').value = pg.costDisplay || '';
   document.getElementById('page-contact-name').value = (pg.contact && pg.contact.name) || '';
   document.getElementById('page-contact-phone').value = (pg.contact && pg.contact.phone) || '';
-
-  // Content
   document.getElementById('page-about-title').value = pg.aboutTitle || '';
   document.getElementById('page-about-body').value = pg.aboutBody || '';
   document.getElementById('page-what-to-expect').value = (pg.whatToExpect || []).join('\n');
   document.getElementById('page-who-should-attend').value = (pg.whoShouldAttend || []).join('\n');
-  document.getElementById('page-registration-note').value = pg.registrationNote || '';
 
-  // People
+  // Step 3: People
   if (!isInit) {
-    document.getElementById('page-performers').value = (pg.performers || []).map(function(p) {
-      return [p.name, p.role, p.location].filter(Boolean).join(' | ');
-    }).join('\n');
+    document.getElementById('page-performers').value = (pg.performers || []).map(p => [p.name,p.role,p.location].filter(Boolean).join(' | ')).join('\n');
   } else {
     var inst = pg.instructor || {};
     document.getElementById('page-instructor-name').value = inst.name || '';
     document.getElementById('page-instructor-role').value = inst.role || '';
-    document.getElementById('page-instructor-photo').value = inst.photoUrl || '';
+    document.getElementById('page-instructor-photo').value = inst.driveUrl || inst.photoUrl || '';
     document.getElementById('page-instructor-bio').value = inst.bio || '';
+    document.getElementById('instructor-photo-preview').style.display = 'none';
   }
 
-  // Schedule / Curriculum
+  // Step 4: Schedule / Curriculum
   if (!isInit) {
-    document.getElementById('page-schedule-items').value = (pg.scheduleItems || []).map(function(s) {
-      return [s.time, s.label, s.duration].filter(Boolean).join(' | ');
-    }).join('\n');
+    document.getElementById('page-schedule-items').value = (pg.scheduleItems || []).map(s => [s.time,s.label,s.duration].filter(Boolean).join(' | ')).join('\n');
   } else {
     document.getElementById('page-curriculum-title').value = pg.curriculumTitle || '';
-    document.getElementById('page-curriculum').value = (pg.curriculum || []).map(function(w) {
-      return [w.weekLabel, w.title, w.description].filter(Boolean).join(' | ');
-    }).join('\n');
+    document.getElementById('page-curriculum').value = (pg.curriculum || []).map(w => [w.weekLabel,w.title,w.description].filter(Boolean).join(' | ')).join('\n');
   }
 
-  // Media
+  // Step 5: Media
   document.getElementById('page-zeffy-url').value = pg.zeffyUrl || '';
-  document.getElementById('page-flyer-url').value = pg.flyerImageUrl || '';
+  document.getElementById('page-registration-note').value = pg.registrationNote || '';
+  document.getElementById('page-flyer-url').value = pg.driveUrl || pg.flyerImageUrl || '';
   document.getElementById('page-meta-desc').value = pg.metaDescription || '';
+  document.getElementById('flyer-preview').style.display = 'none';
 
-  // Clear errors
+  // Reset errors
   document.getElementById('err-slug').classList.remove('show');
+  document.getElementById('err-title').classList.remove('show');
 
+  // Reset to step 1
+  currentStep = 1;
+  updateWizardUI();
   document.getElementById('modal-overlay').classList.add('show');
 }
 
-function closeModal() {
-  document.getElementById('modal-overlay').classList.remove('show');
-}
-
+function closeModal() { document.getElementById('modal-overlay').classList.remove('show'); }
 document.getElementById('modal-close-btn').addEventListener('click', closeModal);
-document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
+document.getElementById('btn-cancel').addEventListener('click', closeModal);
 
-// Save
-document.getElementById('btn-save-page').addEventListener('click', function() {
+// SAVE
+document.getElementById('btn-save').addEventListener('click', function() {
+  if (!validateStep(currentStep)) return;
+
   var id = document.getElementById('edit-event-id').value;
-  var e = allRecords.find(function(r) { return r.id === id; });
+  var isInit = document.getElementById('edit-event-type').value === 'initiative';
+  var e = allRecords.find(r => r.id === id);
   if (!e) return;
-  var isInit = e.type === 'initiative';
 
-  var slug = document.getElementById('page-slug').value.trim()
-    .toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  var slug = document.getElementById('page-slug').value.trim().toLowerCase().replace(/[^a-z0-9-]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
   var pageEnabled = document.getElementById('page-enabled').checked;
 
-  if (pageEnabled && !slug) {
-    document.getElementById('err-slug').classList.add('show');
-    document.querySelector('.modal-tab[data-tab="basics"]').click();
-    return;
-  }
+  if (pageEnabled && !slug) { document.getElementById('err-slug').classList.add('show'); currentStep = 1; updateWizardUI(); return; }
 
-  function parseLines(id) {
-    return document.getElementById(id).value.split('\n').map(function(l) { return l.trim(); }).filter(Boolean);
-  }
+  function parseLines(id) { return document.getElementById(id).value.split('\n').map(l=>l.trim()).filter(Boolean); }
   function parsePiped(id, keys) {
-    return parseLines(id).map(function(line) {
-      var parts = line.split('|').map(function(p) { return p.trim(); });
-      var obj = {};
-      keys.forEach(function(k, i) { obj[k] = parts[i] || ''; });
+    return parseLines(id).map(line => {
+      var parts = line.split('|').map(p=>p.trim());
+      var obj = {}; keys.forEach((k,i) => obj[k] = parts[i]||'');
       return obj;
     });
   }
 
+  // Convert Drive URLs
+  var rawFlyer = document.getElementById('page-flyer-url').value.trim();
+  var rawInstructorPhoto = document.getElementById('page-instructor-photo').value.trim();
+  var flyerImageUrl = convertDriveUrl(rawFlyer);
+  var instructorPhotoUrl = convertDriveUrl(rawInstructorPhoto);
+
   var pageData = {
+    pageTitle: document.getElementById('page-title').value.trim(),
     tagline: document.getElementById('page-tagline').value.trim(),
     heroDescription: document.getElementById('page-hero-desc').value.trim(),
-    aboutTitle: document.getElementById('page-about-title').value.trim(),
-    aboutBody: document.getElementById('page-about-body').value.trim(),
     venue: document.getElementById('page-venue').value.trim(),
     costDisplay: document.getElementById('page-cost-display').value.trim(),
     contact: {
       name: document.getElementById('page-contact-name').value.trim(),
       phone: document.getElementById('page-contact-phone').value.trim()
     },
+    aboutTitle: document.getElementById('page-about-title').value.trim(),
+    aboutBody: document.getElementById('page-about-body').value.trim(),
     whatToExpect: parseLines('page-what-to-expect'),
     whoShouldAttend: parseLines('page-who-should-attend'),
-    registrationNote: document.getElementById('page-registration-note').value.trim(),
     zeffyUrl: document.getElementById('page-zeffy-url').value.trim(),
-    flyerImageUrl: document.getElementById('page-flyer-url').value.trim(),
+    registrationNote: document.getElementById('page-registration-note').value.trim(),
+    flyerImageUrl: flyerImageUrl,
+    driveUrl: rawFlyer,
     metaDescription: document.getElementById('page-meta-desc').value.trim()
   };
 
   if (!isInit) {
-    pageData.performers = parsePiped('page-performers', ['name', 'role', 'location']);
-    pageData.scheduleItems = parsePiped('page-schedule-items', ['time', 'label', 'duration']);
+    pageData.performers = parsePiped('page-performers', ['name','role','location']);
+    pageData.scheduleItems = parsePiped('page-schedule-items', ['time','label','duration']);
   } else {
     pageData.instructor = {
       name: document.getElementById('page-instructor-name').value.trim(),
       role: document.getElementById('page-instructor-role').value.trim(),
-      photoUrl: document.getElementById('page-instructor-photo').value.trim(),
+      photoUrl: instructorPhotoUrl,
+      driveUrl: rawInstructorPhoto,
       bio: document.getElementById('page-instructor-bio').value.trim()
     };
     pageData.curriculumTitle = document.getElementById('page-curriculum-title').value.trim();
-    pageData.curriculum = parsePiped('page-curriculum', ['weekLabel', 'title', 'description']);
+    pageData.curriculum = parsePiped('page-curriculum', ['weekLabel','title','description']);
   }
 
-  var btn = document.getElementById('btn-save-page');
-  var origHTML = btn.innerHTML;
+  var btn = document.getElementById('btn-save');
+  var orig = btn.innerHTML;
   btn.disabled = true;
-  btn.innerHTML = '<div class="spinner"></div> Saving\u2026';
+  btn.innerHTML = '<div class="spinner"></div> Saving…';
 
   var fb = window.__hccgcMP;
   fb.setDoc(fb.doc(fb.db, fb.EVENTS_COLLECTION, id), {
     pageEnabled: pageEnabled,
     slug: slug,
     page: pageData
-  }, { merge: true }).then(function() {
-    // Update local record
-    e.pageEnabled = pageEnabled;
-    e.slug = slug;
-    e.page = pageData;
-    btn.disabled = false;
-    btn.innerHTML = origHTML;
+  }, { merge: true }).then(() => {
+    e.pageEnabled = pageEnabled; e.slug = slug; e.page = pageData;
+    btn.disabled = false; btn.innerHTML = orig;
     closeModal();
-    showStatus('Page saved. ' + (pageEnabled && slug ? 'Live at hccgc.org/' + slug : 'Page disabled.'), 'success');
-    renderPagesList();
-  }).catch(function(err) {
-    btn.disabled = false;
-    btn.innerHTML = origHTML;
-    showStatus('Error saving: ' + (err.message || 'unknown error'), 'error');
+    showStatus('Page saved!' + (pageEnabled && slug ? ' Live at hccgc.org/' + slug : ' Page is hidden.'), 'success');
+    renderList();
+  }).catch(err => {
+    btn.disabled = false; btn.innerHTML = orig;
+    showStatus('Error: ' + (err.message || 'unknown error'), 'error');
   });
 });
 </script>

@@ -1048,7 +1048,7 @@ function openModal(eventId) {
     if (!e) return;
     var type = e.type || 'event';
     setType(type);
-      title.textContent = type === 'initiative' ? 'Edit Initiative' : 'Edit Event';
+    title.textContent = type === 'initiative' ? 'Edit Initiative' : 'Edit Event';
     document.getElementById('event-id').value = e.id;
     document.getElementById('event-name').value = e.name || '';
     document.getElementById('event-description').value = e.description || '';
@@ -1060,23 +1060,24 @@ function openModal(eventId) {
     document.getElementById('event-category').value = e.category || '';
     document.getElementById('event-cost').value = e.cost || '';
     document.getElementById('event-rsvp').value = e.rsvpUrl || '';
+  } else {
+    setType('event');
+    document.getElementById('event-id').value = '';
+    document.getElementById('event-name').value = '';
+    document.getElementById('event-description').value = '';
+    document.getElementById('event-date').value = '';
+    document.getElementById('event-end-date').value = '';
+    document.getElementById('event-from-time').value = '';
+    document.getElementById('event-to-time').value = '';
+    document.getElementById('event-schedule').value = '';
+    document.getElementById('event-category').value = '';
+    document.getElementById('event-cost').value = '';
+    document.getElementById('event-rsvp').value = '';
+    title.textContent = 'Add Event';
+  }
 
   overlay.classList.add('show');
 }
-
-/* ── Modal tabs ──────────────────────────────────────────── */
-document.querySelectorAll('.modal-tab').forEach(function(btn) {
-  btn.addEventListener('click', function() {
-    document.querySelectorAll('.modal-tab').forEach(function(b) { b.classList.remove('active'); });
-    document.querySelectorAll('.modal-panel').forEach(function(p) { p.classList.remove('active'); });
-    btn.classList.add('active');
-    document.getElementById('panel-' + btn.getAttribute('data-tab')).classList.add('active');
-  });
-});
-
-/* Slug preview */
-
-/* Show/hide event vs initiative page fields */
 
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('show');
@@ -1189,6 +1190,36 @@ function deleteEventById(id) {
       showStatus('Error deleting event: ' + (err.message || 'unknown error'), 'error');
     });
 }
+
+function loadPartial(id, file) {
+  var target = document.getElementById(id);
+  if (!target) return;
+  fetch(file)
+    .then(function (r) { return r.text(); })
+    .then(function (html) {
+      target.innerHTML = html;
+      if (id === 'site-header') fixHeaderLinksForSubfolder(target);
+    })
+    .catch(function () {});
+}
+
+function fixHeaderLinksForSubfolder(headerEl) {
+  var logo = headerEl.querySelector('.brand-logo');
+  if (logo) {
+    var src = logo.getAttribute('src');
+    if (src && !src.startsWith('/') && !src.startsWith('http')) logo.setAttribute('src', '/' + src);
+  }
+  var links = headerEl.querySelectorAll('a[href]');
+  links.forEach(function (link) {
+    var href = link.getAttribute('href');
+    if (!href) return;
+    if (href.startsWith('http') || href.startsWith('/') || href.startsWith('#')) return;
+    link.setAttribute('href', '/' + href);
+  });
+}
+
+loadPartial('site-header', '/header.html');
+loadPartial('site-footer', '/footer.html');
 </script>
 </body>
 </html>

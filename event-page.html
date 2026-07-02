@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -384,12 +385,13 @@ if (!slug || slug === 'event-page') {
 
 function renderPage(e) {
   const isInit = e.type === 'initiative';
+  const displayTitle = (e.page && e.page.pageTitle) ? e.page.pageTitle : e.name;
+  const pg = e.page || {};
 
-  // Update page meta
   document.getElementById('page-title').textContent =
-    escHtml(e.name) + ' | Hindu Community Center of Greater Cincinnati';
+    displayTitle + ' | Hindu Community Center of Greater Cincinnati';
   document.getElementById('page-desc').setAttribute('content',
-    e.metaDescription || e.tagline || e.heroDescription || '');
+    pg.metaDescription || pg.tagline || pg.heroDescription || '');
 
   // Build info cards
   let infoCards = '';
@@ -401,42 +403,42 @@ function renderPage(e) {
     infoCards += infoCard('🕙', 'Time', (e.fromTime || '') + (e.toTime ? ' – ' + e.toTime : ''), '');
   }
   infoCards += infoCard('📍', 'Venue', e.venue || 'HCCGC', '7500 Industrial Row Dr, Mason, OH 45040');
-  if (e.contact && e.contact.name) {
-    infoCards += infoCard('📞', 'Contact', e.contact.name, e.contact.phone || '');
+  if (pg.contact && pg.contact.name) {
+    infoCards += infoCard('📞', 'Contact', pg.contact.name, pg.contact.phone || '');
   }
-  if (e.cost) {
-    infoCards += infoCard('🎟️', 'Cost', e.cost, '');
+  if (e.cost || pg.costDisplay) {
+    infoCards += infoCard('🎟️', 'Cost', pg.costDisplay || e.cost, '');
   }
-  if (isInit && e.instructor && e.instructor.name) {
-    infoCards += infoCard('🧑‍🏫', isInit ? 'Guided by' : 'Instructor', e.instructor.name, e.instructor.role || '');
+  if (isInit && pg.instructor && pg.instructor.name) {
+    infoCards += infoCard('🧑‍🏫', isInit ? 'Guided by' : 'Instructor', pg.instructor.name, pg.instructor.role || '');
   }
 
   // Build what to expect / who should attend
   let expectHtml = '';
-  if (e.whatToExpect && e.whatToExpect.length) {
+  if (pg.whatToExpect && pg.whatToExpect.length) {
     expectHtml = `
       <h3 style="font-family:Georgia,serif;font-size:1.1rem;color:var(--maroon);margin:28px 0 10px;">What to Expect</h3>
-      <ul class="bullet-list">${e.whatToExpect.map(i => `<li>${escHtml(i)}</li>`).join('')}</ul>
+      <ul class="bullet-list">${pg.whatToExpect.map(i => `<li>${escHtml(i)}</li>`).join('')}</ul>
     `;
   }
   let whoHtml = '';
-  if (e.whoShouldAttend && e.whoShouldAttend.length) {
+  if (pg.whoShouldAttend && pg.whoShouldAttend.length) {
     whoHtml = `
       <h3 style="font-family:Georgia,serif;font-size:1.1rem;color:var(--maroon);margin:28px 0 10px;">Who Should ${isInit ? 'Join' : 'Attend'}</h3>
-      <ul class="bullet-list">${e.whoShouldAttend.map(i => `<li>${escHtml(i)}</li>`).join('')}</ul>
+      <ul class="bullet-list">${pg.whoShouldAttend.map(i => `<li>${escHtml(i)}</li>`).join('')}</ul>
     `;
   }
 
   // Performers (events only)
   let performersHtml = '';
-  if (!isInit && e.performers && e.performers.length) {
+  if (!isInit && pg.performers && pg.performers.length) {
     performersHtml = `
       <section class="section section-alt">
         <div class="container">
           <span class="section-label">Performers</span>
           <h2 class="section-title">Meet the Artists</h2>
           <div class="people-grid">
-            ${e.performers.map(p => `
+            ${pg.performers.map(p => `
               <div class="person-card">
                 <div class="person-avatar">
                   ${p.photoUrl ? `<img src="${escHtml(p.photoUrl)}" alt="${escHtml(p.name)}">` : '🎵'}
@@ -453,7 +455,7 @@ function renderPage(e) {
 
   // Instructor (initiatives only)
   let instructorHtml = '';
-  if (isInit && e.instructor && e.instructor.name) {
+  if (isInit && pg.instructor && pg.instructor.name) {
     instructorHtml = `
       <section class="section section-alt">
         <div class="container">
@@ -462,13 +464,13 @@ function renderPage(e) {
           <div class="people-grid">
             <div class="person-card">
               <div class="person-avatar">
-                ${e.instructor.photoUrl ? `<img src="${escHtml(e.instructor.photoUrl)}" alt="${escHtml(e.instructor.name)}">` : '🧑‍🏫'}
+                ${pg.instructor.photoUrl ? `<img src="${escHtml(pg.instructor.photoUrl)}" alt="${escHtml(pg.instructor.name)}">` : '🧑‍🏫'}
               </div>
-              <h4>${escHtml(e.instructor.name)}</h4>
-              <p>${escHtml(e.instructor.role || '')}</p>
+              <h4>${escHtml(pg.instructor.name)}</h4>
+              <p>${escHtml(pg.instructor.role || '')}</p>
             </div>
           </div>
-          ${e.instructor.bio ? `<p class="prose" style="margin-top:20px;">${escHtml(e.instructor.bio)}</p>` : ''}
+          ${pg.instructor.bio ? `<p class="prose" style="margin-top:20px;">${escHtml(pg.instructor.bio)}</p>` : ''}
         </div>
       </section>
     `;
@@ -476,14 +478,14 @@ function renderPage(e) {
 
   // Schedule (events only)
   let scheduleHtml = '';
-  if (!isInit && e.scheduleItems && e.scheduleItems.length) {
+  if (!isInit && pg.scheduleItems && pg.scheduleItems.length) {
     scheduleHtml = `
       <section class="section">
         <div class="container">
           <span class="section-label">Schedule</span>
           <h2 class="section-title">Program Schedule</h2>
           <div class="timeline">
-            ${e.scheduleItems.map(s => `
+            ${pg.scheduleItems.map(s => `
               <div class="timeline-item">
                 <div class="timeline-time">${escHtml(s.time)}</div>
                 <div class="timeline-label">
@@ -500,14 +502,14 @@ function renderPage(e) {
 
   // Curriculum (initiatives only)
   let curriculumHtml = '';
-  if (isInit && e.curriculum && e.curriculum.length) {
+  if (isInit && pg.curriculum && pg.curriculum.length) {
     curriculumHtml = `
       <section class="section">
         <div class="container">
           <span class="section-label">Course Details</span>
-          <h2 class="section-title">${escHtml(e.curriculumTitle || 'Program Curriculum')}</h2>
+          <h2 class="section-title">${escHtml(pg.curriculumTitle || 'Program Curriculum')}</h2>
           <div class="curriculum">
-            ${e.curriculum.map(w => `
+            ${pg.curriculum.map(w => `
               <div class="curriculum-week">
                 <div class="curriculum-week-header">
                   <span class="week-badge">${escHtml(w.weekLabel || 'Week')}</span>
@@ -526,12 +528,12 @@ function renderPage(e) {
   }
 
   // Flyer + Zeffy registration
-  const zeffyHtml = e.zeffyUrl
-    ? `<iframe src="${escHtml(e.zeffyUrl)}" allowtransparency="true" frameborder="0" scrolling="no" allow="payment"></iframe>`
+  const zeffyHtml = pg.zeffyUrl
+    ? `<iframe src="${escHtml(pg.zeffyUrl)}" allowtransparency="true" frameborder="0" scrolling="no" allow="payment"></iframe>`
     : `<div class="zeffy-fallback"><p>Registration coming soon.<br>Check back later or <a href="/">return home</a>.</p></div>`;
 
-  const flyerHtml = e.flyerImageUrl
-    ? `<div class="flyer-wrap"><img src="${escHtml(e.flyerImageUrl)}" alt="${escHtml(e.name)} flyer"></div>`
+  const flyerHtml = pg.flyerImageUrl
+    ? `<div class="flyer-wrap"><img src="${escHtml(pg.flyerImageUrl)}" alt="${escHtml(displayTitle)} flyer"></div>`
     : '';
 
   const registrationHtml = `
@@ -539,7 +541,7 @@ function renderPage(e) {
       <div class="container">
         <span class="section-label">Registration</span>
         <h2 class="section-title">Register${isInit ? '' : ' · Reserve Your Spot'}</h2>
-        ${e.registrationNote ? `<p class="prose" style="margin-bottom:28px;">${escHtml(e.registrationNote)}</p>` : ''}
+        ${pg.registrationNote ? `<p class="prose" style="margin-bottom:28px;">${escHtml(pg.registrationNote)}</p>` : ''}
         <div class="registration-inner ${flyerHtml ? '' : 'single-col'}">
           ${flyerHtml}
           <div class="zeffy-wrap">${zeffyHtml}</div>
@@ -552,11 +554,11 @@ function renderPage(e) {
     <section class="page-hero">
       <div class="container">
         <span class="hero-kicker">HCCGC ${isInit ? 'Initiative' : 'Presents'}</span>
-        <h1 class="hero-title">${escHtml(e.name)}</h1>
-        ${e.tagline ? `<p class="hero-tagline">${escHtml(e.tagline)}</p>` : ''}
-        ${e.heroDescription ? `<p class="hero-desc">${escHtml(e.heroDescription)}</p>` : ''}
+        <h1 class="hero-title">${escHtml(displayTitle)}</h1>
+        ${pg.tagline ? `<p class="hero-tagline">${escHtml(pg.tagline)}</p>` : ''}
+        ${pg.heroDescription ? `<p class="hero-desc">${escHtml(pg.heroDescription)}</p>` : ''}
         <div class="hero-actions">
-          ${e.zeffyUrl ? `<a class="btn-hero-primary" href="#join">Register Now</a>` : `<a class="btn-hero-primary" href="#about">Learn More</a>`}
+          ${pg.zeffyUrl ? `<a class="btn-hero-primary" href="#join">Register Now</a>` : `<a class="btn-hero-primary" href="#about">Learn More</a>`}
           <a class="btn-hero-secondary" href="#about">About ${isInit ? 'the Initiative' : 'the Event'}</a>
         </div>
       </div>
@@ -571,8 +573,8 @@ function renderPage(e) {
     <section class="section" id="about">
       <div class="container">
         <span class="section-label">About ${isInit ? 'the Initiative' : 'the Event'}</span>
-        <h2 class="section-title">${escHtml(e.aboutTitle || e.name)}</h2>
-        <div class="prose">${(e.aboutBody || '').split('\n').filter(Boolean).map(p => `<p>${escHtml(p)}</p>`).join('')}</div>
+        <h2 class="section-title">${escHtml(pg.aboutTitle || displayTitle)}</h2>
+        <div class="prose">${(pg.aboutBody || '').split('\n').filter(Boolean).map(p => `<p>${escHtml(p)}</p>`).join('')}</div>
         ${expectHtml}
         ${whoHtml}
       </div>

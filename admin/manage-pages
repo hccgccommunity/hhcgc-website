@@ -78,11 +78,11 @@ body{font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at
 .wizard-header-top h3{font-family:Georgia,serif;color:var(--maroon);font-size:1.1rem;}
 .modal-close{background:none;border:none;cursor:pointer;color:var(--muted);font-size:1.3rem;}
 .modal-close:hover{color:var(--maroon);}
-.step-bars{display:flex;gap:5px;margin-bottom:6px;}
-.step-bar{height:4px;border-radius:2px;flex:1;background:var(--border);transition:background .2s;}
-.step-bar.active{background:var(--maroon);}
-.step-bar.done{background:var(--saffron);}
-.step-meta{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--saffron-dark);padding:0 1.6rem;margin-bottom:10px;}
+.wizard-tabs{display:flex;border-bottom:1px solid var(--border);padding:0 1.6rem;overflow-x:auto;gap:0;}
+.wizard-tab{padding:.7rem .9rem;font-size:.8rem;font-weight:700;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2.5px solid transparent;margin-bottom:-1px;font-family:Arial,Helvetica,sans-serif;white-space:nowrap;transition:color .12s;}
+.wizard-tab.active{color:var(--maroon);border-bottom-color:var(--maroon);}
+.wizard-tab.done{color:var(--saffron-dark);}
+.wizard-tab:hover:not(.active){color:var(--saffron-dark);}
 .wizard-step{display:none;padding:0 1.6rem 1.2rem;}
 .wizard-step.active{display:block;}
 .form-group{margin-bottom:1.1rem;}
@@ -171,9 +171,8 @@ textarea{resize:vertical;}
         <h3 id="wizard-title">New Page</h3>
         <button class="modal-close" id="modal-close-btn">&times;</button>
       </div>
-      <div class="step-bars" id="step-bars"></div>
+      <div class="wizard-tabs" id="wizard-tabs"></div>
     </div>
-    <div class="step-meta" id="step-meta"></div>
 
     <input type="hidden" id="edit-page-id">
 
@@ -390,9 +389,9 @@ textarea{resize:vertical;}
     <!-- STEP 6: Media & Registration -->
     <div class="wizard-step" id="step-6">
       <div class="form-group">
-        <label for="page-zeffy-url">Zeffy Registration URL</label>
+        <label for="page-zeffy-url">Zeffy Embed URL</label>
         <input type="text" id="page-zeffy-url" placeholder="https://www.zeffy.com/embed/ticketing/your-event">
-        <div class="field-hint">The full Zeffy embed URL. Leave blank to show "Registrations will open soon!"</div>
+        <div class="field-hint">From Zeffy, go to your event → Share → Embed → copy the iframe <strong>src</strong> URL (starts with https://www.zeffy.com/embed/ticketing/). Leave blank to show "Registrations will open soon!"</div>
       </div>
       <div class="form-group">
         <label for="page-registration-note">Registration Note</label>
@@ -643,13 +642,20 @@ function updateWizardUI() {
   for (var i=1; i<=TOTAL_STEPS; i++) {
     document.getElementById('step-'+i).classList.toggle('active', i===currentStep);
   }
-  document.getElementById('step-meta').textContent = 'Step ' + currentStep + ' of ' + TOTAL_STEPS + ' — ' + STEP_NAMES[currentStep-1];
-  var bars = document.getElementById('step-bars');
-  bars.innerHTML = '';
+  // Render named tabs
+  var tabs = document.getElementById('wizard-tabs');
+  tabs.innerHTML = '';
   for (var i=1; i<=TOTAL_STEPS; i++) {
-    var d = document.createElement('div');
-    d.className = 'step-bar' + (i<currentStep?' done':i===currentStep?' active':'');
-    bars.appendChild(d);
+    var t = document.createElement('button');
+    t.className = 'wizard-tab' + (i===currentStep?' active':i<currentStep?' done':'');
+    t.textContent = (i < currentStep ? '✓ ' : '') + STEP_NAMES[i-1];
+    t.setAttribute('data-step', i);
+    t.addEventListener('click', function() {
+      // Allow clicking completed tabs to go back
+      var s = parseInt(this.getAttribute('data-step'));
+      if (s < currentStep) { currentStep = s; updateWizardUI(); }
+    });
+    tabs.appendChild(t);
   }
   document.getElementById('btn-back').style.display = currentStep > 1 ? 'inline-flex' : 'none';
   var isLast = currentStep === TOTAL_STEPS;

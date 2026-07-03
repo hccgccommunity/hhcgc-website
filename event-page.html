@@ -395,7 +395,7 @@ function renderPage(e) {
   // Build info cards
   let infoCards = '';
   if (isInit) {
-    infoCards += infoCard('📅', 'Dates', formatDate(e.startDate||e.date) + (e.endDate ? ' – ' + formatDate(e.endDate) : '', '');
+    infoCards += infoCard('📅', 'Dates', formatDate(e.startDate || e.date) + (e.endDate ? ' \u2013 ' + formatDate(e.endDate) : ''), '');
     infoCards += infoCard('🗓️', 'Schedule', e.scheduleText || '', '');
   } else {
     infoCards += infoCard('📅', 'Date', formatDate(e.date), '');

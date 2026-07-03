@@ -264,17 +264,44 @@ body {
 
 /* FLYER + ZEFFY */
 .registration-section { padding: 56px 0; }
-.registration-inner {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;
+.tickets-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  align-items: stretch;
+  margin-top: 24px;
 }
-.flyer-wrap { border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); }
-.flyer-wrap img { width: 100%; display: block; }
-.zeffy-wrap { border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); background: #fff; }
-.zeffy-wrap iframe { width: 100%; min-height: 540px; border: none; display: block; }
+.tickets-flyer { display: flex; }
+.tickets-flyer .flyer-frame {
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 110px;
+  width: 100%;
+}
+.tickets-flyer .flyer-frame img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.embed-card {
+  overflow: visible; background: transparent;
+  border-radius: 0; box-shadow: none; border: 0; max-width: 100%; margin: 0; padding: 0;
+}
+.zeffy-responsive-frame {
+  position: relative; overflow: hidden; height: 0; width: 100%;
+  padding-top: 1250px; background: transparent;
+}
+.zeffy-responsive-frame iframe {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  border: 0; background: transparent; display: block; overflow: hidden;
+}
 .zeffy-fallback {
   padding: 40px; text-align: center; color: var(--muted); font-size: 0.9rem;
+  border: 1px dashed var(--border); border-radius: 16px;
 }
 .zeffy-fallback a { color: var(--saffron-dark); font-weight: 700; }
+@media (max-width: 768px) {
+  .tickets-grid { grid-template-columns: 1fr; }
+}
 
 @media (max-width: 768px) {
   .registration-inner { grid-template-columns: 1fr; }
@@ -385,7 +412,7 @@ if (!slug || slug === 'event-page') {
 
 function renderPage(e) {
   const isInit = e.type === 'initiative';
-  const displayTitle = (e.page && e.page.pageTitle) ? e.page.pageTitle : e.name;
+  const displayTitle = e.pageTitle || e.name || 'Untitled';
   
   document.getElementById('page-title').textContent =
     displayTitle + ' | Hindu Community Center of Greater Cincinnati';
@@ -526,24 +553,38 @@ function renderPage(e) {
     `;
   }
 
-  // Flyer + Zeffy registration
-  const zeffyHtml = e.zeffyUrl
-    ? `<iframe src="${escHtml(e.zeffyUrl)}" allowtransparency="true" frameborder="0" scrolling="no" allow="payment"></iframe>`
-    : `<div class="zeffy-fallback"><p>Registration coming soon.<br>Check back later or <a href="/">return home</a>.</p></div>`;
-
+  // Flyer + Zeffy registration — matches parisa-sparsha layout exactly
   const flyerHtml = e.flyerImageUrl
-    ? `<div class="flyer-wrap"><img src="${escHtml(e.flyerImageUrl)}" alt="${escHtml(displayTitle)} flyer"></div>`
+    ? `<div class="tickets-flyer"><div class="flyer-frame"><img src="${escHtml(e.flyerImageUrl)}" alt="${escHtml(displayTitle)} flyer"></div></div>`
     : '';
+
+  const zeffyHtml = e.zeffyUrl ? `
+    <div class="embed-card">
+      <div>
+        <div data-zeffy-embed data-form-url="${escHtml(e.zeffyUrl.replace('https://www.zeffy.com', ''))}"></div>
+        <div data-zeffy-embed-fallback style="display:none;">
+          <div class="zeffy-responsive-frame">
+            <iframe title="${escHtml(displayTitle)} registration"
+                    src="${escHtml(e.zeffyUrl)}"
+                    allowpaymentrequest allowTransparency="true" scrolling="no"></iframe>
+          </div>
+        </div>
+        <script src="https://www.zeffy.com/embed/v2/zeffy-embed.js"
+          onerror="document.querySelectorAll('[data-zeffy-embed-fallback]').forEach(function(el){el.style.display='block';});">
+        </script>
+      </div>
+    </div>`
+    : `<div class="zeffy-fallback"><p>Registrations will open soon. Check back later or <a href="/">return home</a>.</p></div>`;
 
   const registrationHtml = `
     <section class="registration-section" id="join">
       <div class="container">
         <span class="section-label">Registration</span>
         <h2 class="section-title">Register${isInit ? '' : ' · Reserve Your Spot'}</h2>
-        ${e.registrationNote ? `<p class="prose" style="margin-bottom:28px;">${escHtml(e.registrationNote)}</p>` : ''}
-        <div class="registration-inner ${flyerHtml ? '' : 'single-col'}">
+        ${e.registrationNote ? `<p class="prose" style="margin-bottom:20px;">${escHtml(e.registrationNote)}</p>` : ''}
+        <div class="tickets-grid">
           ${flyerHtml}
-          <div class="zeffy-wrap">${zeffyHtml}</div>
+          ${zeffyHtml}
         </div>
       </div>
     </section>

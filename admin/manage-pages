@@ -389,9 +389,9 @@ textarea{resize:vertical;}
     <!-- STEP 6: Media & Registration -->
     <div class="wizard-step" id="step-6">
       <div class="form-group">
-        <label for="page-zeffy-url">Zeffy Embed URL</label>
-        <input type="text" id="page-zeffy-url" placeholder="https://www.zeffy.com/embed/ticketing/your-event">
-        <div class="field-hint">From Zeffy, go to your event → Share → Embed → copy the iframe <strong>src</strong> URL (starts with https://www.zeffy.com/embed/ticketing/). Leave blank to show "Registrations will open soon!"</div>
+        <label for="page-zeffy-url">Zeffy Registration Embed Code</label>
+        <textarea id="page-zeffy-url" rows="4" placeholder="Paste the full Zeffy iframe embed code here&#10;&#10;Example:&#10;&lt;iframe src=&quot;https://www.zeffy.com/embed/ticketing/your-event&quot; ...&gt;&lt;/iframe&gt;"></textarea>
+        <div class="field-hint">From Zeffy: go to your event &rarr; Share &rarr; Embed &rarr; copy the full iframe code and paste it here. Leave blank to show "Registrations will open soon!"</div>
       </div>
       <div class="form-group">
         <label for="page-registration-note">Registration Note</label>

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -138,6 +139,79 @@ body {
   color: var(--maroon);
 }
 .toolbar-left p { font-size: 0.86rem; color: var(--muted); margin-top: 4px; }
+
+/* VIEW TOGGLE */
+.view-toggle {
+  display: flex; gap: 0; border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden;
+}
+.view-btn {
+  padding: 0.45rem 0.9rem; border: none; background: #fff; color: var(--muted);
+  font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: Arial, Helvetica, sans-serif;
+  display: inline-flex; align-items: center; gap: 6px; transition: all 0.12s;
+}
+.view-btn:first-child { border-right: 1.5px solid var(--border); }
+.view-btn.active { background: var(--maroon); color: #fff; }
+.view-btn:not(.active):hover { background: var(--surface-soft); color: var(--saffron-dark); }
+
+/* CALENDAR */
+.calendar-wrap { background: #fff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 2rem; }
+.cal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.4rem; border-bottom: 1px solid var(--border); background: var(--surface-soft);
+}
+.cal-header h3 { font-family: Georgia, serif; font-size: 1.1rem; color: var(--maroon); }
+.cal-nav { display: flex; gap: 6px; }
+.cal-nav-btn {
+  width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border);
+  background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; color: var(--muted);
+}
+.cal-nav-btn:hover { border-color: var(--saffron); color: var(--saffron-dark); }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+.cal-day-label {
+  text-align: center; padding: 8px 4px; font-size: 0.72rem; font-weight: 700;
+  color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border);
+}
+.cal-cell {
+  min-height: 80px; padding: 6px; border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border); vertical-align: top; position: relative;
+  cursor: default;
+}
+.cal-cell:nth-child(7n) { border-right: none; }
+.cal-cell.other-month { background: #fafafa; }
+.cal-cell.today { background: rgba(181,90,24,0.05); }
+.cal-date {
+  font-size: 0.78rem; font-weight: 700; color: var(--muted); margin-bottom: 4px;
+  width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+}
+.cal-cell.today .cal-date { background: var(--maroon); color: #fff; }
+.cal-event-dot {
+  font-size: 0.68rem; line-height: 1.3; padding: 2px 5px; border-radius: 4px;
+  margin-bottom: 2px; cursor: pointer; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; font-weight: 600;
+}
+.cal-event-dot.type-event { background: rgba(127,46,22,0.12); color: var(--maroon); }
+.cal-event-dot.type-initiative { background: rgba(181,90,24,0.12); color: var(--saffron-dark); }
+.cal-more { font-size: 0.68rem; color: var(--muted); padding: 1px 4px; cursor: pointer; }
+.cal-more:hover { color: var(--saffron-dark); }
+
+/* DAY DETAIL PANEL */
+.day-detail {
+  display: none; padding: 1rem 1.4rem; border-top: 1px solid var(--border); background: var(--surface-soft);
+}
+.day-detail.show { display: block; }
+.day-detail h4 { font-family: Georgia, serif; font-size: 1rem; color: var(--maroon); margin-bottom: 10px; }
+.day-event-row {
+  display: flex; align-items: center; gap: 12px; padding: 8px 0;
+  border-bottom: 1px dashed var(--border);
+}
+.day-event-row:last-child { border-bottom: none; }
+.day-event-name { font-size: 0.86rem; font-weight: 700; color: var(--text); flex: 1; }
+.day-event-time { font-size: 0.78rem; color: var(--muted); }
+.day-event-actions { display: flex; gap: 6px; }
+
 
 .user-chip {
   display: flex; align-items: center; gap: 10px;
@@ -543,6 +617,16 @@ textarea { resize: vertical; }
           <span class="user-name" id="user-name">&mdash;</span>
           <button class="btn-signout" id="btn-signout">Sign out</button>
         </div>
+        <div class="view-toggle">
+          <button class="view-btn" id="btn-view-calendar">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Calendar
+          </button>
+          <button class="view-btn active" id="btn-view-list">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3" cy="6" r="1"/><circle cx="3" cy="12" r="1"/><circle cx="3" cy="18" r="1"/></svg>
+            List
+          </button>
+        </div>
         <button class="btn-add" id="btn-add-event">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Add Event
@@ -551,6 +635,25 @@ textarea { resize: vertical; }
     </div>
 
     <div class="status-bar" id="status-bar"></div>
+
+    <!-- CALENDAR VIEW -->
+    <div id="calendar-view" style="display:none;">
+      <div class="calendar-wrap">
+        <div class="cal-header">
+          <h3 id="cal-month-label">Month Year</h3>
+          <div class="cal-nav">
+            <button class="cal-nav-btn" id="cal-prev">&#8249;</button>
+            <button class="cal-nav-btn" id="cal-today-btn" style="font-size:0.72rem;font-weight:700;width:auto;padding:0 8px;">Today</button>
+            <button class="cal-nav-btn" id="cal-next">&#8250;</button>
+          </div>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+        <div class="day-detail" id="day-detail">
+          <h4 id="day-detail-title"></h4>
+          <div id="day-detail-events"></div>
+        </div>
+      </div>
+    </div>
 
     <div class="events-list" id="events-list">
       <div class="empty-state">Loading events&hellip;</div>
@@ -889,6 +992,7 @@ function loadEvents() {
         allEvents.push(data);
       });
       renderEventsList();
+      if (currentView === 'calendar') renderCalendar();
     })
     .catch(function (err) {
       console.error(err);
@@ -986,6 +1090,198 @@ function buildEventRowHtml(e, isPast) {
     '</div>'
   );
 }
+
+/* ── View toggle ─────────────────────────────────────────── */
+var currentView = 'list';
+var calYear, calMonth;
+
+function setView(view) {
+  currentView = view;
+  document.getElementById('btn-view-list').classList.toggle('active', view === 'list');
+  document.getElementById('btn-view-calendar').classList.toggle('active', view === 'calendar');
+  document.getElementById('events-list').style.display = view === 'list' ? 'flex' : 'none';
+  document.getElementById('past-events-section').style.display = view === 'list' ? 'block' : 'none';
+  document.getElementById('calendar-view').style.display = view === 'calendar' ? 'block' : 'none';
+  if (view === 'calendar') renderCalendar();
+}
+
+document.getElementById('btn-view-calendar').addEventListener('click', function() { setView('calendar'); });
+document.getElementById('btn-view-list').addEventListener('click', function() { setView('list'); });
+
+/* ── Calendar ────────────────────────────────────────────── */
+var DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+var DAY_MAP = { 'monday':1,'tuesday':2,'wednesday':3,'thursday':4,'friday':5,'saturday':6,'sunday':0,
+                'mon':1,'tue':2,'wed':3,'thu':4,'fri':5,'sat':6,'sun':0 };
+var MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+// Parse schedule text like "Tuesdays 6–7 PM, Thursdays 7–8 PM" → [2, 4] (JS day numbers)
+function parseDaysFromSchedule(scheduleText) {
+  if (!scheduleText) return [];
+  var days = [];
+  var words = scheduleText.toLowerCase().replace(/s\b/g, '').split(/[\s,&+/]+/);
+  words.forEach(function(w) {
+    if (DAY_MAP[w] !== undefined) days.push(DAY_MAP[w]);
+  });
+  return days;
+}
+
+// Generate all occurrence dates for an initiative between startDate and endDate
+function getInitiativeOccurrences(e) {
+  var days = parseDaysFromSchedule(e.schedule);
+  if (!days.length || !e.date) return [];
+  var startParts = e.date.split('-');
+  var endDateStr = e.endDate;
+  if (!endDateStr) return [];
+  var endParts = endDateStr.split('-');
+  var start = new Date(+startParts[0], +startParts[1]-1, +startParts[2]);
+  var end = new Date(+endParts[0], +endParts[1]-1, +endParts[2]);
+  var occurrences = [];
+  var cur = new Date(start);
+  while (cur <= end) {
+    var jsDay = cur.getDay(); // 0=Sun, 1=Mon...
+    if (days.indexOf(jsDay) !== -1) {
+      occurrences.push(cur.getFullYear() + '-' +
+        String(cur.getMonth()+1).padStart(2,'0') + '-' +
+        String(cur.getDate()).padStart(2,'0'));
+    }
+    cur.setDate(cur.getDate() + 1);
+  }
+  return occurrences;
+}
+
+// Build a map of dateStr → [events] for the given month
+function buildCalendarMap(year, month) {
+  var map = {};
+  allEvents.forEach(function(e) {
+    if (e.type === 'initiative') {
+      var occurrences = getInitiativeOccurrences(e);
+      occurrences.forEach(function(dateStr) {
+        var d = new Date(dateStr.split('-')[0], dateStr.split('-')[1]-1, dateStr.split('-')[2]);
+        if (d.getFullYear() === year && d.getMonth() === month) {
+          if (!map[dateStr]) map[dateStr] = [];
+          map[dateStr].push(e);
+        }
+      });
+    } else {
+      var dateStr = e.date;
+      if (!dateStr) return;
+      var parts = dateStr.split('-');
+      if (+parts[0] === year && +parts[1]-1 === month) {
+        if (!map[dateStr]) map[dateStr] = [];
+        map[dateStr].push(e);
+      }
+    }
+  });
+  return map;
+}
+
+function renderCalendar() {
+  var today = new Date();
+  if (calYear === undefined) { calYear = today.getFullYear(); calMonth = today.getMonth(); }
+
+  document.getElementById('cal-month-label').textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
+  document.getElementById('day-detail').classList.remove('show');
+
+  var map = buildCalendarMap(calYear, calMonth);
+  var grid = document.getElementById('cal-grid');
+
+  // Day headers (Mon–Sun)
+  var html = DAY_NAMES.map(function(d) { return '<div class="cal-day-label">' + d + '</div>'; }).join('');
+
+  // First day of month (adjust so week starts Monday)
+  var firstDay = new Date(calYear, calMonth, 1);
+  var startDow = (firstDay.getDay() + 6) % 7; // 0=Mon
+  var daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  var daysInPrevMonth = new Date(calYear, calMonth, 0).getDate();
+
+  var todayStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+
+  // Previous month filler
+  for (var i = startDow - 1; i >= 0; i--) {
+    html += '<div class="cal-cell other-month"><div class="cal-date" style="opacity:.4;">' + (daysInPrevMonth - i) + '</div></div>';
+  }
+
+  // Current month days
+  for (var day = 1; day <= daysInMonth; day++) {
+    var dateStr = calYear + '-' + String(calMonth+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
+    var isToday = dateStr === todayStr;
+    var dayEvents = map[dateStr] || [];
+
+    var dotsHtml = '';
+    var maxVisible = 3;
+    dayEvents.slice(0, maxVisible).forEach(function(e) {
+      var isInit = e.type === 'initiative';
+      var label = e.name.length > 16 ? e.name.substring(0, 14) + '…' : e.name;
+      dotsHtml += '<div class="cal-event-dot type-' + (isInit?'initiative':'event') + '" data-date="' + dateStr + '" data-id="' + escHtml(e.id) + '">' + escHtml(label) + '</div>';
+    });
+    if (dayEvents.length > maxVisible) {
+      dotsHtml += '<div class="cal-more" data-date="' + dateStr + '">+' + (dayEvents.length - maxVisible) + ' more</div>';
+    }
+
+    html += '<div class="cal-cell' + (isToday?' today':'') + '" data-date="' + dateStr + '">' +
+      '<div class="cal-date">' + day + '</div>' +
+      dotsHtml +
+    '</div>';
+  }
+
+  // Next month filler
+  var totalCells = startDow + daysInMonth;
+  var remainder = 7 - (totalCells % 7);
+  if (remainder < 7) {
+    for (var i = 1; i <= remainder; i++) {
+      html += '<div class="cal-cell other-month"><div class="cal-date" style="opacity:.4;">' + i + '</div></div>';
+    }
+  }
+
+  grid.innerHTML = html;
+
+  // Click on day cell or event dot → show detail panel
+  grid.addEventListener('click', function(evt) {
+    var dateStr = evt.target.closest('[data-date]') && evt.target.closest('[data-date]').getAttribute('data-date');
+    if (!dateStr) return;
+    showDayDetail(dateStr, map[dateStr] || []);
+  });
+}
+
+function showDayDetail(dateStr, events) {
+  var panel = document.getElementById('day-detail');
+  var parts = dateStr.split('-');
+  var d = new Date(+parts[0], +parts[1]-1, +parts[2]);
+  document.getElementById('day-detail-title').textContent =
+    d.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+
+  if (!events.length) {
+    document.getElementById('day-detail-events').innerHTML = '<p style="font-size:.86rem;color:var(--muted);padding:8px 0;">No events on this day.</p>';
+  } else {
+    document.getElementById('day-detail-events').innerHTML = events.map(function(e) {
+      var isInit = e.type === 'initiative';
+      var time = isInit ? (e.schedule || '') : ((e.fromTime || '') + (e.toTime ? ' – ' + e.toTime : ''));
+      return '<div class="day-event-row">' +
+        '<div>' +
+          '<div class="day-event-name">' + escHtml(e.name) + (isInit ? ' <span style="font-size:.7rem;color:var(--saffron-dark);font-weight:800;text-transform:uppercase;">Initiative</span>' : '') + '</div>' +
+          (time ? '<div class="day-event-time">' + escHtml(time) + '</div>' : '') +
+        '</div>' +
+        '<div class="day-event-actions">' +
+          '<button class="btn-icon btn-edit-event" data-event-id="' + escHtml(e.id) + '">Edit</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+  panel.classList.add('show');
+}
+
+document.getElementById('cal-prev').addEventListener('click', function() {
+  calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
+});
+document.getElementById('cal-next').addEventListener('click', function() {
+  calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalendar();
+});
+document.getElementById('cal-today-btn').addEventListener('click', function() {
+  var today = new Date(); calYear = today.getFullYear(); calMonth = today.getMonth();
+  renderCalendar();
+});
 
 function renderEventsList() {
   var upcomingContainer = document.getElementById('events-list');
@@ -1152,6 +1448,17 @@ document.getElementById('btn-save-event').addEventListener('click', function () 
   if (type === 'event' && !fromTime) { document.getElementById('err-from-time').classList.add('show'); hasError = true; }
   if (type === 'initiative' && !endDate) { document.getElementById('err-end-date').classList.add('show'); hasError = true; }
   if (type === 'initiative' && !schedule) { document.getElementById('err-schedule').classList.add('show'); hasError = true; }
+  if (hasError) return;
+
+  var eventData = {
+    type: type,
+    name: name,
+    description: description,
+    date: date,
+    category: category,
+    cost: cost,
+    rsvpUrl: rsvpUrl
+  };
 
   if (type === 'event') {
     eventData.fromTime = fromTime;

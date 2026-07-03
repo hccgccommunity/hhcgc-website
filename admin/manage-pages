@@ -826,6 +826,11 @@ document.getElementById('btn-save').addEventListener('click', async function() {
   }
 
   var fb = window.__hccgcMP;
+  if (!fb) {
+    btn.disabled = false; btn.innerHTML = orig;
+    showStatus('Not ready yet — please wait a moment and try again.', 'error');
+    return;
+  }
   try {
     var pageId = document.getElementById('edit-page-id').value;
     if (pageId) {

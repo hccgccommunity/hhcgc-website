@@ -110,7 +110,7 @@ button,input,select,textarea{font:inherit;}
 .form-notice-urgent{background:rgba(127,46,22,0.07);border-color:rgba(127,46,22,0.25);color:var(--maroon);font-weight:600;}
 .form-notice-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
 .tickets-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:stretch;margin-top:24px;}
-.tickets-flyer{display:flex;}
+.tickets-flyer{display:flex;align-self:start;}
 .tickets-flyer .flyer-frame{border-radius:20px;overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow);position:sticky;top:calc(var(--header-offset) + 16px);width:100%;}
 .tickets-flyer .flyer-frame img{width:100%;height:auto;display:block;}
 .embed-card{overflow:visible;background:transparent;border-radius:0;box-shadow:none;border:0;max-width:100%;margin:0;padding:0;}
@@ -351,10 +351,38 @@ function renderPage(e) {
   var hasZeffy = !!e.zeffyUrl;
 
   if (e.zeffyUrl) {
-    var zeffyHtmlOnly = e.zeffyUrl.replace(/<script[\s\S]*?<\/script>/gi, '').trim();
-    var scriptSrcMatch = e.zeffyUrl.match(/src=['"]([^'"]*zeffy[^'"]*)['"]/i);
-    if (scriptSrcMatch) zeffyScriptSrc = scriptSrcMatch[1];
-    regHtml += '<div class="embed-card" id="zeffy-container"><div>' + zeffyHtmlOnly + '</div></div>';
+    // Extract the iframe src from the stored embed code.
+    // Zeffy's embed code uses either src='...' or data-zeffy-embed-src='...'
+    var iframeSrc = '';
+    var srcMatch = e.zeffyUrl.match(/data-zeffy-embed-src=['"]([^'"]+)['"]/i);
+    if (!srcMatch) srcMatch = e.zeffyUrl.match(/src=['"]([^'"]*zeffy[^'"]+)['"]/i);
+    if (srcMatch) iframeSrc = srcMatch[1];
+    // Also extract the form-url for the data-zeffy-embed approach
+    var formUrlMatch = e.zeffyUrl.match(/data-form-url=['"]([^'"]+)['"]/i);
+    var formUrl = formUrlMatch ? formUrlMatch[1] : '';
+
+    regHtml += '<div class="embed-card" id="zeffy-container"><div>';
+    if (iframeSrc) {
+      // Direct iframe — works regardless of script timing issues
+      regHtml += '<div class="zeffy-responsive-frame">';
+      regHtml += '<iframe title="' + esc(title) + ' registration" ';
+      regHtml += 'src="' + esc(iframeSrc) + '" ';
+      regHtml += 'allowpaymentrequest allowtransparency="true" scrolling="no" ';
+      regHtml += 'style="position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent;display:block;overflow:hidden;">';
+      regHtml += '</iframe></div>';
+    } else if (formUrl) {
+      // Fallback: use data-zeffy-embed approach with script injection
+      regHtml += '<div data-zeffy-embed data-form-url="' + esc(formUrl) + '"></div>';
+    } else {
+      // Last resort: inject the full embed code as-is minus script tag
+      var zeffyHtmlOnly = e.zeffyUrl.replace(/<script[\s\S]*?<\/script>/gi, '').trim();
+      regHtml += zeffyHtmlOnly;
+    }
+    regHtml += '</div></div>';
+
+    // Store script src for dynamic injection
+    var scriptSrcMatch2 = e.zeffyUrl.match(/src=['"]([^'"]*zeffy[^'"]*embed[^'"]*\.js)['"]/i);
+    zeffyScriptSrc = scriptSrcMatch2 ? scriptSrcMatch2[1] : zeffyScriptSrc;
   } else {
     regHtml += '<div class="rsvp-soon">Registrations will open soon!</div>';
   }

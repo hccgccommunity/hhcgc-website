@@ -366,7 +366,6 @@ onAuthStateChanged(auth, function (user) {
 
 <script>
 var APP_REGISTRY = [
-  { key: 'room-booking', name: 'Room Booking' },
   { key: 'manage-events', name: 'Manage Events' },
   { key: 'manage-pages', name: 'Manage Pages' },
   { key: 'marketing-assistant', name: 'Hey HCCGC' }

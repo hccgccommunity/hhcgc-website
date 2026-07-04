@@ -366,13 +366,6 @@ body {
 <script id="app-registry" type="application/json">
 [
   {
-    "key": "room-booking",
-    "name": "Room Booking",
-    "description": "Reserve Surya, Patanjali, Nataraj, or Ganesh room and send Google Calendar invites to attendees.",
-    "url": "room-booking",
-    "icon": "calendar"
-  },
-  {
     "key": "manage-events",
     "description": "Add, edit, and remove events shown on the public Upcoming Events page.",
     "url": "manage-events",

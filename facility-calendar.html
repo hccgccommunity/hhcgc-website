@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facility Calendar | Hindu Community Center of Greater Cincinnati</title>
+<meta name="description" content="View the HCCGC facility availability calendar for room and space bookings.">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' x='50%25' text-anchor='middle' font-size='82'%3E%E0%A5%90%3C/text%3E%3C/svg%3E">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F5ZHQ4CDR9');</script>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-TPBF5VKB');</script>
+<style>
+:root{--bg:#fff9f1;--surface:#fff;--surface-soft:#fff6ea;--border:rgba(121,62,17,0.14);--text:#2c1b10;--muted:#6a5141;--saffron:#b55a18;--saffron-dark:#8d3e0d;--maroon:#7f2e16;--shadow:0 18px 45px rgba(93,43,14,0.10);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top left,rgba(217,138,30,0.12),transparent 22%),radial-gradient(circle at top right,rgba(127,46,22,0.05),transparent 20%),var(--bg);color:var(--text);min-height:100vh;}
+.container{width:min(calc(100% - 32px),1200px);margin:0 auto;}
+.site-header{position:sticky;top:0;z-index:50;background:rgba(255,249,241,0.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:92px;padding:12px 0;}
+.brand{display:flex;align-items:center;gap:16px;min-width:0;}
+.brand-logo-wrap{background:#7f2e16;border-radius:18px;padding:8px;flex-shrink:0;}
+.brand-logo{width:88px;height:auto;border-radius:12px;object-fit:contain;}
+.brand-text h1{margin:0;font-size:1.2rem;line-height:1.15;color:var(--maroon);font-family:Georgia,serif;}
+.site-header a.brand,.site-header a.brand:link,.site-header a.brand:visited{text-decoration:none;color:inherit;}
+.site-header nav ul{list-style:none;display:flex;flex-wrap:wrap;gap:18px;margin:0;padding:0;align-items:center;justify-content:flex-end;}
+.site-header nav a,.site-header nav a:link,.site-header nav a:visited{font-weight:700;color:var(--text);font-size:0.96rem;text-decoration:none;}
+.site-header nav a:hover{color:var(--saffron-dark);}
+.menu-toggle{display:none;border:0;background:transparent;padding:6px 0;cursor:pointer;color:#2c1b10;align-self:flex-end;}
+.menu-toggle .bar{display:block;width:26px;height:2px;margin:5px 0;background:currentColor;}
+@media(max-width:768px){.nav{flex-direction:column;align-items:stretch;gap:8px;}.menu-toggle{display:inline-block;}.site-header nav{display:none;width:100%;background:rgba(255,249,241,0.95);padding:10px 0;}.site-header nav.is-open{display:block;}.site-header nav ul{flex-direction:column;gap:14px;}}
+.page-hero{padding:44px 0 32px;text-align:center;}
+.section-kicker{display:inline-block;padding:6px 14px;border-radius:999px;background:rgba(217,138,30,0.12);color:var(--saffron-dark);font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;}
+.page-hero h1{font-family:Georgia,serif;font-size:clamp(1.8rem,4vw,2.6rem);color:var(--maroon);margin-bottom:10px;}
+.page-hero p{color:var(--muted);font-size:.95rem;max-width:540px;margin:0 auto 20px;}
+.hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:.7rem 1.4rem;background:var(--maroon);color:#fff;border:none;border-radius:999px;font-size:.9rem;font-weight:700;text-decoration:none;cursor:pointer;}
+.btn-primary:hover{background:#5a1e0a;}
+.btn-secondary{display:inline-flex;align-items:center;gap:8px;padding:.7rem 1.4rem;background:#fff;color:var(--saffron-dark);border:1.5px solid var(--border);border-radius:999px;font-size:.9rem;font-weight:700;text-decoration:none;}
+.btn-secondary:hover{border-color:var(--saffron);background:var(--surface-soft);}
+.rooms-strip{padding:0 0 28px;}
+.rooms-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.room-info-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:1.2rem 1.4rem;text-align:center;box-shadow:0 4px 14px rgba(93,43,14,.06);}
+.room-info-card h3{font-family:Georgia,serif;font-size:1rem;color:var(--maroon);margin-bottom:4px;}
+.room-info-card p{font-size:.78rem;color:var(--muted);}
+.calendar-wrap{background:#fff;border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:48px;}
+.calendar-wrap iframe{width:100%;border:0;display:block;min-height:680px;}
+@media(max-width:700px){.rooms-grid{grid-template-columns:1fr 1fr;}.calendar-wrap iframe{min-height:500px;}}
+</style>
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TPBF5VKB" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div id="site-header"></div>
+
+<main>
+  <div class="container">
+    <div class="page-hero">
+      <span class="section-kicker">HCCGC Facility</span>
+      <h1>Facility Calendar</h1>
+      <p>View room availability and scheduled events at the Hindu Community Center of Greater Cincinnati.</p>
+      <div class="hero-actions">
+        <a class="btn-primary" href="/facility-rental">Rent a Space</a>
+        <a class="btn-secondary" href="/contact-us">Contact Us</a>
+      </div>
+    </div>
+
+    <div class="rooms-strip">
+      <div class="rooms-grid">
+        <div class="room-info-card">
+          <h3>Surya Hall</h3>
+          <p>Main hall &middot; Large events &amp; celebrations</p>
+        </div>
+        <div class="room-info-card">
+          <h3>Patanjali Hall</h3>
+          <p>Medium hall &middot; Classes &amp; gatherings</p>
+        </div>
+        <div class="room-info-card">
+          <h3>Nataraj Room</h3>
+          <p>Dance &amp; practice space</p>
+        </div>
+        <div class="room-info-card">
+          <h3>Ganesh Room</h3>
+          <p>Small meeting room</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="calendar-wrap">
+      <iframe
+        src="https://calendar.google.com/calendar/embed?src=facility-calendar%40hccgc.org&ctz=America%2FNew_York&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=0&mode=MONTH"
+        title="HCCGC Facility Calendar"
+        frameborder="0"
+        scrolling="no"
+        loading="lazy">
+      </iframe>
+    </div>
+  </div>
+</main>
+
+<div id="site-footer"></div>
+
+<script>
+function loadPartial(id, file) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  fetch(file).then(function(r){return r.text();}).then(function(html){el.innerHTML=html;}).catch(function(){});
+}
+loadPartial('site-header', '/header.html');
+loadPartial('site-footer', '/footer.html');
+</script>
+</body>
+</html>

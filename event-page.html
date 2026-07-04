@@ -14,17 +14,15 @@
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F5ZHQ4CDR9');</script>
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-TPBF5VKB');</script>
 <style>
-:root {
-  --bg:#fff9f1;--surface:#fff;--surface-soft:#fff6ea;
-  --border:rgba(121,62,17,0.14);--text:#2c1b10;--muted:#6a5141;
-  --saffron:#b55a18;--saffron-dark:#8d3e0d;--maroon:#7f2e16;
-  --shadow:0 18px 45px rgba(93,43,14,0.10);--radius:22px;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top left,rgba(217,138,30,0.12),transparent 22%),radial-gradient(circle at top right,rgba(127,46,22,0.05),transparent 20%),var(--bg);color:var(--text);min-height:100vh;line-height:1.65;}
+:root{--bg:#fff9f1;--surface:#fff;--surface-soft:#fff6ea;--border:rgba(121,62,17,0.14);--text:#2c1b10;--muted:#6a5141;--saffron:#b55a18;--saffron-bright:#c65a12;--saffron-dark:#8d3e0d;--maroon:#7f2e16;--shadow:0 18px 45px rgba(93,43,14,0.10);--shadow-soft:0 10px 28px rgba(93,43,14,0.08);--radius:22px;--max:1220px;--header-offset:110px;}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--text);background:radial-gradient(circle at top left,rgba(217,138,30,0.12),transparent 22%),radial-gradient(circle at top right,rgba(127,46,22,0.05),transparent 20%),var(--bg);line-height:1.65;}
 img{max-width:100%;display:block;}
 a{color:inherit;text-decoration:none;}
-.container{width:min(calc(100% - 32px),1100px);margin:0 auto;}
+button,input,select,textarea{font:inherit;}
+.container{width:min(calc(100% - 32px),var(--max));margin:0 auto;}
+/* HEADER */
 .site-header{position:sticky;top:0;z-index:50;background:rgba(255,249,241,0.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);}
 .nav{display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:92px;padding:12px 0;}
 .brand{display:flex;align-items:center;gap:16px;min-width:0;}
@@ -37,7 +35,8 @@ a{color:inherit;text-decoration:none;}
 .site-header nav a:hover{color:var(--saffron-dark);}
 .menu-toggle{display:none;border:0;background:transparent;padding:6px 0;cursor:pointer;color:#2c1b10;align-self:flex-end;}
 .menu-toggle .bar{display:block;width:26px;height:2px;margin:5px 0;background:currentColor;}
-@media(max-width:768px){.nav{flex-direction:column;align-items:stretch;gap:8px;}.menu-toggle{display:inline-block;}.site-header nav{display:none;width:100%;background:rgba(255,249,241,0.95);padding:10px 0;}.site-header nav.is-open{display:block;}.site-header nav ul{flex-direction:column;gap:14px;}}
+@media(max-width:860px){.nav{flex-direction:column;align-items:stretch;gap:8px;}.menu-toggle{display:inline-block;}.site-header nav{display:none;width:100%;background:rgba(255,249,241,0.95);padding:10px 0;}.site-header nav.is-open{display:block;}.site-header nav ul{flex-direction:column;gap:14px;}}
+/* LOADING */
 .loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px;color:var(--muted);}
 .spinner{width:32px;height:32px;border:3px solid rgba(141,62,13,0.18);border-top-color:var(--saffron-dark);border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -45,82 +44,92 @@ a{color:inherit;text-decoration:none;}
 .not-found h2{font-family:Georgia,serif;font-size:1.8rem;color:var(--maroon);margin-bottom:12px;}
 .not-found a{color:var(--saffron-dark);}
 #page-content{display:none;}
-.page-hero{background:linear-gradient(135deg,var(--maroon) 0%,#4e1a09 100%);color:#fff;padding:60px 0 52px;text-align:center;}
-.hero-kicker{display:inline-block;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.28);border-radius:20px;padding:4px 16px;font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;font-weight:700;margin-bottom:16px;}
-.hero-title{font-family:Georgia,"Times New Roman",serif;font-size:clamp(2rem,5vw,3rem);font-weight:700;margin-bottom:10px;line-height:1.15;}
-.hero-tagline{font-size:1.05rem;opacity:0.88;margin-bottom:18px;font-style:italic;}
-.hero-desc{max-width:680px;margin:0 auto 28px;font-size:0.95rem;line-height:1.7;opacity:0.9;}
-.hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
-.btn-hero-primary{background:#fff;color:var(--maroon);padding:0.75rem 1.75rem;border-radius:999px;font-weight:700;font-size:0.95rem;text-decoration:none;}
-.btn-hero-primary:hover{opacity:0.9;}
-.btn-hero-secondary{background:rgba(255,255,255,0.12);color:#fff;border:1.5px solid rgba(255,255,255,0.35);padding:0.75rem 1.75rem;border-radius:999px;font-weight:700;font-size:0.95rem;text-decoration:none;}
-.info-strip{background:#fff;border-bottom:1px solid var(--border);padding:28px 0;}
-.info-cards{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;}
-.info-card{display:flex;align-items:flex-start;gap:12px;min-width:180px;flex:1;}
-.info-icon{font-size:1.5rem;flex-shrink:0;margin-top:2px;}
-.info-card h4{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);font-weight:700;margin-bottom:4px;}
-.info-card p{font-size:0.9rem;font-weight:700;color:var(--text);line-height:1.4;}
-.info-card p small{display:block;font-size:0.78rem;font-weight:400;color:var(--muted);}
-.section{padding:56px 0;}
-.section-alt{background:var(--surface-soft);}
-.section-label{display:inline-block;font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--saffron-dark);margin-bottom:8px;}
-.section-title{font-family:Georgia,serif;font-size:clamp(1.5rem,3vw,2rem);color:var(--maroon);margin-bottom:18px;line-height:1.2;}
-.prose{font-size:0.95rem;line-height:1.8;color:var(--text);max-width:720px;}
-.prose p+p{margin-top:1em;}
-.bullet-list{list-style:none;padding:0;margin-top:16px;}
-.bullet-list li{padding:8px 0;border-bottom:1px dashed var(--border);font-size:0.9rem;color:var(--text);line-height:1.55;}
-.bullet-list li:last-child{border-bottom:none;}
-.bullet-list li::before{content:"✦ ";color:var(--saffron-dark);font-size:0.7rem;}
-.people-grid{display:flex;flex-wrap:wrap;gap:20px;margin-top:24px;}
-.person-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:1.4rem;text-align:center;flex:1;min-width:160px;max-width:200px;}
-.person-avatar{width:80px;height:80px;border-radius:50%;background:var(--surface-soft);border:2px solid var(--border);margin:0 auto 12px;overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:1.8rem;}
-.person-avatar img{width:100%;height:100%;object-fit:cover;}
-.person-card h4{font-family:Georgia,serif;font-size:0.95rem;color:var(--maroon);margin-bottom:4px;}
-.person-card p{font-size:0.78rem;color:var(--muted);line-height:1.4;}
-.curriculum{display:flex;flex-direction:column;gap:16px;margin-top:24px;}
-.curriculum-week{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;}
-.curriculum-week-header{background:var(--surface-soft);padding:12px 18px;display:flex;align-items:center;gap:12px;}
-.week-badge{background:var(--maroon);color:#fff;border-radius:8px;padding:3px 10px;font-size:0.72rem;font-weight:800;text-transform:uppercase;white-space:nowrap;}
-.curriculum-week-header h4{font-family:Georgia,serif;font-size:1rem;color:var(--maroon);}
-.curriculum-week-body{padding:14px 18px;}
-.curriculum-week-body p{font-size:0.85rem;color:var(--muted);line-height:1.6;}
-.timeline{display:flex;flex-direction:column;gap:0;margin-top:20px;}
-.timeline-item{display:flex;gap:20px;align-items:flex-start;padding:16px 0;border-bottom:1px dashed var(--border);}
-.timeline-item:last-child{border-bottom:none;}
-.timeline-time{font-size:0.82rem;font-weight:700;color:var(--saffron-dark);min-width:70px;padding-top:2px;}
-.timeline-label{font-size:0.9rem;color:var(--text);font-weight:600;}
-.timeline-label small{display:block;font-weight:400;color:var(--muted);font-size:0.78rem;margin-top:2px;}
-.registration-section{padding:56px 0;}
+/* HERO */
+.hero{padding:32px 0 28px;}
+.hero-card{background:rgba(255,255,255,0.88);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:clamp(24px,3vw,40px);display:grid;grid-template-columns:1.2fr 0.8fr;gap:32px;align-items:start;}
+.hero-kicker{display:inline-block;padding:7px 14px;border-radius:999px;background:rgba(217,138,30,0.12);color:var(--saffron-dark);font-size:0.83rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;}
+.hero-title{margin:0 0 8px;font-family:Georgia,"Times New Roman",serif;font-size:clamp(2.4rem,5vw,4.2rem);letter-spacing:-0.03em;color:var(--maroon);line-height:1.1;}
+.hero-tagline{margin:0 0 14px;color:var(--muted);font-size:1.08rem;font-style:italic;}
+.hero-copy{margin:0 0 20px;color:var(--muted);font-size:clamp(1rem,1.4vw,1.1rem);line-height:1.7;}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px;}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:12px 22px;border-radius:999px;font-weight:800;border:1px solid transparent;transition:transform 0.18s,box-shadow 0.18s;}
+.btn:hover{transform:translateY(-1px);box-shadow:0 12px 22px rgba(93,43,14,0.13);}
+.btn-primary{color:#fff;background:linear-gradient(135deg,var(--saffron-bright),var(--saffron-dark));}
+.btn-secondary{color:var(--saffron-dark);background:#fff;border-color:var(--border);}
+.hero-panel{display:grid;gap:14px;}
+.quick-card{background:rgba(255,255,255,0.88);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-soft);padding:18px 20px;display:flex;align-items:center;gap:14px;}
+.quick-card-icon{font-size:1.6rem;flex-shrink:0;line-height:1;}
+.quick-card-body h3{margin:0 0 3px;color:var(--maroon);font-family:Georgia,"Times New Roman",serif;font-size:0.88rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;}
+.quick-card-body p{margin:0;color:var(--text);font-size:1rem;font-weight:700;line-height:1.3;}
+.quick-card-body p small{display:block;font-size:0.8rem;font-weight:400;color:var(--muted);margin-top:2px;}
+/* SECTIONS */
+.section{padding:42px 0;scroll-margin-top:var(--header-offset);}
+.section-head{margin-bottom:24px;text-align:center;}
+.section-kicker{display:inline-block;padding:7px 14px;border-radius:999px;background:rgba(217,138,30,0.12);color:var(--saffron-dark);font-size:0.83rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;}
+.section-head h2{margin:8px 0 10px;line-height:1.2;color:var(--maroon);font-family:Georgia,"Times New Roman",serif;font-size:clamp(2rem,3.4vw,3rem);}
+.section-copy{margin:0 auto;color:var(--muted);font-size:1.05rem;text-align:center;}
+/* TIMELINE */
+.timeline-wrap{margin-top:24px;background:rgba(255,255,255,0.88);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-soft);padding:24px 28px;}
+.timeline-wrap h3{margin:0 0 18px;font-family:Georgia,"Times New Roman",serif;color:var(--maroon);font-size:1.2rem;text-align:center;}
+.timeline{display:flex;align-items:stretch;border-radius:12px;overflow:hidden;border:1px solid var(--border);}
+.tl-segment{display:flex;flex-direction:column;justify-content:center;padding:14px 16px;text-align:center;}
+.tl-segment-main{background:linear-gradient(135deg,rgba(198,90,18,0.12),rgba(255,246,234,0.9));flex:5;}
+.tl-segment-interval{background:var(--surface-soft);border-left:1px solid var(--border);border-right:1px solid var(--border);flex:2;}
+.tl-segment-main2{background:linear-gradient(135deg,rgba(198,90,18,0.12),rgba(255,246,234,0.9));flex:4;}
+.tl-time{font-size:0.75rem;font-weight:800;color:var(--saffron-dark);letter-spacing:0.04em;margin-bottom:3px;}
+.tl-label{font-family:Georgia,"Times New Roman",serif;font-size:0.95rem;color:var(--maroon);font-weight:700;line-height:1.2;}
+.tl-sublabel{font-size:0.75rem;color:var(--muted);margin-top:2px;}
+/* ABOUT */
+.about-grid{display:grid;grid-template-columns:1.05fr 0.95fr;gap:24px;align-items:stretch;}
+.content-card{background:rgba(255,255,255,0.88);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-soft);padding:clamp(24px,3vw,34px);}
+.content-card p{margin:0 0 16px;color:var(--muted);font-size:1.04rem;}
+.content-card p:last-child{margin-bottom:0;}
+.highlight-line{padding:16px 18px;border-left:5px solid var(--saffron-bright);background:var(--surface-soft);border-radius:16px;margin-top:18px;color:var(--maroon);font-weight:800;}
+.side-stack{display:grid;gap:18px;}
+.expect-card,.join-card{background:rgba(255,255,255,0.88);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-soft);padding:22px;}
+.expect-card h3,.join-card h3{margin:0 0 14px;font-size:1.55rem;line-height:1.2;font-family:Georgia,"Times New Roman",serif;color:var(--maroon);}
+.clean-list{list-style:none;margin:0;padding:0;display:grid;gap:12px;}
+.clean-list li{display:grid;grid-template-columns:28px 1fr;gap:10px;color:var(--muted);align-items:start;}
+.clean-list li::before{content:"✓";display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:rgba(198,90,18,0.12);color:var(--saffron-dark);font-weight:900;line-height:1;margin-top:2px;}
+/* ARTISTS */
+.artists-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;}
+.artist-card{background:rgba(255,255,255,0.88);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-soft);padding:20px 16px;text-align:center;display:flex;flex-direction:column;align-items:center;}
+.artist-photo-wrap{margin-bottom:12px;}
+.artist-photo-wrap img,.artist-photo-placeholder{width:100px;height:100px;border-radius:50%;object-fit:cover;border:2px solid var(--border);box-shadow:var(--shadow-soft);display:block;font-size:2rem;line-height:100px;text-align:center;background:var(--surface-soft);}
+.artist-card h3{margin:0 0 4px;color:var(--maroon);font-family:Georgia,"Times New Roman",serif;font-size:1.05rem;line-height:1.2;}
+.artist-card p{margin:0;color:var(--muted);font-size:0.88rem;font-style:italic;}
+.artist-location{font-size:0.78rem !important;font-style:normal !important;color:var(--saffron-dark) !important;font-weight:700;margin-top:4px !important;letter-spacing:0.02em;}
+/* REGISTRATION */
+.form-section{padding-top:24px;padding-bottom:0;}
+.form-intro{max-width:100%;margin:0;text-align:center;padding:24px 26px;background:linear-gradient(135deg,rgba(198,90,18,0.10),rgba(255,246,234,0.9));border:1px solid var(--border);border-radius:26px;box-shadow:var(--shadow-soft);}
+.form-intro h2{margin:0 0 8px;color:var(--maroon);font-family:Georgia,"Times New Roman",serif;font-size:clamp(1.8rem,3vw,2.45rem);}
+.form-intro p{margin:0 auto;color:var(--muted);}
+.form-notices{display:grid;gap:10px;margin-top:16px;text-align:left;}
+.form-notice{display:flex;align-items:flex-start;gap:10px;background:rgba(255,255,255,0.7);border:1px solid var(--border);border-radius:14px;padding:12px 16px;font-size:0.95rem;color:var(--muted);line-height:1.55;}
+.form-notice-urgent{background:rgba(127,46,22,0.07);border-color:rgba(127,46,22,0.25);color:var(--maroon);font-weight:600;}
+.form-notice-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
 .tickets-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:stretch;margin-top:24px;}
 .tickets-flyer{display:flex;}
-.tickets-flyer .flyer-frame{border-radius:20px;overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow);position:sticky;top:110px;width:100%;height:auto;}
-.tickets-flyer .flyer-frame img{width:100%;height:auto;display:block;object-fit:contain;}
+.tickets-flyer .flyer-frame{border-radius:20px;overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow);position:sticky;top:calc(var(--header-offset) + 16px);width:100%;}
+.tickets-flyer .flyer-frame img{width:100%;display:block;}
 .embed-card{overflow:visible;background:transparent;border-radius:0;box-shadow:none;border:0;max-width:100%;margin:0;padding:0;}
+.form-section .embed-card>div{height:100%;}
+.form-section [data-zeffy-embed],.form-section .zeffy-responsive-frame{height:100% !important;min-height:700px;padding-top:0 !important;}
+.form-section .zeffy-responsive-frame iframe{position:relative !important;height:100% !important;min-height:700px;width:100%;border:0;display:block;}
 .zeffy-responsive-frame{position:relative;overflow:hidden;height:0;width:100%;padding-top:1250px;background:transparent;}
 .zeffy-responsive-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent;display:block;overflow:hidden;}
-.zeffy-fallback{padding:40px;text-align:center;color:var(--muted);font-size:0.9rem;border:1px dashed var(--border);border-radius:16px;}
-.zeffy-fallback a{color:var(--saffron-dark);font-weight:700;}
 .rsvp-soon{padding:32px;text-align:center;background:var(--surface-soft);border:1px solid var(--border);border-radius:16px;color:var(--saffron-dark);font-weight:700;font-size:1rem;}
-@media(max-width:768px){.tickets-grid{grid-template-columns:1fr;}.info-cards{flex-direction:column;}.people-grid{justify-content:center;}}
+/* RESPONSIVE */
+@media(max-width:1100px){.artists-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:980px){.hero-card{grid-template-columns:1fr;}.about-grid{grid-template-columns:1fr;}.tickets-grid{grid-template-columns:1fr;}}
+@media(max-width:680px){.artists-grid{grid-template-columns:repeat(2,1fr);}.hero-actions .btn{width:100%;}}
 </style>
 </head>
 <body>
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TPBF5VKB" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-
 <div id="site-header"></div>
-
-<div id="loading-state" class="loading-state">
-  <div class="spinner"></div>
-  <p>Loading&hellip;</p>
-</div>
-
-<div id="not-found" style="display:none;">
-  <div class="not-found">
-    <h2>Page Not Found</h2>
-    <p>This page doesn&rsquo;t exist yet. <a href="/">Return to home</a>.</p>
-  </div>
-</div>
-
+<div id="loading-state" class="loading-state"><div class="spinner"></div><p>Loading&hellip;</p></div>
+<div id="not-found" style="display:none;"><div class="not-found"><h2>Page Not Found</h2><p>This page doesn&rsquo;t exist yet. <a href="/">Return to home</a>.</p></div></div>
 <div id="page-content"></div>
 <div id="site-footer"></div>
 
@@ -128,7 +137,7 @@ a{color:inherit;text-decoration:none;}
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
 import { getFirestore, collection, query, where, getDocs, limit } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
 
-const firebaseConfig = {
+var firebaseConfig = {
   apiKey: 'AIzaSyA6IzLjWTg7Rq04HsTH-iA3eDmSzKI7xME',
   authDomain: 'hccgc-a7a54.firebaseapp.com',
   projectId: 'hccgc-a7a54',
@@ -137,36 +146,25 @@ const firebaseConfig = {
   appId: '1:75757201418:web:c31e9361921242145717f3'
 };
 
-const fbApp = initializeApp(firebaseConfig);
-const db = getFirestore(fbApp);
+var fbApp = initializeApp(firebaseConfig);
+var db = getFirestore(fbApp);
 
 function loadPartial(id, file) {
   var el = document.getElementById(id);
   if (!el) return;
-  fetch(file).then(function(r){ return r.text(); }).then(function(html){ el.innerHTML = html; }).catch(function(){});
+  fetch(file).then(function(r){return r.text();}).then(function(html){el.innerHTML=html;}).catch(function(){});
 }
 loadPartial('site-header', '/header.html');
 loadPartial('site-footer', '/footer.html');
 
 function esc(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
 function fmtDate(d) {
   if (!d) return '';
   var p = d.split('-');
-  if (p.length !== 3) return d;
-  return new Date(+p[0], +p[1]-1, +p[2]).toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'});
-}
-
-function infoCard(icon, label, value, sub) {
-  var html = '<div class="info-card">';
-  html += '<div class="info-icon">' + icon + '</div>';
-  html += '<div><h4>' + esc(label) + '</h4>';
-  html += '<p>' + esc(value);
-  if (sub) html += '<small>' + esc(sub) + '</small>';
-  html += '</p></div></div>';
-  return html;
+  if (p.length!==3) return d;
+  return new Date(+p[0],+p[1]-1,+p[2]).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
 }
 
 var slug = window.location.pathname.replace(/^\//, '').replace(/\/$/, '');
@@ -174,11 +172,11 @@ if (!slug || slug === 'event-page') {
   document.getElementById('loading-state').style.display = 'none';
   document.getElementById('not-found').style.display = 'block';
 } else {
-  getDocs(query(collection(db, 'pages'), where('slug', '==', slug), limit(1))).then(function(snapshot) {
+  getDocs(query(collection(db,'pages'), where('slug','==',slug), limit(1))).then(function(snapshot) {
     document.getElementById('loading-state').style.display = 'none';
-    if (snapshot.empty) { document.getElementById('not-found').style.display = 'block'; return; }
+    if (snapshot.empty) { document.getElementById('not-found').style.display='block'; return; }
     var e = snapshot.docs[0].data();
-    if (!e.pageEnabled) { document.getElementById('not-found').style.display = 'block'; return; }
+    if (!e.pageEnabled) { document.getElementById('not-found').style.display='block'; return; }
     renderPage(e);
   }).catch(function(err) {
     console.error(err);
@@ -189,178 +187,200 @@ if (!slug || slug === 'event-page') {
 function renderPage(e) {
   var isInit = e.type === 'initiative';
   var title = e.pageTitle || e.name || 'HCCGC Event';
-
   document.getElementById('page-title').textContent = title + ' | Hindu Community Center of Greater Cincinnati';
-  document.getElementById('page-desc').setAttribute('content', e.metaDescription || e.tagline || e.heroDescription || '');
+  document.getElementById('page-desc').setAttribute('content', e.metaDescription||e.tagline||e.heroDescription||'');
 
-  // Info cards
-  var cards = '';
-  if (isInit) {
-    var dateRange = fmtDate(e.startDate || e.date) + (e.endDate ? ' \u2013 ' + fmtDate(e.endDate) : '');
-    cards += infoCard('\u{1F4C5}', 'Dates', dateRange, '');
-    if (e.scheduleText) cards += infoCard('\u{1F5D3}', 'Schedule', e.scheduleText, '');
-  } else {
-    if (e.date) cards += infoCard('\u{1F4C5}', 'Date', fmtDate(e.date), '');
-    if (e.fromTime) cards += infoCard('\u{1F550}', 'Time', e.fromTime + (e.toTime ? ' \u2013 ' + e.toTime : ''), '');
-  }
-  cards += infoCard('\u{1F4CD}', 'Venue', e.venue || 'HCCGC', '7500 Industrial Row Dr, Mason, OH 45040');
-  if (e.contact && e.contact.name) cards += infoCard('\u{1F4DE}', 'Contact', e.contact.name, e.contact.phone || '');
-  if (e.costDisplay || e.cost) cards += infoCard('\u{1F3AB}', 'Cost', e.costDisplay || e.cost, '');
-  if (isInit && e.instructor && e.instructor.name) cards += infoCard('\u{1F9D1}\u200D\u{1F3EB}', 'Instructor', e.instructor.name, e.instructor.role || '');
-
-  // Hero
-  var heroHtml = '<section class="page-hero">';
-  heroHtml += '<div class="container">';
-  heroHtml += '<span class="hero-kicker">HCCGC ' + (isInit ? 'Initiative' : 'Presents') + '</span>';
+  // HERO
+  var heroHtml = '<section class="hero"><div class="container"><div class="hero-card">';
+  heroHtml += '<div>';
+  heroHtml += '<span class="hero-kicker">HCCGC ' + (isInit?'Initiative':'Presents') + '</span>';
   heroHtml += '<h1 class="hero-title">' + esc(title) + '</h1>';
   if (e.tagline) heroHtml += '<p class="hero-tagline">' + esc(e.tagline) + '</p>';
-  if (e.heroDescription) heroHtml += '<p class="hero-desc">' + esc(e.heroDescription) + '</p>';
+  if (e.heroDescription) heroHtml += '<p class="hero-copy">' + esc(e.heroDescription) + '</p>';
   heroHtml += '<div class="hero-actions">';
-  heroHtml += e.zeffyUrl
-    ? '<a class="btn-hero-primary" href="#join">Register Now</a>'
-    : '<a class="btn-hero-primary" href="#about">Learn More</a>';
-  heroHtml += '<a class="btn-hero-secondary" href="#about">About ' + (isInit ? 'the Initiative' : 'the Event') + '</a>';
-  heroHtml += '</div></div></section>';
+  heroHtml += e.zeffyUrl ? '<a class="btn btn-primary" href="#tickets">Register Now</a>' : '';
+  heroHtml += '<a class="btn btn-secondary" href="#about">About ' + (isInit?'the Initiative':'the Event') + '</a>';
+  heroHtml += '</div></div>';
 
-  // Info strip
-  var infoHtml = '<div class="info-strip"><div class="container"><div class="info-cards">' + cards + '</div></div></div>';
+  // Quick cards panel
+  heroHtml += '<div class="hero-panel">';
+  if (!isInit && e.date) {
+    heroHtml += '<div class="quick-card"><div class="quick-card-icon">\uD83D\uDCC5</div><div class="quick-card-body"><h3>Date</h3><p>' + esc(fmtDate(e.date)) + '</p></div></div>';
+  }
+  if (isInit && (e.startDate||e.date)) {
+    var dateRange = fmtDate(e.startDate||e.date) + (e.endDate ? ' \u2013 ' + fmtDate(e.endDate) : '');
+    heroHtml += '<div class="quick-card"><div class="quick-card-icon">\uD83D\uDCC5</div><div class="quick-card-body"><h3>Dates</h3><p>' + esc(dateRange) + '</p></div></div>';
+    if (e.scheduleText) heroHtml += '<div class="quick-card"><div class="quick-card-icon">\uD83D\uDDD3</div><div class="quick-card-body"><h3>Schedule</h3><p>' + esc(e.scheduleText) + '</p></div></div>';
+  }
+  if (!isInit && e.fromTime) {
+    heroHtml += '<div class="quick-card"><div class="quick-card-icon">\uD83D\uDD50</div><div class="quick-card-body"><h3>Time</h3><p>' + esc(e.fromTime) + (e.toTime?' \u2013 '+esc(e.toTime):'') + '</p></div></div>';
+  }
+  heroHtml += '<div class="quick-card"><div class="quick-card-icon">\uD83D\uDCCD</div><div class="quick-card-body"><h3>Venue</h3><p>' + esc(e.venue||'HCCGC') + '<small>7500 Industrial Row Dr, Mason, OH 45040</small></p></div></div>';
+  if (e.costDisplay||e.cost) heroHtml += '<div class="quick-card"><div class="quick-card-icon">\uD83C\uDF9F</div><div class="quick-card-body"><h3>Cost</h3><p>' + esc(e.costDisplay||e.cost) + '</p></div></div>';
+  if (e.contact&&e.contact.name) heroHtml += '<div class="quick-card"><div class="quick-card-icon">\uD83D\uDCDE</div><div class="quick-card-body"><h3>Contact</h3><p>' + esc(e.contact.name) + (e.contact.phone?'<small>'+esc(e.contact.phone)+'</small>':'') + '</p></div></div>';
+  heroHtml += '</div></div></div></section>';
 
-  // About
-  var aboutHtml = '<section class="section" id="about"><div class="container">';
-  aboutHtml += '<span class="section-label">About ' + (isInit ? 'the Initiative' : 'the Event') + '</span>';
-  aboutHtml += '<h2 class="section-title">' + esc(e.aboutTitle || title) + '</h2>';
-  if (e.aboutBody) {
-    var paras = e.aboutBody.split('\n').filter(function(p){ return p.trim(); });
-    aboutHtml += '<div class="prose">' + paras.map(function(p){ return '<p>' + esc(p) + '</p>'; }).join('') + '</div>';
-  }
-  if (e.whatToExpect && e.whatToExpect.length) {
-    aboutHtml += '<h3 style="font-family:Georgia,serif;font-size:1.1rem;color:var(--maroon);margin:28px 0 10px;">What to Expect</h3>';
-    aboutHtml += '<ul class="bullet-list">' + e.whatToExpect.map(function(i){ return '<li>' + esc(i) + '</li>'; }).join('') + '</ul>';
-  }
-  if (e.whoShouldAttend && e.whoShouldAttend.length) {
-    aboutHtml += '<h3 style="font-family:Georgia,serif;font-size:1.1rem;color:var(--maroon);margin:28px 0 10px;">Who Should ' + (isInit ? 'Join' : 'Attend') + '</h3>';
-    aboutHtml += '<ul class="bullet-list">' + e.whoShouldAttend.map(function(i){ return '<li>' + esc(i) + '</li>'; }).join('') + '</ul>';
-  }
-  aboutHtml += '</div></section>';
-
-  // Schedule (events)
+  // TIMELINE (events with schedule items)
   var scheduleHtml = '';
   if (!isInit && e.scheduleItems && e.scheduleItems.length) {
-    scheduleHtml = '<section class="section"><div class="container">';
-    scheduleHtml += '<span class="section-label">Schedule</span>';
-    scheduleHtml += '<h2 class="section-title">Program Schedule</h2>';
-    scheduleHtml += '<div class="timeline">';
-    e.scheduleItems.forEach(function(s) {
-      scheduleHtml += '<div class="timeline-item">';
-      scheduleHtml += '<div class="timeline-time">' + esc(s.time) + '</div>';
-      scheduleHtml += '<div class="timeline-label">' + esc(s.label);
-      if (s.duration) scheduleHtml += '<small>' + esc(s.duration) + '</small>';
-      scheduleHtml += '</div></div>';
+    scheduleHtml = '<section class="section" style="padding-top:0;"><div class="container"><div class="timeline-wrap">';
+    scheduleHtml += '<h3>Program Schedule</h3><div class="timeline">';
+    var segClasses = ['tl-segment-main','tl-segment-interval','tl-segment-main2','tl-segment-main','tl-segment-interval','tl-segment-main2'];
+    e.scheduleItems.forEach(function(s,i) {
+      scheduleHtml += '<div class="tl-segment ' + (segClasses[i]||'tl-segment-main') + '">';
+      if (s.time) scheduleHtml += '<div class="tl-time">' + esc(s.time) + '</div>';
+      scheduleHtml += '<div class="tl-label">' + esc(s.label) + '</div>';
+      if (s.duration) scheduleHtml += '<div class="tl-sublabel">' + esc(s.duration) + '</div>';
+      scheduleHtml += '</div>';
     });
-    scheduleHtml += '</div></div></section>';
+    scheduleHtml += '</div></div></div></section>';
   }
 
-  // Performers (events)
+  // ABOUT
+  var aboutHtml = '<section id="about" class="section"><div class="container">';
+  aboutHtml += '<div class="section-head">';
+  aboutHtml += '<span class="section-kicker">About ' + (isInit?'the Initiative':'the Event') + '</span>';
+  aboutHtml += '<h2>' + esc(e.aboutTitle||title) + '</h2>';
+  aboutHtml += '</div>';
+  aboutHtml += '<div class="about-grid">';
+
+  // Left: full content
+  aboutHtml += '<article class="content-card">';
+  if (e.aboutBody) {
+    e.aboutBody.split('\n').filter(function(p){return p.trim();}).forEach(function(p) {
+      aboutHtml += '<p>' + esc(p) + '</p>';
+    });
+  }
+  aboutHtml += '</article>';
+
+  // Right: what to expect + who should attend stacked
+  aboutHtml += '<div class="side-stack">';
+  if (e.whatToExpect && e.whatToExpect.length) {
+    aboutHtml += '<article class="expect-card"><h3>What to Expect</h3><ul class="clean-list">';
+    e.whatToExpect.forEach(function(item) { aboutHtml += '<li>' + esc(item) + '</li>'; });
+    aboutHtml += '</ul></article>';
+  }
+  if (e.whoShouldAttend && e.whoShouldAttend.length) {
+    aboutHtml += '<article class="join-card"><h3>Who Should ' + (isInit?'Join':'Attend') + '</h3><ul class="clean-list">';
+    e.whoShouldAttend.forEach(function(item) { aboutHtml += '<li>' + esc(item) + '</li>'; });
+    aboutHtml += '</ul></article>';
+  }
+  aboutHtml += '</div></div></div></section>';
+
+  // PERFORMERS (events)
   var performersHtml = '';
   if (!isInit && e.performers && e.performers.length) {
-    performersHtml = '<section class="section section-alt"><div class="container">';
-    performersHtml += '<span class="section-label">Performers</span>';
-    performersHtml += '<h2 class="section-title">Meet the Artists</h2>';
-    performersHtml += '<div class="people-grid">';
+    performersHtml = '<section id="artists" class="section"><div class="container">';
+    performersHtml += '<div class="section-head"><span class="section-kicker">Performers</span><h2>Meet the Artists</h2></div>';
+    performersHtml += '<div class="artists-grid">';
     e.performers.forEach(function(p) {
-      performersHtml += '<div class="person-card">';
-      performersHtml += '<div class="person-avatar">';
-      performersHtml += p.photoUrl ? '<img src="' + esc(p.photoUrl) + '" alt="' + esc(p.name) + '">' : '\u{1F3B5}';
+      performersHtml += '<div class="artist-card">';
+      performersHtml += '<div class="artist-photo-wrap">';
+      performersHtml += p.photoUrl ? '<img src="'+esc(p.photoUrl)+'" alt="'+esc(p.name)+'">' : '<div class="artist-photo-placeholder">\uD83C\uDFB5</div>';
       performersHtml += '</div>';
-      performersHtml += '<h4>' + esc(p.name) + '</h4>';
-      performersHtml += '<p>' + esc(p.role || '') + (p.location ? '<small>' + esc(p.location) + '</small>' : '') + '</p>';
+      performersHtml += '<h3>' + esc(p.name) + '</h3>';
+      if (p.role) performersHtml += '<p>' + esc(p.role) + '</p>';
+      if (p.location) performersHtml += '<p class="artist-location">' + esc(p.location) + '</p>';
       performersHtml += '</div>';
     });
     performersHtml += '</div></div></section>';
   }
 
-  // Instructor (initiatives)
+  // INSTRUCTOR (initiatives)
   var instructorHtml = '';
   if (isInit && e.instructor && e.instructor.name) {
-    instructorHtml = '<section class="section section-alt"><div class="container">';
-    instructorHtml += '<span class="section-label">Your Guide</span>';
-    instructorHtml += '<h2 class="section-title">Meet Your Instructor</h2>';
-    instructorHtml += '<div class="people-grid"><div class="person-card">';
-    instructorHtml += '<div class="person-avatar">';
-    instructorHtml += e.instructor.photoUrl ? '<img src="' + esc(e.instructor.photoUrl) + '" alt="' + esc(e.instructor.name) + '">' : '\u{1F9D1}\u200D\u{1F3EB}';
+    instructorHtml = '<section class="section"><div class="container">';
+    instructorHtml += '<div class="section-head"><span class="section-kicker">Your Guide</span><h2>Meet Your Instructor</h2></div>';
+    instructorHtml += '<div class="artists-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,200px));">';
+    instructorHtml += '<div class="artist-card">';
+    instructorHtml += '<div class="artist-photo-wrap">';
+    instructorHtml += e.instructor.photoUrl ? '<img src="'+esc(e.instructor.photoUrl)+'" alt="'+esc(e.instructor.name)+'">' : '<div class="artist-photo-placeholder">\uD83E\uDDD1\u200D\uD83C\uDFEB</div>';
     instructorHtml += '</div>';
-    instructorHtml += '<h4>' + esc(e.instructor.name) + '</h4>';
-    instructorHtml += '<p>' + esc(e.instructor.role || '') + '</p>';
+    instructorHtml += '<h3>' + esc(e.instructor.name) + '</h3>';
+    if (e.instructor.role) instructorHtml += '<p>' + esc(e.instructor.role) + '</p>';
     instructorHtml += '</div></div>';
-    if (e.instructor.bio) instructorHtml += '<p class="prose" style="margin-top:20px;">' + esc(e.instructor.bio) + '</p>';
+    if (e.instructor.bio) instructorHtml += '<p style="margin-top:20px;color:var(--muted);font-size:1.04rem;">' + esc(e.instructor.bio) + '</p>';
     instructorHtml += '</div></section>';
   }
 
-  // Curriculum (initiatives)
+  // CURRICULUM (initiatives)
   var curriculumHtml = '';
   if (isInit && e.curriculum && e.curriculum.length) {
     curriculumHtml = '<section class="section"><div class="container">';
-    curriculumHtml += '<span class="section-label">Course Details</span>';
-    curriculumHtml += '<h2 class="section-title">' + esc(e.curriculumTitle || 'Program Curriculum') + '</h2>';
-    curriculumHtml += '<div class="curriculum">';
+    curriculumHtml += '<div class="section-head"><span class="section-kicker">Course Details</span><h2>' + esc(e.curriculumTitle||'Program Curriculum') + '</h2></div>';
+    curriculumHtml += '<div style="display:flex;flex-direction:column;gap:16px;">';
     e.curriculum.forEach(function(w) {
-      curriculumHtml += '<div class="curriculum-week">';
-      curriculumHtml += '<div class="curriculum-week-header">';
-      curriculumHtml += '<span class="week-badge">' + esc(w.weekLabel || 'Week') + '</span>';
-      curriculumHtml += '<h4>' + esc(w.title) + '</h4>';
+      curriculumHtml += '<div style="background:rgba(255,255,255,0.88);border:1px solid var(--border);border-radius:14px;overflow:hidden;">';
+      curriculumHtml += '<div style="background:var(--surface-soft);padding:12px 18px;display:flex;align-items:center;gap:12px;">';
+      curriculumHtml += '<span style="background:var(--maroon);color:#fff;border-radius:8px;padding:3px 10px;font-size:0.72rem;font-weight:800;text-transform:uppercase;">' + esc(w.weekLabel||'Week') + '</span>';
+      curriculumHtml += '<h4 style="margin:0;font-family:Georgia,serif;font-size:1rem;color:var(--maroon);">' + esc(w.title) + '</h4>';
       curriculumHtml += '</div>';
-      curriculumHtml += '<div class="curriculum-week-body">';
-      if (w.description) curriculumHtml += '<p>' + esc(w.description) + '</p>';
-      curriculumHtml += '</div></div>';
+      if (w.description) curriculumHtml += '<div style="padding:14px 18px;"><p style="margin:0;font-size:0.85rem;color:var(--muted);">' + esc(w.description) + '</p></div>';
+      curriculumHtml += '</div>';
     });
     curriculumHtml += '</div></div></section>';
   }
 
-  // Registration — flyer left (sticky), Zeffy right
-  var regHtml = '<section class="registration-section" id="join"><div class="container">';
-  regHtml += '<span class="section-label">Registration</span>';
-  regHtml += '<h2 class="section-title">Register' + (isInit ? '' : ' \u00B7 Reserve Your Spot') + '</h2>';
-  if (e.registrationNote) regHtml += '<p class="prose" style="margin-bottom:20px;">' + esc(e.registrationNote) + '</p>';
+  // REGISTRATION
+  var regHtml = '<section id="tickets" class="section form-section"><div class="container">';
+  regHtml += '<div class="form-intro">';
+  regHtml += '<h2>Reserve Your Spot</h2>';
+  if (e.registrationNote) {
+    // Split registration note into individual notice lines
+    var notices = e.registrationNote.split('\n').filter(function(l){return l.trim();});
+    if (notices.length === 1) {
+      regHtml += '<p>' + esc(e.registrationNote) + '</p>';
+    } else {
+      regHtml += '<div class="form-notices">';
+      notices.forEach(function(notice, i) {
+        regHtml += '<div class="form-notice' + (i===0?' form-notice-urgent':'') + '">';
+        regHtml += '<span class="form-notice-icon">' + (i===0?'\u23F0':'\uD83E\uDEB7') + '</span>';
+        regHtml += '<span>' + esc(notice) + '</span></div>';
+      });
+      regHtml += '</div>';
+    }
+  }
+  regHtml += '</div>';
+
   regHtml += '<div class="tickets-grid">';
   if (e.flyerImageUrl) {
-    regHtml += '<div class="tickets-flyer"><div class="flyer-frame">';
-    regHtml += '<img src="' + esc(e.flyerImageUrl) + '" alt="' + esc(title) + ' flyer">';
-    regHtml += '</div></div>';
+    regHtml += '<div class="tickets-flyer"><div class="flyer-frame"><img src="'+esc(e.flyerImageUrl)+'" alt="'+esc(title)+' flyer"></div></div>';
   }
-  var zeffyScriptSrc = null;
-  var zeffyScriptOnerror = null;
   if (e.zeffyUrl) {
-    // Strip script tags — innerHTML doesn't execute them, inject dynamically after
-    var scriptMatch = e.zeffyUrl.match(/<script[^>]*src=["']([^"']+)["'][^>]*/i);
-    zeffyScriptSrc = scriptMatch ? scriptMatch[1] : 'https://www.zeffy.com/embed/v2/zeffy-embed.js';
-    var onerrorMatch = e.zeffyUrl.match(/onerror="([^"]+)"/i);
-    if (onerrorMatch) zeffyScriptOnerror = onerrorMatch[1];
+    // Strip script tags — inject dynamically after innerHTML
     var zeffyHtmlOnly = e.zeffyUrl.replace(/<script[\s\S]*?<\/script>/gi, '').trim();
-    regHtml += '<div class="embed-card" id="zeffy-container">';
-    regHtml += zeffyHtmlOnly;
-    regHtml += '</div>';
+    var scriptSrcMatch = e.zeffyUrl.match(/src=['"]([^'"]*zeffy[^'"]*)['"]/i);
+    var zeffyScriptSrc = scriptSrcMatch ? scriptSrcMatch[1] : 'https://www.zeffy.com/embed/v2/zeffy-embed.js';
+    regHtml += '<div class="embed-card" id="zeffy-container"><div>' + zeffyHtmlOnly + '</div></div>';
   } else {
     regHtml += '<div class="rsvp-soon">Registrations will open soon!</div>';
   }
   regHtml += '</div></div></section>';
 
   var content = document.getElementById('page-content');
-  content.innerHTML = heroHtml + infoHtml + aboutHtml + scheduleHtml + performersHtml + instructorHtml + curriculumHtml + regHtml;
+  content.innerHTML = heroHtml + scheduleHtml + aboutHtml + performersHtml + instructorHtml + curriculumHtml + regHtml;
   content.style.display = 'block';
   document.getElementById('loading-state').style.display = 'none';
 
-  // Inject Zeffy script dynamically — scripts inside innerHTML don't execute
-  if (e.zeffyUrl && e.zeffyUrl.indexOf('zeffy') !== -1) {
+  // Inject Zeffy script dynamically
+  if (e.zeffyUrl) {
     var zs = document.createElement('script');
-    zs.src = zeffyScriptSrc || 'https://www.zeffy.com/embed/v2/zeffy-embed.js';
-    if (zeffyScriptOnerror) {
-      zs.setAttribute('onerror', zeffyScriptOnerror);
-    } else {
-      zs.onerror = function() {
-        document.querySelectorAll('[data-zeffy-embed-fallback]').forEach(function(el) { el.style.display = 'block'; });
-      };
-    }
+    zs.src = zeffyScriptSrc;
+    zs.onerror = function() {
+      document.querySelectorAll('[data-zeffy-embed-fallback]').forEach(function(el){el.style.display='block';});
+    };
     content.appendChild(zs);
+
+    // Remove scrollbars from Zeffy iframe after load
+    function fixZeffy() {
+      document.querySelectorAll('.embed-card iframe').forEach(function(f){
+        f.setAttribute('scrolling','no');f.style.overflow='hidden';f.style.display='block';f.style.width='100%';f.style.border='0';
+      });
+    }
+    window.addEventListener('load', fixZeffy);
+    setTimeout(fixZeffy, 700);
+    setTimeout(fixZeffy, 1800);
+    setTimeout(fixZeffy, 3500);
   }
 }
 </script>

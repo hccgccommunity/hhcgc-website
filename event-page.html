@@ -82,8 +82,9 @@ button,input,select,textarea{font:inherit;}
 /* ABOUT */
 .about-grid{display:grid;grid-template-columns:1.05fr 0.95fr;gap:24px;align-items:stretch;}
 .content-card{background:rgba(255,255,255,0.88);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-soft);padding:clamp(24px,3vw,34px);}
-.content-card p{margin:0 0 16px;color:var(--muted);font-size:1.04rem;}
+.content-card p{margin:0 0 16px;color:var(--muted);font-size:1.04rem;text-align:justify;}
 .content-card p:last-child{margin-bottom:0;}
+.content-card{height:100%;}
 .highlight-line{padding:16px 18px;border-left:5px solid var(--saffron-bright);background:var(--surface-soft);border-radius:16px;margin-top:18px;color:var(--maroon);font-weight:800;}
 .side-stack{display:grid;gap:18px;}
 .expect-card,.join-card{background:rgba(255,255,255,0.88);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-soft);padding:22px;}
@@ -111,7 +112,7 @@ button,input,select,textarea{font:inherit;}
 .tickets-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:stretch;margin-top:24px;}
 .tickets-flyer{display:flex;}
 .tickets-flyer .flyer-frame{border-radius:20px;overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow);position:sticky;top:calc(var(--header-offset) + 16px);width:100%;}
-.tickets-flyer .flyer-frame img{width:100%;display:block;}
+.tickets-flyer .flyer-frame img{width:100%;height:auto;display:block;}
 .embed-card{overflow:visible;background:transparent;border-radius:0;box-shadow:none;border:0;max-width:100%;margin:0;padding:0;}
 .form-section .embed-card>div{height:100%;}
 .form-section [data-zeffy-embed],.form-section .zeffy-responsive-frame{height:100% !important;min-height:700px;padding-top:0 !important;}
@@ -346,11 +347,13 @@ function renderPage(e) {
   if (e.flyerImageUrl) {
     regHtml += '<div class="tickets-flyer"><div class="flyer-frame"><img src="'+esc(e.flyerImageUrl)+'" alt="'+esc(title)+' flyer"></div></div>';
   }
+  var zeffyScriptSrc = 'https://www.zeffy.com/embed/v2/zeffy-embed.js';
+  var hasZeffy = !!e.zeffyUrl;
+
   if (e.zeffyUrl) {
-    // Strip script tags — inject dynamically after innerHTML
     var zeffyHtmlOnly = e.zeffyUrl.replace(/<script[\s\S]*?<\/script>/gi, '').trim();
     var scriptSrcMatch = e.zeffyUrl.match(/src=['"]([^'"]*zeffy[^'"]*)['"]/i);
-    var zeffyScriptSrc = scriptSrcMatch ? scriptSrcMatch[1] : 'https://www.zeffy.com/embed/v2/zeffy-embed.js';
+    if (scriptSrcMatch) zeffyScriptSrc = scriptSrcMatch[1];
     regHtml += '<div class="embed-card" id="zeffy-container"><div>' + zeffyHtmlOnly + '</div></div>';
   } else {
     regHtml += '<div class="rsvp-soon">Registrations will open soon!</div>';
@@ -363,7 +366,7 @@ function renderPage(e) {
   document.getElementById('loading-state').style.display = 'none';
 
   // Inject Zeffy script dynamically
-  if (e.zeffyUrl) {
+  if (hasZeffy) {
     var zs = document.createElement('script');
     zs.src = zeffyScriptSrc;
     zs.onerror = function() {

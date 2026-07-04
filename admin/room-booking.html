@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Room Booking – HCCGC</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' x='50%25' text-anchor='middle' font-size='82'%3E%E0%A5%90%3C/text%3E%3C/svg%3E">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F5ZHQ4CDR9');</script>
+<style>
+:root {
+  --bg:#fff9f1;--surface:#fff;--surface-soft:#fff6ea;--border:rgba(121,62,17,0.14);
+  --text:#2c1b10;--muted:#6a5141;--saffron:#b55a18;--saffron-dark:#8d3e0d;
+  --maroon:#7f2e16;--shadow:0 18px 45px rgba(93,43,14,0.10);--radius:22px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top left,rgba(217,138,30,0.12),transparent 22%),radial-gradient(circle at top right,rgba(127,46,22,0.05),transparent 20%),var(--bg);color:var(--text);min-height:100vh;}
+.container{width:min(calc(100% - 32px),1100px);margin:0 auto;}
+.site-header{position:sticky;top:0;z-index:50;background:rgba(255,249,241,0.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:92px;padding:12px 0;}
+.brand{display:flex;align-items:center;gap:16px;min-width:0;}
+.brand-logo-wrap{background:#7f2e16;border-radius:18px;padding:8px;flex-shrink:0;}
+.brand-logo{width:88px;height:auto;border-radius:12px;object-fit:contain;}
+.brand-text h1{margin:0;font-size:1.2rem;line-height:1.15;color:var(--maroon);font-family:Georgia,serif;}
+.site-header a.brand,.site-header a.brand:link,.site-header a.brand:visited{text-decoration:none;color:inherit;}
+.site-header nav ul{list-style:none;display:flex;flex-wrap:wrap;gap:18px;margin:0;padding:0;align-items:center;justify-content:flex-end;}
+.site-header nav a,.site-header nav a:link,.site-header nav a:visited{font-weight:700;color:var(--text);font-size:0.96rem;text-decoration:none;}
+.site-header nav a:hover{color:var(--saffron-dark);}
+.menu-toggle{display:none;border:0;background:transparent;padding:6px 0;cursor:pointer;color:#2c1b10;align-self:flex-end;}
+.menu-toggle .bar{display:block;width:26px;height:2px;margin:5px 0;background:currentColor;}
+@media(max-width:768px){.nav{flex-direction:column;align-items:stretch;gap:8px;}.menu-toggle{display:inline-block;}.site-header nav{display:none;width:100%;background:rgba(255,249,241,0.95);padding:10px 0;}.site-header nav.is-open{display:block;}.site-header nav ul{flex-direction:column;gap:14px;}}
+#gate{padding:60px 16px;display:flex;justify-content:center;}
+.gate-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow);}
+.gate-card h3{font-family:Georgia,serif;font-size:1.3rem;color:var(--maroon);margin-bottom:.5rem;}
+.gate-card p{color:var(--muted);font-size:.88rem;line-height:1.6;}
+.gate-card a{color:var(--saffron-dark);}
+#app{display:none;}
+.page-header{padding:36px 0 24px;}
+.page-header h1{font-family:Georgia,serif;font-size:1.8rem;color:var(--maroon);margin-bottom:6px;}
+.page-header p{color:var(--muted);font-size:.9rem;}
+.back-link{font-size:.82rem;color:var(--saffron-dark);text-decoration:none;display:inline-block;margin-bottom:10px;}
+.back-link:hover{text-decoration:underline;}
+.booking-layout{display:grid;grid-template-columns:1fr 1fr;gap:28px;padding-bottom:60px;align-items:start;}
+.booking-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow);}
+.booking-card h2{font-family:Georgia,serif;font-size:1.3rem;color:var(--maroon);margin-bottom:1.5rem;}
+.form-group{margin-bottom:1.2rem;}
+label{display:block;font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:.4rem;}
+label .hint{font-weight:400;color:var(--muted);}
+input,select,textarea{width:100%;padding:.65rem .9rem;border:1.5px solid var(--border);border-radius:10px;font-size:.95rem;font-family:Arial,Helvetica,sans-serif;background:#fff;color:var(--text);}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--saffron);box-shadow:0 0 0 3px rgba(181,90,24,.14);}
+.time-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.room-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px;}
+.room-card{padding:.75rem 1rem;border:2px solid var(--border);border-radius:12px;cursor:pointer;transition:all .12s;background:#fff;}
+.room-card:hover{border-color:var(--saffron);background:var(--surface-soft);}
+.room-card.selected{border-color:var(--maroon);background:rgba(127,46,22,.06);}
+.room-card input[type=radio]{display:none;}
+.room-card-name{font-weight:700;font-size:.9rem;color:var(--maroon);}
+.room-card-detail{font-size:.76rem;color:var(--muted);margin-top:2px;}
+.field-error{font-size:.76rem;color:#c0392b;margin-top:4px;display:none;}
+.field-error.show{display:block;}
+.btn-book{width:100%;padding:.85rem 1.4rem;background:var(--maroon);color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;font-family:Arial,Helvetica,sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:1.5rem;transition:background .15s;}
+.btn-book:hover{background:#5a1e0a;}
+.summary-card{background:var(--surface-soft);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow);}
+.summary-card h2{font-family:Georgia,serif;font-size:1.3rem;color:var(--maroon);margin-bottom:1.2rem;}
+.summary-empty{color:var(--muted);font-size:.88rem;font-style:italic;}
+.summary-row{display:flex;gap:12px;padding:10px 0;border-bottom:1px dashed var(--border);align-items:flex-start;}
+.summary-row:last-child{border-bottom:none;}
+.summary-icon{font-size:1.2rem;flex-shrink:0;width:28px;text-align:center;}
+.summary-label{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:2px;}
+.summary-value{font-size:.92rem;font-weight:700;color:var(--text);}
+.facility-link{display:inline-flex;align-items:center;gap:6px;margin-top:1.2rem;font-size:.82rem;color:var(--saffron-dark);text-decoration:none;font-weight:700;}
+.facility-link:hover{text-decoration:underline;}
+.status-bar{display:none;align-items:center;gap:10px;padding:.75rem 1.1rem;border-radius:12px;font-size:.86rem;font-weight:600;margin-bottom:1.25rem;}
+.status-bar.show{display:flex;}
+.status-bar.success{background:#e8f5e9;color:#2e7d32;border:1px solid #c8e6c9;}
+.status-bar.error{background:#fdecea;color:#c0392b;border:1px solid #f5c6cb;}
+@media(max-width:780px){.booking-layout{grid-template-columns:1fr;}.room-cards{grid-template-columns:1fr 1fr;}.time-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TPBF5VKB" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div id="site-header"></div>
+
+<div id="gate">
+  <div class="gate-card">
+    <h3>Checking access&hellip;</h3>
+    <p>Please sign in from the <a href="/admin/admin-portal">Admin Portal</a> first.</p>
+  </div>
+</div>
+
+<div id="app">
+  <div class="container">
+    <div class="page-header">
+      <a class="back-link" href="/admin/admin-portal">&larr; Back to apps</a>
+      <h1>Room Booking</h1>
+      <p>Reserve a room and send a Google Calendar invite to attendees.</p>
+    </div>
+    <div class="status-bar" id="status-bar"></div>
+    <div class="booking-layout">
+
+      <!-- BOOKING FORM -->
+      <div class="booking-card">
+        <h2>Book a Room</h2>
+
+        <div class="form-group">
+          <label>Room / Resource *</label>
+          <div class="room-cards" id="room-cards">
+            <label class="room-card selected" id="card-surya">
+              <input type="radio" name="room" value="Surya Hall" checked>
+              <div class="room-card-name">Surya Hall</div>
+              <div class="room-card-detail">Main hall &middot; Large events</div>
+            </label>
+            <label class="room-card" id="card-patanjali">
+              <input type="radio" name="room" value="Patanjali Hall">
+              <div class="room-card-name">Patanjali Hall</div>
+              <div class="room-card-detail">Medium hall &middot; Classes</div>
+            </label>
+            <label class="room-card" id="card-nataraj">
+              <input type="radio" name="room" value="Nataraj Room">
+              <div class="room-card-name">Nataraj Room</div>
+              <div class="room-card-detail">Dance &middot; Practice</div>
+            </label>
+            <label class="room-card" id="card-ganesh">
+              <input type="radio" name="room" value="Ganesh Room">
+              <div class="room-card-name">Ganesh Room</div>
+              <div class="room-card-detail">Small meeting room</div>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="event-name">Event Name *</label>
+          <input type="text" id="event-name" placeholder="e.g. Board Meeting, Yoga Class, Birthday Party">
+          <div class="field-error" id="err-name">Please enter an event name.</div>
+        </div>
+
+        <div class="form-group">
+          <label for="event-date">Date *</label>
+          <input type="date" id="event-date">
+          <div class="field-error" id="err-date">Please select a date.</div>
+        </div>
+
+        <div class="form-group">
+          <div class="time-row">
+            <div>
+              <label for="start-time">Start Time *</label>
+              <input type="time" id="start-time">
+              <div class="field-error" id="err-start">Please select a start time.</div>
+            </div>
+            <div>
+              <label for="end-time">End Time *</label>
+              <input type="time" id="end-time">
+              <div class="field-error" id="err-end">Please select an end time.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="attendee-emails">Attendee Emails <span class="hint">(comma-separated)</span></label>
+          <textarea id="attendee-emails" rows="3" placeholder="john@example.com, jane@example.com"></textarea>
+          <div class="field-error" id="err-emails">Please enter at least one valid email.</div>
+          <div style="font-size:.76rem;color:var(--muted);margin-top:4px;">facility-calendar@hccgc.org will always be included automatically.</div>
+        </div>
+
+        <button class="btn-book" id="btn-book">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Open in Google Calendar
+        </button>
+      </div>
+
+      <!-- SUMMARY PANEL -->
+      <div class="summary-card">
+        <h2>Booking Summary</h2>
+        <div id="summary-content">
+          <p class="summary-empty">Fill in the form to see your booking summary.</p>
+        </div>
+        <a class="facility-link" href="/facility-calendar" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          View Facility Calendar
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="site-footer"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js';
+import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
+
+var firebaseConfig = {
+  apiKey: 'AIzaSyA6IzLjWTg7Rq04HsTH-iA3eDmSzKI7xME',
+  authDomain: 'hccgc-a7a54.firebaseapp.com',
+  projectId: 'hccgc-a7a54',
+  storageBucket: 'hccgc-a7a54.firebasestorage.app',
+  messagingSenderId: '75757201418',
+  appId: '1:75757201418:web:c31e9361921242145717f3'
+};
+
+var ALLOWED_DOMAIN = 'hccgc.org';
+var REQUIRED_APP_KEY = 'room-booking';
+var PORTAL_URL = '/admin/admin-portal';
+
+var fbApp = initializeApp(firebaseConfig);
+var auth = getAuth(fbApp);
+var db = getFirestore(fbApp);
+
+function loadPartial(id, file) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  fetch(file).then(function(r){return r.text();}).then(function(html){
+    el.innerHTML = html;
+    if (id === 'site-header') {
+      var logo = el.querySelector('.brand-logo');
+      if (logo) { var s = logo.getAttribute('src'); if (s && !s.startsWith('/') && !s.startsWith('http')) logo.setAttribute('src', '/'+s); }
+      el.querySelectorAll('a[href]').forEach(function(a){ var h=a.getAttribute('href'); if(h&&!h.startsWith('http')&&!h.startsWith('/')&&!h.startsWith('#')) a.setAttribute('href','/'+h); });
+    }
+  }).catch(function(){});
+}
+loadPartial('site-header', '/header.html');
+loadPartial('site-footer', '/footer.html');
+
+function showGate(title, msg) {
+  document.getElementById('gate').querySelector('h3').textContent = title;
+  document.getElementById('gate').querySelector('p').innerHTML = msg;
+  document.getElementById('gate').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+onAuthStateChanged(auth, function(user) {
+  if (!user) { showGate('Sign in required', 'Please sign in from the <a href="'+PORTAL_URL+'">Admin Portal</a> first.'); return; }
+  var email = (user.email||'').toLowerCase();
+  if (!email.endsWith('@'+ALLOWED_DOMAIN)) { showGate('Access denied', 'Please use an @'+ALLOWED_DOMAIN+' account.'); return; }
+  getDoc(doc(db, 'portalUsers', email)).then(function(snap) {
+    var data = snap.exists() ? snap.data() : {};
+    if (!data.isAdmin && !(Array.isArray(data.allowedApps) && data.allowedApps.includes(REQUIRED_APP_KEY))) {
+      showGate('Access not granted', "You don't have access to Room Booking. Ask an admin to grant it.");
+      return;
+    }
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+  }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });
+});
+</script>
+
+<script>
+// Set min date to today
+document.getElementById('event-date').min = new Date().toISOString().split('T')[0];
+
+// Room card selection
+document.querySelectorAll('.room-card').forEach(function(card) {
+  card.addEventListener('click', function() {
+    document.querySelectorAll('.room-card').forEach(function(c){ c.classList.remove('selected'); });
+    card.classList.add('selected');
+    updateSummary();
+  });
+});
+
+// Live summary update
+['event-name','event-date','start-time','end-time','attendee-emails'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (el) el.addEventListener('input', updateSummary);
+});
+
+function getSelectedRoom() {
+  var checked = document.querySelector('input[name="room"]:checked');
+  return checked ? checked.value : '';
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  var p = dateStr.split('-');
+  return new Date(+p[0],+p[1]-1,+p[2]).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+}
+
+function formatTime(timeStr) {
+  if (!timeStr) return '';
+  var p = timeStr.split(':');
+  var h = parseInt(p[0]), m = parseInt(p[1]);
+  var ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return h + ':' + (m < 10 ? '0'+m : m) + ' ' + ampm;
+}
+
+function updateSummary() {
+  var room = getSelectedRoom();
+  var name = document.getElementById('event-name').value.trim();
+  var date = document.getElementById('event-date').value;
+  var start = document.getElementById('start-time').value;
+  var end = document.getElementById('end-time').value;
+  var emails = document.getElementById('attendee-emails').value.trim();
+
+  var html = '';
+  if (room) html += row('\uD83C\uDFDB', 'Room', room);
+  if (name) html += row('\uD83D\uDCCB', 'Event', name);
+  if (date) html += row('\uD83D\uDCC5', 'Date', formatDate(date));
+  if (start || end) html += row('\uD83D\uDD50', 'Time', (start?formatTime(start):'?') + ' \u2013 ' + (end?formatTime(end):'?'));
+  if (emails) {
+    var list = emails.split(',').map(function(e){return e.trim();}).filter(Boolean);
+    list.push('facility-calendar@hccgc.org');
+    html += row('\uD83D\uDCE7', 'Invites', list.join('<br>'));
+  } else {
+    html += row('\uD83D\uDCE7', 'Invites', 'facility-calendar@hccgc.org');
+  }
+
+  document.getElementById('summary-content').innerHTML = html || '<p class="summary-empty">Fill in the form to see your booking summary.</p>';
+}
+
+function row(icon, label, value) {
+  return '<div class="summary-row"><div class="summary-icon">'+icon+'</div><div><div class="summary-label">'+label+'</div><div class="summary-value">'+value+'</div></div></div>';
+}
+
+// Validate and open Google Calendar
+document.getElementById('btn-book').addEventListener('click', function() {
+  var valid = true;
+  ['err-name','err-date','err-start','err-end','err-emails'].forEach(function(id){ document.getElementById(id).classList.remove('show'); });
+
+  var name = document.getElementById('event-name').value.trim();
+  var date = document.getElementById('event-date').value;
+  var start = document.getElementById('start-time').value;
+  var end = document.getElementById('end-time').value;
+  var emailsRaw = document.getElementById('attendee-emails').value.trim();
+  var room = getSelectedRoom();
+
+  if (!name) { document.getElementById('err-name').classList.add('show'); valid = false; }
+  if (!date) { document.getElementById('err-date').classList.add('show'); valid = false; }
+  if (!start) { document.getElementById('err-start').classList.add('show'); valid = false; }
+  if (!end) { document.getElementById('err-end').classList.add('show'); valid = false; }
+
+  var emailList = ['facility-calendar@hccgc.org'];
+  if (emailsRaw) {
+    var extras = emailsRaw.split(',').map(function(e){return e.trim();}).filter(function(e){return e.includes('@');});
+    emailList = extras.concat(['facility-calendar@hccgc.org']);
+  }
+
+  if (!valid) return;
+
+  if (end <= start) {
+    document.getElementById('err-end').textContent = 'End time must be after start time.';
+    document.getElementById('err-end').classList.add('show');
+    return;
+  }
+
+  // Build Google Calendar URL
+  // Dates in format YYYYMMDDTHHmmSS
+  var datePart = date.replace(/-/g, '');
+  var startPart = start.replace(':', '') + '00';
+  var endPart = end.replace(':', '') + '00';
+  var startDT = datePart + 'T' + startPart;
+  var endDT = datePart + 'T' + endPart;
+
+  var description = 'Room: ' + room + '\nBooked via HCCGC Admin Portal';
+  var location = room + ' \u2013 HCCGC, 7500 Industrial Row Dr, Mason, OH 45040';
+
+  var params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: name,
+    dates: startDT + '/' + endDT,
+    details: description,
+    location: location,
+    add: emailList.join(','),
+    ctz: 'America/New_York'
+  });
+
+  var url = 'https://calendar.google.com/calendar/render?' + params.toString();
+  window.open(url, '_blank');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Booking — HCCGC Admin Portal</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F5ZHQ4CDR9');</script>
+<style>
+:root {
+  --bg: #fff9f1; --surface: #ffffff; --surface-soft: #fff6ea; --border: rgba(121,62,17,0.14);
+  --text: #2c1b10; --muted: #6a5141; --saffron: #b55a18; --saffron-dark: #8d3e0d; --maroon: #7f2e16;
+  --radius: 22px; --shadow: 0 18px 45px rgba(93,43,14,0.10);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%), radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%), var(--bg); color: var(--text); min-height: 100vh; }
+.container { width: min(calc(100% - 32px), 1280px); margin: 0 auto; }
+.site-header { position: sticky; top: 0; z-index: 50; background: rgba(255,249,241,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 92px; padding: 12px 0; }
+.site-header a.brand, .site-header a.brand:link, .site-header a.brand:visited { text-decoration: none; color: inherit; }
+.brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.brand-logo-wrap { background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 8px; box-shadow: var(--shadow); flex-shrink: 0; }
+.brand-logo { width: 88px; height: auto; border-radius: 12px; object-fit: contain; }
+.brand-text h1 { margin: 0; font-size: 1.2rem; line-height: 1.15; color: var(--maroon); }
+.site-header nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 18px; margin: 0; padding: 0; align-items: center; justify-content: flex-end; }
+.site-header nav a, .site-header nav a:link, .site-header nav a:visited { font-weight: 700; color: var(--text); font-size: 0.96rem; text-decoration: none; }
+.site-header nav a:hover { color: var(--saffron-dark); }
+.menu-toggle { display: none; border: 0; background: transparent; padding: 6px 0; cursor: pointer; color: #2c1b10; align-self: flex-end; }
+.menu-toggle .bar { display: block; width: 26px; height: 2px; margin: 5px 0; background: currentColor; }
+@media (max-width: 768px) {
+  .nav { flex-direction: column; align-items: stretch; gap: 8px; } .menu-toggle { display: inline-block; }
+  .site-header nav { display: none; width: 100%; background: rgba(255,249,241,0.95); padding: 10px 0; }
+  .site-header nav.is-open { display: block; } .site-header nav ul { flex-direction: column; gap: 14px; }
+}
+.page-hero { padding: 40px 0 28px; background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%); color: #fff; }
+.page-hero .eyebrow { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.75); margin-bottom: 6px; }
+.page-hero h1 { font-family: Georgia, "Times New Roman", serif; font-size: 1.9rem; color: #fff; margin-bottom: 6px; }
+.page-hero p { color: #ffffff; opacity: 0.9; font-size: 0.92rem; max-width: 560px; }
+.module-nav { background: var(--surface); border-bottom: 1px solid var(--border); }
+.module-nav ul { list-style: none; display: flex; gap: 4px; padding: 10px 0; flex-wrap: wrap; }
+.module-nav a { display: inline-block; padding: 8px 16px; border-radius: 999px; font-size: 0.86rem; font-weight: 700; color: var(--muted); text-decoration: none; transition: background 0.15s, color 0.15s; }
+.module-nav a.active { background: var(--surface-soft); color: var(--saffron-dark); }
+.module-nav a:not(.active):hover { background: var(--surface-soft); }
+
+.layout { display: grid; grid-template-columns: 1.1fr 0.8fr 0.9fr; gap: 24px; padding: 28px 0 60px; align-items: start; }
+@media (max-width: 1100px) { .layout { grid-template-columns: 1fr 1fr; } .layout > :nth-child(3) { grid-column: 1 / -1; } }
+@media (max-width: 720px) { .layout { grid-template-columns: 1fr; } .layout > :nth-child(3) { grid-column: auto; } }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; box-shadow: var(--shadow); }
+.card + .card { margin-top: 20px; }
+.card h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.15rem; color: var(--maroon); margin-bottom: 4px; }
+.card .card-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 16px; }
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label { font-size: 0.78rem; font-weight: 700; color: var(--muted); }
+.field input[type="text"], .field input[type="email"], .field input[type="tel"], .field input[type="date"], .field input[type="time"], .field input[type="number"], .field select, .field textarea {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 10px; background: #fff; color: var(--text);
+}
+.field textarea { resize: vertical; min-height: 56px; }
+
+.room-picker { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 8px; }
+.room-check { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; font-size: 0.86rem; }
+.room-check input { width: 16px; height: 16px; }
+.room-check .rate { margin-left: auto; font-size: 0.74rem; color: var(--muted); }
+.btn-whole-facility {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.76rem; font-weight: 700; color: var(--saffron-dark);
+  background: var(--surface-soft); border: 1.5px solid var(--border); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+.btn-whole-facility:hover { background: #fbe9cf; }
+
+.checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 0.86rem; }
+.checkbox-row input { width: 16px; height: 16px; }
+
+.summary-line { display: flex; justify-content: space-between; font-size: 0.86rem; padding: 7px 0; border-bottom: 1px solid var(--border); }
+.summary-line:last-of-type { border-bottom: none; }
+.summary-line .label { color: var(--muted); }
+.summary-line.total { font-weight: 700; font-size: 1.05rem; color: var(--maroon); padding-top: 12px; }
+.discount-chip { display: inline-block; font-size: 0.68rem; font-weight: 700; color: var(--saffron-dark); background: var(--surface-soft); border-radius: 999px; padding: 2px 8px; margin: 2px 4px 0 0; }
+.no-discount { font-size: 0.78rem; color: var(--muted); font-style: italic; }
+
+.adjustment-toggle { display: flex; align-items: center; gap: 8px; margin: 16px 0 10px; font-size: 0.86rem; font-weight: 700; color: var(--text); cursor: pointer; }
+.collapsible { display: none; padding-top: 8px; }
+.collapsible.open { display: block; }
+
+.btn-primary {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.9rem; font-weight: 700; color: #fff;
+  background: linear-gradient(135deg, var(--saffron-dark), var(--maroon)); border: none; border-radius: 12px;
+  padding: 12px 20px; cursor: pointer; width: 100%; margin-top: 14px;
+}
+.btn-primary:hover { opacity: 0.92; }
+.btn-secondary {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.78rem; font-weight: 700; color: var(--saffron-dark);
+  background: var(--surface-soft); border: 1.5px solid var(--border); border-radius: 8px; padding: 6px 12px; cursor: pointer;
+}
+
+.result-box { margin-top: 16px; border-radius: 12px; padding: 12px 16px; font-size: 0.84rem; line-height: 1.5; }
+.result-box.success { background: #e8f5ec; color: #2e7d4f; border: 1px solid rgba(46,125,79,0.25); }
+.result-box.error { background: #fbe9e7; color: #b3382c; border: 1px solid rgba(179,56,44,0.25); }
+.conflict-note { background: #fdf1de; color: #a15c00; border: 1px solid rgba(161,92,0,0.2); border-radius: 12px; padding: 12px 16px; font-size: 0.8rem; margin-top: 16px; }
+
+.occ-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 10px; }
+.occ-table th { text-align: left; font-size: 0.68rem; text-transform: uppercase; color: var(--muted); padding: 6px 6px; }
+.occ-table td { padding: 4px 6px; }
+.occ-table input[type="date"], .occ-table input[type="time"] { font-family: Arial, Helvetica, sans-serif; font-size: 0.8rem; padding: 6px 8px; border: 1.5px solid var(--border); border-radius: 8px; width: 100%; }
+.occ-remove { background: none; border: none; color: #b3382c; cursor: pointer; font-size: 0.9rem; padding: 4px 6px; }
+
+.calendar-card select { width: 100%; font-family: Arial, Helvetica, sans-serif; font-size: 0.84rem; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 10px; margin-bottom: 12px; }
+#calendar-embed-wrap iframe { width: 100%; height: 420px; border: 1px solid var(--border); border-radius: 14px; }
+.calendar-note { font-size: 0.74rem; color: var(--muted); margin-top: 10px; }
+</style>
+</head>
+<body>
+<div id="site-header"></div>
+
+<div class="page-hero">
+  <div class="container">
+    <div class="eyebrow">Bookings &amp; Finance</div>
+    <h1>New Booking</h1>
+    <p>Check the calendar, pick a date, and cost calculates automatically — including daily/weekly/monthly series with per-date times.</p>
+  </div>
+</div>
+
+<div class="module-nav">
+  <div class="container">
+    <ul>
+      <li><a href="new-booking.html" class="active">New Booking</a></li>
+      <li><a href="all-bookings.html">All Bookings</a></li>
+      <li><a href="rooms-rates.html">Rooms &amp; Rates</a></li>
+      <li><a href="log-transaction.html">Log Transaction</a></li>
+    </ul>
+  </div>
+</div>
+
+<div class="container">
+  <div class="layout">
+    <div>
+      <div class="card">
+        <div class="checkbox-row" style="margin-bottom:6px;"><input type="checkbox" id="f-internal-enabled"><label for="f-internal-enabled"><strong>This is an HCCGC program/initiative — no charge, no customer</strong></label></div>
+        <div class="card-sub" style="margin-bottom:0;">For internal use of the space (classes, events, meetings run by HCCGC itself). Skips pricing and the customer fields below — still reserves the room and shows up on the calendar.</div>
+        <div class="collapsible" id="publish-event-field" style="margin-top:10px;">
+          <div class="checkbox-row" style="margin-bottom:0;">
+            <input type="checkbox" id="f-publish-event" checked>
+            <label for="f-publish-event">Also list this on the public Upcoming Events page</label>
+          </div>
+          <div class="card-sub" style="margin-bottom:0;margin-top:4px;">Uses the program name and notes below as the title and description — creates a draft entry in Manage Events you can refine or unpublish there afterward.</div>
+        </div>
+      </div>
+
+      <div class="card" id="renter-details-card">
+        <h2>Renter details</h2>
+        <div class="card-sub" id="renter-details-sub">Who's booking, and what for.</div>
+        <div class="field-row">
+          <div class="field"><label id="f-name-label">Contact person name</label><input type="text" id="f-name" placeholder="Jane Doe"></div>
+          <div class="field" id="f-phone-field"><label>Phone</label><input type="tel" id="f-phone" placeholder="555-555-5555"></div>
+        </div>
+        <div class="field" id="f-hccg-rep-field" style="display:none;"><label>HCCGC representative name</label><input type="text" id="f-hccg-rep" placeholder="Who at HCCGC is organizing this?"></div>
+        <div class="field-row" id="f-email-org-row">
+          <div class="field"><label>Email</label><input type="email" id="f-email" placeholder="jane@example.com"></div>
+          <div class="field"><label>Organization (optional)</label><input type="text" id="f-org" placeholder="e.g. a company or community group"></div>
+        </div>
+        <div class="field" id="f-address-field"><label>Address</label><input type="text" id="f-address" placeholder="Street, city, state, ZIP"></div>
+        <div class="field"><label>Notes (optional)</label><textarea id="f-notes" placeholder="Anything worth remembering about this booking"></textarea></div>
+      </div>
+
+      <div class="card" id="rooms-card">
+        <h2>Rooms</h2>
+        <div class="card-sub">Pick one or more — select all four for a whole-facility booking.</div>
+        <button type="button" class="btn-whole-facility" id="btn-whole-facility">Select all rooms (whole facility)</button>
+        <div class="room-picker" id="room-picker" style="margin-top:12px;"></div>
+        <div class="checkbox-row" id="nonprofit-row" style="margin-top:6px;"><input type="checkbox" id="f-nonprofit"><label for="f-nonprofit">Renter is a nonprofit</label></div>
+      </div>
+
+      <div class="card" id="adjustment-card">
+        <div class="adjustment-toggle" id="adjustment-toggle">
+          <input type="checkbox" id="f-adjustment-enabled" style="width:16px;height:16px;">
+          Apply a one-time discretionary discount
+        </div>
+        <div class="card-sub" style="margin-bottom:8px;">This is also how you discount a whole-facility booking — there's no automatic bundle discount, it's always a case-by-case call.</div>
+        <div class="collapsible" id="adjustment-fields">
+          <div class="field-row">
+            <div class="field">
+              <label>Type</label>
+              <select id="f-adj-type"><option value="percent">Percent off</option><option value="flat">Flat dollar amount off</option></select>
+            </div>
+            <div class="field"><label>Value</label><input type="number" id="f-adj-value" placeholder="e.g. 10" min="0" step="0.01"></div>
+          </div>
+          <div class="field"><label>Reason (required — shows up in the audit report)</label><input type="text" id="f-adj-reason" placeholder="e.g. Board-approved discount for founding member"></div>
+          <div class="card-sub" style="margin-bottom:0;">For a recurring booking, this same discount applies to every occurrence.</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h2>Date &amp; time</h2>
+        <div class="card-sub">First occurrence. If this repeats, add the pattern below and adjust any date's time as needed.</div>
+        <div class="field"><label>Date</label><input type="date" id="f-date"></div>
+        <div class="field-row">
+          <div class="field"><label>Start time</label><input type="time" id="f-start" value="14:00"></div>
+          <div class="field"><label>End time</label><input type="time" id="f-end" value="18:00"></div>
+        </div>
+
+        <div class="checkbox-row"><input type="checkbox" id="f-recurring-enabled"><label for="f-recurring-enabled">This repeats</label></div>
+        <div class="collapsible" id="recurring-fields">
+          <div class="field-row">
+            <div class="field">
+              <label>Repeats</label>
+              <select id="f-recur-frequency"><option value="daily">Daily</option><option value="weekly" selected>Weekly</option><option value="biweekly">Every 2 weeks</option><option value="monthly">Monthly</option></select>
+            </div>
+            <div class="field">
+              <label>Ends</label>
+              <select id="f-recur-end-type"><option value="count">After a number of times</option><option value="until">On a specific date</option></select>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field" id="recur-count-field"><label>Number of occurrences</label><input type="number" id="f-recur-count" min="2" value="8"></div>
+            <div class="field" id="recur-until-field" style="display:none;"><label>Last occurrence date</label><input type="date" id="f-recur-until"></div>
+          </div>
+          <button type="button" class="btn-secondary" id="btn-regenerate-occurrences">Generate dates</button>
+
+          <table class="occ-table" id="occ-table" style="display:none;">
+            <thead><tr><th>Date</th><th>Start</th><th>End</th><th></th></tr></thead>
+            <tbody id="occ-tbody"></tbody>
+          </table>
+          <div class="card-sub" style="margin-bottom:0;">Each date's time defaults to the start/end above — edit any row individually, or remove a date (e.g. to skip a holiday).</div>
+        </div>
+
+        <div class="conflict-note">Availability is checked automatically for every date when you click Create booking — nothing gets created if even one date conflicts.</div>
+      </div>
+
+      <div class="card">
+        <h2>Cost summary</h2>
+        <div class="card-sub" id="cost-summary-sub">Recalculates live as you fill in the form.</div>
+        <div class="summary-line"><span class="label">Base total</span><span id="s-base">$0.00</span></div>
+        <div class="summary-line"><span class="label">Discounts applied</span><span id="s-discount-tags"></span></div>
+        <div class="summary-line"><span class="label">Subtotal after standard discounts</span><span id="s-subtotal">$0.00</span></div>
+        <div class="summary-line" id="s-adjustment-line" style="display:none;"><span class="label">Discretionary adjustment</span><span id="s-adjustment">$0.00</span></div>
+        <div class="summary-line total"><span class="label" id="s-total-label">Total</span><span id="s-final">$0.00</span></div>
+
+        <button type="button" class="btn-primary" id="btn-generate">Create booking</button>
+        <div class="result-box" id="result-box" style="display:none;"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card calendar-card">
+        <h2>Room availability</h2>
+        <div class="card-sub">Live from Google Calendar, so you can check before you book.</div>
+        <select id="calendar-room-select">
+          <option value="all">All rooms (overlaid)</option>
+          <option value="Surya Hall">Surya Hall</option>
+          <option value="Patanjali Hall">Patanjali Hall</option>
+          <option value="Nataraj Room">Nataraj Room</option>
+          <option value="Ganesh Room">Ganesh Room</option>
+        </select>
+        <div id="calendar-embed-wrap"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="site-footer"></div>
+
+<script>
+// ---- Mirrors zeffy_finance.rooms and zeffy_finance.discount_rules ----
+// TODO: once the backend endpoint exists, fetch these live instead of
+// hardcoding. Note: there is no bundle/whole-facility multiplier here on
+// purpose — that discount is always applied manually via the discretionary
+// adjustment above, never automatically.
+const ROOMS = [
+  { name: 'Surya Hall', rate: 45 },
+  { name: 'Patanjali Hall', rate: 40 },
+  { name: 'Nataraj Room', rate: 30 },
+  { name: 'Ganesh Room', rate: 15 }
+];
+const RULES = {
+  weekdayMultiplier: 0.80,
+  nonprofitMultiplier: 0.75,
+  extendedHoursMultiplier: 0.80,
+  extendedHoursThreshold: 4
+};
+
+const roomPicker = document.getElementById('room-picker');
+ROOMS.forEach(function (r) {
+  const label = document.createElement('label');
+  label.className = 'room-check';
+  label.innerHTML = '<input type="checkbox" class="room-cb" value="' + r.name + '"> ' + r.name + '<span class="rate">$' + r.rate + '/hr</span>';
+  roomPicker.appendChild(label);
+});
+document.getElementById('btn-whole-facility').addEventListener('click', function () {
+  document.querySelectorAll('.room-cb').forEach(function (cb) { cb.checked = true; });
+  recalc();
+});
+function selectedRooms() {
+  return Array.from(document.querySelectorAll('.room-cb:checked')).map(function (cb) { return cb.value; });
+}
+
+// ---- Occurrence list: the source of truth for what actually gets booked ----
+let occurrences = []; // [{ date, startTime, endTime }]
+
+function hoursBetween(startTime, endTime) {
+  if (!startTime || !endTime) return 0;
+  const s = startTime.split(':').map(Number);
+  const e = endTime.split(':').map(Number);
+  const diff = (e[0] * 60 + e[1]) - (s[0] * 60 + s[1]);
+  return diff > 0 ? Math.round((diff / 60) * 100) / 100 : 0;
+}
+function isWeekday(dateStr) {
+  if (!dateStr) return false;
+  const day = new Date(dateStr + 'T00:00:00').getDay();
+  return day >= 1 && day <= 5;
+}
+function addDays(dateStr, n) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+function addMonths(dateStr, n) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setMonth(d.getMonth() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+function regenerateOccurrences() {
+  const firstDate = document.getElementById('f-date').value;
+  const startTime = document.getElementById('f-start').value;
+  const endTime = document.getElementById('f-end').value;
+  if (!firstDate || !startTime || !endTime) { occurrences = []; renderOccTable(); return; }
+
+  if (!document.getElementById('f-recurring-enabled').checked) {
+    occurrences = [{ date: firstDate, startTime: startTime, endTime: endTime }];
+    renderOccTable();
+    return;
+  }
+
+  const frequency = document.getElementById('f-recur-frequency').value;
+  const endType = document.getElementById('f-recur-end-type').value;
+  const count = endType === 'count' ? parseInt(document.getElementById('f-recur-count').value, 10) : null;
+  const until = endType === 'until' ? document.getElementById('f-recur-until').value : null;
+
+  const dates = [firstDate];
+  let cur = firstDate;
+  let guard = 0;
+  while (guard++ < 366) {
+    if (count && dates.length >= count) break;
+    cur = frequency === 'daily' ? addDays(cur, 1)
+        : frequency === 'weekly' ? addDays(cur, 7)
+        : frequency === 'biweekly' ? addDays(cur, 14)
+        : addMonths(cur, 1);
+    if (until && cur > until) break;
+    if (!count && !until) break;
+    dates.push(cur);
+  }
+  occurrences = dates.map(function (d) { return { date: d, startTime: startTime, endTime: endTime }; });
+  renderOccTable();
+}
+
+function renderOccTable() {
+  const table = document.getElementById('occ-table');
+  const tbody = document.getElementById('occ-tbody');
+  const isRecurring = document.getElementById('f-recurring-enabled').checked;
+  if (!isRecurring || occurrences.length <= 1) { table.style.display = 'none'; recalc(); return; }
+
+  table.style.display = 'table';
+  tbody.innerHTML = occurrences.map(function (occ, i) {
+    return '<tr>' +
+      '<td><input type="date" value="' + occ.date + '" data-i="' + i + '" data-f="date"></td>' +
+      '<td><input type="time" value="' + occ.startTime + '" data-i="' + i + '" data-f="startTime"></td>' +
+      '<td><input type="time" value="' + occ.endTime + '" data-i="' + i + '" data-f="endTime"></td>' +
+      '<td><button type="button" class="occ-remove" data-remove="' + i + '" title="Remove this date">&times;</button></td>' +
+    '</tr>';
+  }).join('');
+
+  tbody.querySelectorAll('input').forEach(function (input) {
+    input.addEventListener('change', function () {
+      occurrences[parseInt(this.dataset.i, 10)][this.dataset.f] = this.value;
+      recalc();
+    });
+  });
+  tbody.querySelectorAll('[data-remove]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      occurrences.splice(parseInt(this.dataset.remove, 10), 1);
+      renderOccTable();
+    });
+  });
+  recalc();
+}
+
+document.getElementById('f-recurring-enabled').addEventListener('change', function () {
+  document.getElementById('recurring-fields').classList.toggle('open', this.checked);
+  regenerateOccurrences();
+});
+document.getElementById('f-recur-end-type').addEventListener('change', function () {
+  const isCount = this.value === 'count';
+  document.getElementById('recur-count-field').style.display = isCount ? 'flex' : 'none';
+  document.getElementById('recur-until-field').style.display = isCount ? 'none' : 'flex';
+});
+document.getElementById('btn-regenerate-occurrences').addEventListener('click', regenerateOccurrences);
+['f-date','f-start','f-end'].forEach(function (id) {
+  document.getElementById(id).addEventListener('change', regenerateOccurrences);
+});
+
+document.getElementById('f-internal-enabled').addEventListener('change', function () {
+  const isInternal = this.checked;
+  document.getElementById('f-name-label').textContent = isInternal ? 'Program / event name' : 'Contact person name';
+  document.getElementById('f-name').placeholder = isInternal ? 'e.g. Weekly Bhajan Sandhya' : 'Jane Doe';
+  document.getElementById('renter-details-sub').textContent = isInternal ? 'What is this reserving the space for?' : "Who's booking, and what for.";
+  document.getElementById('f-hccg-rep-field').style.display = isInternal ? 'flex' : 'none';
+  document.getElementById('publish-event-field').classList.toggle('open', isInternal);
+  document.getElementById('f-email-org-row').style.display = isInternal ? 'none' : 'grid';
+  document.getElementById('f-phone-field').style.display = isInternal ? 'none' : 'flex';
+  document.getElementById('f-address-field').style.display = isInternal ? 'none' : 'flex';
+  document.getElementById('nonprofit-row').style.display = isInternal ? 'none' : 'flex';
+  document.getElementById('adjustment-card').style.display = isInternal ? 'none' : 'block';
+  if (isInternal) {
+    document.getElementById('f-nonprofit').checked = false;
+    document.getElementById('f-adjustment-enabled').checked = false;
+    document.getElementById('adjustment-fields').classList.remove('open');
+  }
+  recalc();
+});
+
+document.getElementById('adjustment-toggle').addEventListener('click', function (e) {
+  if (e.target.id !== 'f-adjustment-enabled') document.getElementById('f-adjustment-enabled').click();
+});
+document.getElementById('f-adjustment-enabled').addEventListener('change', function () {
+  document.getElementById('adjustment-fields').classList.toggle('open', this.checked);
+  recalc();
+});
+['f-nonprofit','f-adj-type','f-adj-value'].forEach(function (id) {
+  document.getElementById(id).addEventListener('input', recalc);
+  document.getElementById(id).addEventListener('change', recalc);
+});
+roomPicker.addEventListener('change', recalc);
+
+function recalc() {
+  if (document.getElementById('f-internal-enabled').checked) {
+    document.getElementById('s-base').textContent = '$0.00';
+    document.getElementById('s-discount-tags').innerHTML = '<span class="no-discount">N/A — internal HCCGC use</span>';
+    document.getElementById('s-subtotal').textContent = '$0.00';
+    document.getElementById('s-adjustment-line').style.display = 'none';
+    document.getElementById('s-final').textContent = '$0.00';
+    document.getElementById('s-total-label').textContent = 'Total';
+    document.getElementById('cost-summary-sub').textContent = 'No charge for internal HCCGC programs — this just reserves the room and syncs the calendar.';
+    return;
+  }
+
+  const rooms = selectedRooms();
+  const rateSum = rooms.reduce(function (sum, name) {
+    const r = ROOMS.find(function (x) { return x.name === name; });
+    return sum + (r ? r.rate : 0);
+  }, 0);
+  const isNonprofit = document.getElementById('f-nonprofit').checked;
+  const occList = occurrences.length ? occurrences : [{
+    date: document.getElementById('f-date').value,
+    startTime: document.getElementById('f-start').value,
+    endTime: document.getElementById('f-end').value
+  }];
+
+  let base = 0, subtotal = 0;
+  const tagsSet = {};
+  occList.forEach(function (occ) {
+    const hours = hoursBetween(occ.startTime, occ.endTime);
+    const occBase = Math.round(rateSum * hours * 100) / 100;
+    let mult = 1;
+    if (isWeekday(occ.date)) { mult *= RULES.weekdayMultiplier; tagsSet['Weekday'] = true; }
+    if (hours >= RULES.extendedHoursThreshold) { mult *= RULES.extendedHoursMultiplier; tagsSet['Extended hours'] = true; }
+    if (isNonprofit) { mult *= RULES.nonprofitMultiplier; tagsSet['Nonprofit'] = true; }
+    base += occBase;
+    subtotal += Math.round(occBase * mult * 100) / 100;
+  });
+  base = Math.round(base * 100) / 100;
+  subtotal = Math.round(subtotal * 100) / 100;
+
+  const adjEnabled = document.getElementById('f-adjustment-enabled').checked;
+  const adjType = document.getElementById('f-adj-type').value;
+  const adjValue = parseFloat(document.getElementById('f-adj-value').value) || 0;
+  let final = subtotal;
+  let adjustmentAmount = 0;
+  if (adjEnabled && adjValue > 0) {
+    if (adjType === 'percent') { adjustmentAmount = Math.round(subtotal * (adjValue / 100) * 100) / 100; }
+    else { adjustmentAmount = adjValue * occList.length; }
+    final = Math.round((subtotal - adjustmentAmount) * 100) / 100;
+  }
+
+  document.getElementById('s-base').textContent = '$' + base.toFixed(2);
+  const tags = Object.keys(tagsSet);
+  document.getElementById('s-discount-tags').innerHTML = tags.length
+    ? tags.map(function (t) { return '<span class="discount-chip">' + t + '</span>'; }).join('')
+    : '<span class="no-discount">None</span>';
+  document.getElementById('s-subtotal').textContent = '$' + subtotal.toFixed(2);
+  document.getElementById('s-adjustment-line').style.display = (adjEnabled && adjValue > 0) ? 'flex' : 'none';
+  document.getElementById('s-adjustment').textContent = '-$' + adjustmentAmount.toFixed(2);
+  document.getElementById('s-final').textContent = '$' + final.toFixed(2);
+  document.getElementById('s-total-label').textContent = occList.length > 1 ? ('Total (' + occList.length + ' occurrences)') : 'Total';
+  document.getElementById('cost-summary-sub').textContent = occList.length > 1
+    ? 'Combined total across all ' + occList.length + ' occurrences below.'
+    : 'Recalculates live as you fill in the form.';
+}
+
+// ---- Calendar sidebar ----
+// Real resource calendar IDs, pulled from the same embed hccgc.org/facility-calendar
+// already uses — so this sidebar shows exactly the same live data as that public page.
+const ROOM_CALENDAR_IDS = {
+  'Surya Hall': 'c_188c0ce7torcmhnnlk4omolk4n9b6@resource.calendar.google.com',
+  'Patanjali Hall': 'c_188433th1pkq6i1tlm4hmkguds17a@resource.calendar.google.com',
+  'Nataraj Room': 'c_188428oa7oengjr3mrhsse0n4uu5e@resource.calendar.google.com',
+  'Ganesh Room': 'c_1888mp0b3kdtij7qk891pqsv9jll2@resource.calendar.google.com'
+};
+// Matches the public page's colors, except Ganesh Room — the public embed
+// reuses the same indigo for both Patanjali and Ganesh, which is confusing
+// when overlaid here, so Ganesh gets its own green.
+const ROOM_COLORS = { 'Surya Hall': 'e67c73', 'Patanjali Hall': '3f51b5', 'Nataraj Room': '795548', 'Ganesh Room': '0b8043' };
+function renderCalendarEmbed() {
+  const selected = document.getElementById('calendar-room-select').value;
+  const wrap = document.getElementById('calendar-embed-wrap');
+  const rooms = selected === 'all' ? Object.keys(ROOM_CALENDAR_IDS) : [selected];
+  const params = new URLSearchParams();
+  rooms.forEach(function (room) {
+    params.append('src', ROOM_CALENDAR_IDS[room]);
+    params.append('color', '%23' + (ROOM_COLORS[room] || '1'));
+  });
+  params.set('ctz', 'America/New_York');
+  params.set('wkst', '1');
+  params.set('height', '460');
+  params.set('showTitle', '0'); params.set('showPrint', '0'); params.set('showTabs', '0');
+
+  // Once a date is picked, jump the embed to the week containing that date.
+  // Note: Google's embed only supports WEEK/AGENDA/MONTH as valid mode
+  // values — DAY isn't one of them, which is why an earlier version of this
+  // silently fell back to month view. WEEK + a `dates` range pointed at the
+  // chosen date reliably jumps to the right week instead.
+  const chosenDate = document.getElementById('f-date').value;
+  params.set('mode', 'WEEK');
+  if (chosenDate) {
+    const compact = chosenDate.replace(/-/g, '');
+    params.set('dates', compact + '/' + compact);
+  }
+
+  const url = 'https://calendar.google.com/calendar/embed?' + params.toString();
+  wrap.innerHTML = '<iframe src="' + url + '" frameborder="0" scrolling="no"></iframe>' +
+    '<div class="calendar-note">Same live calendar as hccgc.org/facility-calendar' + (chosenDate ? ', showing the week of your selected date' : '') + '. If it appears blank for you, you may need "See all event details" access to these resource calendars in Google Calendar.</div>';
+}
+document.getElementById('calendar-room-select').addEventListener('change', renderCalendarEmbed);
+document.getElementById('f-date').addEventListener('change', renderCalendarEmbed);
+renderCalendarEmbed();
+
+// ---- Submit ----
+const API_BASE = 'PASTE_YOUR_CLOUD_FUNCTION_URL_HERE'; // e.g. https://us-central1-dharma-nidi-darshan.cloudfunctions.net/api
+
+document.getElementById('btn-generate').addEventListener('click', async function () {
+  const rooms = selectedRooms();
+  const btn = this;
+  if (rooms.length === 0) { showResult('error', 'Select at least one room first.'); return; }
+  if (!occurrences.length) regenerateOccurrences();
+  if (!occurrences.length) { showResult('error', 'Add a date and time first.'); return; }
+  const isInternal = document.getElementById('f-internal-enabled').checked;
+  if (isInternal && !document.getElementById('f-hccg-rep').value.trim()) {
+    showResult('error', 'HCCGC representative name is required for internal bookings.');
+    return;
+  }
+
+  const payload = {
+    rooms: rooms,
+    isInternal: isInternal,
+    renterName: document.getElementById('f-name').value,
+    renterEmail: document.getElementById('f-email').value,
+    renterPhone: document.getElementById('f-phone').value,
+    renterAddress: document.getElementById('f-address').value,
+    organizationName: document.getElementById('f-org').value,
+    hccgcRepresentativeName: isInternal ? document.getElementById('f-hccg-rep').value : null,
+    publishAsEvent: isInternal ? document.getElementById('f-publish-event').checked : false,
+    isNonprofit: document.getElementById('f-nonprofit').checked,
+    notes: document.getElementById('f-notes').value,
+    manualAdjustmentType: (!isInternal && document.getElementById('f-adjustment-enabled').checked) ? document.getElementById('f-adj-type').value : null,
+    manualAdjustmentValue: (!isInternal && document.getElementById('f-adjustment-enabled').checked) ? parseFloat(document.getElementById('f-adj-value').value) || null : null,
+    manualAdjustmentReason: (!isInternal && document.getElementById('f-adjustment-enabled').checked) ? document.getElementById('f-adj-reason').value : null,
+    occurrences: occurrences,
+    enteredBy: (window.__hccgcCurrentUser && window.__hccgcCurrentUser.email) || 'Unknown'
+  };
+
+  btn.disabled = true;
+  btn.textContent = 'Creating booking…';
+  try {
+    const res = await fetch(API_BASE + '/bookings', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      showResult('error', (data.errors || [data.error || 'Something went wrong.']).join(' '));
+    } else {
+      const occText = data.occurrenceCount > 1 ? (data.occurrenceCount + ' occurrences created, total $' + data.totalAcrossAllOccurrences.toFixed(2)) : ('Booking created — ID ' + data.bookingIds[0]);
+      const syncWarning = data.calendarSyncErrors ? (' (Calendar sync had issues: ' + data.calendarSyncErrors.join('; ') + ')') : '';
+      const eventNote = data.eventListingCreated ? ' Also added to Manage Events as a draft — edit it there if needed.'
+        : (data.eventListingError ? (' Note: could not add to Manage Events (' + data.eventListingError + ') — add it there manually if needed.') : '');
+      const statusNote = data.isInternal ? ' No charge — internal booking.' : ' Marked as Pending until invoiced.';
+      showResult('success', occText + '.' + statusNote + syncWarning + eventNote);
+      resetForm();
+    }
+  } catch (err) {
+    showResult('error', 'Could not reach the booking system. ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Create booking';
+  }
+});
+
+function showResult(type, message) {
+  const box = document.getElementById('result-box');
+  box.style.display = 'block';
+  box.className = 'result-box ' + type;
+  box.textContent = message;
+}
+
+function resetForm() {
+  ['f-name','f-email','f-phone','f-org','f-address','f-notes','f-adj-value','f-adj-reason','f-hccg-rep'].forEach(function (id) { document.getElementById(id).value = ''; });
+  document.getElementById('f-nonprofit').checked = false;
+  document.getElementById('f-adjustment-enabled').checked = false;
+  document.getElementById('adjustment-fields').classList.remove('open');
+  document.getElementById('f-recurring-enabled').checked = false;
+  document.getElementById('recurring-fields').classList.remove('open');
+  document.getElementById('f-internal-enabled').checked = false;
+  document.getElementById('f-publish-event').checked = true;
+  document.getElementById('f-internal-enabled').dispatchEvent(new Event('change'));
+  document.querySelectorAll('.room-cb').forEach(function (cb) { cb.checked = false; });
+  occurrences = [];
+  renderOccTable();
+  recalc();
+}
+
+regenerateOccurrences();
+
+function loadPartial(id, file) {
+  var target = document.getElementById(id);
+  if (!target) return;
+  fetch(file).then(function (r) { return r.text(); }).then(function (html) {
+    target.innerHTML = html;
+    if (id === 'site-header') fixHeaderLinksForSubfolder(target);
+  }).catch(function () {});
+}
+function fixHeaderLinksForSubfolder(headerEl) {
+  var logo = headerEl.querySelector('.brand-logo');
+  if (logo && logo.getAttribute('src') && !logo.getAttribute('src').startsWith('/') && !logo.getAttribute('src').startsWith('http')) {
+    logo.setAttribute('src', '/' + logo.getAttribute('src'));
+  }
+  headerEl.querySelectorAll('a[href]').forEach(function (link) {
+    var href = link.getAttribute('href');
+    if (!href || href.startsWith('http') || href.startsWith('/') || href.startsWith('#')) return;
+    link.setAttribute('href', '/' + href);
+  });
+}
+loadPartial('site-header', '/header.html');
+loadPartial('site-footer', '/footer.html');
+</script>
+</body>
+</html>

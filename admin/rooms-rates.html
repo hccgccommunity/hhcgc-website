@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rooms &amp; Rates — HCCGC Admin Portal</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F5ZHQ4CDR9');</script>
+<style>
+:root {
+  --bg: #fff9f1; --surface: #ffffff; --surface-soft: #fff6ea; --border: rgba(121,62,17,0.14);
+  --text: #2c1b10; --muted: #6a5141; --saffron: #b55a18; --saffron-dark: #8d3e0d; --maroon: #7f2e16;
+  --radius: 22px; --shadow: 0 18px 45px rgba(93,43,14,0.10);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%), radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%), var(--bg); color: var(--text); min-height: 100vh; }
+.container { width: min(calc(100% - 32px), 1200px); margin: 0 auto; }
+.site-header { position: sticky; top: 0; z-index: 50; background: rgba(255,249,241,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 92px; padding: 12px 0; }
+.site-header a.brand, .site-header a.brand:link, .site-header a.brand:visited { text-decoration: none; color: inherit; }
+.brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.brand-logo-wrap { background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 8px; box-shadow: var(--shadow); flex-shrink: 0; }
+.brand-logo { width: 88px; height: auto; border-radius: 12px; object-fit: contain; }
+.brand-text h1 { margin: 0; font-size: 1.2rem; line-height: 1.15; color: var(--maroon); }
+.site-header nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 18px; margin: 0; padding: 0; align-items: center; justify-content: flex-end; }
+.site-header nav a, .site-header nav a:link, .site-header nav a:visited { font-weight: 700; color: var(--text); font-size: 0.96rem; text-decoration: none; }
+.site-header nav a:hover { color: var(--saffron-dark); }
+.menu-toggle { display: none; border: 0; background: transparent; padding: 6px 0; cursor: pointer; color: #2c1b10; align-self: flex-end; }
+.menu-toggle .bar { display: block; width: 26px; height: 2px; margin: 5px 0; background: currentColor; }
+@media (max-width: 768px) {
+  .nav { flex-direction: column; align-items: stretch; gap: 8px; } .menu-toggle { display: inline-block; }
+  .site-header nav { display: none; width: 100%; background: rgba(255,249,241,0.95); padding: 10px 0; }
+  .site-header nav.is-open { display: block; } .site-header nav ul { flex-direction: column; gap: 14px; }
+}
+.page-hero { padding: 40px 0 28px; background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%); color: #fff; }
+.page-hero .eyebrow { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.75); margin-bottom: 6px; }
+.page-hero h1 { font-family: Georgia, "Times New Roman", serif; font-size: 1.9rem; color: #fff; margin-bottom: 6px; }
+.page-hero p { color: #ffffff; opacity: 0.9; font-size: 0.92rem; max-width: 560px; }
+.module-nav { background: var(--surface); border-bottom: 1px solid var(--border); }
+.module-nav ul { list-style: none; display: flex; gap: 4px; padding: 10px 0; flex-wrap: wrap; }
+.module-nav a { display: inline-block; padding: 8px 16px; border-radius: 999px; font-size: 0.86rem; font-weight: 700; color: var(--muted); text-decoration: none; transition: background 0.15s, color 0.15s; }
+.module-nav a.active { background: var(--surface-soft); color: var(--saffron-dark); }
+.module-nav a.disabled { color: rgba(106,81,65,0.4); cursor: default; }
+.module-nav a:not(.disabled):not(.active):hover { background: var(--surface-soft); }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow); margin: 24px 0; }
+.card h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.2rem; color: var(--maroon); margin-bottom: 4px; }
+.card .card-sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 18px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+thead th { text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); background: var(--surface-soft); padding: 10px 12px; }
+tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody input[type="text"], tbody input[type="number"] {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; padding: 6px 10px; border: 1.5px solid var(--border); border-radius: 8px; width: 100%;
+}
+.rate-input-wrap { display: flex; align-items: center; gap: 4px; }
+.rate-input-wrap input { width: 80px; }
+.status-pill { font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+.status-active { background: #e8f5ec; color: #2e7d4f; }
+.status-inactive { background: #f1ede8; color: var(--muted); }
+.btn-small { font-family: Arial, Helvetica, sans-serif; font-size: 0.78rem; font-weight: 700; padding: 6px 12px; border-radius: 8px; border: 1.5px solid var(--saffron-dark); background: #fff; color: var(--saffron-dark); cursor: pointer; }
+.btn-small:hover { background: var(--surface-soft); }
+.btn-small.danger { border-color: #b3382c; color: #b3382c; }
+
+.rules-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.rule-field { display: flex; flex-direction: column; gap: 6px; }
+.rule-field label { font-size: 0.78rem; font-weight: 700; color: var(--muted); }
+.rule-field .rule-hint { font-size: 0.74rem; color: var(--muted); font-style: italic; }
+.rule-field input { font-family: Arial, Helvetica, sans-serif; font-size: 0.9rem; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 10px; }
+
+.btn-primary {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; font-weight: 700; color: #fff;
+  background: linear-gradient(135deg, var(--saffron-dark), var(--maroon)); border: none; border-radius: 12px;
+  padding: 11px 20px; cursor: pointer; margin-top: 18px;
+}
+.btn-primary:hover { opacity: 0.92; }
+
+.result-box { margin-top: 16px; border-radius: 12px; padding: 12px 16px; font-size: 0.86rem; line-height: 1.5; }
+.result-box.success { background: #e8f5ec; color: #2e7d4f; border: 1px solid rgba(46,125,79,0.25); }
+.result-box.error { background: #fbe9e7; color: #b3382c; border: 1px solid rgba(179,56,44,0.25); }
+.add-room-row { display: grid; grid-template-columns: 2fr 1fr 2fr 1fr; gap: 10px; margin-top: 16px; align-items: end; }
+.add-room-row .field { display: flex; flex-direction: column; gap: 6px; }
+.add-room-row .field label { font-size: 0.76rem; font-weight: 700; color: var(--muted); }
+.add-room-row input { font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 10px; }
+</style>
+</head>
+<body>
+<div id="site-header"></div>
+
+<div class="page-hero">
+  <div class="container">
+    <div class="eyebrow">Bookings &amp; Finance</div>
+    <h1>Rooms &amp; Rates</h1>
+    <p>Add rooms, change rates, and tune discount rules — every change generates the exact query to run.</p>
+  </div>
+</div>
+
+<div class="module-nav">
+  <div class="container">
+    <ul>
+      <li><a href="new-booking.html">New Booking</a></li>
+      <li><a href="all-bookings.html">All Bookings</a></li>
+      <li><a href="rooms-rates.html" class="active">Rooms &amp; Rates</a></li>
+      <li><a href="log-transaction.html" class="disabled">Log Transaction</a></li>
+    </ul>
+  </div>
+</div>
+
+<div class="container">
+  <div class="card">
+    <h2>Rooms</h2>
+    <div class="card-sub">Edit a rate directly in the table, then click Save changes to generate the update query.</div>
+    <table>
+      <thead><tr><th>Room</th><th>Rate / hour</th><th>Status</th><th></th></tr></thead>
+      <tbody id="rooms-tbody"></tbody>
+    </table>
+
+    <div class="add-room-row">
+      <div class="field"><label>New room name</label><input type="text" id="new-room-name" placeholder="e.g. Community Hall"></div>
+      <div class="field"><label>Rate / hour</label><input type="number" id="new-room-rate" placeholder="25"></div>
+      <div class="field"><label>Calendar email</label><input type="text" id="new-room-calendar" placeholder="room@resource.calendar.google.com"></div>
+      <button type="button" class="btn-small" id="btn-add-room">Add room</button>
+    </div>
+
+    <div class="result-box" id="rooms-result" style="display:none;"></div>
+  </div>
+
+  <div class="card">
+    <h2>Discount rules</h2>
+    <div class="card-sub">These apply automatically to every booking — see New Booking for how they stack.</div>
+    <div class="rules-grid">
+      <div class="rule-field">
+        <label>Weekday multiplier</label>
+        <input type="number" id="r-weekday" value="0.80" step="0.01">
+        <span class="rule-hint">0.80 = 20% off Mon–Fri bookings</span>
+      </div>
+      <div class="rule-field">
+        <label>Nonprofit multiplier</label>
+        <input type="number" id="r-nonprofit" value="0.75" step="0.01">
+        <span class="rule-hint">0.75 = 25% off for nonprofit renters</span>
+      </div>
+      <div class="rule-field">
+        <label>Extended-hours multiplier</label>
+        <input type="number" id="r-extended-mult" value="0.80" step="0.01">
+        <span class="rule-hint">applies once hours meet the threshold below</span>
+      </div>
+      <div class="rule-field">
+        <label>Extended-hours threshold</label>
+        <input type="number" id="r-extended-threshold" value="4" step="0.5">
+        <span class="rule-hint">in hours</span>
+      </div>
+    </div>
+    <div class="card-sub" style="margin-top:12px;margin-bottom:0;">There's no automatic whole-facility/bundle discount — that's applied case by case as a discretionary adjustment on the booking itself, in New Booking.</div>
+    <button type="button" class="btn-primary" id="btn-generate-rules">Save discount rules</button>
+    <div class="result-box" id="rules-result" style="display:none;"></div>
+  </div>
+</div>
+
+<div id="site-footer"></div>
+
+<script>
+const API_BASE = 'PASTE_YOUR_CLOUD_FUNCTION_URL_HERE'; // e.g. https://us-central1-dharma-nidi-darshan.cloudfunctions.net/api
+let ROOMS = [];
+
+async function loadRooms() {
+  try {
+    const res = await fetch(API_BASE + '/rooms');
+    if (!res.ok) throw new Error('Server returned ' + res.status);
+    const data = await res.json();
+    ROOMS = data.map(function (r) { return { name: r.name, rate: Number(r.rate_per_hour), active: true }; });
+  } catch (err) {
+    showRoomsResult('error', 'Could not load rooms from the database (' + err.message + ').');
+    ROOMS = [];
+  }
+  renderRooms();
+}
+
+async function loadDiscountRules() {
+  try {
+    const res = await fetch(API_BASE + '/discount-rules');
+    if (!res.ok) throw new Error('Server returned ' + res.status);
+    const r = await res.json();
+    document.getElementById('r-weekday').value = r.weekday_multiplier;
+    document.getElementById('r-nonprofit').value = r.nonprofit_multiplier;
+    document.getElementById('r-extended-mult').value = r.extended_hours_multiplier;
+    document.getElementById('r-extended-threshold').value = r.extended_hours_threshold;
+  } catch (err) {
+    showRulesResult('error', 'Could not load current discount rules (' + err.message + '). Showing defaults — check before saving.');
+  }
+}
+
+function renderRooms() {
+  const tbody = document.getElementById('rooms-tbody');
+  tbody.innerHTML = ROOMS.map(function (r, i) {
+    return (
+      '<tr>' +
+        '<td>' + escHtml(r.name) + '</td>' +
+        '<td><div class="rate-input-wrap">$<input type="number" step="1" value="' + r.rate + '" data-idx="' + i + '" class="rate-field"> /hr</div></td>' +
+        '<td><span class="status-pill ' + (r.active ? 'status-active' : 'status-inactive') + '">' + (r.active ? 'Active' : 'Retired') + '</span></td>' +
+        '<td>' + (r.active ? '<button type="button" class="btn-small" data-save="' + i + '">Save rate</button> <button type="button" class="btn-small danger" data-retire="' + i + '">Retire</button>' : '') + '</td>' +
+      '</tr>'
+    );
+  }).join('');
+
+  document.querySelectorAll('.rate-field').forEach(function (input) {
+    input.addEventListener('change', function () {
+      const idx = parseInt(this.dataset.idx, 10);
+      ROOMS[idx].rate = parseFloat(this.value) || ROOMS[idx].rate;
+    });
+  });
+  document.querySelectorAll('[data-save]').forEach(function (btn) {
+    btn.addEventListener('click', async function () {
+      const idx = parseInt(this.dataset.save, 10);
+      const room = ROOMS[idx];
+      btn.disabled = true; btn.textContent = 'Saving…';
+      try {
+        const res = await fetch(API_BASE + '/rooms/' + encodeURIComponent(room.name), {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ratePerHour: room.rate })
+        });
+        if (!res.ok) throw new Error('Server returned ' + res.status);
+        showRoomsResult('success', room.name + ' rate updated to $' + room.rate + '/hr.');
+      } catch (err) {
+        showRoomsResult('error', 'Could not save: ' + err.message);
+      } finally {
+        btn.disabled = false; btn.textContent = 'Save rate';
+      }
+    });
+  });
+  document.querySelectorAll('[data-retire]').forEach(function (btn) {
+    btn.addEventListener('click', async function () {
+      const idx = parseInt(this.dataset.retire, 10);
+      const room = ROOMS[idx];
+      if (!confirm('Retire ' + room.name + '? It stays visible on past bookings but can\'t be selected for new ones.')) return;
+      try {
+        const res = await fetch(API_BASE + '/rooms/' + encodeURIComponent(room.name), {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ active: false })
+        });
+        if (!res.ok) throw new Error('Server returned ' + res.status);
+        room.active = false;
+        renderRooms();
+        showRoomsResult('success', room.name + ' retired.');
+      } catch (err) {
+        showRoomsResult('error', 'Could not retire: ' + err.message);
+      }
+    });
+  });
+}
+
+function showRoomsResult(type, message) {
+  const box = document.getElementById('rooms-result');
+  box.style.display = 'block';
+  box.className = 'result-box ' + type;
+  box.textContent = message;
+}
+function showRulesResult(type, message) {
+  const box = document.getElementById('rules-result');
+  box.style.display = 'block';
+  box.className = 'result-box ' + type;
+  box.textContent = message;
+}
+
+loadRooms();
+loadDiscountRules();
+
+function escHtml(str) { return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+document.getElementById('btn-add-room').addEventListener('click', async function () {
+  const name = document.getElementById('new-room-name').value.trim();
+  const rate = parseFloat(document.getElementById('new-room-rate').value);
+  const calendar = document.getElementById('new-room-calendar').value.trim();
+  if (!name || !rate) { showRoomsResult('error', 'Enter a room name and rate first.'); return; }
+  try {
+    const res = await fetch(API_BASE + '/rooms', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name, ratePerHour: rate, calendarId: calendar })
+    });
+    if (!res.ok) throw new Error('Server returned ' + res.status);
+    document.getElementById('new-room-name').value = '';
+    document.getElementById('new-room-rate').value = '';
+    document.getElementById('new-room-calendar').value = '';
+    showRoomsResult('success', name + ' added.');
+    await loadRooms();
+  } catch (err) {
+    showRoomsResult('error', 'Could not add room: ' + err.message);
+  }
+});
+
+document.getElementById('btn-generate-rules').addEventListener('click', async function () {
+  const btn = this;
+  const payload = {
+    weekdayMultiplier: parseFloat(document.getElementById('r-weekday').value),
+    nonprofitMultiplier: parseFloat(document.getElementById('r-nonprofit').value),
+    extendedHoursMultiplier: parseFloat(document.getElementById('r-extended-mult').value),
+    extendedHoursThreshold: parseFloat(document.getElementById('r-extended-threshold').value)
+  };
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const res = await fetch(API_BASE + '/discount-rules', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('Server returned ' + res.status);
+    showRulesResult('success', 'Discount rules saved.');
+  } catch (err) {
+    showRulesResult('error', 'Could not save: ' + err.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save discount rules';
+  }
+});
+
+function loadPartial(id, file) {
+  var target = document.getElementById(id);
+  if (!target) return;
+  fetch(file).then(function (r) { return r.text(); }).then(function (html) {
+    target.innerHTML = html;
+    if (id === 'site-header') fixHeaderLinksForSubfolder(target);
+  }).catch(function () {});
+}
+function fixHeaderLinksForSubfolder(headerEl) {
+  var logo = headerEl.querySelector('.brand-logo');
+  if (logo && logo.getAttribute('src') && !logo.getAttribute('src').startsWith('/') && !logo.getAttribute('src').startsWith('http')) {
+    logo.setAttribute('src', '/' + logo.getAttribute('src'));
+  }
+  headerEl.querySelectorAll('a[href]').forEach(function (link) {
+    var href = link.getAttribute('href');
+    if (!href || href.startsWith('http') || href.startsWith('/') || href.startsWith('#')) return;
+    link.setAttribute('href', '/' + href);
+  });
+}
+loadPartial('site-header', '/header.html');
+loadPartial('site-footer', '/footer.html');
+</script>
+</body>
+</html>

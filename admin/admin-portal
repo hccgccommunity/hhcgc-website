@@ -59,7 +59,7 @@ body {
   margin-bottom: 10px;
 }
 .page-hero p {
-  color: var(--muted);
+  color: #ffffff;
   font-size: 0.95rem;
   max-width: 480px;
   margin: 0 auto;
@@ -367,6 +367,7 @@ body {
 [
   {
     "key": "manage-events",
+    "name": "Manage Events",
     "description": "Add, edit, and remove events shown on the public Upcoming Events page.",
     "url": "manage-events",
     "icon": "calendar"

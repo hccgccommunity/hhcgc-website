@@ -4,19 +4,46 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Log Transaction — HCCGC Admin Portal</title>
+<title>All Bookings — HCCGC Admin Portal</title>
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F5ZHQ4CDR9');</script>
+
 <style>
 :root {
-  --bg: #fff9f1; --surface: #ffffff; --surface-soft: #fff6ea; --border: rgba(121,62,17,0.14);
-  --text: #2c1b10; --muted: #6a5141; --saffron: #b55a18; --saffron-dark: #8d3e0d; --maroon: #7f2e16;
-  --radius: 22px; --shadow: 0 18px 45px rgba(93,43,14,0.10);
+  --bg: #fff9f1;
+  --surface: #ffffff;
+  --surface-soft: #fff6ea;
+  --border: rgba(121,62,17,0.14);
+  --text: #2c1b10;
+  --muted: #6a5141;
+  --saffron: #b55a18;
+  --saffron-dark: #8d3e0d;
+  --maroon: #7f2e16;
+  --radius: 22px;
+  --shadow: 0 18px 45px rgba(93,43,14,0.10);
+  --green: #2e7d4f;
+  --green-bg: #e8f5ec;
+  --amber: #a15c00;
+  --amber-bg: #fdf1de;
+  --grey-bg: #f1ede8;
+  --red: #b3382c;
+  --red-bg: #fbe9e7;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%), radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%), var(--bg); color: var(--text); min-height: 100vh; }
-.container { width: min(calc(100% - 32px), 900px); margin: 0 auto; }
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%),
+    radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%),
+    var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+.container { width: min(calc(100% - 32px), 1200px); margin: 0 auto; }
+
+/* Header partial styling, copied from portal shell so header.html renders identically */
 .site-header { position: sticky; top: 0; z-index: 50; background: rgba(255,249,241,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
 .nav { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 92px; padding: 12px 0; }
 .site-header a.brand, .site-header a.brand:link, .site-header a.brand:visited { text-decoration: none; color: inherit; }
@@ -30,60 +57,121 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .menu-toggle { display: none; border: 0; background: transparent; padding: 6px 0; cursor: pointer; color: #2c1b10; align-self: flex-end; }
 .menu-toggle .bar { display: block; width: 26px; height: 2px; margin: 5px 0; background: currentColor; }
 @media (max-width: 768px) {
-  .nav { flex-direction: column; align-items: stretch; gap: 8px; } .menu-toggle { display: inline-block; }
+  .nav { flex-direction: column; align-items: stretch; gap: 8px; }
+  .menu-toggle { display: inline-block; }
   .site-header nav { display: none; width: 100%; background: rgba(255,249,241,0.95); padding: 10px 0; }
-  .site-header nav.is-open { display: block; } .site-header nav ul { flex-direction: column; gap: 14px; }
+  .site-header nav.is-open { display: block; }
+  .site-header nav ul { flex-direction: column; gap: 14px; }
 }
-.page-hero { padding: 40px 0 28px; background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%); color: #fff; }
+
+/* Page hero */
+.page-hero { padding: 40px 0 28px; background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%); color: #fff; position: relative; }
 .page-hero .eyebrow { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.75); margin-bottom: 6px; }
 .page-hero h1 { font-family: Georgia, "Times New Roman", serif; font-size: 1.9rem; color: #fff; margin-bottom: 6px; }
 .page-hero p { color: #ffffff; opacity: 0.9; font-size: 0.92rem; max-width: 560px; }
+
+/* Sub-nav across the Facility Booking module */
 .module-nav { background: var(--surface); border-bottom: 1px solid var(--border); }
 .module-nav ul { list-style: none; display: flex; gap: 4px; padding: 10px 0; flex-wrap: wrap; }
-.module-nav a { display: inline-block; padding: 8px 16px; border-radius: 999px; font-size: 0.86rem; font-weight: 700; color: var(--muted); text-decoration: none; transition: background 0.15s, color 0.15s; }
+.module-nav a {
+  display: inline-block; padding: 8px 16px; border-radius: 999px; font-size: 0.86rem; font-weight: 700;
+  color: var(--muted); text-decoration: none; transition: background 0.15s, color 0.15s;
+}
 .module-nav a.active { background: var(--surface-soft); color: var(--saffron-dark); }
-.module-nav a:not(.active):hover { background: var(--surface-soft); }
+.module-nav a.disabled { color: rgba(106,81,65,0.4); cursor: default; }
+.module-nav a:not(.disabled):not(.active):hover { background: var(--surface-soft); }
 
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow); margin: 24px 0; }
-.card h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.2rem; color: var(--maroon); margin-bottom: 4px; }
-.card .card-sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 18px; }
-
-.reminder-note { background: #fdf1de; color: #a15c00; border: 1px solid rgba(161,92,0,0.2); border-radius: 12px; padding: 12px 16px; font-size: 0.84rem; margin-bottom: 20px; }
-.reminder-note a { color: #a15c00; font-weight: 700; }
-
-.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
-.field label { font-size: 0.78rem; font-weight: 700; color: var(--muted); }
-.field input[type="text"], .field input[type="date"], .field input[type="number"], .field select, .field textarea {
-  font-family: Arial, Helvetica, sans-serif; font-size: 0.9rem; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px; background: #fff; color: var(--text);
+/* Toolbar */
+.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 24px 0 16px; }
+.toolbar input[type="text"], .toolbar select {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; padding: 9px 14px;
+  border: 1.5px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text);
 }
-.field textarea { resize: vertical; min-height: 60px; }
-.type-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
-.type-toggle button {
-  flex: 1; padding: 10px; border-radius: 10px; border: 1.5px solid var(--border); background: #fff;
-  font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; font-weight: 700; color: var(--muted); cursor: pointer;
-}
-.type-toggle button.active.income { border-color: #2e7d4f; color: #2e7d4f; background: #e8f5ec; }
-.type-toggle button.active.expense { border-color: #b3382c; color: #b3382c; background: #fbe9e7; }
+.toolbar input[type="text"] { flex: 1; min-width: 200px; }
+.toolbar .count { margin-left: auto; font-size: 0.82rem; color: var(--muted); }
 
-.btn-primary {
-  font-family: Arial, Helvetica, sans-serif; font-size: 0.92rem; font-weight: 700; color: #fff;
-  background: linear-gradient(135deg, var(--saffron-dark), var(--maroon)); border: none; border-radius: 12px;
-  padding: 13px 20px; cursor: pointer; width: 100%; margin-top: 4px;
+/* Table */
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); margin-bottom: 60px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+thead th {
+  text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--muted); background: var(--surface-soft); padding: 12px 16px; border-bottom: 1px solid var(--border);
 }
-.btn-primary:hover { opacity: 0.92; }
+tbody td { padding: 14px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: rgba(217,138,30,0.04); }
+.renter-name { font-weight: 700; color: var(--text); }
+.renter-sub { font-size: 0.78rem; color: var(--muted); }
+.room-pill { font-size: 0.78rem; font-weight: 700; color: var(--saffron-dark); }
+.room-pill.whole-facility {
+  display: inline-flex; align-items: center; gap: 4px; color: var(--maroon);
+  background: linear-gradient(135deg, rgba(217,138,30,0.16), rgba(127,46,22,0.10));
+  padding: 3px 9px; border-radius: 999px; font-size: 0.74rem;
+}
+.amount { font-weight: 700; font-variant-numeric: tabular-nums; }
+.amount .adjusted-tag {
+  display: block; font-weight: 700; font-size: 0.68rem; color: var(--saffron-dark);
+  text-transform: uppercase; letter-spacing: 0.03em; margin-top: 2px;
+}
 
-.result-box { margin-top: 16px; border-radius: 12px; padding: 12px 16px; font-size: 0.86rem; line-height: 1.5; }
-.result-box.success { background: #e8f5ec; color: #2e7d4f; border: 1px solid rgba(46,125,79,0.25); }
-.result-box.error { background: #fbe9e7; color: #b3382c; border: 1px solid rgba(179,56,44,0.25); }
+.badge {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 0.74rem; font-weight: 700;
+  padding: 4px 10px; border-radius: 999px; white-space: nowrap;
+}
+.badge-paid { background: var(--green-bg); color: var(--green); }
+.badge-needs-confirm { background: var(--amber-bg); color: var(--amber); }
+.badge-draft { background: var(--grey-bg); color: var(--muted); }
+.badge-cancelled { background: var(--red-bg); color: var(--red); }
+.badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.method-tag { font-size: 0.72rem; color: var(--muted); display: block; margin-top: 2px; }
+
+.btn-mark-paid {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.78rem; font-weight: 700;
+  padding: 6px 12px; border-radius: 8px; border: 1.5px solid var(--saffron-dark);
+  background: #fff; color: var(--saffron-dark); cursor: pointer; transition: background 0.15s;
+}
+.btn-mark-paid:hover { background: var(--surface-soft); }
+
+.method-popover {
+  position: absolute; background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  box-shadow: var(--shadow); padding: 8px; z-index: 20; display: none; min-width: 160px;
+}
+.method-popover.open { display: block; }
+.method-popover button {
+  display: block; width: 100%; text-align: left; padding: 8px 10px; border: none; background: none;
+  font-size: 0.84rem; color: var(--text); cursor: pointer; border-radius: 6px; font-family: Arial, Helvetica, sans-serif;
+}
+.method-popover button:hover { background: var(--surface-soft); }
+
+.empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+
+.mock-notice {
+  background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(161,92,0,0.2);
+  border-radius: 12px; padding: 12px 16px; font-size: 0.82rem; margin: 20px 0 0;
+}
+
+.bookings-layout { display: grid; grid-template-columns: 1.6fr 1fr; gap: 24px; align-items: start; }
+@media (max-width: 960px) { .bookings-layout { grid-template-columns: 1fr; } }
+.calendar-sidebar { position: sticky; top: 110px; }
+.calendar-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); margin-top: 24px; }
+.calendar-card h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.1rem; color: var(--maroon); margin-bottom: 4px; }
+.calendar-card .card-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 14px; }
+.calendar-card select { width: 100%; font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 10px; margin-bottom: 14px; }
+#calendar-embed-wrap iframe { width: 100%; height: 460px; border: 1px solid var(--border); border-radius: 14px; }
+.calendar-note { font-size: 0.76rem; color: var(--muted); margin-top: 10px; }
+.discount-chip { display: inline-block; font-size: 0.68rem; font-weight: 700; color: var(--saffron-dark); background: var(--surface-soft); border-radius: 999px; padding: 2px 8px; }
+
 #gate{padding:60px 16px;display:flex;justify-content:center;}
 .gate-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow);}
 .gate-card h3{font-family:Georgia,serif;font-size:1.3rem;color:var(--maroon);margin-bottom:.5rem;}
 .gate-card p{color:var(--muted);font-size:.88rem;line-height:1.6;}
 .gate-card a{color:var(--saffron-dark);}
+.back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.85); text-decoration: none; margin-bottom: 14px; }
+.back-link:hover { color: #fff; text-decoration: underline; }
 </style>
 </head>
 <body>
+
 <div id="site-header"></div>
 
 <div id="gate">
@@ -97,9 +185,10 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 
 <div class="page-hero">
   <div class="container">
-    <div class="eyebrow">Bookings &amp; Finance</div>
-    <h1>Log Transaction</h1>
-    <p>For income and expenses that aren't tied to a facility booking — donations, Zelle transfers, cash, other initiatives.</p>
+    <a class="back-link" href="https://hccgc.org/admin/admin-portal">&larr; Back to apps</a>
+    <div class="eyebrow">Facility Booking</div>
+    <h1>All Bookings</h1>
+    <p>Every facility booking, its payment status, and who still owes what.</p>
   </div>
 </div>
 
@@ -107,60 +196,72 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
   <div class="container">
     <ul>
       <li><a href="new-booking">New Booking</a></li>
-      <li><a href="all-bookings">All Bookings</a></li>
+      <li><a href="all-bookings" class="active">All Bookings</a></li>
       <li><a href="rooms-rates">Rooms &amp; Rates</a></li>
-      <li><a href="log-transaction" class="active">Log Transaction</a></li>
+      <li><a href="log-transaction">Log Transaction</a></li>
     </ul>
   </div>
 </div>
 
 <div class="container">
-  <div class="card">
-    <div class="reminder-note">
-      If this is actually paying off a facility booking, don't log it here — go to <a href="all-bookings">All Bookings</a> and mark that booking paid instead. Logging it in both places double-counts the revenue.
-    </div>
+  <div class="mock-notice" id="mock-notice" style="display:none;"></div>
 
-    <h2>Transaction details</h2>
-    <div class="card-sub">Choose income or expense, then fill in the rest.</div>
-
-    <div class="type-toggle">
-      <button type="button" id="btn-type-income" class="active income">Income</button>
-      <button type="button" id="btn-type-expense" class="expense">Expense</button>
-    </div>
-
-    <div class="field-row">
-      <div class="field"><label>Date</label><input type="date" id="f-date"></div>
-      <div class="field"><label>Amount</label><input type="number" id="f-amount" placeholder="100.00" step="0.01" min="0"></div>
-    </div>
-
-    <div class="field-row">
-      <div class="field">
-        <label>Initiative</label>
-        <select id="f-initiative">
-          <option value="Donations">Donations</option>
-          <option value="Sangeet Sandhya">Sangeet Sandhya</option>
-          <option value="Dharma 101">Dharma 101</option>
-          <option value="General Operations">General Operations</option>
+  <div class="bookings-layout">
+    <div>
+      <div class="toolbar">
+        <input type="text" id="search-input" placeholder="Search by renter name or email…">
+        <select id="room-filter">
+          <option value="">All rooms</option>
+          <option value="Surya Hall">Surya Hall</option>
+          <option value="Patanjali Hall">Patanjali Hall</option>
+          <option value="Nataraj Room">Nataraj Room</option>
+          <option value="Ganesh Room">Ganesh Room</option>
+          <option value="__whole_facility__">Whole Facility</option>
         </select>
-      </div>
-      <div class="field">
-        <label>Source</label>
-        <select id="f-source">
-          <option value="zelle">Zelle</option>
-          <option value="cash">Cash</option>
-          <option value="check">Check</option>
-          <option value="bank">Bank (direct)</option>
-          <option value="manual">Other / manual</option>
+        <select id="status-filter">
+          <option value="">All statuses</option>
+          <option value="needs-attention">Needs attention</option>
+          <option value="paid">Paid</option>
+          <option value="pending">Draft</option>
+          <option value="cancelled">Cancelled</option>
+          <option value="internal">Internal / No charge</option>
         </select>
+        <span class="count" id="result-count"></span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Renter</th>
+              <th>Room</th>
+              <th>Date</th>
+              <th>Hours</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="bookings-tbody"></tbody>
+        </table>
+        <div class="empty-state" id="empty-state" style="display:none;">No bookings match your filters.</div>
       </div>
     </div>
 
-    <div class="field"><label>Description</label><textarea id="f-description" placeholder="What is this? e.g. Zelle donation from the Menon family for Diwali celebration"></textarea></div>
-    <div class="field"><label>Entered by</label><input type="text" id="f-entered-by" placeholder="Your name"></div>
-
-    <button type="button" class="btn-primary" id="btn-generate">Log transaction</button>
-
-    <div class="result-box" id="result-box" style="display:none;"></div>
+    <div class="calendar-sidebar">
+      <div class="calendar-card">
+        <h2>Room availability</h2>
+        <div class="card-sub">Live from Google Calendar — reflects everything synced, including recurring bookings.</div>
+        <select id="calendar-room-select">
+          <option value="all">All rooms (overlaid)</option>
+          <option value="Surya Hall">Surya Hall</option>
+          <option value="Patanjali Hall">Patanjali Hall</option>
+          <option value="Nataraj Room">Nataraj Room</option>
+          <option value="Ganesh Room">Ganesh Room</option>
+        </select>
+        <div id="calendar-embed-wrap"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -169,73 +270,245 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 <div id="site-footer"></div>
 
 <script>
+// ---- Sample data, standing in for a BigQuery-backed API call ----
+// Real bookings are loaded from the API below (see loadBookings()).
+const ALL_ROOM_NAMES = ['Surya Hall', 'Patanjali Hall', 'Nataraj Room', 'Ganesh Room'];
+
 const API_BASE = 'PASTE_YOUR_CLOUD_FUNCTION_URL_HERE'; // e.g. https://us-central1-dharma-nidi-darshan.cloudfunctions.net/api
 
-let currentType = 'income';
-document.getElementById('btn-type-income').addEventListener('click', function () {
-  currentType = 'income';
-  this.classList.add('active');
-  document.getElementById('btn-type-expense').classList.remove('active');
-});
-document.getElementById('btn-type-expense').addEventListener('click', function () {
-  currentType = 'expense';
-  this.classList.add('active');
-  document.getElementById('btn-type-income').classList.remove('active');
-});
+async function authedFetch(url, options) {
+  options = options || {};
+  var user = window.__hccgcFirebaseUser;
+  if (!user) throw new Error('Not signed in.');
+  var token = await user.getIdToken();
+  options.headers = Object.assign({}, options.headers, { 'Authorization': 'Bearer ' + token });
+  return fetch(url, options);
+}
 
-async function loadInitiatives() {
+let BOOKINGS = [];
+
+async function loadBookings() {
+  const notice = document.getElementById('mock-notice');
   try {
-    const res = await fetch(API_BASE + '/initiatives');
+    const res = await authedFetch(API_BASE + '/bookings');
     if (!res.ok) throw new Error('Server returned ' + res.status);
-    const rows = await res.json();
-    const select = document.getElementById('f-initiative');
-    select.innerHTML = rows.map(function (r) { return '<option value="' + r.name + '">' + r.name + '</option>'; }).join('');
+    BOOKINGS = await res.json();
+    notice.style.display = 'none';
   } catch (err) {
-    showResult('error', 'Could not load initiatives from the database (' + err.message + '). Showing defaults — check before saving.');
+    notice.textContent = 'Could not load bookings from the database (' + err.message + '). Check the database connection and try refreshing.';
+    notice.style.display = 'block';
+    BOOKINGS = [];
   }
-}
-loadInitiatives();
-
-function showResult(type, message) {
-  const box = document.getElementById('result-box');
-  box.style.display = 'block';
-  box.className = 'result-box ' + type;
-  box.textContent = message;
+  render();
 }
 
-document.getElementById('btn-generate').addEventListener('click', async function () {
-  const btn = this;
-  const payload = {
-    date: document.getElementById('f-date').value,
-    amount: parseFloat(document.getElementById('f-amount').value),
-    type: currentType,
-    initiativeName: document.getElementById('f-initiative').value,
-    source: document.getElementById('f-source').value,
-    description: document.getElementById('f-description').value,
-    enteredBy: document.getElementById('f-entered-by').value || 'Unknown'
-  };
-  if (!payload.date || !payload.amount) { showResult('error', 'Date and amount are required.'); return; }
+let state = { search: '', room: '', status: '' };
 
-  btn.disabled = true; btn.textContent = 'Saving…';
-  try {
-    const res = await fetch(API_BASE + '/transactions', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      showResult('error', (data.errors || [data.error || 'Something went wrong.']).join(' '));
-    } else {
-      showResult('success', 'Transaction logged.');
-      document.getElementById('f-amount').value = '';
-      document.getElementById('f-description').value = '';
-    }
-  } catch (err) {
-    showResult('error', 'Could not reach the server: ' + err.message);
-  } finally {
-    btn.disabled = false; btn.textContent = 'Log transaction';
+function formatDate(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function isPastDue(b) {
+  return b.payment_status === 'invoiced' && new Date(b.event_date) < new Date();
+}
+
+function statusBadge(b) {
+  if (b.is_internal || b.payment_status === 'n/a') {
+    return '<span class="badge badge-draft"><span class="badge-dot"></span>Internal · No charge</span>';
   }
+  if (b.payment_status === 'paid') {
+    const methodLabel = b.payment_method === 'zeffy' ? 'Zeffy · auto-matched' :
+      b.payment_method === 'zelle' ? 'Zelle · confirmed' :
+      b.payment_method === 'cash' ? 'Cash · confirmed' :
+      b.payment_method === 'check' ? 'Check · confirmed' : 'Confirmed';
+    return '<span class="badge badge-paid"><span class="badge-dot"></span>Paid</span><span class="method-tag">' + methodLabel + '</span>';
+  }
+  if (b.payment_status === 'cancelled') {
+    return '<span class="badge badge-cancelled"><span class="badge-dot"></span>Cancelled</span>';
+  }
+  if (b.payment_status === 'invoiced') {
+    const label = isPastDue(b) ? 'Past due — needs confirmation' : 'Awaiting payment';
+    return '<span class="badge badge-needs-confirm"><span class="badge-dot"></span>' + label + '</span>';
+  }
+  return '<span class="badge badge-draft"><span class="badge-dot"></span>Draft</span>';
+}
+
+function isWholeFacility(b) {
+  return b.rooms.length === ALL_ROOM_NAMES.length && ALL_ROOM_NAMES.every(function (r) { return b.rooms.includes(r); });
+}
+
+function matchesFilters(b) {
+  const q = state.search.trim().toLowerCase();
+  if (q && !(b.renter_name.toLowerCase().includes(q) || b.renter_email.toLowerCase().includes(q))) return false;
+  if (state.room === '__whole_facility__' && !isWholeFacility(b)) return false;
+  if (state.room && state.room !== '__whole_facility__' && !b.rooms.includes(state.room)) return false;
+  if (state.status === 'needs-attention' && b.payment_status !== 'invoiced') return false;
+  if (state.status === 'paid' && b.payment_status !== 'paid') return false;
+  if (state.status === 'pending' && b.payment_status !== 'pending') return false;
+  if (state.status === 'cancelled' && b.payment_status !== 'cancelled') return false;
+  if (state.status === 'internal' && !(b.is_internal || b.payment_status === 'n/a')) return false;
+  return true;
+}
+
+function render() {
+  const tbody = document.getElementById('bookings-tbody');
+  const emptyState = document.getElementById('empty-state');
+  const filtered = BOOKINGS.filter(matchesFilters);
+
+  document.getElementById('result-count').textContent =
+    filtered.length + (filtered.length === 1 ? ' booking' : ' bookings');
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    emptyState.style.display = 'block';
+    return;
+  }
+  emptyState.style.display = 'none';
+
+  tbody.innerHTML = filtered.map(function (b) {
+    const needsAction = b.payment_status === 'invoiced';
+    const roomCell = isWholeFacility(b)
+      ? '<span class="room-pill whole-facility">&#9733; Whole Facility</span>'
+      : '<span class="room-pill">' + escHtml(b.rooms.join(' + ')) + '</span>';
+    const amountCell = '$' + b.final_total.toFixed(2) +
+      (b.manual_adjustment_type ? '<span class="adjusted-tag" title="' + escHtml(b.manual_adjustment_reason || '') + '">Adjusted</span>' : '');
+    return (
+      '<tr>' +
+        '<td><div class="renter-name">' + escHtml(b.renter_name) + (b.recurring_series_id ? ' <span class="discount-chip" style="margin-left:4px;" title="' + escHtml(b.recurrence_summary || '') + '">Recurring</span>' : '') + '</div><div class="renter-sub">' + escHtml(b.renter_email) + '</div></td>' +
+        '<td>' + roomCell + '</td>' +
+        '<td>' + formatDate(b.event_date) + '</td>' +
+        '<td>' + b.hours + '</td>' +
+        '<td class="amount">' + amountCell + '</td>' +
+        '<td>' + statusBadge(b) + '</td>' +
+        '<td style="position:relative;">' +
+          (needsAction ? '<button class="btn-mark-paid" onclick="togglePopover(event, \'' + b.booking_id + '\')">Mark paid</button>' +
+            '<div class="method-popover" id="popover-' + b.booking_id + '">' +
+              '<button onclick="markPaid(\'' + b.booking_id + '\', \'zelle\')">Paid via Zelle</button>' +
+              '<button onclick="markPaid(\'' + b.booking_id + '\', \'cash\')">Paid via Cash</button>' +
+              '<button onclick="markPaid(\'' + b.booking_id + '\', \'check\')">Paid via Check</button>' +
+            '</div>' : '') +
+        '</td>' +
+      '</tr>'
+    );
+  }).join('');
+}
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function togglePopover(evt, bookingId) {
+  evt.stopPropagation();
+  document.querySelectorAll('.method-popover.open').forEach(function (el) {
+    if (el.id !== 'popover-' + bookingId) el.classList.remove('open');
+  });
+  const pop = document.getElementById('popover-' + bookingId);
+  pop.classList.toggle('open');
+}
+document.addEventListener('click', function () {
+  document.querySelectorAll('.method-popover.open').forEach(function (el) { el.classList.remove('open'); });
 });
+
+async function markPaid(bookingId, method) {
+  document.getElementById('popover-' + bookingId).classList.remove('open');
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/mark-paid', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ paymentMethod: method })
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(function () { return {}; });
+      alert('Could not mark as paid: ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
+      return;
+    }
+    await loadBookings();
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+  }
+}
+
+document.getElementById('search-input').addEventListener('input', function (e) {
+  state.search = e.target.value;
+  render();
+});
+document.getElementById('room-filter').addEventListener('change', function (e) {
+  state.room = e.target.value;
+  render();
+});
+document.getElementById('status-filter').addEventListener('change', function (e) {
+  state.status = e.target.value;
+  render();
+});
+
+// Real resource calendar IDs, pulled from the same embed hccgc.org/facility-calendar
+// already uses — so this sidebar shows exactly the same live data as that public page.
+const ROOM_CALENDAR_IDS = {
+  'Surya Hall': 'c_188c0ce7torcmhnnlk4omolk4n9b6@resource.calendar.google.com',
+  'Patanjali Hall': 'c_188433th1pkq6i1tlm4hmkguds17a@resource.calendar.google.com',
+  'Nataraj Room': 'c_188428oa7oengjr3mrhsse0n4uu5e@resource.calendar.google.com',
+  'Ganesh Room': 'c_1888mp0b3kdtij7qk891pqsv9jll2@resource.calendar.google.com'
+};
+const ROOM_COLORS = { 'Surya Hall': 'e67c73', 'Patanjali Hall': '3f51b5', 'Nataraj Room': '795548', 'Ganesh Room': '0b8043' }; // matches the public page, except Ganesh gets its own color instead of reusing Patanjali's
+
+function renderCalendarEmbed() {
+  const selected = document.getElementById('calendar-room-select').value;
+  const wrap = document.getElementById('calendar-embed-wrap');
+  const rooms = selected === 'all' ? Object.keys(ROOM_CALENDAR_IDS) : [selected];
+
+  const params = new URLSearchParams();
+  rooms.forEach(function (room) {
+    params.append('src', ROOM_CALENDAR_IDS[room]);
+    params.append('color', '%23' + (ROOM_COLORS[room] || '1'));
+  });
+  params.set('ctz', 'America/New_York');
+  params.set('showTitle', '0');
+  params.set('showPrint', '0');
+  params.set('showTabs', '0');
+  params.set('mode', 'WEEK');
+
+  const url = 'https://calendar.google.com/calendar/embed?' + params.toString();
+  wrap.innerHTML = '<iframe src="' + url + '" frameborder="0" scrolling="no"></iframe>' +
+    '<div class="calendar-note">Requires the room calendar IDs above to be filled in, and each admin to have at least "See all event details" access to these resource calendars in Google Calendar.</div>';
+}
+document.getElementById('calendar-room-select').addEventListener('change', renderCalendarEmbed);
+renderCalendarEmbed();
+
+loadBookings();
+
+// ---- Auth gate: same pattern as the portal shell ----
+// TODO: uncomment and wire once you confirm the app-registry key for this
+// module (e.g. "facility-bookings") and add it to admins' allowedApps in
+// portalUsers via User Management.
+/*
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA6IzLjWTg7Rq04HsTH-iA3eDmSzKI7xME",
+  authDomain: "hccgc-a7a54.firebaseapp.com",
+  projectId: "hccgc-a7a54",
+  storageBucket: "hccgc-a7a54.firebasestorage.app",
+  messagingSenderId: "75757201418",
+  appId: "1:75757201418:web:c31e9361921242145717f3"
+};
+const fbApp = initializeApp(firebaseConfig);
+const auth = getAuth(fbApp);
+const db = getFirestore(fbApp);
+
+onAuthStateChanged(auth, async function (user) {
+  if (!user || !user.email.toLowerCase().endsWith('@hccgc.org')) {
+    window.location.href = '/admin/';
+    return;
+  }
+  const snap = await getDoc(doc(db, 'portalUsers', user.email.toLowerCase()));
+  const data = snap.exists() ? snap.data() : {};
+  const allowed = data.isAdmin || (data.allowedApps || []).includes('facility-bookings');
+  if (!allowed) window.location.href = '/admin/';
+});
+*/
 
 function loadPartial(id, file) {
   var target = document.getElementById(id);
@@ -293,15 +566,18 @@ onAuthStateChanged(auth, function(user) {
   if (!user) { showGate('Sign in required', 'Please sign in from the <a href="'+PORTAL_URL+'">Admin Portal</a> first.'); return; }
   var email = (user.email||'').toLowerCase();
   window.__hccgcCurrentUser = { email: email };
+  window.__hccgcFirebaseUser = user;
   if (!email.endsWith('@'+ALLOWED_DOMAIN)) { showGate('Access denied', 'Please use an @'+ALLOWED_DOMAIN+' account.'); return; }
   getDoc(doc(db, 'portalUsers', email)).then(function(snap) {
     var data = snap.exists() ? snap.data() : {};
     if (!data.isAdmin && !(Array.isArray(data.allowedApps) && data.allowedApps.includes(REQUIRED_APP_KEY))) {
-      showGate('Access not granted', "You don't have access to Bookings & Finance. Ask an admin to grant it.");
+      showGate('Access not granted', "You don't have access to Facility Booking. Ask an admin to grant it.");
       return;
     }
     document.getElementById('gate').style.display = 'none';
     document.getElementById('app').style.display = 'block';
+    var entryDisplay = document.getElementById('f-entered-by-display');
+    if (entryDisplay) entryDisplay.textContent = 'Signed in as ' + email;
   }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });
 });
 </script>

@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -368,7 +369,8 @@ onAuthStateChanged(auth, function (user) {
 var APP_REGISTRY = [
   { key: 'manage-events', name: 'Manage Events' },
   { key: 'manage-pages', name: 'Manage Pages' },
-  { key: 'marketing-assistant', name: 'Hey HCCGC' }
+  { key: 'marketing-assistant', name: 'Hey HCCGC' },
+  { key: 'bookings-finance', name: 'Facility Booking' }
 ];
 
 var allUsers = [];

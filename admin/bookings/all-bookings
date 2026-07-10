@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -177,10 +178,10 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 <div class="module-nav">
   <div class="container">
     <ul>
-      <li><a href="new-booking.html">New Booking</a></li>
-      <li><a href="all-bookings.html" class="active">All Bookings</a></li>
-      <li><a href="rooms-rates.html">Rooms &amp; Rates</a></li>
-      <li><a href="log-transaction.html">Log Transaction</a></li>
+      <li><a href="new-booking">New Booking</a></li>
+      <li><a href="all-bookings" class="active">All Bookings</a></li>
+      <li><a href="rooms-rates">Rooms &amp; Rates</a></li>
+      <li><a href="log-transaction">Log Transaction</a></li>
     </ul>
   </div>
 </div>

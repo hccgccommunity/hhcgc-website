@@ -90,6 +90,8 @@ tbody input[type="text"], tbody input[type="number"] {
 .gate-card h3{font-family:Georgia,serif;font-size:1.3rem;color:var(--maroon);margin-bottom:.5rem;}
 .gate-card p{color:var(--muted);font-size:.88rem;line-height:1.6;}
 .gate-card a{color:var(--saffron-dark);}
+.back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.85); text-decoration: none; margin-bottom: 14px; }
+.back-link:hover { color: #fff; text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -106,7 +108,8 @@ tbody input[type="text"], tbody input[type="number"] {
 
 <div class="page-hero">
   <div class="container">
-    <div class="eyebrow">Bookings &amp; Finance</div>
+    <a class="back-link" href="https://hccgc.org/admin/admin-portal">&larr; Back to apps</a>
+    <div class="eyebrow">Facility Booking</div>
     <h1>Rooms &amp; Rates</h1>
     <p>Add rooms, change rates, and tune discount rules — every change generates the exact query to run.</p>
   </div>
@@ -179,11 +182,21 @@ tbody input[type="text"], tbody input[type="number"] {
 
 <script>
 const API_BASE = 'PASTE_YOUR_CLOUD_FUNCTION_URL_HERE'; // e.g. https://us-central1-dharma-nidi-darshan.cloudfunctions.net/api
+
+async function authedFetch(url, options) {
+  options = options || {};
+  var user = window.__hccgcFirebaseUser;
+  if (!user) throw new Error('Not signed in.');
+  var token = await user.getIdToken();
+  options.headers = Object.assign({}, options.headers, { 'Authorization': 'Bearer ' + token });
+  return fetch(url, options);
+}
+
 let ROOMS = [];
 
 async function loadRooms() {
   try {
-    const res = await fetch(API_BASE + '/rooms');
+    const res = await authedFetch(API_BASE + '/rooms');
     if (!res.ok) throw new Error('Server returned ' + res.status);
     const data = await res.json();
     ROOMS = data.map(function (r) { return { name: r.name, rate: Number(r.rate_per_hour), active: true }; });
@@ -196,7 +209,7 @@ async function loadRooms() {
 
 async function loadDiscountRules() {
   try {
-    const res = await fetch(API_BASE + '/discount-rules');
+    const res = await authedFetch(API_BASE + '/discount-rules');
     if (!res.ok) throw new Error('Server returned ' + res.status);
     const r = await res.json();
     document.getElementById('r-weekday').value = r.weekday_multiplier;
@@ -233,7 +246,7 @@ function renderRooms() {
       const room = ROOMS[idx];
       btn.disabled = true; btn.textContent = 'Saving…';
       try {
-        const res = await fetch(API_BASE + '/rooms/' + encodeURIComponent(room.name), {
+        const res = await authedFetch(API_BASE + '/rooms/' + encodeURIComponent(room.name), {
           method: 'PATCH', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ratePerHour: room.rate })
         });
@@ -252,7 +265,7 @@ function renderRooms() {
       const room = ROOMS[idx];
       if (!confirm('Retire ' + room.name + '? It stays visible on past bookings but can\'t be selected for new ones.')) return;
       try {
-        const res = await fetch(API_BASE + '/rooms/' + encodeURIComponent(room.name), {
+        const res = await authedFetch(API_BASE + '/rooms/' + encodeURIComponent(room.name), {
           method: 'PATCH', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ active: false })
         });
@@ -291,7 +304,7 @@ document.getElementById('btn-add-room').addEventListener('click', async function
   const calendar = document.getElementById('new-room-calendar').value.trim();
   if (!name || !rate) { showRoomsResult('error', 'Enter a room name and rate first.'); return; }
   try {
-    const res = await fetch(API_BASE + '/rooms', {
+    const res = await authedFetch(API_BASE + '/rooms', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: name, ratePerHour: rate, calendarId: calendar })
     });
@@ -316,7 +329,7 @@ document.getElementById('btn-generate-rules').addEventListener('click', async fu
   };
   btn.disabled = true; btn.textContent = 'Saving…';
   try {
-    const res = await fetch(API_BASE + '/discount-rules', {
+    const res = await authedFetch(API_BASE + '/discount-rules', {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
@@ -385,15 +398,18 @@ onAuthStateChanged(auth, function(user) {
   if (!user) { showGate('Sign in required', 'Please sign in from the <a href="'+PORTAL_URL+'">Admin Portal</a> first.'); return; }
   var email = (user.email||'').toLowerCase();
   window.__hccgcCurrentUser = { email: email };
+  window.__hccgcFirebaseUser = user;
   if (!email.endsWith('@'+ALLOWED_DOMAIN)) { showGate('Access denied', 'Please use an @'+ALLOWED_DOMAIN+' account.'); return; }
   getDoc(doc(db, 'portalUsers', email)).then(function(snap) {
     var data = snap.exists() ? snap.data() : {};
     if (!data.isAdmin && !(Array.isArray(data.allowedApps) && data.allowedApps.includes(REQUIRED_APP_KEY))) {
-      showGate('Access not granted', "You don't have access to Bookings & Finance. Ask an admin to grant it.");
+      showGate('Access not granted', "You don't have access to Facility Booking. Ask an admin to grant it.");
       return;
     }
     document.getElementById('gate').style.display = 'none';
     document.getElementById('app').style.display = 'block';
+    var entryDisplay = document.getElementById('f-entered-by-display');
+    if (entryDisplay) entryDisplay.textContent = 'Signed in as ' + email;
   }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });
 });
 </script>

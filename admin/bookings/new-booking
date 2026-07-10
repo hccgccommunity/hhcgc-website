@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>New Booking — HCCGC Admin Portal</title>
+<title>Facility Bookings — HCCGC Admin Portal</title>
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F5ZHQ4CDR9');</script>
@@ -133,8 +133,8 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 <div class="page-hero">
   <div class="container">
     <a class="back-link" href="https://hccgc.org/admin/admin-portal">&larr; Back to apps</a>
-    <div class="eyebrow">Facility Booking</div>
-    <h1>New Booking</h1>
+    <div class="eyebrow">Facility Bookings</div>
+    <h1>Facility Bookings</h1>
     <p>Check the calendar, pick a date, and cost calculates automatically — including daily/weekly/monthly series with per-date times.</p>
   </div>
 </div>
@@ -722,7 +722,7 @@ onAuthStateChanged(auth, function(user) {
   getDoc(doc(db, 'portalUsers', email)).then(function(snap) {
     var data = snap.exists() ? snap.data() : {};
     if (!data.isAdmin && !(Array.isArray(data.allowedApps) && data.allowedApps.includes(REQUIRED_APP_KEY))) {
-      showGate('Access not granted', "You don't have access to Facility Booking. Ask an admin to grant it.");
+      showGate('Access not granted', "You don't have access to Facility Bookings. Ask an admin to grant it.");
       return;
     }
     document.getElementById('gate').style.display = 'none';

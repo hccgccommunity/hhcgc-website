@@ -5,7 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>User Management – HCCGC Admin Portal</title>
+<title>HCCGC Admin Portal</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -43,9 +43,169 @@ body {
   min-height: 100vh;
 }
 
-.container { width: min(calc(100% - 32px), 1000px); margin: 0 auto; }
+.container { width: min(calc(100% - 32px), 1100px); margin: 0 auto; }
 
-/* Header partial styling — required by header.html's markup. */
+/* HERO */
+.page-hero {
+  padding: 48px 0 36px;
+  text-align: center;
+  background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%);
+  color: #fff;
+  position: relative;
+}
+.page-hero h1 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 2rem;
+  color: #fff;
+  margin-bottom: 10px;
+}
+.page-hero p {
+  color: #ffffff;
+  font-size: 0.95rem;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* GATE */
+#gate { padding: 40px 16px 80px; display: flex; justify-content: center; }
+.gate-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2.5rem 2rem;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.gate-card img.logo {
+  width: 90px; height: 90px;
+  object-fit: contain;
+  border-radius: 50%;
+  margin: 0 auto 1.25rem;
+  display: block;
+  border: 3px solid var(--border);
+}
+.gate-card h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.3rem;
+  color: var(--maroon);
+  margin-bottom: 0.5rem;
+}
+.gate-card > p { color: var(--muted); font-size: 0.86rem; line-height: 1.6; margin-bottom: 1.6rem; }
+
+.btn-google {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 0.72rem 1rem; background: #fff;
+  border: 1.5px solid var(--border); border-radius: 10px;
+  font-size: 0.95rem; font-weight: 600; color: #3c4043;
+  cursor: pointer; transition: background 0.15s, box-shadow 0.15s;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.btn-google:hover { background: #f8f9fa; box-shadow: 0 1px 8px rgba(0,0,0,0.13); }
+
+#signin-error {
+  display: none;
+  color: #c0392b;
+  background: #fdecea;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  margin-top: 1rem;
+  text-align: left;
+}
+
+.gate-note { margin-top: 1.2rem; font-size: 0.78rem; color: var(--muted); }
+.gate-note a { color: var(--saffron-dark); text-decoration: none; }
+.gate-note a:hover { text-decoration: underline; }
+
+/* APP GRID */
+#app { display: none; }
+
+.app-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+  padding: 8px 0 60px;
+}
+
+.app-tile {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 1.75rem 1.5rem;
+  text-decoration: none;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 4px 16px rgba(93,43,14,0.06);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.app-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(93,43,14,0.14);
+}
+
+.app-tile-icon {
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  background: var(--surface-soft);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--saffron-dark);
+}
+.app-tile-icon svg { width: 24px; height: 24px; }
+
+.app-tile h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.15rem;
+  color: var(--maroon);
+}
+.app-tile p {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.app-tile-badge {
+  align-self: flex-start;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--saffron-dark);
+  background: rgba(217,138,30,0.12);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.no-apps {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+  background: #fff;
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+.spinner {
+  width: 20px; height: 20px;
+  border: 3px solid rgba(141,62,13,0.18);
+  border-top-color: var(--saffron-dark);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+/* Header partial styling — required by header.html's markup.
+   Copied to match the rest of the site so header.html renders
+   identically here as it does everywhere else. */
 .site-header {
     position: sticky;
     top: 0;
@@ -116,135 +276,43 @@ body {
     .site-header nav ul { flex-direction: column; gap: 14px; }
 }
 
-.back-link-row {
-  padding: 16px 0 0;
+/* Simple signed-in status row (replaces a custom topbar so the page
+   keeps the standard site header/footer instead of its own chrome) */
+.user-status-row {
+  display: none;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
   font-size: 0.82rem;
+  color: rgba(255,255,255,0.85);
+  position: absolute;
+  top: 14px;
+  right: 0;
 }
-.back-link-row a { color: var(--saffron-dark); text-decoration: none; }
-.back-link-row a:hover { text-decoration: underline; }
-
-#gate { padding: 60px 16px; display: flex; justify-content: center; }
-.gate-card {
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 2.5rem 2rem; max-width: 420px; width: 100%; text-align: center; box-shadow: var(--shadow);
-}
-.gate-card h3 { font-family: Georgia, serif; font-size: 1.3rem; color: var(--maroon); margin-bottom: 0.5rem; }
-.gate-card p { color: var(--muted); font-size: 0.88rem; line-height: 1.6; }
-.gate-card a { color: var(--saffron-dark); }
-
-#app { display: none; }
-
-.page-header { padding: 40px 0 20px; }
-.page-header h1 { font-family: Georgia, "Times New Roman", serif; font-size: 1.8rem; color: var(--maroon); margin-bottom: 8px; }
-.page-header p { color: var(--muted); font-size: 0.9rem; }
-
-.status-bar {
-  display: none; align-items: center; gap: 10px;
-  padding: 0.75rem 1.1rem; border-radius: 12px;
-  font-size: 0.86rem; font-weight: 600; margin: 0 0 1.25rem;
-}
-.status-bar.show { display: flex; }
-.status-bar.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
-.status-bar.error { background: #fdecea; color: #c0392b; border: 1px solid #f5c6cb; }
-
-.btn-add {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 0.7rem 1.4rem; background: var(--maroon); color: #fff;
-  border: none; border-radius: 999px; font-size: 0.9rem; font-weight: 700;
-  cursor: pointer; font-family: Arial, Helvetica, sans-serif; margin-bottom: 1.5rem;
-}
-.btn-add:hover { background: #5a1e0a; }
-
-.user-table { display: flex; flex-direction: column; gap: 12px; padding-bottom: 60px; }
-
-.user-row {
-  background: #fff; border: 1px solid var(--border); border-radius: 14px;
-  padding: 1.1rem 1.4rem; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
-}
-
-.user-avatar-sm {
-  width: 38px; height: 38px; border-radius: 50%;
-  background: var(--maroon); color: #fff;
+.user-status-row.show { display: flex; }
+.user-status-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(255,255,255,0.2);
+  border: 1.5px solid rgba(255,255,255,0.4);
   display: flex; align-items: center; justify-content: center;
-  font-size: 0.8rem; font-weight: 700; flex-shrink: 0;
+  font-size: 0.72rem; font-weight: 700; color: #fff;
+  flex-shrink: 0;
 }
-
-.user-info { flex: 1; min-width: 180px; }
-.user-info .name { font-weight: 700; font-size: 0.92rem; }
-.user-info .email { font-size: 0.8rem; color: var(--muted); }
-
-.admin-pill {
-  font-size: 0.68rem; font-weight: 800; text-transform: uppercase;
-  letter-spacing: 0.04em; color: var(--saffron-dark);
-  background: rgba(217,138,30,0.14); padding: 2px 9px; border-radius: 999px; margin-left: 8px;
+.user-status-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.btn-signout-inline {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  font-size: 0.76rem;
+  cursor: pointer;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-family: Arial, Helvetica, sans-serif;
+  transition: background 0.15s;
 }
-
-.app-checkboxes { display: flex; flex-wrap: wrap; gap: 10px; flex: 2; min-width: 220px; }
-
-.app-check {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 0.82rem; color: var(--text);
-  background: var(--surface-soft); border: 1px solid var(--border);
-  padding: 5px 10px; border-radius: 8px; cursor: pointer;
-}
-.app-check input { cursor: pointer; }
-
-.row-actions { display: flex; align-items: center; gap: 8px; }
-.admin-toggle { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--muted); cursor: pointer; }
-
-.btn-icon {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 0.4rem 0.75rem; border: 1px solid var(--border); border-radius: 8px;
-  background: #fff; font-size: 0.76rem; font-weight: 600; color: var(--muted);
-  cursor: pointer; font-family: Arial, Helvetica, sans-serif;
-}
-.btn-icon:hover { border-color: var(--saffron); color: var(--saffron-dark); }
-.btn-icon.danger:hover { border-color: #c0392b; color: #c0392b; }
-.btn-icon:disabled { opacity: 0.4; cursor: not-allowed; }
-
-.empty-state {
-  text-align: center; padding: 50px 20px; color: var(--muted);
-  background: #fff; border: 1px dashed var(--border); border-radius: 16px;
-}
-
-.modal-overlay {
-  display: none; position: fixed; inset: 0; background: rgba(44,27,16,0.45);
-  z-index: 200; align-items: center; justify-content: center; padding: 20px;
-}
-.modal-overlay.show { display: flex; }
-.modal-card { background: #fff; border-radius: 18px; max-width: 460px; width: 100%; box-shadow: var(--shadow); }
-.modal-header {
-  padding: 1.4rem 1.6rem; border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-}
-.modal-header h3 { font-family: Georgia, serif; color: var(--maroon); font-size: 1.15rem; }
-.modal-close { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 1.3rem; }
-.modal-body { padding: 1.5rem 1.6rem; }
-.form-group { margin-bottom: 1.1rem; }
-label { display: block; font-size: 0.82rem; font-weight: 700; margin-bottom: 0.4rem; }
-input[type="text"], input[type="email"] {
-  width: 100%; padding: 0.6rem 0.85rem; border: 1.5px solid var(--border);
-  border-radius: 10px; font-size: 0.9rem; font-family: Arial, Helvetica, sans-serif;
-}
-input:focus { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 3px rgba(181,90,24,0.14); }
-.modal-footer {
-  padding: 1.2rem 1.6rem 1.5rem; display: flex; justify-content: flex-end;
-  gap: 10px; border-top: 1px solid var(--border);
-}
-.btn-secondary {
-  padding: 0.6rem 1.2rem; border-radius: 10px; border: 1.5px solid var(--border);
-  background: #fff; color: var(--muted); font-weight: 700; font-size: 0.86rem; cursor: pointer;
-}
-.btn-save {
-  padding: 0.6rem 1.4rem; border-radius: 10px; border: none;
-  background: var(--maroon); color: #fff; font-weight: 700; font-size: 0.86rem; cursor: pointer;
-}
-.btn-save:hover { background: #5a1e0a; }
-.field-hint { font-size: 0.76rem; color: var(--muted); margin-top: 4px; }
-
-@media (max-width: 640px) {
-  .user-row { flex-direction: column; align-items: stretch; }
-}
+.btn-signout-inline:hover { background: rgba(255,255,255,0.25); }
 </style>
 </head>
 <body>
@@ -252,68 +320,100 @@ input:focus { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 3px
 
 <div id="site-header"></div>
 
-<div class="container back-link-row">
-  <a href="admin-portal">&larr; Back to apps</a>
+<div class="page-hero">
+  <div class="container" style="position:relative;">
+    <div class="user-status-row" id="user-status-row">
+      <div class="user-status-avatar" id="status-avatar">?</div>
+      <span id="status-name"></span>
+      <button class="btn-signout-inline" id="btn-signout">Sign out</button>
+    </div>
+    <h1>Welcome to the Admin Portal</h1>
+    <p>Sign in with your HCCGC Google account to access the tools you've been granted.</p>
+  </div>
 </div>
 
 <div id="gate">
   <div class="gate-card">
-    <h3>Checking access&hellip;</h3>
-    <p>Please sign in from the <a href="admin-portal">main portal page</a> first.</p>
+    <img class="logo" src="../hccgc-logo.jpeg" alt="HCCGC Logo">
+    <h3>Sign in to continue</h3>
+    <p>This portal is for authorized HCCGC members only.</p>
+    <button class="btn-google" id="btn-signin">
+      <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <path d="M19.6 10.23c0-.68-.06-1.36-.17-2H10v3.77h5.4a4.63 4.63 0 01-2.01 3.04v2.52h3.25c1.9-1.75 3-4.33 3-7.33z" fill="#4285F4"/>
+        <path d="M10 20c2.7 0 4.97-.9 6.63-2.44l-3.25-2.52c-.9.6-2.05.96-3.38.96-2.6 0-4.8-1.75-5.59-4.11H1.07v2.6A10 10 0 0010 20z" fill="#34A853"/>
+        <path d="M4.41 11.89A5.98 5.98 0 014.1 10c0-.65.11-1.29.31-1.89V5.51H1.07A10 10 0 000 10c0 1.61.38 3.13 1.07 4.49l3.34-2.6z" fill="#FBBC05"/>
+        <path d="M10 3.98c1.46 0 2.77.5 3.8 1.49l2.85-2.85C14.96.99 12.7 0 10 0A10 10 0 001.07 5.51l3.34 2.6C5.2 5.73 7.4 3.98 10 3.98z" fill="#EA4335"/>
+      </svg>
+      Sign in with Google
+    </button>
+    <div id="signin-error"></div>
+    <p class="gate-note">Need access? Contact <a href="mailto:admin@hccgc.org">admin@hccgc.org</a></p>
   </div>
 </div>
 
 <div id="app">
   <div class="container">
-    <div class="page-header">
-      <h1>User Management</h1>
-      <p>Grant or revoke access to portal apps for HCCGC members.</p>
-    </div>
-
-    <div class="status-bar" id="status-bar"></div>
-
-    <button class="btn-add" id="btn-add-user">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Add User
-    </button>
-
-    <div class="user-table" id="user-table">
-      <div class="empty-state">Loading users&hellip;</div>
+    <div id="apps-container" class="loading-state">
+      <div class="spinner"></div>
+      Loading your apps&hellip;
     </div>
   </div>
 </div>
 
 <div id="site-footer"></div>
 
-<div class="modal-overlay" id="modal-overlay">
-  <div class="modal-card">
-    <div class="modal-header">
-      <h3 id="modal-title">Add User</h3>
-      <button class="modal-close" id="modal-close-btn">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label for="user-email">Email address *</label>
-        <input type="email" id="user-email" placeholder="name@hccgc.org">
-        <div class="field-hint">Must be an @hccgc.org address. They'll get access the next time they sign in.</div>
-      </div>
-      <div class="form-group">
-        <label for="user-name">Name (optional)</label>
-        <input type="text" id="user-name" placeholder="Full name">
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-secondary" id="modal-cancel-btn">Cancel</button>
-      <button class="btn-save" id="btn-save-user">Add User</button>
-    </div>
-  </div>
-</div>
+<!-- App registry: every app available in the portal lives here.
+     "key" must match an entry in each user's allowedApps array in Firestore. -->
+<script id="app-registry" type="application/json">
+[
+  {
+    "key": "manage-events",
+    "name": "Manage Events",
+    "description": "Add, edit, and remove events shown on the public Upcoming Events page.",
+    "url": "manage-events",
+    "icon": "calendar"
+  },
+  {
+    "key": "marketing-assistant",
+    "name": "Hey HCCGC",
+    "description": "Your AI marketing assistant — generate flyers, WhatsApp announcements, emails, and social posts. Opens in ChatGPT.",
+    "url": "https://chatgpt.com/g/g-6a4517d567ec8191998bc6c43891728a-hey-hccgc",
+    "icon": "sparkles",
+    "external": true
+  },
+  {
+    "key": "user-management",
+    "name": "User Management",
+    "description": "Grant or revoke portal access for HCCGC members. Admins only.",
+    "url": "user-management",
+    "icon": "users"
+  },
+  {
+    "key": "manage-pages",
+    "name": "Manage Pages",
+    "description": "Create and publish public event and initiative pages. Goes live instantly — no deploy needed.",
+    "url": "manage-pages",
+    "icon": "globe"
+  },
+  {
+    "key": "bookings-finance",
+    "name": "Facility Bookings",
+    "description": "Book facility rentals and HCCGC events, manage rooms/rates, and log Zelle/cash transactions.",
+    "url": "bookings/new-booking",
+    "icon": "calendar"
+  }
+]
+</script>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, serverTimestamp
+  getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect,
+  getRedirectResult, browserLocalPersistence, setPersistence,
+  signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -332,248 +432,184 @@ const USERS_COLLECTION = "portalUsers";
 const fbApp = initializeApp(firebaseConfig);
 const auth = getAuth(fbApp);
 const db = getFirestore(fbApp);
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ hd: ALLOWED_DOMAIN });
 
-window.__hccgcUM = { auth, db, doc, getDoc, setDoc, deleteDoc, collection, getDocs, serverTimestamp, USERS_COLLECTION };
+window.__hccgcPortal = { auth, db, doc, getDoc, setDoc, serverTimestamp, USERS_COLLECTION, ALLOWED_DOMAIN };
+
+function isMobileDevice() {
+  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+}
+
+document.getElementById("btn-signin").addEventListener("click", function () {
+  var errorBox = document.getElementById("signin-error");
+  errorBox.style.display = "none";
+
+  // Explicitly set local persistence before signing in — ensures the session
+  // is stored in localStorage on all browsers including mobile Safari,
+  // which can default to sessionStorage in certain in-app browser contexts.
+  setPersistence(auth, browserLocalPersistence).then(function () {
+    if (isMobileDevice()) {
+      console.log("[HCCGC AUTH] Mobile — using redirect sign-in...");
+      return signInWithRedirect(auth, provider);
+    }
+    console.log("[HCCGC AUTH] Desktop — opening popup...");
+    return signInWithPopup(auth, provider);
+  }).catch(function (err) {
+    console.error("[HCCGC AUTH] Sign-in failed:", err.code, err.message);
+    if (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request") return;
+    errorBox.textContent = "Sign-in failed. Please try again.";
+    errorBox.style.display = "block";
+  });
+});
+
+// Belt-and-suspenders: attempt to pick up the redirect result directly,
+// in case onAuthStateChanged fires before Firebase fully restores the session.
+getRedirectResult(auth).then(function (result) {
+  if (result && result.user) {
+    console.log("[HCCGC AUTH] getRedirectResult caught session:", result.user.email);
+  }
+}).catch(function (err) {
+  if (err.code !== "auth/no-current-user") {
+    console.error("[HCCGC AUTH] getRedirectResult error:", err.code);
+  }
+});
+
+document.getElementById("btn-signout").addEventListener("click", function () {
+  signOut(auth);
+});
 
 onAuthStateChanged(auth, function (user) {
+  var errorBox = document.getElementById("signin-error");
+
   if (!user) {
-    document.getElementById('app').style.display = 'none';
-    document.getElementById('gate').style.display = 'flex';
+    document.getElementById("app").style.display = "none";
+    document.getElementById("gate").style.display = "flex";
+    document.getElementById("user-status-row").classList.remove("show");
     return;
   }
 
-  var email = (user.email || '').toLowerCase();
-  if (!email.endsWith('@' + ALLOWED_DOMAIN)) {
-    document.getElementById('gate').innerHTML =
-      '<div class="gate-card"><h3>Access denied</h3><p>Please sign in with an @' + ALLOWED_DOMAIN + ' account.</p></div>';
+  var email = (user.email || "").toLowerCase();
+  if (!email.endsWith("@" + ALLOWED_DOMAIN)) {
+    errorBox.textContent = "Please sign in with your @" + ALLOWED_DOMAIN + " account.";
+    errorBox.style.display = "block";
+    signOut(auth);
     return;
   }
 
-  getDoc(doc(db, USERS_COLLECTION, email)).then(function (snap) {
-    var isAdmin = snap.exists() && !!snap.data().isAdmin;
-    if (!isAdmin) {
-      document.getElementById('gate').innerHTML =
-        '<div class="gate-card"><h3>Admins only</h3><p>You do not have permission to manage users. Contact an existing admin if you believe this is a mistake.</p></div>';
-      document.getElementById('gate').style.display = 'flex';
-      return;
-    }
+  document.getElementById("gate").style.display = "none";
+  document.getElementById("app").style.display = "block";
 
-    document.getElementById('gate').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    window.dispatchEvent(new CustomEvent('hccgc-um-ready', { detail: { currentUserEmail: email } }));
-  });
+  var statusRow = document.getElementById("user-status-row");
+  statusRow.classList.add("show");
+  document.getElementById("status-name").textContent = user.displayName || email;
+  var avatarEl = document.getElementById("status-avatar");
+  if (user.photoURL) {
+    avatarEl.innerHTML = '<img src="' + user.photoURL + '" alt="">';
+  } else {
+    avatarEl.textContent = (user.displayName || email).charAt(0).toUpperCase();
+  }
+
+  window.dispatchEvent(new CustomEvent("hccgc-portal-signed-in", { detail: { user: user } }));
 });
 </script>
 
 <script>
-var APP_REGISTRY = [
-  { key: 'manage-events', name: 'Manage Events' },
-  { key: 'manage-pages', name: 'Manage Pages' },
-  { key: 'marketing-assistant', name: 'Hey HCCGC' },
-  { key: 'bookings-finance', name: 'Facility Booking' }
-];
-
-var allUsers = [];
-var currentUserEmail = null;
-
-window.addEventListener('hccgc-um-ready', function (e) {
-  currentUserEmail = e.detail.currentUserEmail;
-  loadUsers();
-});
-
-function showStatus(message, type) {
-  var bar = document.getElementById('status-bar');
-  bar.textContent = message;
-  bar.className = 'status-bar show ' + type;
-  if (type !== 'error') {
-    setTimeout(function () { bar.classList.remove('show'); }, 3500);
-  }
-}
+var ICONS = {
+  calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  sparkles: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>',
+  users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',
+  globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+  default: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>'
+};
 
 function escHtml(str) {
-  return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return String(str || '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function loadUsers() {
-  var fb = window.__hccgcUM;
-  fb.getDocs(fb.collection(fb.db, fb.USERS_COLLECTION))
-    .then(function (snapshot) {
-      allUsers = [];
-      snapshot.forEach(function (docSnap) {
-        var data = docSnap.data();
-        data.id = docSnap.id;
-        allUsers.push(data);
-      });
-      renderUsers();
+function getAppRegistry() {
+  var el = document.getElementById('app-registry');
+  try {
+    return JSON.parse(el.textContent);
+  } catch (e) {
+    console.error('Could not parse app registry', e);
+    return [];
+  }
+}
+
+window.addEventListener('hccgc-portal-signed-in', function (e) {
+  loadUserApps(e.detail.user);
+});
+
+function loadUserApps(user) {
+  var fb = window.__hccgcPortal;
+  var container = document.getElementById('apps-container');
+
+  fb.getDoc(fb.doc(fb.db, fb.USERS_COLLECTION, user.email.toLowerCase()))
+    .then(function (snap) {
+      var allowedApps = [];
+      var isAdmin = false;
+
+      if (snap.exists()) {
+        var data = snap.data();
+        allowedApps = Array.isArray(data.allowedApps) ? data.allowedApps : [];
+        isAdmin = !!data.isAdmin;
+      } else {
+        // First-time sign-in: create a record with no app access yet.
+        // An existing admin will need to grant access via User Management.
+        fb.setDoc(fb.doc(fb.db, fb.USERS_COLLECTION, user.email.toLowerCase()), {
+          email: user.email,
+          name: user.displayName || '',
+          allowedApps: [],
+          isAdmin: false,
+          createdAt: fb.serverTimestamp(),
+          lastSignIn: fb.serverTimestamp()
+        });
+      }
+
+      renderApps(allowedApps, isAdmin);
     })
     .catch(function (err) {
       console.error(err);
-      document.getElementById('user-table').innerHTML = '<div class="empty-state">Could not load users.</div>';
+      container.innerHTML = '<div class="no-apps">Could not load your apps. Please try refreshing.</div>';
     });
 }
 
-function renderUsers() {
-  var container = document.getElementById('user-table');
+function renderApps(allowedApps, isAdmin) {
+  var container = document.getElementById('apps-container');
+  var registry = getAppRegistry();
 
-  if (allUsers.length === 0) {
-    container.innerHTML = '<div class="empty-state">No users yet.</div>';
+  var visibleApps = registry.filter(function (app) {
+    if (app.key === 'user-management') return isAdmin;
+    return isAdmin || allowedApps.indexOf(app.key) !== -1;
+  });
+
+  if (visibleApps.length === 0) {
+    container.innerHTML =
+      '<div class="no-apps">' +
+        "<p>You're signed in, but don't have access to any tools yet.</p>" +
+        '<p style="margin-top:8px; font-size:0.8rem;">Contact <a href="mailto:admin@hccgc.org" style="color:var(--saffron-dark)">admin@hccgc.org</a> to request access.</p>' +
+      '</div>';
     return;
   }
 
-  var sorted = allUsers.slice().sort(function (a, b) {
-    return (a.email || '').localeCompare(b.email || '');
-  });
-
-  var html = '';
-  sorted.forEach(function (u) {
-    var allowedApps = Array.isArray(u.allowedApps) ? u.allowedApps : [];
-    var initials = (u.name || u.email || '?').charAt(0).toUpperCase();
-
-    var checkboxes = APP_REGISTRY.map(function (app) {
-      var checked = allowedApps.indexOf(app.key) !== -1 ? 'checked' : '';
-      return (
-        '<label class="app-check">' +
-          '<input type="checkbox" data-user-id="' + escHtml(u.id) + '" data-app-key="' + escHtml(app.key) + '" ' + checked + '>' +
-          escHtml(app.name) +
-        '</label>'
-      );
-    }).join('');
-
+  var html = '<div class="app-grid">';
+  visibleApps.forEach(function (app) {
+    var icon = ICONS[app.icon] || ICONS.default;
     html +=
-      '<div class="user-row">' +
-        '<div class="user-avatar-sm">' + initials + '</div>' +
-        '<div class="user-info">' +
-          '<div class="name">' + escHtml(u.name || u.email) + (u.isAdmin ? '<span class="admin-pill">Admin</span>' : '') + '</div>' +
-          '<div class="email">' + escHtml(u.email) + '</div>' +
-        '</div>' +
-        '<div class="app-checkboxes">' + checkboxes + '</div>' +
-        '<div class="row-actions">' +
-          '<label class="admin-toggle">' +
-            '<input type="checkbox" class="admin-checkbox" data-user-id="' + escHtml(u.id) + '" ' + (u.isAdmin ? 'checked' : '') + (u.id === currentUserEmail ? ' disabled title="You cannot remove your own admin access"' : '') + '>' +
-            'Admin' +
-          '</label>' +
-          '<button class="btn-icon danger btn-remove-user" data-user-id="' + escHtml(u.id) + '"' + (u.id === currentUserEmail ? ' disabled title="You cannot remove yourself"' : '') + '>Remove</button>' +
-        '</div>' +
-      '</div>';
+      '<a class="app-tile" href="' + escHtml(app.url) + '"' + (app.external ? ' target="_blank" rel="noopener noreferrer"' : '') + '>' +
+        (app.key === 'user-management' ? '<span class="app-tile-badge">Admin</span>' : '') +
+        '<div class="app-tile-icon">' + icon + '</div>' +
+        '<h3>' + escHtml(app.name) + '</h3>' +
+        '<p>' + escHtml(app.description) + '</p>' +
+      '</a>';
   });
+  html += '</div>';
 
+  container.className = '';
   container.innerHTML = html;
 }
-
-document.getElementById('user-table').addEventListener('change', function (evt) {
-  if (evt.target.matches('input[data-app-key]')) {
-    var userId = evt.target.getAttribute('data-user-id');
-    var appKey = evt.target.getAttribute('data-app-key');
-    toggleAppAccess(userId, appKey, evt.target.checked);
-  } else if (evt.target.matches('.admin-checkbox')) {
-    var userId = evt.target.getAttribute('data-user-id');
-    toggleAdmin(userId, evt.target.checked);
-  }
-});
-
-document.getElementById('user-table').addEventListener('click', function (evt) {
-  var btn = evt.target.closest('.btn-remove-user');
-  if (btn && !btn.disabled) {
-    removeUser(btn.getAttribute('data-user-id'));
-  }
-});
-
-function toggleAppAccess(userId, appKey, granted) {
-  var fb = window.__hccgcUM;
-  var user = allUsers.find(function (u) { return u.id === userId; });
-  if (!user) return;
-
-  var allowedApps = Array.isArray(user.allowedApps) ? user.allowedApps.slice() : [];
-  if (granted && allowedApps.indexOf(appKey) === -1) {
-    allowedApps.push(appKey);
-  } else if (!granted) {
-    allowedApps = allowedApps.filter(function (k) { return k !== appKey; });
-  }
-
-  fb.setDoc(fb.doc(fb.db, fb.USERS_COLLECTION, userId), { allowedApps: allowedApps }, { merge: true })
-    .then(function () {
-      user.allowedApps = allowedApps;
-      showStatus('Access updated for ' + user.email + '.', 'success');
-    })
-    .catch(function (err) {
-      console.error(err);
-      showStatus('Error updating access: ' + (err.message || 'unknown error'), 'error');
-      renderUsers();
-    });
-}
-
-function toggleAdmin(userId, isAdmin) {
-  var fb = window.__hccgcUM;
-  var user = allUsers.find(function (u) { return u.id === userId; });
-  if (!user) return;
-
-  fb.setDoc(fb.doc(fb.db, fb.USERS_COLLECTION, userId), { isAdmin: isAdmin }, { merge: true })
-    .then(function () {
-      user.isAdmin = isAdmin;
-      showStatus((isAdmin ? 'Granted' : 'Removed') + ' admin access for ' + user.email + '.', 'success');
-      renderUsers();
-    })
-    .catch(function (err) {
-      console.error(err);
-      showStatus('Error updating admin status: ' + (err.message || 'unknown error'), 'error');
-      renderUsers();
-    });
-}
-
-function removeUser(userId) {
-  if (!confirm('Remove ' + userId + ' from the portal? They will lose all app access.')) return;
-
-  var fb = window.__hccgcUM;
-  fb.deleteDoc(fb.doc(fb.db, fb.USERS_COLLECTION, userId))
-    .then(function () {
-      showStatus('User removed.', 'success');
-      loadUsers();
-    })
-    .catch(function (err) {
-      console.error(err);
-      showStatus('Error removing user: ' + (err.message || 'unknown error'), 'error');
-    });
-}
-
-document.getElementById('btn-add-user').addEventListener('click', function () {
-  document.getElementById('user-email').value = '';
-  document.getElementById('user-name').value = '';
-  document.getElementById('modal-overlay').classList.add('show');
-});
-document.getElementById('modal-close-btn').addEventListener('click', closeAddModal);
-document.getElementById('modal-cancel-btn').addEventListener('click', closeAddModal);
-
-function closeAddModal() {
-  document.getElementById('modal-overlay').classList.remove('show');
-}
-
-document.getElementById('btn-save-user').addEventListener('click', function () {
-  var email = document.getElementById('user-email').value.trim().toLowerCase();
-  var name = document.getElementById('user-name').value.trim();
-
-  if (!email || !email.endsWith('@hccgc.org')) {
-    alert('Please enter a valid @hccgc.org email address.');
-    return;
-  }
-
-  var fb = window.__hccgcUM;
-  fb.setDoc(fb.doc(fb.db, fb.USERS_COLLECTION, email), {
-    email: email,
-    name: name,
-    allowedApps: [],
-    isAdmin: false,
-    createdAt: fb.serverTimestamp()
-  }, { merge: true })
-    .then(function () {
-      closeAddModal();
-      showStatus('User added. Grant them app access below.', 'success');
-      loadUsers();
-    })
-    .catch(function (err) {
-      console.error(err);
-      alert('Error adding user: ' + (err.message || 'unknown error'));
-    });
-});
 
 function loadPartial(id, file) {
   var target = document.getElementById(id);
@@ -589,9 +625,11 @@ function loadPartial(id, file) {
     .catch(function () {});
 }
 
-// header.html uses paths relative to the calling page (e.g.
-// src="hccgc-logo.jpeg"), which breaks from a subfolder like /admin/.
-// We patch the loaded copy here rather than editing the shared file.
+// header.html uses paths that are relative to the page calling it
+// (e.g. src="hccgc-logo.jpeg", href="index.html#about"). That works fine
+// for pages at the site root, but breaks when header.html is loaded from
+// a subfolder like /admin/. Rather than edit the shared header.html file
+// itself, we patch the loaded copy here so it points to the right place.
 function fixHeaderLinksForSubfolder(headerEl) {
   var logo = headerEl.querySelector('.brand-logo');
   if (logo && logo.getAttribute('src') && !logo.getAttribute('src').startsWith('/') && !logo.getAttribute('src').startsWith('http')) {
@@ -602,6 +640,7 @@ function fixHeaderLinksForSubfolder(headerEl) {
   links.forEach(function (link) {
     var href = link.getAttribute('href');
     if (!href) return;
+    // Leave absolute URLs (http/https) and already-root-relative links alone.
     if (href.startsWith('http') || href.startsWith('/') || href.startsWith('#')) return;
     link.setAttribute('href', '/' + href);
   });

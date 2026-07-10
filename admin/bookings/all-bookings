@@ -150,15 +150,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
   border-radius: 12px; padding: 12px 16px; font-size: 0.82rem; margin: 20px 0 0;
 }
 
-.bookings-layout { display: grid; grid-template-columns: 1.6fr 1fr; gap: 24px; align-items: start; }
-@media (max-width: 960px) { .bookings-layout { grid-template-columns: 1fr; } }
-.calendar-sidebar { position: sticky; top: 110px; }
-.calendar-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); margin-top: 24px; }
-.calendar-card h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.1rem; color: var(--maroon); margin-bottom: 4px; }
-.calendar-card .card-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 14px; }
-.calendar-card select { width: 100%; font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 10px; margin-bottom: 14px; }
-#calendar-embed-wrap iframe { width: 100%; height: 460px; border: 1px solid var(--border); border-radius: 14px; }
-.calendar-note { font-size: 0.76rem; color: var(--muted); margin-top: 10px; }
+
 .discount-chip { display: inline-block; font-size: 0.68rem; font-weight: 700; color: var(--saffron-dark); background: var(--surface-soft); border-radius: 999px; padding: 2px 8px; }
 
 #gate{padding:60px 16px;display:flex;justify-content:center;}
@@ -199,6 +191,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
       <li><a href="all-bookings" class="active">All Bookings</a></li>
       <li><a href="rooms-rates">Rooms &amp; Rates</a></li>
       <li><a href="log-transaction">Log Transaction</a></li>
+      <li><a href="add-renter">Add A Renter</a></li>
     </ul>
   </div>
 </div>
@@ -206,62 +199,43 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 <div class="container">
   <div class="mock-notice" id="mock-notice" style="display:none;"></div>
 
-  <div class="bookings-layout">
-    <div>
-      <div class="toolbar">
-        <input type="text" id="search-input" placeholder="Search by renter name or email…">
-        <select id="room-filter">
-          <option value="">All rooms</option>
-          <option value="Surya Hall">Surya Hall</option>
-          <option value="Patanjali Hall">Patanjali Hall</option>
-          <option value="Nataraj Room">Nataraj Room</option>
-          <option value="Ganesh Room">Ganesh Room</option>
-          <option value="__whole_facility__">Whole Facility</option>
-        </select>
-        <select id="status-filter">
-          <option value="">All statuses</option>
-          <option value="needs-attention">Needs attention</option>
-          <option value="paid">Paid</option>
-          <option value="pending">Draft</option>
-          <option value="cancelled">Cancelled</option>
-          <option value="internal">Internal / No charge</option>
-        </select>
-        <span class="count" id="result-count"></span>
-      </div>
+  <div class="toolbar">
+    <input type="text" id="search-input" placeholder="Search by contact name or email…">
+    <select id="room-filter">
+      <option value="">All rooms</option>
+      <option value="Surya Hall">Surya Hall</option>
+      <option value="Patanjali Hall">Patanjali Hall</option>
+      <option value="Nataraj Room">Nataraj Room</option>
+      <option value="Ganesh Room">Ganesh Room</option>
+      <option value="__whole_facility__">Whole Facility</option>
+    </select>
+    <select id="status-filter">
+      <option value="">All statuses</option>
+      <option value="needs-attention">Needs attention</option>
+      <option value="paid">Paid</option>
+      <option value="pending">Draft</option>
+      <option value="cancelled">Cancelled</option>
+      <option value="internal">Internal / No charge</option>
+    </select>
+    <span class="count" id="result-count"></span>
+  </div>
 
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Renter</th>
-              <th>Room</th>
-              <th>Date</th>
-              <th>Hours</th>
-              <th>Total</th>
-              <th>Status</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="bookings-tbody"></tbody>
-        </table>
-        <div class="empty-state" id="empty-state" style="display:none;">No bookings match your filters.</div>
-      </div>
-    </div>
-
-    <div class="calendar-sidebar">
-      <div class="calendar-card">
-        <h2>Room availability</h2>
-        <div class="card-sub">Live from Google Calendar — reflects everything synced, including recurring bookings.</div>
-        <select id="calendar-room-select">
-          <option value="all">All rooms (overlaid)</option>
-          <option value="Surya Hall">Surya Hall</option>
-          <option value="Patanjali Hall">Patanjali Hall</option>
-          <option value="Nataraj Room">Nataraj Room</option>
-          <option value="Ganesh Room">Ganesh Room</option>
-        </select>
-        <div id="calendar-embed-wrap"></div>
-      </div>
-    </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Contact Name</th>
+          <th>Room</th>
+          <th>Date</th>
+          <th>Hours</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="bookings-tbody"></tbody>
+    </table>
+    <div class="empty-state" id="empty-state" style="display:none;">No bookings match your filters.</div>
   </div>
 </div>
 
@@ -441,39 +415,6 @@ document.getElementById('status-filter').addEventListener('change', function (e)
   state.status = e.target.value;
   render();
 });
-
-// Real resource calendar IDs, pulled from the same embed hccgc.org/facility-calendar
-// already uses — so this sidebar shows exactly the same live data as that public page.
-const ROOM_CALENDAR_IDS = {
-  'Surya Hall': 'c_188c0ce7torcmhnnlk4omolk4n9b6@resource.calendar.google.com',
-  'Patanjali Hall': 'c_188433th1pkq6i1tlm4hmkguds17a@resource.calendar.google.com',
-  'Nataraj Room': 'c_188428oa7oengjr3mrhsse0n4uu5e@resource.calendar.google.com',
-  'Ganesh Room': 'c_1888mp0b3kdtij7qk891pqsv9jll2@resource.calendar.google.com'
-};
-const ROOM_COLORS = { 'Surya Hall': 'e67c73', 'Patanjali Hall': '3f51b5', 'Nataraj Room': '795548', 'Ganesh Room': '0b8043' }; // matches the public page, except Ganesh gets its own color instead of reusing Patanjali's
-
-function renderCalendarEmbed() {
-  const selected = document.getElementById('calendar-room-select').value;
-  const wrap = document.getElementById('calendar-embed-wrap');
-  const rooms = selected === 'all' ? Object.keys(ROOM_CALENDAR_IDS) : [selected];
-
-  const params = new URLSearchParams();
-  rooms.forEach(function (room) {
-    params.append('src', ROOM_CALENDAR_IDS[room]);
-    params.append('color', '%23' + (ROOM_COLORS[room] || '1'));
-  });
-  params.set('ctz', 'America/New_York');
-  params.set('showTitle', '0');
-  params.set('showPrint', '0');
-  params.set('showTabs', '0');
-  params.set('mode', 'WEEK');
-
-  const url = 'https://calendar.google.com/calendar/embed?' + params.toString();
-  wrap.innerHTML = '<iframe src="' + url + '" frameborder="0" scrolling="no"></iframe>' +
-    '<div class="calendar-note">Requires the room calendar IDs above to be filled in, and each admin to have at least "See all event details" access to these resource calendars in Google Calendar.</div>';
-}
-document.getElementById('calendar-room-select').addEventListener('change', renderCalendarEmbed);
-renderCalendarEmbed();
 
 loadBookings();
 

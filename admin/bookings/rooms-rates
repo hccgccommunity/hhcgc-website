@@ -115,10 +115,10 @@ tbody input[type="text"], tbody input[type="number"] {
 <div class="module-nav">
   <div class="container">
     <ul>
-      <li><a href="new-booking.html">New Booking</a></li>
-      <li><a href="all-bookings.html">All Bookings</a></li>
-      <li><a href="rooms-rates.html" class="active">Rooms &amp; Rates</a></li>
-      <li><a href="log-transaction.html" class="disabled">Log Transaction</a></li>
+      <li><a href="new-booking">New Booking</a></li>
+      <li><a href="all-bookings">All Bookings</a></li>
+      <li><a href="rooms-rates" class="active">Rooms &amp; Rates</a></li>
+      <li><a href="log-transaction" class="disabled">Log Transaction</a></li>
     </ul>
   </div>
 </div>

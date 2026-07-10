@@ -161,11 +161,25 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 .calendar-note { font-size: 0.76rem; color: var(--muted); margin-top: 10px; }
 .discount-chip { display: inline-block; font-size: 0.68rem; font-weight: 700; color: var(--saffron-dark); background: var(--surface-soft); border-radius: 999px; padding: 2px 8px; }
 
+#gate{padding:60px 16px;display:flex;justify-content:center;}
+.gate-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow);}
+.gate-card h3{font-family:Georgia,serif;font-size:1.3rem;color:var(--maroon);margin-bottom:.5rem;}
+.gate-card p{color:var(--muted);font-size:.88rem;line-height:1.6;}
+.gate-card a{color:var(--saffron-dark);}
 </style>
 </head>
 <body>
 
 <div id="site-header"></div>
+
+<div id="gate">
+  <div class="gate-card">
+    <h3>Checking access&hellip;</h3>
+    <p>Please sign in from the <a href="/admin/admin-portal">Admin Portal</a> first.</p>
+  </div>
+</div>
+
+<div id="app">
 
 <div class="page-hero">
   <div class="container">
@@ -178,10 +192,10 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 <div class="module-nav">
   <div class="container">
     <ul>
-      <li><a href="new-booking">New Booking</a></li>
-      <li><a href="all-bookings" class="active">All Bookings</a></li>
-      <li><a href="rooms-rates">Rooms &amp; Rates</a></li>
-      <li><a href="log-transaction">Log Transaction</a></li>
+      <li><a href="new-booking.html">New Booking</a></li>
+      <li><a href="all-bookings.html" class="active">All Bookings</a></li>
+      <li><a href="rooms-rates.html">Rooms &amp; Rates</a></li>
+      <li><a href="log-transaction.html">Log Transaction</a></li>
     </ul>
   </div>
 </div>
@@ -246,6 +260,8 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
       </div>
     </div>
   </div>
+</div>
+
 </div>
 
 <div id="site-footer"></div>
@@ -502,6 +518,52 @@ function fixHeaderLinksForSubfolder(headerEl) {
 }
 loadPartial('site-header', '/header.html');
 loadPartial('site-footer', '/footer.html');
+</script>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js';
+import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
+
+var firebaseConfig = {
+  apiKey: 'AIzaSyA6IzLjWTg7Rq04HsTH-iA3eDmSzKI7xME',
+  authDomain: 'hccgc-a7a54.firebaseapp.com',
+  projectId: 'hccgc-a7a54',
+  storageBucket: 'hccgc-a7a54.firebasestorage.app',
+  messagingSenderId: '75757201418',
+  appId: '1:75757201418:web:c31e9361921242145717f3'
+};
+
+var ALLOWED_DOMAIN = 'hccgc.org';
+var REQUIRED_APP_KEY = 'bookings-finance';
+var PORTAL_URL = '/admin/admin-portal';
+
+var fbApp = initializeApp(firebaseConfig);
+var auth = getAuth(fbApp);
+var db = getFirestore(fbApp);
+
+function showGate(title, msg) {
+  document.getElementById('gate').querySelector('h3').textContent = title;
+  document.getElementById('gate').querySelector('p').innerHTML = msg;
+  document.getElementById('gate').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+onAuthStateChanged(auth, function(user) {
+  if (!user) { showGate('Sign in required', 'Please sign in from the <a href="'+PORTAL_URL+'">Admin Portal</a> first.'); return; }
+  var email = (user.email||'').toLowerCase();
+  window.__hccgcCurrentUser = { email: email };
+  if (!email.endsWith('@'+ALLOWED_DOMAIN)) { showGate('Access denied', 'Please use an @'+ALLOWED_DOMAIN+' account.'); return; }
+  getDoc(doc(db, 'portalUsers', email)).then(function(snap) {
+    var data = snap.exists() ? snap.data() : {};
+    if (!data.isAdmin && !(Array.isArray(data.allowedApps) && data.allowedApps.includes(REQUIRED_APP_KEY))) {
+      showGate('Access not granted', "You don't have access to Bookings & Finance. Ask an admin to grant it.");
+      return;
+    }
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+  }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });
+});
 </script>
 </body>
 </html>

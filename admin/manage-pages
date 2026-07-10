@@ -4,130 +4,246 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Manage Pages – HCCGC</title>
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' x='50%25' text-anchor='middle' font-size='82'%3E%E0%A5%90%3C/text%3E%3C/svg%3E">
+<title>User Management – HCCGC Admin Portal</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' x='50%25' text-anchor='middle' font-size='82'%3E%E0%A5%90%3C/text%3E%3C/svg%3E">
+
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F5ZHQ4CDR9');</script>
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-TPBF5VKB');</script>
+
 <style>
 :root {
-  --bg:#fff9f1;--surface:#fff;--surface-soft:#fff6ea;--border:rgba(121,62,17,0.14);
-  --text:#2c1b10;--muted:#6a5141;--saffron:#b55a18;--saffron-dark:#8d3e0d;
-  --maroon:#7f2e16;--radius:22px;--shadow:0 18px 45px rgba(93,43,14,0.10);
+  --bg: #fff9f1;
+  --surface: #ffffff;
+  --surface-soft: #fff6ea;
+  --border: rgba(121,62,17,0.14);
+  --text: #2c1b10;
+  --muted: #6a5141;
+  --saffron: #b55a18;
+  --saffron-dark: #8d3e0d;
+  --maroon: #7f2e16;
+  --radius: 22px;
+  --shadow: 0 18px 45px rgba(93,43,14,0.10);
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top left,rgba(217,138,30,0.12),transparent 22%),radial-gradient(circle at top right,rgba(127,46,22,0.05),transparent 20%),var(--bg);color:var(--text);min-height:100vh;}
-.container{width:min(calc(100% - 32px),1100px);margin:0 auto;}
-.site-header{position:sticky;top:0;z-index:50;background:rgba(255,249,241,0.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);}
-.nav{display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:92px;padding:12px 0;}
-.brand{display:flex;align-items:center;gap:16px;min-width:0;}
-.brand-logo-wrap{background:#7f2e16;border-radius:18px;padding:8px;flex-shrink:0;}
-.brand-logo{width:88px;height:auto;border-radius:12px;object-fit:contain;}
-.brand-text h1{margin:0;font-size:1.2rem;line-height:1.15;color:var(--maroon);font-family:Georgia,serif;}
-.site-header a.brand,.site-header a.brand:link,.site-header a.brand:visited{text-decoration:none;color:inherit;}
-.site-header nav ul{list-style:none;display:flex;flex-wrap:wrap;gap:18px;margin:0;padding:0;align-items:center;justify-content:flex-end;}
-.site-header nav a,.site-header nav a:link,.site-header nav a:visited{font-weight:700;color:var(--text);font-size:0.96rem;text-decoration:none;}
-.site-header nav a:hover{color:var(--saffron-dark);}
-.menu-toggle{display:none;border:0;background:transparent;padding:6px 0;cursor:pointer;color:#2c1b10;align-self:flex-end;}
-.menu-toggle .bar{display:block;width:26px;height:2px;margin:5px 0;background:currentColor;}
-@media(max-width:768px){.nav{flex-direction:column;align-items:stretch;gap:8px;}.menu-toggle{display:inline-block;}.site-header nav{display:none;width:100%;background:rgba(255,249,241,0.95);padding:10px 0;}.site-header nav.is-open{display:block;}.site-header nav ul{flex-direction:column;gap:14px;}}
-#gate{padding:60px 16px;display:flex;justify-content:center;}
-.gate-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow);}
-.gate-card h3{font-family:Georgia,serif;font-size:1.3rem;color:var(--maroon);margin-bottom:.5rem;}
-.gate-card p{color:var(--muted);font-size:.88rem;line-height:1.6;}
-.gate-card a{color:var(--saffron-dark);}
-#app{display:none;}
-.page-header{padding:36px 0 20px;}
-.page-header h1{font-family:Georgia,serif;font-size:1.8rem;color:var(--maroon);margin-bottom:6px;}
-.page-header p{color:var(--muted);font-size:.9rem;}
-.back-link{font-size:.82rem;color:var(--saffron-dark);text-decoration:none;display:inline-block;margin-bottom:10px;}
-.back-link:hover{text-decoration:underline;}
-.status-bar{display:none;align-items:center;gap:10px;padding:.75rem 1.1rem;border-radius:12px;font-size:.86rem;font-weight:600;margin:0 0 1.25rem;}
-.status-bar.show{display:flex;}
-.status-bar.success{background:#e8f5e9;color:#2e7d32;border:1px solid #c8e6c9;}
-.status-bar.error{background:#fdecea;color:#c0392b;border:1px solid #f5c6cb;}
-.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:1.5rem;flex-wrap:wrap;}
-.btn-new{display:inline-flex;align-items:center;gap:8px;padding:.7rem 1.4rem;background:var(--maroon);color:#fff;border:none;border-radius:999px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:Arial,Helvetica,sans-serif;}
-.btn-new:hover{background:#5a1e0a;}
-.pages-list{display:flex;flex-direction:column;gap:14px;padding-bottom:60px;}
-.page-row{background:#fff;border:1px solid var(--border);border-radius:16px;padding:1.2rem 1.5rem;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
-.page-row-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;background:#e0e0e0;}
-.page-row-dot.live{background:#4caf50;}
-.page-row-info{flex:1;min-width:200px;}
-.page-row-info h4{font-family:Georgia,serif;font-size:1rem;color:var(--maroon);margin-bottom:3px;}
-.page-row-info .meta{font-size:.78rem;color:var(--muted);}
-.page-row-info .meta a{color:var(--saffron-dark);text-decoration:none;}
-.page-row-info .meta a:hover{text-decoration:underline;}
-.type-pill{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:2px 9px;border-radius:999px;}
-.type-pill.event{background:rgba(127,46,22,.1);color:var(--maroon);}
-.type-pill.initiative{background:rgba(181,90,24,.12);color:var(--saffron-dark);}
-.page-row-actions{display:flex;gap:8px;}
-.btn-row{display:inline-flex;align-items:center;gap:6px;padding:.45rem .9rem;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:.8rem;font-weight:600;color:var(--muted);cursor:pointer;font-family:Arial,Helvetica,sans-serif;white-space:nowrap;}
-.btn-row:hover{border-color:var(--saffron);color:var(--saffron-dark);}
-.btn-row.danger:hover{border-color:#c0392b;color:#c0392b;}
-.empty-state{text-align:center;padding:50px 20px;color:var(--muted);background:#fff;border:1px dashed var(--border);border-radius:16px;}
-/* MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(44,27,16,.45);z-index:200;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto;}
-.modal-overlay.show{display:flex;}
-.modal-card{background:#fff;border-radius:18px;max-width:640px;width:100%;box-shadow:var(--shadow);margin:auto;}
-.wizard-header{padding:1.4rem 1.6rem 0;}
-.wizard-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.wizard-header-top h3{font-family:Georgia,serif;color:var(--maroon);font-size:1.1rem;}
-.modal-close{background:none;border:none;cursor:pointer;color:var(--muted);font-size:1.3rem;}
-.modal-close:hover{color:var(--maroon);}
-.wizard-tabs{display:flex;border-bottom:1px solid var(--border);padding:0 1.6rem;overflow-x:auto;gap:0;}
-.wizard-tab{padding:.7rem .9rem;font-size:.8rem;font-weight:700;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2.5px solid transparent;margin-bottom:-1px;font-family:Arial,Helvetica,sans-serif;white-space:nowrap;transition:color .12s;}
-.wizard-tab.active{color:var(--maroon);border-bottom-color:var(--maroon);}
-.wizard-tab.done{color:var(--saffron-dark);}
-.wizard-tab:hover:not(.active){color:var(--saffron-dark);}
-.wizard-step{display:none;padding:0 1.6rem 1.2rem;}
-.wizard-step.active{display:block;}
-.form-group{margin-bottom:1.1rem;}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-label{display:block;font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:.4rem;}
-label .hint{font-weight:400;color:var(--muted);}
-input[type=text],input[type=date],input[type=time],input[type=url],textarea,select{width:100%;padding:.6rem .85rem;border:1.5px solid var(--border);border-radius:10px;font-size:.9rem;font-family:Arial,Helvetica,sans-serif;background:#fff;color:var(--text);}
-input:focus,textarea:focus,select:focus{outline:none;border-color:var(--saffron);box-shadow:0 0 0 3px rgba(181,90,24,.14);}
-textarea{resize:vertical;}
-.field-hint{font-size:.76rem;color:var(--muted);margin-top:4px;line-height:1.5;}
-.field-error{font-size:.76rem;color:#c0392b;margin-top:4px;display:none;}
-.field-error.show{display:block;}
-.slug-preview{font-size:.78rem;color:var(--muted);margin-top:4px;}
-.slug-preview span{font-weight:700;color:var(--saffron-dark);}
-.toggle-row{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface-soft);border:1px solid var(--border);border-radius:10px;margin-bottom:1.1rem;cursor:pointer;}
-.toggle-row label{margin:0;cursor:pointer;font-size:.88rem;font-weight:600;}
-.toggle-row input[type=checkbox]{width:auto;cursor:pointer;}
-.type-toggle{display:flex;gap:8px;margin-top:4px;}
-.type-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:.65rem .8rem;border:1.5px solid var(--border);border-radius:10px;background:#fff;color:var(--muted);font-size:.86rem;font-weight:700;cursor:pointer;font-family:Arial,Helvetica,sans-serif;transition:all .12s;}
-.type-btn.active{background:var(--maroon);border-color:var(--maroon);color:#fff;}
-.type-btn:hover:not(.active){border-color:var(--saffron);color:var(--saffron-dark);}
-.sec-label{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--saffron-dark);margin:1.2rem 0 .6rem;padding-bottom:6px;border-bottom:1px dashed var(--border);display:block;}
-.drive-help{background:#e8f5e9;border:1px solid #c8e6c9;border-radius:10px;padding:10px 14px;font-size:.77rem;color:#2e7d32;margin-top:6px;line-height:1.6;}
-.drive-help strong{display:block;margin-bottom:3px;}
-.img-preview{margin-top:8px;display:none;}
-.img-preview img{max-width:100%;border-radius:8px;border:1px solid var(--border);max-height:140px;object-fit:contain;}
-.event-sync-box{background:var(--surface-soft);border:1px solid var(--border);border-radius:12px;padding:1rem 1.2rem;margin-top:.8rem;}
-.event-sync-box h4{font-size:.82rem;font-weight:700;margin-bottom:.6rem;color:var(--text);}
-.event-sync-fields{display:none;}
-.event-sync-fields.show{display:block;}
-.wizard-footer{padding:1.2rem 1.6rem 1.5rem;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);gap:10px;flex-wrap:wrap;}
-.wizard-footer-left{display:flex;gap:8px;}
-.wizard-footer-right{display:flex;align-items:center;gap:10px;}
-.live-link{font-size:.78rem;color:var(--saffron-dark);text-decoration:none;}
-.live-link:hover{text-decoration:underline;}
-.btn-secondary{padding:.6rem 1.2rem;border-radius:10px;border:1.5px solid var(--border);background:#fff;color:var(--muted);font-weight:700;font-size:.86rem;cursor:pointer;font-family:Arial,Helvetica,sans-serif;}
-.btn-secondary:hover{border-color:var(--saffron);color:var(--saffron-dark);}
-.btn-next{padding:.6rem 1.4rem;border-radius:10px;border:none;background:var(--saffron-dark);color:#fff;font-weight:700;font-size:.86rem;cursor:pointer;font-family:Arial,Helvetica,sans-serif;display:inline-flex;align-items:center;gap:6px;}
-.btn-next:hover{background:#6a2e09;}
-.btn-save{padding:.6rem 1.4rem;border-radius:10px;border:none;background:var(--maroon);color:#fff;font-weight:700;font-size:.86rem;cursor:pointer;font-family:Arial,Helvetica,sans-serif;display:inline-flex;align-items:center;gap:8px;}
-.btn-save:hover{background:#5a1e0a;}
-.btn-save:disabled,.btn-next:disabled{opacity:.6;cursor:not-allowed;}
-.spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;}
-@keyframes spin{to{transform:rotate(360deg);}}
-@media(max-width:600px){.form-row{grid-template-columns:1fr;}.page-row{flex-direction:column;align-items:stretch;}.wizard-footer{flex-direction:column;}.wizard-footer-left,.wizard-footer-right{width:100%;justify-content:flex-end;}}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%),
+    radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%),
+    var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.container { width: min(calc(100% - 32px), 1000px); margin: 0 auto; }
+
+/* Header partial styling — required by header.html's markup. */
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(255, 249, 241, 0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+}
+.nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    min-height: 92px;
+    padding: 12px 0;
+}
+.site-header a.brand,
+.site-header a.brand:link,
+.site-header a.brand:visited {
+  text-decoration: none;
+  color: inherit;
+}
+.brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.brand-logo-wrap {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 8px;
+    box-shadow: var(--shadow);
+    flex-shrink: 0;
+}
+.brand-logo { width: 88px; height: auto; border-radius: 12px; object-fit: contain; }
+.brand-text h1 { margin: 0; font-size: 1.2rem; line-height: 1.15; color: var(--maroon); }
+.site-header nav ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+    justify-content: flex-end;
+}
+.site-header nav a,
+.site-header nav a:link,
+.site-header nav a:visited { font-weight: 700; color: var(--text); font-size: 0.96rem; text-decoration: none; }
+.site-header nav a:hover { color: var(--saffron-dark); }
+.menu-toggle {
+    display: none;
+    border: 0;
+    background: transparent;
+    padding: 6px 0;
+    cursor: pointer;
+    color: #2c1b10;
+    align-self: flex-end;
+}
+.menu-toggle .bar { display: block; width: 26px; height: 2px; margin: 5px 0; background: currentColor; }
+@media (max-width: 768px) {
+    .nav { flex-direction: column; align-items: stretch; gap: 8px; }
+    .menu-toggle { display: inline-block; }
+    .site-header nav {
+        display: none;
+        width: 100%;
+        background: rgba(255, 249, 241, 0.95);
+        padding: 10px 0;
+    }
+    .site-header nav.is-open { display: block; }
+    .site-header nav ul { flex-direction: column; gap: 14px; }
+}
+
+.back-link-row {
+  padding: 16px 0 0;
+  font-size: 0.82rem;
+}
+.back-link-row a { color: var(--saffron-dark); text-decoration: none; }
+.back-link-row a:hover { text-decoration: underline; }
+
+#gate { padding: 60px 16px; display: flex; justify-content: center; }
+.gate-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 2.5rem 2rem; max-width: 420px; width: 100%; text-align: center; box-shadow: var(--shadow);
+}
+.gate-card h3 { font-family: Georgia, serif; font-size: 1.3rem; color: var(--maroon); margin-bottom: 0.5rem; }
+.gate-card p { color: var(--muted); font-size: 0.88rem; line-height: 1.6; }
+.gate-card a { color: var(--saffron-dark); }
+
+#app { display: none; }
+
+.page-header { padding: 40px 0 20px; }
+.page-header h1 { font-family: Georgia, "Times New Roman", serif; font-size: 1.8rem; color: var(--maroon); margin-bottom: 8px; }
+.page-header p { color: var(--muted); font-size: 0.9rem; }
+
+.status-bar {
+  display: none; align-items: center; gap: 10px;
+  padding: 0.75rem 1.1rem; border-radius: 12px;
+  font-size: 0.86rem; font-weight: 600; margin: 0 0 1.25rem;
+}
+.status-bar.show { display: flex; }
+.status-bar.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+.status-bar.error { background: #fdecea; color: #c0392b; border: 1px solid #f5c6cb; }
+
+.btn-add {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 0.7rem 1.4rem; background: var(--maroon); color: #fff;
+  border: none; border-radius: 999px; font-size: 0.9rem; font-weight: 700;
+  cursor: pointer; font-family: Arial, Helvetica, sans-serif; margin-bottom: 1.5rem;
+}
+.btn-add:hover { background: #5a1e0a; }
+
+.user-table { display: flex; flex-direction: column; gap: 12px; padding-bottom: 60px; }
+
+.user-row {
+  background: #fff; border: 1px solid var(--border); border-radius: 14px;
+  padding: 1.1rem 1.4rem; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+
+.user-avatar-sm {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--maroon); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; font-weight: 700; flex-shrink: 0;
+}
+
+.user-info { flex: 1; min-width: 180px; }
+.user-info .name { font-weight: 700; font-size: 0.92rem; }
+.user-info .email { font-size: 0.8rem; color: var(--muted); }
+
+.admin-pill {
+  font-size: 0.68rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.04em; color: var(--saffron-dark);
+  background: rgba(217,138,30,0.14); padding: 2px 9px; border-radius: 999px; margin-left: 8px;
+}
+
+.app-checkboxes { display: flex; flex-wrap: wrap; gap: 10px; flex: 2; min-width: 220px; }
+
+.app-check {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.82rem; color: var(--text);
+  background: var(--surface-soft); border: 1px solid var(--border);
+  padding: 5px 10px; border-radius: 8px; cursor: pointer;
+}
+.app-check input { cursor: pointer; }
+
+.row-actions { display: flex; align-items: center; gap: 8px; }
+.admin-toggle { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--muted); cursor: pointer; }
+
+.btn-icon {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 0.4rem 0.75rem; border: 1px solid var(--border); border-radius: 8px;
+  background: #fff; font-size: 0.76rem; font-weight: 600; color: var(--muted);
+  cursor: pointer; font-family: Arial, Helvetica, sans-serif;
+}
+.btn-icon:hover { border-color: var(--saffron); color: var(--saffron-dark); }
+.btn-icon.danger:hover { border-color: #c0392b; color: #c0392b; }
+.btn-icon:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.empty-state {
+  text-align: center; padding: 50px 20px; color: var(--muted);
+  background: #fff; border: 1px dashed var(--border); border-radius: 16px;
+}
+
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(44,27,16,0.45);
+  z-index: 200; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.show { display: flex; }
+.modal-card { background: #fff; border-radius: 18px; max-width: 460px; width: 100%; box-shadow: var(--shadow); }
+.modal-header {
+  padding: 1.4rem 1.6rem; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-header h3 { font-family: Georgia, serif; color: var(--maroon); font-size: 1.15rem; }
+.modal-close { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 1.3rem; }
+.modal-body { padding: 1.5rem 1.6rem; }
+.form-group { margin-bottom: 1.1rem; }
+label { display: block; font-size: 0.82rem; font-weight: 700; margin-bottom: 0.4rem; }
+input[type="text"], input[type="email"] {
+  width: 100%; padding: 0.6rem 0.85rem; border: 1.5px solid var(--border);
+  border-radius: 10px; font-size: 0.9rem; font-family: Arial, Helvetica, sans-serif;
+}
+input:focus { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 3px rgba(181,90,24,0.14); }
+.modal-footer {
+  padding: 1.2rem 1.6rem 1.5rem; display: flex; justify-content: flex-end;
+  gap: 10px; border-top: 1px solid var(--border);
+}
+.btn-secondary {
+  padding: 0.6rem 1.2rem; border-radius: 10px; border: 1.5px solid var(--border);
+  background: #fff; color: var(--muted); font-weight: 700; font-size: 0.86rem; cursor: pointer;
+}
+.btn-save {
+  padding: 0.6rem 1.4rem; border-radius: 10px; border: none;
+  background: var(--maroon); color: #fff; font-weight: 700; font-size: 0.86rem; cursor: pointer;
+}
+.btn-save:hover { background: #5a1e0a; }
+.field-hint { font-size: 0.76rem; color: var(--muted); margin-top: 4px; }
+
+@media (max-width: 640px) {
+  .user-row { flex-direction: column; align-items: stretch; }
+}
 </style>
 </head>
 <body>
@@ -135,306 +251,68 @@ textarea{resize:vertical;}
 
 <div id="site-header"></div>
 
+<div class="container back-link-row">
+  <a href="admin-portal">&larr; Back to apps</a>
+</div>
+
 <div id="gate">
   <div class="gate-card">
     <h3>Checking access&hellip;</h3>
-    <p>Please sign in from the <a href="/admin/admin-portal">Admin Portal</a> first.</p>
+    <p>Please sign in from the <a href="admin-portal">main portal page</a> first.</p>
   </div>
 </div>
 
 <div id="app">
   <div class="container">
     <div class="page-header">
-      <a class="back-link" href="/admin/admin-portal">&larr; Back to apps</a>
-      <h1>Manage Pages</h1>
-      <p>Create and publish public event and initiative pages. Changes go live instantly — no deploy needed.</p>
+      <h1>User Management</h1>
+      <p>Grant or revoke access to portal apps for HCCGC members.</p>
     </div>
+
     <div class="status-bar" id="status-bar"></div>
-    <div class="toolbar">
-      <div id="pages-count" style="font-size:.86rem;color:var(--muted);"></div>
-      <button class="btn-new" id="btn-new-page">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        New Page
-      </button>
-    </div>
-    <div class="pages-list" id="pages-list">
-      <div class="empty-state">Loading&hellip;</div>
-    </div>
-  </div>
-</div>
 
-<!-- WIZARD MODAL -->
-<div class="modal-overlay" id="modal-overlay">
-  <div class="modal-card">
-    <div class="wizard-header">
-      <div class="wizard-header-top">
-        <h3 id="wizard-title">New Page</h3>
-        <button class="modal-close" id="modal-close-btn">&times;</button>
-      </div>
-      <div class="wizard-tabs" id="wizard-tabs"></div>
-    </div>
+    <button class="btn-add" id="btn-add-user">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add User
+    </button>
 
-    <input type="hidden" id="edit-page-id">
-
-    <!-- STEP 1: Basics -->
-    <div class="wizard-step active" id="step-1">
-      <div class="form-group">
-        <label>Page Type *</label>
-        <div class="type-toggle">
-          <button type="button" class="type-btn active" id="type-btn-event" data-type="event">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            Event <span style="font-weight:400;font-size:.75rem;">(one-time)</span>
-          </button>
-          <button type="button" class="type-btn" id="type-btn-initiative" data-type="initiative">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-            Initiative <span style="font-weight:400;font-size:.75rem;">(recurring)</span>
-          </button>
-        </div>
-        <input type="hidden" id="page-type" value="event">
-      </div>
-      <div class="form-group">
-        <label for="page-title">Page Title *</label>
-        <input type="text" id="page-title" placeholder="e.g. Parisa Sparsha – An Evening of Classical Music">
-        <div class="field-error" id="err-title">Please enter a page title.</div>
-      </div>
-      <div class="form-group">
-        <label for="page-slug">URL Slug *</label>
-        <input type="text" id="page-slug" placeholder="e.g. parisa-sparsha">
-        <div class="slug-preview">hccgc.org/<span id="slug-display">your-slug</span></div>
-        <div class="field-error" id="err-slug">Please enter a valid slug (lowercase, hyphens, numbers only).</div>
-      </div>
-      <div class="form-group">
-        <label for="page-tagline">Tagline</label>
-        <input type="text" id="page-tagline" placeholder="e.g. A composer's insight into a composer's mind">
-      </div>
-      <div class="form-group">
-        <label for="page-hero-desc">Hero Description</label>
-        <textarea id="page-hero-desc" rows="2" placeholder="Short paragraph shown in the hero banner"></textarea>
-      </div>
-      <div class="toggle-row">
-        <input type="checkbox" id="page-enabled">
-        <label for="page-enabled">Page is live and publicly visible</label>
-      </div>
-    </div>
-
-    <!-- STEP 2: Event Details -->
-    <div class="wizard-step" id="step-2">
-      <div class="form-row">
-        <div class="form-group">
-          <label for="page-venue">Venue</label>
-          <input type="text" id="page-venue" placeholder="HCCGC (default if blank)">
-        </div>
-        <div class="form-group">
-          <label for="page-cost-display">Cost</label>
-          <input type="text" id="page-cost-display" placeholder="e.g. $15 early / $20 at door">
-        </div>
-      </div>
-      <!-- Event-only date/time -->
-      <div id="step2-event-fields">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="page-date">Date</label>
-            <input type="date" id="page-date">
-          </div>
-          <div class="form-group">
-            <label for="page-from-time">Start Time</label>
-            <input type="text" id="page-from-time" placeholder="e.g. 6:30 PM">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="page-to-time">End Time</label>
-            <input type="text" id="page-to-time" placeholder="e.g. 9:00 PM">
-          </div>
-          <div class="form-group">
-            <label for="page-category">Category</label>
-            <select id="page-category">
-              <option value="">None</option>
-              <option value="Cultural">Cultural</option>
-              <option value="Spiritual">Spiritual</option>
-              <option value="Kids">Kids</option>
-              <option value="Wellness">Wellness</option>
-              <option value="Community">Community</option>
-              <option value="Education">Education</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <!-- Initiative-only date fields -->
-      <div id="step2-initiative-fields" style="display:none;">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="page-start-date">Start Date</label>
-            <input type="date" id="page-start-date">
-          </div>
-          <div class="form-group">
-            <label for="page-end-date">End Date</label>
-            <input type="date" id="page-end-date">
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="page-schedule-text">Weekly Schedule</label>
-          <input type="text" id="page-schedule-text" placeholder="e.g. Tuesdays 6–7 PM, Thursdays 7–8 PM">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="page-contact-name">Contact Name</label>
-          <input type="text" id="page-contact-name" placeholder="e.g. Ajay Bhosale">
-        </div>
-        <div class="form-group">
-          <label for="page-contact-phone">Contact Phone</label>
-          <input type="text" id="page-contact-phone" placeholder="e.g. (513) 680-9379">
-        </div>
-      </div>
-
-      <!-- Sync to Manage Events -->
-      <div class="event-sync-box">
-        <h4>Also add to Upcoming Events page?</h4>
-        <div class="toggle-row" style="margin-bottom:.6rem;">
-          <input type="checkbox" id="sync-to-events">
-          <label for="sync-to-events">Yes — create an entry in Manage Events</label>
-        </div>
-        <div class="event-sync-fields" id="event-sync-fields">
-          <p style="font-size:.78rem;color:var(--muted);margin-bottom:.8rem;">The fields above will be used. Add a short description for the upcoming events listing:</p>
-          <div class="form-group" style="margin-bottom:.5rem;">
-            <label for="sync-description">Short Description *</label>
-            <textarea id="sync-description" rows="2" placeholder="One or two sentences describing this event/initiative for the upcoming events page"></textarea>
-            <div class="field-error" id="err-sync-desc">Please enter a short description.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- STEP 3: Content -->
-    <div class="wizard-step" id="step-3">
-      <div class="form-group">
-        <label for="page-about-title">About Section Title</label>
-        <input type="text" id="page-about-title" placeholder="e.g. A Celebration of Timeless Melodies">
-      </div>
-      <div class="form-group">
-        <label for="page-about-body">About Section Body</label>
-        <textarea id="page-about-body" rows="5" placeholder="Full description. Use a new line for each paragraph."></textarea>
-      </div>
-      <div class="form-group">
-        <label for="page-what-to-expect">What to Expect <span class="hint">(one item per line)</span></label>
-        <textarea id="page-what-to-expect" rows="3" placeholder="Live violin, vocals, harmonium&#10;Narration in Marathi&#10;Intimate mahfil-style setting"></textarea>
-      </div>
-      <div class="form-group">
-        <label for="page-who-should-attend">Who Should Attend <span class="hint">(one item per line)</span></label>
-        <textarea id="page-who-should-attend" rows="3" placeholder="Lovers of Marathi and Hindi film music&#10;Families of all ages"></textarea>
-      </div>
-    </div>
-
-    <!-- STEP 4: People -->
-    <div class="wizard-step" id="step-4">
-      <div id="step4-event">
-        <div class="form-group">
-          <label for="page-performers">Performers <span class="hint">(one per line: Name | Role | Location)</span></label>
-          <textarea id="page-performers" rows="5" placeholder="Sachin Ingale | Vocalist · Violinist · Composer | Pune, India&#10;Ruchir Ingale | Vocalist | Pune, India"></textarea>
-          <div class="field-hint">Separate Name, Role, and Location with |</div>
-        </div>
-      </div>
-      <div id="step4-initiative" style="display:none;">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="page-instructor-name">Instructor Name</label>
-            <input type="text" id="page-instructor-name" placeholder="e.g. Shri Koti Krishna ji">
-          </div>
-          <div class="form-group">
-            <label for="page-instructor-role">Role / Title</label>
-            <input type="text" id="page-instructor-role" placeholder="e.g. Yoga Instructor">
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="page-instructor-photo">Instructor Photo</label>
-          <input type="text" id="page-instructor-photo" placeholder="Paste Google Drive share link">
-          <div class="drive-help">
-            <strong>How to get a Google Drive image URL:</strong>
-            1. Upload photo to Google Drive &nbsp;→&nbsp; Right-click → Share<br>
-            2. Set access to "Anyone with the link" → Copy link<br>
-            3. Paste here — we'll convert it automatically
-          </div>
-          <div class="img-preview" id="instructor-img-wrap"><img id="instructor-img" src="" alt="Preview"></div>
-        </div>
-        <div class="form-group">
-          <label for="page-instructor-bio">Bio</label>
-          <textarea id="page-instructor-bio" rows="3" placeholder="Brief bio of the instructor"></textarea>
-        </div>
-      </div>
-    </div>
-
-    <!-- STEP 5: Schedule / Curriculum -->
-    <div class="wizard-step" id="step-5">
-      <div id="step5-event">
-        <div class="form-group">
-          <label for="page-schedule-items">Program Schedule <span class="hint">(one per line: Time | Label | Duration)</span></label>
-          <textarea id="page-schedule-items" rows="6" placeholder="10:00 AM | First Half | ~1 hr 15 min&#10;11:15 AM | Interval | 15 min · Refreshments&#10;11:30 AM | Second Half | ~1 hr"></textarea>
-          <div class="field-hint">Separate Time, Label, and Duration with |</div>
-        </div>
-      </div>
-      <div id="step5-initiative" style="display:none;">
-        <div class="form-group">
-          <label for="page-curriculum-title">Curriculum Section Title</label>
-          <input type="text" id="page-curriculum-title" placeholder="e.g. 12-week progressive wellness journey">
-        </div>
-        <div class="form-group">
-          <label for="page-curriculum">Curriculum Weeks <span class="hint">(one per line: Week Label | Title | Description)</span></label>
-          <textarea id="page-curriculum" rows="7" placeholder="Weeks 1–4 | Foundation & Reset | Start with mobility and breathing&#10;Weeks 5–8 | Strength & Balance | Develop strength and stability&#10;Weeks 9–12 | Integration | Bring together breath and movement"></textarea>
-          <div class="field-hint">Separate Week Label, Title, and Description with |</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- STEP 6: Media & Registration -->
-    <div class="wizard-step" id="step-6">
-      <div class="form-group">
-        <label for="page-zeffy-url">Zeffy Registration Embed Code</label>
-        <textarea id="page-zeffy-url" rows="4" placeholder="Paste the full Zeffy iframe embed code here&#10;&#10;Example:&#10;&lt;iframe src=&quot;https://www.zeffy.com/embed/ticketing/your-event&quot; ...&gt;&lt;/iframe&gt;"></textarea>
-        <div class="field-hint">From Zeffy: go to your event &rarr; Share &rarr; Embed &rarr; copy the full iframe code and paste it here. Leave blank to show "Registrations will open soon!"</div>
-      </div>
-      <div class="form-group">
-        <label for="page-registration-note">Registration Note</label>
-        <textarea id="page-registration-note" rows="2" placeholder="e.g. Early bird price ends May 18th. Register soon!"></textarea>
-      </div>
-      <div class="form-group">
-        <label for="page-flyer-url">Event Flyer Image</label>
-        <input type="text" id="page-flyer-url" placeholder="Paste Google Drive share link">
-        <div class="drive-help">
-          <strong>How to get a Google Drive image URL:</strong>
-          1. Upload flyer to Google Drive &nbsp;→&nbsp; Right-click → Share<br>
-          2. Set access to "Anyone with the link" → Copy link<br>
-          3. Paste here — we'll convert it automatically
-        </div>
-        <div class="img-preview" id="flyer-img-wrap"><img id="flyer-img" src="" alt="Flyer preview"></div>
-      </div>
-      <div class="form-group">
-        <label for="page-meta-desc">Search Engine Description <span class="hint">(optional, ~150 chars)</span></label>
-        <textarea id="page-meta-desc" rows="2" placeholder="Brief description shown in Google search results"></textarea>
-      </div>
-    </div>
-
-    <div class="wizard-footer">
-      <div class="wizard-footer-left">
-        <button class="btn-secondary" id="btn-cancel">Cancel</button>
-        <button class="btn-secondary" id="btn-back" style="display:none;">← Back</button>
-      </div>
-      <div class="wizard-footer-right">
-        <a id="live-link" href="#" target="_blank" class="live-link" style="display:none;">View live page ↗</a>
-        <button class="btn-next" id="btn-next">Next →</button>
-        <button class="btn-save" id="btn-save" style="display:none;">Save &amp; Publish</button>
-      </div>
+    <div class="user-table" id="user-table">
+      <div class="empty-state">Loading users&hellip;</div>
     </div>
   </div>
 </div>
 
 <div id="site-footer"></div>
 
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 id="modal-title">Add User</h3>
+      <button class="modal-close" id="modal-close-btn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="user-email">Email address *</label>
+        <input type="email" id="user-email" placeholder="name@hccgc.org">
+        <div class="field-hint">Must be an @hccgc.org address. They'll get access the next time they sign in.</div>
+      </div>
+      <div class="form-group">
+        <label for="user-name">Name (optional)</label>
+        <input type="text" id="user-name" placeholder="Full name">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="modal-cancel-btn">Cancel</button>
+      <button class="btn-save" id="btn-save-user">Add User</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 import {
-  getFirestore, collection, getDocs, doc, getDoc, setDoc, addDoc, deleteDoc, serverTimestamp
+  getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -443,441 +321,292 @@ const firebaseConfig = {
   projectId: "hccgc-a7a54",
   storageBucket: "hccgc-a7a54.firebasestorage.app",
   messagingSenderId: "75757201418",
-  appId: "1:75757201418:web:c31e9361921242145717f3"
+  appId: "1:75757201418:web:c31e9361921242145717f3",
+  measurementId: "G-F9K6GVD5CS"
 };
 
 const ALLOWED_DOMAIN = "hccgc.org";
-const REQUIRED_APP_KEY = "manage-pages";
 const USERS_COLLECTION = "portalUsers";
-const PAGES_COLLECTION = "pages";
-const EVENTS_COLLECTION = "events";
 
 const fbApp = initializeApp(firebaseConfig);
 const auth = getAuth(fbApp);
 const db = getFirestore(fbApp);
 
-window.__hccgcMP = { db, collection, getDocs, doc, getDoc, setDoc, addDoc, deleteDoc, serverTimestamp, PAGES_COLLECTION, EVENTS_COLLECTION };
+window.__hccgcUM = { auth, db, doc, getDoc, setDoc, deleteDoc, collection, getDocs, serverTimestamp, USERS_COLLECTION };
 
-async function loadPartial(id, file) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  try {
-    const r = await fetch(file);
-    if (!r.ok) return;
-    el.innerHTML = await r.text();
-    if (id === 'site-header') {
-      const logo = el.querySelector('.brand-logo');
-      if (logo) { const s = logo.getAttribute('src'); if (s && !s.startsWith('/') && !s.startsWith('http')) logo.setAttribute('src', '/' + s); }
-      el.querySelectorAll('a[href]').forEach(a => { const h = a.getAttribute('href'); if (h && !h.startsWith('http') && !h.startsWith('/') && !h.startsWith('#')) a.setAttribute('href', '/' + h); });
-    }
-  } catch(e) {}
-}
-loadPartial('site-header', '/header.html');
-loadPartial('site-footer', '/footer.html');
+onAuthStateChanged(auth, function (user) {
+  if (!user) {
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('gate').style.display = 'flex';
+    return;
+  }
 
-function showGate(title, msg) {
-  const g = document.getElementById('gate');
-  g.querySelector('h3').textContent = title;
-  g.querySelector('p').innerHTML = msg;
-  g.style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
-}
+  var email = (user.email || '').toLowerCase();
+  if (!email.endsWith('@' + ALLOWED_DOMAIN)) {
+    document.getElementById('gate').innerHTML =
+      '<div class="gate-card"><h3>Access denied</h3><p>Please sign in with an @' + ALLOWED_DOMAIN + ' account.</p></div>';
+    return;
+  }
 
-onAuthStateChanged(auth, async user => {
-  if (!user) { showGate('Sign in required', 'Please sign in from the <a href="/admin/admin-portal">Admin Portal</a> first.'); return; }
-  const email = (user.email || '').toLowerCase();
-  if (!email.endsWith('@' + ALLOWED_DOMAIN)) { showGate('Access denied', 'Please use an @' + ALLOWED_DOMAIN + ' account.'); return; }
-  try {
-    const snap = await getDoc(doc(db, USERS_COLLECTION, email));
-    const data = snap.exists() ? snap.data() : {};
-    if (!data.isAdmin && !(Array.isArray(data.allowedApps) && data.allowedApps.includes(REQUIRED_APP_KEY))) {
-      showGate('Access not granted', "You don't have access to Manage Pages. Ask an admin to grant it from User Management.");
+  getDoc(doc(db, USERS_COLLECTION, email)).then(function (snap) {
+    var isAdmin = snap.exists() && !!snap.data().isAdmin;
+    if (!isAdmin) {
+      document.getElementById('gate').innerHTML =
+        '<div class="gate-card"><h3>Admins only</h3><p>You do not have permission to manage users. Contact an existing admin if you believe this is a mistake.</p></div>';
+      document.getElementById('gate').style.display = 'flex';
       return;
     }
-  } catch(e) { showGate('Error', 'Could not verify your access. Please try again.'); return; }
-  document.getElementById('gate').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  window.dispatchEvent(new CustomEvent('hccgc-mp-ready'));
+
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    window.dispatchEvent(new CustomEvent('hccgc-um-ready', { detail: { currentUserEmail: email } }));
+  });
 });
 </script>
 
 <script>
-var allPages = [];
-var currentStep = 1;
-var TOTAL_STEPS = 6;
-var STEP_NAMES = ['Basics', 'Event Details', 'Content', 'People', 'Schedule', 'Media & Registration'];
-var isEditing = false;
+var APP_REGISTRY = [
+  { key: 'manage-events', name: 'Manage Events' },
+  { key: 'manage-pages', name: 'Manage Pages' },
+  { key: 'marketing-assistant', name: 'Hey HCCGC' }
+];
 
-window.addEventListener('hccgc-mp-ready', loadPages);
+var allUsers = [];
+var currentUserEmail = null;
 
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function fmtDate(d) {
-  if (!d) return '';
-  var p = d.split('-');
-  if (p.length!==3) return d;
-  return new Date(+p[0],+p[1]-1,+p[2]).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-}
-function showStatus(msg, type) {
-  var b = document.getElementById('status-bar');
-  b.textContent = msg; b.className = 'status-bar show ' + type;
-  if (type!=='error') setTimeout(()=>b.classList.remove('show'), 3500);
-}
-
-// Convert Google Drive share URL to thumbnail URL (avoids CORS issues with uc?export=view)
-function convertDriveUrl(url) {
-  if (!url) return '';
-  var m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  if (m) return 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w1600';
-  return url;
-}
-
-function loadPages() {
-  var fb = window.__hccgcMP;
-  fb.getDocs(fb.collection(fb.db, fb.PAGES_COLLECTION)).then(snap => {
-    allPages = [];
-    snap.forEach(d => { var data = d.data(); data.id = d.id; allPages.push(data); });
-    allPages.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
-    renderList();
-  }).catch(err => {
-    document.getElementById('pages-list').innerHTML = '<div class="empty-state">Could not load pages. ' + esc(err.message) + '</div>';
-  });
-}
-
-function renderList() {
-  var c = document.getElementById('pages-list');
-  document.getElementById('pages-count').textContent = allPages.length + ' page' + (allPages.length!==1?'s':'');
-  if (!allPages.length) { c.innerHTML = '<div class="empty-state">No pages yet. Click "New Page" to create your first one.</div>'; return; }
-  c.innerHTML = allPages.map(p => {
-    var isInit = p.type === 'initiative';
-    var isLive = p.pageEnabled && p.slug;
-    var dateStr = isInit ? (fmtDate(p.startDate) + (p.endDate ? ' – ' + fmtDate(p.endDate) : '')) : fmtDate(p.date);
-    var urlInfo = isLive ? '<a href="/' + esc(p.slug) + '" target="_blank">hccgc.org/' + esc(p.slug) + ' ↗</a>' : '<span>Not published</span>';
-    return '<div class="page-row">' +
-      '<div class="page-row-dot' + (isLive?' live':'') + '"></div>' +
-      '<div class="page-row-info">' +
-        '<h4>' + esc(p.pageTitle||p.slug||'Untitled') + ' <span class="type-pill ' + (isInit?'initiative':'event') + '">' + (isInit?'Initiative':'Event') + '</span></h4>' +
-        '<div class="meta">' + esc(dateStr||'No date') + ' &nbsp;·&nbsp; ' + urlInfo + '</div>' +
-      '</div>' +
-      '<div class="page-row-actions">' +
-        '<button class="btn-row btn-edit-page" data-id="' + esc(p.id) + '">' +
-          '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit' +
-        '</button>' +
-        '<button class="btn-row danger btn-delete-page" data-id="' + esc(p.id) + '">Delete</button>' +
-      '</div>' +
-    '</div>';
-  }).join('');
-}
-
-document.getElementById('pages-list').addEventListener('click', evt => {
-  var editBtn = evt.target.closest('.btn-edit-page');
-  if (editBtn) { var p = allPages.find(x => x.id === editBtn.getAttribute('data-id')); if (p) openModal(p); return; }
-  var delBtn = evt.target.closest('.btn-delete-page');
-  if (delBtn) deletePage(delBtn.getAttribute('data-id'));
+window.addEventListener('hccgc-um-ready', function (e) {
+  currentUserEmail = e.detail.currentUserEmail;
+  loadUsers();
 });
 
-function deletePage(id) {
-  if (!confirm('Delete this page? This cannot be undone.')) return;
-  var fb = window.__hccgcMP;
-  fb.deleteDoc(fb.doc(fb.db, fb.PAGES_COLLECTION, id)).then(() => {
-    allPages = allPages.filter(p => p.id !== id);
-    renderList();
-    showStatus('Page deleted.', 'success');
-  }).catch(err => showStatus('Error: ' + err.message, 'error'));
-}
-
-// Type toggle
-document.getElementById('type-btn-event').addEventListener('click', () => setType('event'));
-document.getElementById('type-btn-initiative').addEventListener('click', () => setType('initiative'));
-function setType(type) {
-  document.getElementById('page-type').value = type;
-  document.getElementById('type-btn-event').classList.toggle('active', type==='event');
-  document.getElementById('type-btn-initiative').classList.toggle('active', type==='initiative');
-  var isInit = type === 'initiative';
-  document.getElementById('step2-event-fields').style.display = isInit ? 'none' : 'block';
-  document.getElementById('step2-initiative-fields').style.display = isInit ? 'block' : 'none';
-  document.getElementById('step4-event').style.display = isInit ? 'none' : 'block';
-  document.getElementById('step4-initiative').style.display = isInit ? 'block' : 'none';
-  document.getElementById('step5-event').style.display = isInit ? 'none' : 'block';
-  document.getElementById('step5-initiative').style.display = isInit ? 'block' : 'none';
-  STEP_NAMES[3] = isInit ? 'Instructor' : 'Performers';
-  STEP_NAMES[4] = isInit ? 'Curriculum' : 'Schedule';
-  updateWizardUI();
-}
-
-// Slug preview
-document.getElementById('page-slug').addEventListener('input', function() {
-  var clean = this.value.toLowerCase().replace(/[^a-z0-9-]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
-  document.getElementById('slug-display').textContent = clean || 'your-slug';
-  updateLiveLink(clean, document.getElementById('page-enabled').checked);
-});
-document.getElementById('page-enabled').addEventListener('change', function() {
-  updateLiveLink(document.getElementById('page-slug').value.trim(), this.checked);
-});
-function updateLiveLink(slug, enabled) {
-  var l = document.getElementById('live-link');
-  if (slug && enabled) { l.href = '/' + slug; l.style.display = 'inline'; }
-  else l.style.display = 'none';
-}
-
-// Sync to events checkbox
-document.getElementById('sync-to-events').addEventListener('change', function() {
-  document.getElementById('event-sync-fields').classList.toggle('show', this.checked);
-});
-
-// Image preview with Drive conversion
-function setupImgPreview(inputId, wrapId, imgId) {
-  document.getElementById(inputId).addEventListener('blur', function() {
-    var url = convertDriveUrl(this.value.trim());
-    var wrap = document.getElementById(wrapId);
-    var img = document.getElementById(imgId);
-    if (url) { img.src = url; wrap.style.display = 'block'; }
-    else wrap.style.display = 'none';
-  });
-}
-setupImgPreview('page-flyer-url', 'flyer-img-wrap', 'flyer-img');
-setupImgPreview('page-instructor-photo', 'instructor-img-wrap', 'instructor-img');
-
-// WIZARD UI
-function updateWizardUI() {
-  for (var i=1; i<=TOTAL_STEPS; i++) {
-    document.getElementById('step-'+i).classList.toggle('active', i===currentStep);
+function showStatus(message, type) {
+  var bar = document.getElementById('status-bar');
+  bar.textContent = message;
+  bar.className = 'status-bar show ' + type;
+  if (type !== 'error') {
+    setTimeout(function () { bar.classList.remove('show'); }, 3500);
   }
-  // Render named tabs
-  var tabs = document.getElementById('wizard-tabs');
-  tabs.innerHTML = '';
-  for (var i=1; i<=TOTAL_STEPS; i++) {
-    var t = document.createElement('button');
-    t.className = 'wizard-tab' + (i===currentStep?' active':i<currentStep?' done':'');
-    t.textContent = (i < currentStep ? '\u2713 ' : '') + STEP_NAMES[i-1];
-    t.setAttribute('data-step', i);
-    t.addEventListener('click', function() {
-      var s = parseInt(this.getAttribute('data-step'));
-      // Editing: jump to any tab freely. Creating new: only go back to completed steps.
-      if (isEditing || s < currentStep) { currentStep = s; updateWizardUI(); }
+}
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function loadUsers() {
+  var fb = window.__hccgcUM;
+  fb.getDocs(fb.collection(fb.db, fb.USERS_COLLECTION))
+    .then(function (snapshot) {
+      allUsers = [];
+      snapshot.forEach(function (docSnap) {
+        var data = docSnap.data();
+        data.id = docSnap.id;
+        allUsers.push(data);
+      });
+      renderUsers();
+    })
+    .catch(function (err) {
+      console.error(err);
+      document.getElementById('user-table').innerHTML = '<div class="empty-state">Could not load users.</div>';
     });
-    tabs.appendChild(t);
-  }
-  document.getElementById('btn-back').style.display = currentStep > 1 ? 'inline-flex' : 'none';
-  var isLast = currentStep === TOTAL_STEPS;
-  document.getElementById('btn-next').style.display = isLast ? 'none' : 'inline-flex';
-  document.getElementById('btn-save').style.display = isLast ? 'inline-flex' : 'none';
 }
 
-document.getElementById('btn-next').addEventListener('click', () => {
-  if (!validateStep(currentStep)) return;
-  currentStep = Math.min(currentStep+1, TOTAL_STEPS);
-  updateWizardUI();
-});
-document.getElementById('btn-back').addEventListener('click', () => {
-  currentStep = Math.max(currentStep-1, 1);
-  updateWizardUI();
-});
+function renderUsers() {
+  var container = document.getElementById('user-table');
 
-function validateStep(step) {
-  var valid = true;
-  if (step===1) {
-    var title = document.getElementById('page-title').value.trim();
-    var slug = document.getElementById('page-slug').value.trim();
-    document.getElementById('err-title').classList.toggle('show', !title);
-    document.getElementById('err-slug').classList.toggle('show', !slug || !/^[a-z0-9-]+$/.test(slug));
-    if (!title || !slug || !/^[a-z0-9-]+$/.test(slug)) valid = false;
-  }
-  if (step===2 && document.getElementById('sync-to-events').checked) {
-    var desc = document.getElementById('sync-description').value.trim();
-    document.getElementById('err-sync-desc').classList.toggle('show', !desc);
-    if (!desc) valid = false;
-  }
-  return valid;
-}
-
-// Open modal
-document.getElementById('btn-new-page').addEventListener('click', () => openModal(null));
-
-function openModal(page) {
-  isEditing = !!page;
-  document.getElementById('wizard-title').textContent = isEditing ? 'Edit Page' : 'New Page';
-  document.getElementById('edit-page-id').value = page ? page.id : '';
-  currentStep = 1;
-
-  var type = page ? (page.type||'event') : 'event';
-  setType(type);
-
-  // Step 1
-  document.getElementById('page-title').value = page ? (page.pageTitle||'') : '';
-  document.getElementById('page-slug').value = page ? (page.slug||'') : '';
-  document.getElementById('slug-display').textContent = (page&&page.slug) || 'your-slug';
-  document.getElementById('page-tagline').value = page ? (page.tagline||'') : '';
-  document.getElementById('page-hero-desc').value = page ? (page.heroDescription||'') : '';
-  document.getElementById('page-enabled').checked = page ? !!page.pageEnabled : false;
-  updateLiveLink(page?page.slug:'', page?!!page.pageEnabled:false);
-
-  // Step 2
-  document.getElementById('page-venue').value = page ? (page.venue||'') : '';
-  document.getElementById('page-cost-display').value = page ? (page.costDisplay||'') : '';
-  document.getElementById('page-date').value = page ? (page.date||'') : '';
-  document.getElementById('page-from-time').value = page ? (page.fromTime||'') : '';
-  document.getElementById('page-to-time').value = page ? (page.toTime||'') : '';
-  document.getElementById('page-category').value = page ? (page.category||'') : '';
-  document.getElementById('page-start-date').value = page ? (page.startDate||'') : '';
-  document.getElementById('page-end-date').value = page ? (page.endDate||'') : '';
-  document.getElementById('page-schedule-text').value = page ? (page.scheduleText||'') : '';
-  document.getElementById('page-contact-name').value = page ? ((page.contact&&page.contact.name)||'') : '';
-  document.getElementById('page-contact-phone').value = page ? ((page.contact&&page.contact.phone)||'') : '';
-  document.getElementById('sync-to-events').checked = false;
-  document.getElementById('event-sync-fields').classList.remove('show');
-  document.getElementById('sync-description').value = '';
-
-  // Step 3
-  document.getElementById('page-about-title').value = page ? (page.aboutTitle||'') : '';
-  document.getElementById('page-about-body').value = page ? (page.aboutBody||'') : '';
-  document.getElementById('page-what-to-expect').value = page ? ((page.whatToExpect||[]).join('\n')) : '';
-  document.getElementById('page-who-should-attend').value = page ? ((page.whoShouldAttend||[]).join('\n')) : '';
-
-  // Step 4
-  document.getElementById('page-performers').value = page ? ((page.performers||[]).map(p=>[p.name,p.role,p.location].filter(Boolean).join(' | ')).join('\n')) : '';
-  document.getElementById('page-instructor-name').value = page ? ((page.instructor&&page.instructor.name)||'') : '';
-  document.getElementById('page-instructor-role').value = page ? ((page.instructor&&page.instructor.role)||'') : '';
-  document.getElementById('page-instructor-photo').value = page ? ((page.instructor&&page.instructor.driveUrl)||'') : '';
-  document.getElementById('page-instructor-bio').value = page ? ((page.instructor&&page.instructor.bio)||'') : '';
-  document.getElementById('instructor-img-wrap').style.display = 'none';
-
-  // Step 5
-  document.getElementById('page-schedule-items').value = page ? ((page.scheduleItems||[]).map(s=>[s.time,s.label,s.duration].filter(Boolean).join(' | ')).join('\n')) : '';
-  document.getElementById('page-curriculum-title').value = page ? (page.curriculumTitle||'') : '';
-  document.getElementById('page-curriculum').value = page ? ((page.curriculum||[]).map(w=>[w.weekLabel,w.title,w.description].filter(Boolean).join(' | ')).join('\n')) : '';
-
-  // Step 6
-  document.getElementById('page-zeffy-url').value = page ? (page.zeffyUrl||'') : '';
-  document.getElementById('page-registration-note').value = page ? (page.registrationNote||'') : '';
-  document.getElementById('page-flyer-url').value = page ? (page.driveUrl||'') : '';
-  document.getElementById('page-meta-desc').value = page ? (page.metaDescription||'') : '';
-  document.getElementById('flyer-img-wrap').style.display = 'none';
-
-  ['err-title','err-slug','err-sync-desc'].forEach(id => document.getElementById(id).classList.remove('show'));
-  updateWizardUI();
-  document.getElementById('modal-overlay').classList.add('show');
-}
-
-function closeModal() { document.getElementById('modal-overlay').classList.remove('show'); }
-document.getElementById('modal-close-btn').addEventListener('click', closeModal);
-document.getElementById('btn-cancel').addEventListener('click', closeModal);
-
-// SAVE
-document.getElementById('btn-save').addEventListener('click', async function() {
-  if (!validateStep(currentStep)) return;
-
-  var btn = this;
-  var orig = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<div class="spinner"></div> Saving…';
-
-  function parseLines(id) { return document.getElementById(id).value.split('\n').map(l=>l.trim()).filter(Boolean); }
-  function parsePiped(id, keys) {
-    return parseLines(id).map(line => {
-      var parts = line.split('|').map(p=>p.trim());
-      var obj = {}; keys.forEach((k,i) => obj[k]=parts[i]||'');
-      return obj;
-    });
-  }
-
-  var isInit = document.getElementById('page-type').value === 'initiative';
-  var slug = document.getElementById('page-slug').value.trim().toLowerCase().replace(/[^a-z0-9-]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
-  var rawFlyer = document.getElementById('page-flyer-url').value.trim();
-  var rawInstructorPhoto = document.getElementById('page-instructor-photo').value.trim();
-
-  var pageData = {
-    type: isInit ? 'initiative' : 'event',
-    pageEnabled: document.getElementById('page-enabled').checked,
-    slug: slug,
-    pageTitle: document.getElementById('page-title').value.trim(),
-    tagline: document.getElementById('page-tagline').value.trim(),
-    heroDescription: document.getElementById('page-hero-desc').value.trim(),
-    venue: document.getElementById('page-venue').value.trim(),
-    costDisplay: document.getElementById('page-cost-display').value.trim(),
-    contact: {
-      name: document.getElementById('page-contact-name').value.trim(),
-      phone: document.getElementById('page-contact-phone').value.trim()
-    },
-    aboutTitle: document.getElementById('page-about-title').value.trim(),
-    aboutBody: document.getElementById('page-about-body').value.trim(),
-    whatToExpect: parseLines('page-what-to-expect'),
-    whoShouldAttend: parseLines('page-who-should-attend'),
-    zeffyUrl: document.getElementById('page-zeffy-url').value.trim(),
-    registrationNote: document.getElementById('page-registration-note').value.trim(),
-    flyerImageUrl: convertDriveUrl(rawFlyer),
-    driveUrl: rawFlyer,
-    metaDescription: document.getElementById('page-meta-desc').value.trim()
-  };
-
-  if (!isInit) {
-    pageData.date = document.getElementById('page-date').value;
-    pageData.fromTime = document.getElementById('page-from-time').value.trim();
-    pageData.toTime = document.getElementById('page-to-time').value.trim();
-    pageData.category = document.getElementById('page-category').value;
-    pageData.performers = parsePiped('page-performers', ['name','role','location']);
-    pageData.scheduleItems = parsePiped('page-schedule-items', ['time','label','duration']);
-  } else {
-    pageData.startDate = document.getElementById('page-start-date').value;
-    pageData.endDate = document.getElementById('page-end-date').value;
-    pageData.scheduleText = document.getElementById('page-schedule-text').value.trim();
-    pageData.instructor = {
-      name: document.getElementById('page-instructor-name').value.trim(),
-      role: document.getElementById('page-instructor-role').value.trim(),
-      photoUrl: convertDriveUrl(rawInstructorPhoto),
-      driveUrl: rawInstructorPhoto,
-      bio: document.getElementById('page-instructor-bio').value.trim()
-    };
-    pageData.curriculumTitle = document.getElementById('page-curriculum-title').value.trim();
-    pageData.curriculum = parsePiped('page-curriculum', ['weekLabel','title','description']);
-  }
-
-  var fb = window.__hccgcMP;
-  if (!fb) {
-    btn.disabled = false; btn.innerHTML = orig;
-    showStatus('Not ready yet — please wait a moment and try again.', 'error');
+  if (allUsers.length === 0) {
+    container.innerHTML = '<div class="empty-state">No users yet.</div>';
     return;
   }
-  try {
-    var pageId = document.getElementById('edit-page-id').value;
-    if (pageId) {
-      await fb.setDoc(fb.doc(fb.db, fb.PAGES_COLLECTION, pageId), pageData, { merge: true });
-    } else {
-      pageData.createdAt = fb.serverTimestamp();
-      var ref = await fb.addDoc(fb.collection(fb.db, fb.PAGES_COLLECTION), pageData);
-      pageId = ref.id;
-      document.getElementById('edit-page-id').value = pageId;
-    }
 
-    // Optionally sync to Manage Events
-    if (document.getElementById('sync-to-events').checked) {
-      var desc = document.getElementById('sync-description').value.trim();
-      var eventRecord = {
-        type: isInit ? 'initiative' : 'event',
-        name: pageData.pageTitle,
-        description: desc,
-        date: isInit ? pageData.startDate : pageData.date,
-        category: pageData.category || '',
-        cost: pageData.costDisplay || '',
-        rsvpUrl: pageData.zeffyUrl || '',
-        createdByName: '',
-        createdByEmail: '',
-        createdAt: fb.serverTimestamp(),
-        pageSlug: slug
-      };
-      if (!isInit) { eventRecord.fromTime = pageData.fromTime; eventRecord.toTime = pageData.toTime; }
-      else { eventRecord.endDate = pageData.endDate; eventRecord.schedule = pageData.scheduleText; }
-      await fb.addDoc(fb.collection(fb.db, fb.EVENTS_COLLECTION), eventRecord);
-    }
+  var sorted = allUsers.slice().sort(function (a, b) {
+    return (a.email || '').localeCompare(b.email || '');
+  });
 
-    btn.disabled = false; btn.innerHTML = orig;
-    closeModal();
-    showStatus('Page saved!' + (pageData.pageEnabled && slug ? ' Live at hccgc.org/' + slug : ' Page is hidden.'), 'success');
-    loadPages();
-  } catch(err) {
-    btn.disabled = false; btn.innerHTML = orig;
-    showStatus('Error: ' + (err.message || 'unknown error'), 'error');
+  var html = '';
+  sorted.forEach(function (u) {
+    var allowedApps = Array.isArray(u.allowedApps) ? u.allowedApps : [];
+    var initials = (u.name || u.email || '?').charAt(0).toUpperCase();
+
+    var checkboxes = APP_REGISTRY.map(function (app) {
+      var checked = allowedApps.indexOf(app.key) !== -1 ? 'checked' : '';
+      return (
+        '<label class="app-check">' +
+          '<input type="checkbox" data-user-id="' + escHtml(u.id) + '" data-app-key="' + escHtml(app.key) + '" ' + checked + '>' +
+          escHtml(app.name) +
+        '</label>'
+      );
+    }).join('');
+
+    html +=
+      '<div class="user-row">' +
+        '<div class="user-avatar-sm">' + initials + '</div>' +
+        '<div class="user-info">' +
+          '<div class="name">' + escHtml(u.name || u.email) + (u.isAdmin ? '<span class="admin-pill">Admin</span>' : '') + '</div>' +
+          '<div class="email">' + escHtml(u.email) + '</div>' +
+        '</div>' +
+        '<div class="app-checkboxes">' + checkboxes + '</div>' +
+        '<div class="row-actions">' +
+          '<label class="admin-toggle">' +
+            '<input type="checkbox" class="admin-checkbox" data-user-id="' + escHtml(u.id) + '" ' + (u.isAdmin ? 'checked' : '') + (u.id === currentUserEmail ? ' disabled title="You cannot remove your own admin access"' : '') + '>' +
+            'Admin' +
+          '</label>' +
+          '<button class="btn-icon danger btn-remove-user" data-user-id="' + escHtml(u.id) + '"' + (u.id === currentUserEmail ? ' disabled title="You cannot remove yourself"' : '') + '>Remove</button>' +
+        '</div>' +
+      '</div>';
+  });
+
+  container.innerHTML = html;
+}
+
+document.getElementById('user-table').addEventListener('change', function (evt) {
+  if (evt.target.matches('input[data-app-key]')) {
+    var userId = evt.target.getAttribute('data-user-id');
+    var appKey = evt.target.getAttribute('data-app-key');
+    toggleAppAccess(userId, appKey, evt.target.checked);
+  } else if (evt.target.matches('.admin-checkbox')) {
+    var userId = evt.target.getAttribute('data-user-id');
+    toggleAdmin(userId, evt.target.checked);
   }
 });
+
+document.getElementById('user-table').addEventListener('click', function (evt) {
+  var btn = evt.target.closest('.btn-remove-user');
+  if (btn && !btn.disabled) {
+    removeUser(btn.getAttribute('data-user-id'));
+  }
+});
+
+function toggleAppAccess(userId, appKey, granted) {
+  var fb = window.__hccgcUM;
+  var user = allUsers.find(function (u) { return u.id === userId; });
+  if (!user) return;
+
+  var allowedApps = Array.isArray(user.allowedApps) ? user.allowedApps.slice() : [];
+  if (granted && allowedApps.indexOf(appKey) === -1) {
+    allowedApps.push(appKey);
+  } else if (!granted) {
+    allowedApps = allowedApps.filter(function (k) { return k !== appKey; });
+  }
+
+  fb.setDoc(fb.doc(fb.db, fb.USERS_COLLECTION, userId), { allowedApps: allowedApps }, { merge: true })
+    .then(function () {
+      user.allowedApps = allowedApps;
+      showStatus('Access updated for ' + user.email + '.', 'success');
+    })
+    .catch(function (err) {
+      console.error(err);
+      showStatus('Error updating access: ' + (err.message || 'unknown error'), 'error');
+      renderUsers();
+    });
+}
+
+function toggleAdmin(userId, isAdmin) {
+  var fb = window.__hccgcUM;
+  var user = allUsers.find(function (u) { return u.id === userId; });
+  if (!user) return;
+
+  fb.setDoc(fb.doc(fb.db, fb.USERS_COLLECTION, userId), { isAdmin: isAdmin }, { merge: true })
+    .then(function () {
+      user.isAdmin = isAdmin;
+      showStatus((isAdmin ? 'Granted' : 'Removed') + ' admin access for ' + user.email + '.', 'success');
+      renderUsers();
+    })
+    .catch(function (err) {
+      console.error(err);
+      showStatus('Error updating admin status: ' + (err.message || 'unknown error'), 'error');
+      renderUsers();
+    });
+}
+
+function removeUser(userId) {
+  if (!confirm('Remove ' + userId + ' from the portal? They will lose all app access.')) return;
+
+  var fb = window.__hccgcUM;
+  fb.deleteDoc(fb.doc(fb.db, fb.USERS_COLLECTION, userId))
+    .then(function () {
+      showStatus('User removed.', 'success');
+      loadUsers();
+    })
+    .catch(function (err) {
+      console.error(err);
+      showStatus('Error removing user: ' + (err.message || 'unknown error'), 'error');
+    });
+}
+
+document.getElementById('btn-add-user').addEventListener('click', function () {
+  document.getElementById('user-email').value = '';
+  document.getElementById('user-name').value = '';
+  document.getElementById('modal-overlay').classList.add('show');
+});
+document.getElementById('modal-close-btn').addEventListener('click', closeAddModal);
+document.getElementById('modal-cancel-btn').addEventListener('click', closeAddModal);
+
+function closeAddModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+}
+
+document.getElementById('btn-save-user').addEventListener('click', function () {
+  var email = document.getElementById('user-email').value.trim().toLowerCase();
+  var name = document.getElementById('user-name').value.trim();
+
+  if (!email || !email.endsWith('@hccgc.org')) {
+    alert('Please enter a valid @hccgc.org email address.');
+    return;
+  }
+
+  var fb = window.__hccgcUM;
+  fb.setDoc(fb.doc(fb.db, fb.USERS_COLLECTION, email), {
+    email: email,
+    name: name,
+    allowedApps: [],
+    isAdmin: false,
+    createdAt: fb.serverTimestamp()
+  }, { merge: true })
+    .then(function () {
+      closeAddModal();
+      showStatus('User added. Grant them app access below.', 'success');
+      loadUsers();
+    })
+    .catch(function (err) {
+      console.error(err);
+      alert('Error adding user: ' + (err.message || 'unknown error'));
+    });
+});
+
+function loadPartial(id, file) {
+  var target = document.getElementById(id);
+  if (!target) return;
+  fetch(file)
+    .then(function (r) { return r.text(); })
+    .then(function (html) {
+      target.innerHTML = html;
+      if (id === 'site-header') {
+        fixHeaderLinksForSubfolder(target);
+      }
+    })
+    .catch(function () {});
+}
+
+// header.html uses paths relative to the calling page (e.g.
+// src="hccgc-logo.jpeg"), which breaks from a subfolder like /admin/.
+// We patch the loaded copy here rather than editing the shared file.
+function fixHeaderLinksForSubfolder(headerEl) {
+  var logo = headerEl.querySelector('.brand-logo');
+  if (logo && logo.getAttribute('src') && !logo.getAttribute('src').startsWith('/') && !logo.getAttribute('src').startsWith('http')) {
+    logo.setAttribute('src', '/' + logo.getAttribute('src'));
+  }
+
+  var links = headerEl.querySelectorAll('a[href]');
+  links.forEach(function (link) {
+    var href = link.getAttribute('href');
+    if (!href) return;
+    if (href.startsWith('http') || href.startsWith('/') || href.startsWith('#')) return;
+    link.setAttribute('href', '/' + href);
+  });
+}
+
+loadPartial('site-header', '/header.html');
+loadPartial('site-footer', '/footer.html');
 </script>
 </body>
 </html>

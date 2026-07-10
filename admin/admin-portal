@@ -1,6 +1,4 @@
 
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -61,7 +59,7 @@ body {
   margin-bottom: 10px;
 }
 .page-hero p {
-  color: #ffffff;
+  color: var(--muted);
   font-size: 0.95rem;
   max-width: 480px;
   margin: 0 auto;
@@ -369,7 +367,6 @@ body {
 [
   {
     "key": "manage-events",
-    "name": "Manage Events",
     "description": "Add, edit, and remove events shown on the public Upcoming Events page.",
     "url": "manage-events",
     "icon": "calendar"
@@ -395,13 +392,6 @@ body {
     "description": "Create and publish public event and initiative pages. Goes live instantly — no deploy needed.",
     "url": "manage-pages",
     "icon": "globe"
-  },
-  {
-    "key": "bookings-finance",
-    "name": "Bookings & Finance",
-    "description": "Book facility rentals and HCCGC events, manage rooms/rates, and log Zelle/cash transactions.",
-    "url": "bookings/new-booking",
-    "icon": "calendar"
   }
 ]
 </script>
@@ -442,30 +432,21 @@ function isMobileDevice() {
   return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 }
 
-// Set persistence once at load time rather than inside the click handler.
-// Awaiting a promise before calling signInWithPopup breaks the browser's
-// "direct user gesture" requirement for popups — that's why the first click
-// used to silently fail while a cached second click succeeded.
-setPersistence(auth, browserLocalPersistence).catch(function (err) {
-  console.error("[HCCGC AUTH] Could not set persistence:", err.code, err.message);
-});
-
 document.getElementById("btn-signin").addEventListener("click", function () {
   var errorBox = document.getElementById("signin-error");
   errorBox.style.display = "none";
 
-  if (isMobileDevice()) {
-    console.log("[HCCGC AUTH] Mobile — using redirect sign-in...");
-    signInWithRedirect(auth, provider).catch(function (err) {
-      console.error("[HCCGC AUTH] Sign-in failed:", err.code, err.message);
-      errorBox.textContent = "Sign-in failed. Please try again.";
-      errorBox.style.display = "block";
-    });
-    return;
-  }
-
-  console.log("[HCCGC AUTH] Desktop — opening popup...");
-  signInWithPopup(auth, provider).catch(function (err) {
+  // Explicitly set local persistence before signing in — ensures the session
+  // is stored in localStorage on all browsers including mobile Safari,
+  // which can default to sessionStorage in certain in-app browser contexts.
+  setPersistence(auth, browserLocalPersistence).then(function () {
+    if (isMobileDevice()) {
+      console.log("[HCCGC AUTH] Mobile — using redirect sign-in...");
+      return signInWithRedirect(auth, provider);
+    }
+    console.log("[HCCGC AUTH] Desktop — opening popup...");
+    return signInWithPopup(auth, provider);
+  }).catch(function (err) {
     console.error("[HCCGC AUTH] Sign-in failed:", err.code, err.message);
     if (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request") return;
     errorBox.textContent = "Sign-in failed. Please try again.";

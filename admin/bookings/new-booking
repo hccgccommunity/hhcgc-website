@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -124,10 +125,10 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 <div class="module-nav">
   <div class="container">
     <ul>
-      <li><a href="new-booking.html" class="active">New Booking</a></li>
-      <li><a href="all-bookings.html">All Bookings</a></li>
-      <li><a href="rooms-rates.html">Rooms &amp; Rates</a></li>
-      <li><a href="log-transaction.html">Log Transaction</a></li>
+      <li><a href="new-booking" class="active">New Booking</a></li>
+      <li><a href="all-bookings">All Bookings</a></li>
+      <li><a href="rooms-rates">Rooms &amp; Rates</a></li>
+      <li><a href="log-transaction">Log Transaction</a></li>
     </ul>
   </div>
 </div>

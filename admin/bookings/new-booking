@@ -577,7 +577,7 @@ document.getElementById('f-date').addEventListener('change', renderCalendarEmbed
 renderCalendarEmbed();
 
 // ---- Submit ----
-const API_BASE = 'https://api-1009110816870.us-central1.run.app'; // e.g. https://us-central1-dharma-nidi-darshan.cloudfunctions.net/api
+const API_BASE = 'PASTE_YOUR_CLOUD_FUNCTION_URL_HERE'; // e.g. https://us-central1-dharma-nidi-darshan.cloudfunctions.net/api
 
 async function authedFetch(url, options) {
   options = options || {};
@@ -615,7 +615,10 @@ document.getElementById('f-renter-select').addEventListener('change', function (
   document.getElementById('f-org').value = renter ? (renter.organization_name || '') : '';
   document.getElementById('f-save-renter-row').style.display = isExisting ? 'none' : 'flex';
 });
-loadRenters();
+// loadRenters() is intentionally NOT called here — this runs before Firebase
+// has resolved who's signed in, so authedFetch would throw "Not signed in"
+// every time. It's called instead inside the auth gate's success handler,
+// below, once there's actually a valid token to send.
 
 
 document.getElementById('btn-generate').addEventListener('click', async function () {
@@ -775,6 +778,7 @@ onAuthStateChanged(auth, function(user) {
     document.getElementById('app').style.display = 'block';
     var entryDisplay = document.getElementById('f-entered-by-display');
     if (entryDisplay) entryDisplay.textContent = 'Signed in as ' + email;
+    loadRenters();
   }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });
 });
 </script>

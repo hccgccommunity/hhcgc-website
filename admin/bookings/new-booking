@@ -44,9 +44,13 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .module-nav a.active { background: var(--surface-soft); color: var(--saffron-dark); }
 .module-nav a:not(.active):hover { background: var(--surface-soft); }
 
-.layout { display: grid; grid-template-columns: 1fr 0.75fr 1.15fr; gap: 24px; padding: 28px 0 60px; align-items: start; }
-@media (max-width: 1100px) { .layout { grid-template-columns: 1fr 1fr; } .layout > :nth-child(3) { grid-column: 1 / -1; } }
-@media (max-width: 720px) { .layout { grid-template-columns: 1fr; } .layout > :nth-child(3) { grid-column: auto; } }
+.layout { display: grid; grid-template-columns: 1fr 1.9fr; gap: 24px; padding: 28px 0 60px; align-items: start; }
+.form-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-content: start; }
+.form-col .full-span { grid-column: 1 / -1; }
+@media (max-width: 1000px) {
+  .layout { grid-template-columns: 1fr; }
+  .form-col { grid-template-columns: 1fr; }
+}
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; box-shadow: var(--shadow); }
 .card + .card { margin-top: 20px; }
 .card h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.15rem; color: var(--maroon); margin-bottom: 4px; }
@@ -107,7 +111,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .occ-remove { background: none; border: none; color: #b3382c; cursor: pointer; font-size: 0.9rem; padding: 4px 6px; }
 
 .calendar-card select { width: 100%; font-family: Arial, Helvetica, sans-serif; font-size: 0.84rem; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 10px; margin-bottom: 12px; }
-#calendar-embed-wrap iframe { width: 100%; height: 640px; border: 1px solid var(--border); border-radius: 14px; }
+#calendar-embed-wrap iframe { width: 100%; height: 900px; border: 1px solid var(--border); border-radius: 14px; }
 .calendar-note { font-size: 0.74rem; color: var(--muted); margin-top: 10px; }
 #gate{padding:60px 16px;display:flex;justify-content:center;}
 .gate-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow);}
@@ -153,8 +157,23 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 
 <div class="container">
   <div class="layout">
-    <div>
-      <div class="card">
+    <div class="calendar-col">
+      <div class="card calendar-card" style="position: sticky; top: 110px;">
+        <h2>Room availability</h2>
+        <div class="card-sub">Live from Google Calendar, so you can check before you book.</div>
+        <select id="calendar-room-select">
+          <option value="all">All rooms (overlaid)</option>
+          <option value="Surya Hall">Surya Hall</option>
+          <option value="Patanjali Hall">Patanjali Hall</option>
+          <option value="Nataraj Room">Nataraj Room</option>
+          <option value="Ganesh Room">Ganesh Room</option>
+        </select>
+        <div id="calendar-embed-wrap"></div>
+      </div>
+    </div>
+
+    <div class="form-col">
+      <div class="card full-span">
         <div class="checkbox-row" style="margin-bottom:6px;"><input type="checkbox" id="f-internal-enabled"><label for="f-internal-enabled"><strong>This is an HCCGC program/initiative — no charge, no customer</strong></label></div>
         <div class="card-sub" style="margin-bottom:0;">For internal use of the space (classes, events, meetings run by HCCGC itself). Skips pricing and the customer fields below — still reserves the room and shows up on the calendar.</div>
         <div class="collapsible" id="publish-event-field" style="margin-top:10px;">
@@ -244,10 +263,8 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
           <div class="card-sub" style="margin-bottom:0;">For a recurring booking, this same discount applies to every occurrence.</div>
         </div>
       </div>
-    </div>
 
-    <div>
-      <div class="card" style="position: sticky; top: 110px;">
+      <div class="card full-span">
         <h2>Cost summary</h2>
         <div class="card-sub" id="cost-summary-sub">Recalculates live as you fill in the form.</div>
         <div class="summary-line"><span class="label">Base total</span><span id="s-base">$0.00</span></div>
@@ -258,21 +275,6 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 
         <button type="button" class="btn-primary" id="btn-generate">Create booking</button>
         <div class="result-box" id="result-box" style="display:none;"></div>
-      </div>
-    </div>
-
-    <div>
-      <div class="card calendar-card" style="position: sticky; top: 110px;">
-        <h2>Room availability</h2>
-        <div class="card-sub">Live from Google Calendar, so you can check before you book.</div>
-        <select id="calendar-room-select">
-          <option value="all">All rooms (overlaid)</option>
-          <option value="Surya Hall">Surya Hall</option>
-          <option value="Patanjali Hall">Patanjali Hall</option>
-          <option value="Nataraj Room">Nataraj Room</option>
-          <option value="Ganesh Room">Ganesh Room</option>
-        </select>
-        <div id="calendar-embed-wrap"></div>
       </div>
     </div>
   </div>
@@ -562,7 +564,7 @@ function renderCalendarEmbed() {
   });
   params.set('ctz', 'America/New_York');
   params.set('wkst', '1');
-  params.set('height', '620');
+  params.set('height', '870');
   params.set('showTitle', '0'); params.set('showPrint', '0'); params.set('showTabs', '0');
 
   // Once a date is picked, jump the embed to the week containing that date.

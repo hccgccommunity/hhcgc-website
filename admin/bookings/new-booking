@@ -44,9 +44,10 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .module-nav a.active { background: var(--surface-soft); color: var(--saffron-dark); }
 .module-nav a:not(.active):hover { background: var(--surface-soft); }
 
-.layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 28px 0 60px; align-items: start; }
-.form-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-content: start; }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; padding: 28px 0 60px; align-items: start; }
+.form-col { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-content: start; }
 .form-col .full-span { grid-column: 1 / -1; }
+.card { min-width: 0; }
 @media (max-width: 1000px) {
   .layout { grid-template-columns: 1fr; }
   .form-col { grid-template-columns: 1fr; }
@@ -62,10 +63,11 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .field label { font-size: 0.78rem; font-weight: 700; color: var(--muted); }
 .field input[type="text"], .field input[type="email"], .field input[type="tel"], .field input[type="date"], .field input[type="time"], .field input[type="number"], .field select, .field textarea {
   font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 10px; background: #fff; color: var(--text);
+  width: 100%; box-sizing: border-box; min-width: 0;
 }
 .field textarea { resize: vertical; min-height: 56px; }
 
-.room-picker { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 8px; }
+.room-picker { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-bottom: 8px; }
 .room-check { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; font-size: 0.86rem; transition: border-color 0.15s, background 0.15s; }
 .room-check:has(input:checked) { border-color: var(--saffron-dark); background: var(--surface-soft); font-weight: 700; }
 .room-check input { width: 16px; height: 16px; accent-color: var(--saffron-dark); }

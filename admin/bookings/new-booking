@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -532,10 +533,10 @@ function recalc() {
 // Real resource calendar IDs, pulled from the same embed hccgc.org/facility-calendar
 // already uses — so this sidebar shows exactly the same live data as that public page.
 const ROOM_CALENDAR_IDS = {
-  'Surya Hall': 'c_188c0ce7torcmhnnlk4omolk4n9b6@resource.calendar.google.com',
-  'Patanjali Hall': 'c_188433th1pkq6i1tlm4hmkguds17a@resource.calendar.google.com',
-  'Nataraj Room': 'c_188428oa7oengjr3mrhsse0n4uu5e@resource.calendar.google.com',
-  'Ganesh Room': 'c_1888mp0b3kdtij7qk891pqsv9jll2@resource.calendar.google.com'
+  'Surya Hall': 'c_1888mp0b3kdtij7qk891pqsv9jll2@resource.calendar.google.com',
+  'Patanjali Hall': 'c_188428oa7oengjr3mrhsse0n4uu5e@resource.calendar.google.com',
+  'Nataraj Room': 'c_188433th1pkq6i1tlm4hmkguds17a@resource.calendar.google.com',
+  'Ganesh Room': 'c_188c0ce7torcmhnnlk4omolk4n9b6@resource.calendar.google.com'
 };
 // Matches the public page's colors, except Ganesh Room — the public embed
 // reuses the same indigo for both Patanjali and Ganesh, which is confusing

@@ -44,7 +44,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .module-nav a.active { background: var(--surface-soft); color: var(--saffron-dark); }
 .module-nav a:not(.active):hover { background: var(--surface-soft); }
 
-.layout { display: grid; grid-template-columns: 1fr 1.9fr; gap: 24px; padding: 28px 0 60px; align-items: start; }
+.layout { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; padding: 28px 0 60px; align-items: start; }
 .form-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-content: start; }
 .form-col .full-span { grid-column: 1 / -1; }
 @media (max-width: 1000px) {
@@ -206,6 +206,22 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
         <button type="button" class="btn-whole-facility" id="btn-whole-facility">Select all rooms (whole facility)</button>
         <div class="room-picker" id="room-picker" style="margin-top:12px;"></div>
         <div class="checkbox-row" id="nonprofit-row" style="margin-top:6px;"><input type="checkbox" id="f-nonprofit"><label for="f-nonprofit">Renter is a nonprofit</label></div>
+
+        <div class="adjustment-toggle" id="adjustment-toggle">
+          <input type="checkbox" id="f-adjustment-enabled" style="width:16px;height:16px;">
+          Apply a one-time discretionary discount
+        </div>
+        <div class="collapsible" id="adjustment-fields">
+          <div class="field-row">
+            <div class="field">
+              <label>Type</label>
+              <select id="f-adj-type"><option value="percent">Percent off</option><option value="flat">Flat dollar amount off</option></select>
+            </div>
+            <div class="field"><label>Value</label><input type="number" id="f-adj-value" placeholder="e.g. 10" min="0" step="0.01"></div>
+          </div>
+          <div class="field"><label>Reason (required — shows up in the audit report)</label><input type="text" id="f-adj-reason" placeholder="e.g. Board-approved discount for founding member"></div>
+          <div class="card-sub" style="margin-bottom:0;">For a recurring booking, this same discount applies to every occurrence.</div>
+        </div>
       </div>
 
       <div class="card">
@@ -243,25 +259,6 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
         </div>
 
         <div class="conflict-note">Availability is checked automatically for every date when you click Create booking — nothing gets created if even one date conflicts.</div>
-      </div>
-
-      <div class="card" id="adjustment-card">
-        <div class="adjustment-toggle" id="adjustment-toggle">
-          <input type="checkbox" id="f-adjustment-enabled" style="width:16px;height:16px;">
-          Apply a one-time discretionary discount
-        </div>
-        <div class="card-sub" style="margin-bottom:8px;">This is also how you discount a whole-facility booking — there's no automatic bundle discount, it's always a case-by-case call.</div>
-        <div class="collapsible" id="adjustment-fields">
-          <div class="field-row">
-            <div class="field">
-              <label>Type</label>
-              <select id="f-adj-type"><option value="percent">Percent off</option><option value="flat">Flat dollar amount off</option></select>
-            </div>
-            <div class="field"><label>Value</label><input type="number" id="f-adj-value" placeholder="e.g. 10" min="0" step="0.01"></div>
-          </div>
-          <div class="field"><label>Reason (required — shows up in the audit report)</label><input type="text" id="f-adj-reason" placeholder="e.g. Board-approved discount for founding member"></div>
-          <div class="card-sub" style="margin-bottom:0;">For a recurring booking, this same discount applies to every occurrence.</div>
-        </div>
       </div>
 
       <div class="card full-span">
@@ -449,7 +446,7 @@ document.getElementById('f-internal-enabled').addEventListener('change', functio
   document.getElementById('f-hccg-rep-field').style.display = isInternal ? 'flex' : 'none';
   document.getElementById('publish-event-field').classList.toggle('open', isInternal);
   document.getElementById('nonprofit-row').style.display = isInternal ? 'none' : 'flex';
-  document.getElementById('adjustment-card').style.display = isInternal ? 'none' : 'block';
+  document.getElementById('adjustment-toggle').style.display = isInternal ? 'none' : 'flex';
   if (isInternal) {
     document.getElementById('f-renter-select').value = '';
     document.getElementById('f-nonprofit').checked = false;

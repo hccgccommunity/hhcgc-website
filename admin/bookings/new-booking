@@ -146,6 +146,17 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 </div>
 
 <div id="app">
+<datalist id="common-times">
+  <option value="06:00"><option value="06:30"><option value="07:00"><option value="07:30">
+  <option value="08:00"><option value="08:30"><option value="09:00"><option value="09:30">
+  <option value="10:00"><option value="10:30"><option value="11:00"><option value="11:30">
+  <option value="12:00"><option value="12:30"><option value="13:00"><option value="13:30">
+  <option value="14:00"><option value="14:30"><option value="15:00"><option value="15:30">
+  <option value="16:00"><option value="16:30"><option value="17:00"><option value="17:30">
+  <option value="18:00"><option value="18:30"><option value="19:00"><option value="19:30">
+  <option value="20:00"><option value="20:30"><option value="21:00"><option value="21:30">
+  <option value="22:00">
+</datalist>
 
 <div class="page-hero">
   <div class="container">
@@ -241,8 +252,8 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
         <div class="card-sub">First occurrence. If this repeats, add the pattern below and adjust any date's time as needed.</div>
         <div class="field"><label>Date</label><input type="date" id="f-date"></div>
         <div class="field-row">
-          <div class="field"><label>Start time</label><input type="time" id="f-start" value="14:00"></div>
-          <div class="field"><label>End time</label><input type="time" id="f-end" value="18:00"></div>
+          <div class="field"><label>Start time</label><input type="time" id="f-start" value="14:00" list="common-times"></div>
+          <div class="field"><label>End time</label><input type="time" id="f-end" value="18:00" list="common-times"></div>
         </div>
 
         <div class="checkbox-row"><input type="checkbox" id="f-recurring-enabled"><label for="f-recurring-enabled">This repeats</label></div>
@@ -414,8 +425,8 @@ function renderOccTable() {
   tbody.innerHTML = occurrences.map(function (occ, i) {
     return '<tr>' +
       '<td><input type="date" value="' + occ.date + '" data-i="' + i + '" data-f="date"></td>' +
-      '<td><input type="time" value="' + occ.startTime + '" data-i="' + i + '" data-f="startTime"></td>' +
-      '<td><input type="time" value="' + occ.endTime + '" data-i="' + i + '" data-f="endTime"></td>' +
+      '<td><input type="time" value="' + occ.startTime + '" data-i="' + i + '" data-f="startTime" list="common-times"></td>' +
+      '<td><input type="time" value="' + occ.endTime + '" data-i="' + i + '" data-f="endTime" list="common-times"></td>' +
       '<td><button type="button" class="occ-remove" data-remove="' + i + '" title="Remove this date">&times;</button></td>' +
     '</tr>';
   }).join('');

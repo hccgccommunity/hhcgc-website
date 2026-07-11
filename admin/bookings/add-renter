@@ -152,7 +152,7 @@ tbody tr:last-child td { border-bottom: none; }
 <div id="site-footer"></div>
 
 <script>
-const API_BASE = 'https://api-1009110816870.us-central1.run.app'; // e.g. https://us-central1-dharma-nidi-darshan.cloudfunctions.net/api
+const API_BASE = 'https://api-1009110816870.us-central1.run.app';
 
 async function authedFetch(url, options) {
   options = options || {};

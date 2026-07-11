@@ -44,10 +44,14 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .module-nav a.active { background: var(--surface-soft); color: var(--saffron-dark); }
 .module-nav a:not(.active):hover { background: var(--surface-soft); }
 
-.layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; padding: 28px 0 60px; align-items: start; }
-.form-col { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-content: start; }
-.form-col .full-span { grid-column: 1 / -1; }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; padding: 28px 0 60px; align-items: stretch; }
+.form-col { display: flex; flex-direction: column; gap: 20px; }
+.form-col .full-span { }
 .card { min-width: 0; }
+.calendar-col { display: flex; height: 100%; }
+.calendar-card { display: flex; flex-direction: column; width: 100%; }
+#calendar-embed-wrap { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+#calendar-embed-wrap iframe { width: 100%; flex: 1 1 auto; min-height: 300px; border: 1px solid var(--border); border-radius: 14px; }
 @media (max-width: 1000px) {
   .layout { grid-template-columns: 1fr; }
   .form-col { grid-template-columns: 1fr; }
@@ -73,7 +77,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .room-check input { width: 16px; height: 16px; accent-color: var(--saffron-dark); }
 .room-check .rate { margin-left: auto; font-size: 0.74rem; color: var(--muted); }
 
-.internal-toggle-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 24px; padding: 12px 18px; border: 1px dashed var(--border); border-radius: 14px; background: var(--surface-soft); margin-bottom: 4px; }
+.internal-toggle-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 24px; padding: 12px 18px; border: 1px dashed var(--border); border-radius: 14px; background: var(--surface); margin-bottom: 4px; }
 .internal-toggle-strip .checkbox-row { font-size: 0.86rem; }
 .internal-toggle-strip .muted-inline { color: var(--muted); font-weight: 400; }
 .internal-toggle-strip .collapsible.open { padding-top: 0; }
@@ -121,7 +125,6 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .occ-remove { background: none; border: none; color: #b3382c; cursor: pointer; font-size: 0.9rem; padding: 4px 6px; }
 
 .calendar-card select { width: 100%; font-family: Arial, Helvetica, sans-serif; font-size: 0.84rem; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 10px; margin-bottom: 12px; }
-#calendar-embed-wrap iframe { width: 100%; height: 520px; border: 1px solid var(--border); border-radius: 14px; }
 .calendar-note { font-size: 0.74rem; color: var(--muted); margin-top: 10px; }
 #gate{padding:60px 16px;display:flex;justify-content:center;}
 .gate-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow);}
@@ -167,7 +170,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 <div class="container">
   <div class="layout">
     <div class="calendar-col">
-      <div class="card calendar-card" style="position: sticky; top: 110px;">
+      <div class="card calendar-card">
         <h2>Room availability</h2>
         <div class="card-sub">Live from Google Calendar, so you can check before you book.</div>
         <select id="calendar-room-select">

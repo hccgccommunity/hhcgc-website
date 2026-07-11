@@ -34,7 +34,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
   .site-header nav { display: none; width: 100%; background: rgba(255,249,241,0.95); padding: 10px 0; }
   .site-header nav.is-open { display: block; } .site-header nav ul { flex-direction: column; gap: 14px; }
 }
-.page-hero { padding: 40px 0 28px; background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%); color: #fff; }
+.page-hero { padding: 28px 0 22px; background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%); color: #fff; }
 .page-hero .eyebrow { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.75); margin-bottom: 6px; }
 .page-hero h1 { font-family: Georgia, "Times New Roman", serif; font-size: 1.9rem; color: #fff; margin-bottom: 6px; }
 .page-hero p { color: #ffffff; opacity: 0.9; font-size: 0.92rem; max-width: 560px; }
@@ -52,6 +52,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
   .form-col { grid-template-columns: 1fr; }
 }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; box-shadow: var(--shadow); }
+.cost-summary-card { background: linear-gradient(165deg, var(--surface-soft), var(--surface)); border-color: rgba(213,138,45,0.3); }
 .card + .card { margin-top: 20px; }
 .card h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.15rem; color: var(--maroon); margin-bottom: 4px; }
 .card .card-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 16px; }
@@ -65,9 +66,15 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .field textarea { resize: vertical; min-height: 56px; }
 
 .room-picker { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 8px; }
-.room-check { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; font-size: 0.86rem; }
-.room-check input { width: 16px; height: 16px; }
+.room-check { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; font-size: 0.86rem; transition: border-color 0.15s, background 0.15s; }
+.room-check:has(input:checked) { border-color: var(--saffron-dark); background: var(--surface-soft); font-weight: 700; }
+.room-check input { width: 16px; height: 16px; accent-color: var(--saffron-dark); }
 .room-check .rate { margin-left: auto; font-size: 0.74rem; color: var(--muted); }
+
+.internal-toggle-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 24px; padding: 12px 18px; border: 1px dashed var(--border); border-radius: 14px; background: var(--surface-soft); margin-bottom: 4px; }
+.internal-toggle-strip .checkbox-row { font-size: 0.86rem; }
+.internal-toggle-strip .muted-inline { color: var(--muted); font-weight: 400; }
+.internal-toggle-strip .collapsible.open { padding-top: 0; }
 .btn-whole-facility {
   font-family: Arial, Helvetica, sans-serif; font-size: 0.76rem; font-weight: 700; color: var(--saffron-dark);
   background: var(--surface-soft); border: 1.5px solid var(--border); border-radius: 999px; padding: 6px 14px; cursor: pointer;
@@ -75,6 +82,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .btn-whole-facility:hover { background: #fbe9cf; }
 
 .checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 0.86rem; }
+.section-divider { border-top: 1px solid var(--border); margin: 6px 0 16px; }
 .checkbox-row input { width: 16px; height: 16px; }
 
 .summary-line { display: flex; justify-content: space-between; font-size: 0.86rem; padding: 7px 0; border-bottom: 1px solid var(--border); }
@@ -111,7 +119,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .occ-remove { background: none; border: none; color: #b3382c; cursor: pointer; font-size: 0.9rem; padding: 4px 6px; }
 
 .calendar-card select { width: 100%; font-family: Arial, Helvetica, sans-serif; font-size: 0.84rem; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 10px; margin-bottom: 12px; }
-#calendar-embed-wrap iframe { width: 100%; height: 380px; border: 1px solid var(--border); border-radius: 14px; }
+#calendar-embed-wrap iframe { width: 100%; height: 520px; border: 1px solid var(--border); border-radius: 14px; }
 .calendar-note { font-size: 0.74rem; color: var(--muted); margin-top: 10px; }
 #gate{padding:60px 16px;display:flex;justify-content:center;}
 .gate-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow);}
@@ -137,9 +145,8 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 <div class="page-hero">
   <div class="container">
     <a class="back-link" href="https://hccgc.org/admin/admin-portal">&larr; Back to apps</a>
-    <div class="eyebrow">Facility Bookings</div>
     <h1>Facility Bookings</h1>
-    <p>Check the calendar, pick a date, and cost calculates automatically — including daily/weekly/monthly series with per-date times.</p>
+    <p>Pick a room, a date, and a renter — cost and availability update as you go.</p>
   </div>
 </div>
 
@@ -173,15 +180,13 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
     </div>
 
     <div class="form-col">
-      <div class="card full-span">
-        <div class="checkbox-row" style="margin-bottom:6px;"><input type="checkbox" id="f-internal-enabled"><label for="f-internal-enabled"><strong>This is an HCCGC program/initiative — no charge, no customer</strong></label></div>
-        <div class="card-sub" style="margin-bottom:0;">For internal use of the space (classes, events, meetings run by HCCGC itself). Skips pricing and the customer fields below — still reserves the room and shows up on the calendar.</div>
-        <div class="collapsible" id="publish-event-field" style="margin-top:10px;">
+      <div class="internal-toggle-strip full-span">
+        <div class="checkbox-row" style="margin-bottom:0;"><input type="checkbox" id="f-internal-enabled"><label for="f-internal-enabled">This is an HCCGC program/initiative <span class="muted-inline">— no charge, no customer</span></label></div>
+        <div class="collapsible" id="publish-event-field">
           <div class="checkbox-row" style="margin-bottom:0;">
             <input type="checkbox" id="f-publish-event" checked>
             <label for="f-publish-event">Also list this on the public Upcoming Events page</label>
           </div>
-          <div class="card-sub" style="margin-bottom:0;margin-top:4px;">Uses the program name and notes below as the title and description — creates a draft entry in Manage Events you can refine or unpublish there afterward.</div>
         </div>
       </div>
 
@@ -202,10 +207,12 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 
       <div class="card" id="rooms-card">
         <h2>Rooms</h2>
-        <div class="card-sub">Pick one or more — select all four for a whole-facility booking. Kitchen is only bookable alongside Surya Hall or Patanjali Hall.</div>
+        <div class="card-sub">Select all four for whole-facility. Kitchen requires Surya Hall or Patanjali Hall.</div>
         <button type="button" class="btn-whole-facility" id="btn-whole-facility">Select all rooms (whole facility)</button>
         <div class="room-picker" id="room-picker" style="margin-top:12px;"></div>
-        <div class="checkbox-row" id="nonprofit-row" style="margin-top:6px;"><input type="checkbox" id="f-nonprofit"><label for="f-nonprofit">Renter is a nonprofit</label></div>
+        <div class="checkbox-row" id="nonprofit-row"><input type="checkbox" id="f-nonprofit"><label for="f-nonprofit">Renter is a nonprofit</label></div>
+
+        <div class="section-divider"></div>
 
         <div class="adjustment-toggle" id="adjustment-toggle">
           <input type="checkbox" id="f-adjustment-enabled" style="width:16px;height:16px;">
@@ -261,9 +268,9 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
         <div class="conflict-note">Availability is checked automatically for every date when you click Create booking — nothing gets created if even one date conflicts.</div>
       </div>
 
-      <div class="card">
+      <div class="card cost-summary-card">
         <h2>Cost summary</h2>
-        <div class="card-sub" id="cost-summary-sub">Recalculates live as you fill in the form.</div>
+        <div class="card-sub" id="cost-summary-sub">Updates live as you fill in the form.</div>
         <div class="summary-line"><span class="label">Base total</span><span id="s-base">$0.00</span></div>
         <div class="summary-line"><span class="label">Discounts applied</span><span id="s-discount-tags"></span></div>
         <div class="summary-line"><span class="label">Subtotal after standard discounts</span><span id="s-subtotal">$0.00</span></div>
@@ -561,7 +568,7 @@ function renderCalendarEmbed() {
   });
   params.set('ctz', 'America/New_York');
   params.set('wkst', '1');
-  params.set('height', '350');
+  params.set('height', '490');
   params.set('showTitle', '0'); params.set('showPrint', '0'); params.set('showTabs', '0');
 
   // Once a date is picked, jump the embed to the week containing that date.

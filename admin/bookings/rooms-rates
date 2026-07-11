@@ -182,7 +182,7 @@ tbody input[type="text"], tbody input[type="number"] {
 <div id="site-footer"></div>
 
 <script>
-const API_BASE = 'https://api-1009110816870.us-central1.run.app'; // e.g. https://us-central1-dharma-nidi-darshan.cloudfunctions.net/api
+const API_BASE = 'PASTE_YOUR_CLOUD_FUNCTION_URL_HERE'; // e.g. https://us-central1-dharma-nidi-darshan.cloudfunctions.net/api
 
 async function authedFetch(url, options) {
   options = options || {};
@@ -294,8 +294,9 @@ function showRulesResult(type, message) {
   box.textContent = message;
 }
 
-loadRooms();
-loadDiscountRules();
+// loadRooms() / loadDiscountRules() intentionally NOT called here — moved
+// into the auth gate's success handler below, since they need a valid
+// sign-in token first.
 
 function escHtml(str) { return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
@@ -411,6 +412,8 @@ onAuthStateChanged(auth, function(user) {
     document.getElementById('app').style.display = 'block';
     var entryDisplay = document.getElementById('f-entered-by-display');
     if (entryDisplay) entryDisplay.textContent = 'Signed in as ' + email;
+    loadRooms();
+    loadDiscountRules();
   }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });
 });
 </script>

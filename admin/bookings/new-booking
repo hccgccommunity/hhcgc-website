@@ -44,7 +44,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .module-nav a.active { background: var(--surface-soft); color: var(--saffron-dark); }
 .module-nav a:not(.active):hover { background: var(--surface-soft); }
 
-.layout { display: grid; grid-template-columns: 1.1fr 0.8fr 0.9fr; gap: 24px; padding: 28px 0 60px; align-items: start; }
+.layout { display: grid; grid-template-columns: 1fr 0.75fr 1.15fr; gap: 24px; padding: 28px 0 60px; align-items: start; }
 @media (max-width: 1100px) { .layout { grid-template-columns: 1fr 1fr; } .layout > :nth-child(3) { grid-column: 1 / -1; } }
 @media (max-width: 720px) { .layout { grid-template-columns: 1fr; } .layout > :nth-child(3) { grid-column: auto; } }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; box-shadow: var(--shadow); }
@@ -107,7 +107,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .occ-remove { background: none; border: none; color: #b3382c; cursor: pointer; font-size: 0.9rem; padding: 4px 6px; }
 
 .calendar-card select { width: 100%; font-family: Arial, Helvetica, sans-serif; font-size: 0.84rem; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 10px; margin-bottom: 12px; }
-#calendar-embed-wrap iframe { width: 100%; height: 420px; border: 1px solid var(--border); border-radius: 14px; }
+#calendar-embed-wrap iframe { width: 100%; height: 640px; border: 1px solid var(--border); border-radius: 14px; }
 .calendar-note { font-size: 0.74rem; color: var(--muted); margin-top: 10px; }
 #gate{padding:60px 16px;display:flex;justify-content:center;}
 .gate-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow);}
@@ -167,57 +167,28 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
       </div>
 
       <div class="card" id="renter-details-card">
-        <h2>Renter details</h2>
+        <h2 id="renter-details-title">Renter</h2>
         <div class="card-sub" id="renter-details-sub">Who's booking, and what for.</div>
         <div class="field" id="f-renter-select-field">
           <label>Select a contact</label>
-          <select id="f-renter-select">
-            <option value="">+ New renter (enter details below)</option>
+          <select id="f-renter-select" required>
+            <option value="">Choose a renter…</option>
           </select>
+          <div class="card-sub" style="margin-bottom:0;margin-top:6px;">Don't see who you're looking for? <a href="add-renter" style="color:var(--saffron-dark);font-weight:700;">Add them on the Add A Renter page</a> first.</div>
         </div>
-        <div class="field-row">
-          <div class="field"><label id="f-name-label">Contact Name</label><input type="text" id="f-name" placeholder="Jane Doe"></div>
-          <div class="field" id="f-phone-field"><label>Phone</label><input type="tel" id="f-phone" placeholder="555-555-5555"></div>
-        </div>
+        <div class="field" id="f-name-field" style="display:none;"><label id="f-name-label">Program / event name</label><input type="text" id="f-name" placeholder="e.g. Weekly Bhajan Sandhya"></div>
         <div class="field" id="f-hccg-rep-field" style="display:none;"><label>HCCGC representative name</label><input type="text" id="f-hccg-rep" placeholder="Who at HCCGC is organizing this?"></div>
-        <div class="field-row" id="f-email-org-row">
-          <div class="field"><label>Email</label><input type="email" id="f-email" placeholder="jane@example.com"></div>
-          <div class="field"><label>Organization (optional)</label><input type="text" id="f-org" placeholder="e.g. a company or community group"></div>
-        </div>
-        <div class="field" id="f-address-field"><label>Address</label><input type="text" id="f-address" placeholder="Street, city, state, ZIP"></div>
-        <div class="checkbox-row" id="f-save-renter-row"><input type="checkbox" id="f-save-renter" checked><label for="f-save-renter">Save this contact for future bookings</label></div>
         <div class="field"><label>Notes (optional)</label><textarea id="f-notes" placeholder="Anything worth remembering about this booking"></textarea></div>
       </div>
 
       <div class="card" id="rooms-card">
         <h2>Rooms</h2>
-        <div class="card-sub">Pick one or more — select all four for a whole-facility booking.</div>
+        <div class="card-sub">Pick one or more — select all four for a whole-facility booking. Kitchen is only bookable alongside Surya Hall or Patanjali Hall.</div>
         <button type="button" class="btn-whole-facility" id="btn-whole-facility">Select all rooms (whole facility)</button>
         <div class="room-picker" id="room-picker" style="margin-top:12px;"></div>
         <div class="checkbox-row" id="nonprofit-row" style="margin-top:6px;"><input type="checkbox" id="f-nonprofit"><label for="f-nonprofit">Renter is a nonprofit</label></div>
       </div>
 
-      <div class="card" id="adjustment-card">
-        <div class="adjustment-toggle" id="adjustment-toggle">
-          <input type="checkbox" id="f-adjustment-enabled" style="width:16px;height:16px;">
-          Apply a one-time discretionary discount
-        </div>
-        <div class="card-sub" style="margin-bottom:8px;">This is also how you discount a whole-facility booking — there's no automatic bundle discount, it's always a case-by-case call.</div>
-        <div class="collapsible" id="adjustment-fields">
-          <div class="field-row">
-            <div class="field">
-              <label>Type</label>
-              <select id="f-adj-type"><option value="percent">Percent off</option><option value="flat">Flat dollar amount off</option></select>
-            </div>
-            <div class="field"><label>Value</label><input type="number" id="f-adj-value" placeholder="e.g. 10" min="0" step="0.01"></div>
-          </div>
-          <div class="field"><label>Reason (required — shows up in the audit report)</label><input type="text" id="f-adj-reason" placeholder="e.g. Board-approved discount for founding member"></div>
-          <div class="card-sub" style="margin-bottom:0;">For a recurring booking, this same discount applies to every occurrence.</div>
-        </div>
-      </div>
-    </div>
-
-    <div>
       <div class="card">
         <h2>Date &amp; time</h2>
         <div class="card-sub">First occurrence. If this repeats, add the pattern below and adjust any date's time as needed.</div>
@@ -255,7 +226,28 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
         <div class="conflict-note">Availability is checked automatically for every date when you click Create booking — nothing gets created if even one date conflicts.</div>
       </div>
 
-      <div class="card">
+      <div class="card" id="adjustment-card">
+        <div class="adjustment-toggle" id="adjustment-toggle">
+          <input type="checkbox" id="f-adjustment-enabled" style="width:16px;height:16px;">
+          Apply a one-time discretionary discount
+        </div>
+        <div class="card-sub" style="margin-bottom:8px;">This is also how you discount a whole-facility booking — there's no automatic bundle discount, it's always a case-by-case call.</div>
+        <div class="collapsible" id="adjustment-fields">
+          <div class="field-row">
+            <div class="field">
+              <label>Type</label>
+              <select id="f-adj-type"><option value="percent">Percent off</option><option value="flat">Flat dollar amount off</option></select>
+            </div>
+            <div class="field"><label>Value</label><input type="number" id="f-adj-value" placeholder="e.g. 10" min="0" step="0.01"></div>
+          </div>
+          <div class="field"><label>Reason (required — shows up in the audit report)</label><input type="text" id="f-adj-reason" placeholder="e.g. Board-approved discount for founding member"></div>
+          <div class="card-sub" style="margin-bottom:0;">For a recurring booking, this same discount applies to every occurrence.</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="position: sticky; top: 110px;">
         <h2>Cost summary</h2>
         <div class="card-sub" id="cost-summary-sub">Recalculates live as you fill in the form.</div>
         <div class="summary-line"><span class="label">Base total</span><span id="s-base">$0.00</span></div>
@@ -270,7 +262,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
     </div>
 
     <div>
-      <div class="card calendar-card">
+      <div class="card calendar-card" style="position: sticky; top: 110px;">
         <h2>Room availability</h2>
         <div class="card-sub">Live from Google Calendar, so you can check before you book.</div>
         <select id="calendar-room-select">
@@ -300,7 +292,8 @@ const ROOMS = [
   { name: 'Surya Hall', rate: 45 },
   { name: 'Patanjali Hall', rate: 40 },
   { name: 'Nataraj Room', rate: 30 },
-  { name: 'Ganesh Room', rate: 15 }
+  { name: 'Ganesh Room', rate: 15 },
+  { name: 'Kitchen', rate: 0 }
 ];
 const RULES = {
   weekdayMultiplier: 0.80,
@@ -313,16 +306,32 @@ const roomPicker = document.getElementById('room-picker');
 ROOMS.forEach(function (r) {
   const label = document.createElement('label');
   label.className = 'room-check';
-  label.innerHTML = '<input type="checkbox" class="room-cb" value="' + r.name + '"> ' + r.name + '<span class="rate">$' + r.rate + '/hr</span>';
+  const rateText = r.rate > 0 ? ('$' + r.rate + '/hr') : 'Free';
+  label.innerHTML = '<input type="checkbox" class="room-cb" value="' + r.name + '"> ' + r.name + '<span class="rate">' + rateText + '</span>';
   roomPicker.appendChild(label);
 });
 document.getElementById('btn-whole-facility').addEventListener('click', function () {
   document.querySelectorAll('.room-cb').forEach(function (cb) { cb.checked = true; });
+  enforceKitchenRule();
   recalc();
 });
 function selectedRooms() {
   return Array.from(document.querySelectorAll('.room-cb:checked')).map(function (cb) { return cb.value; });
 }
+// Kitchen only makes sense alongside Surya Hall or Patanjali Hall — disable
+// it otherwise, and uncheck it automatically if the last qualifying room
+// gets unchecked while Kitchen is still selected.
+function enforceKitchenRule() {
+  const kitchenCb = document.querySelector('.room-cb[value="Kitchen"]');
+  const suryaChecked = document.querySelector('.room-cb[value="Surya Hall"]').checked;
+  const patanjaliChecked = document.querySelector('.room-cb[value="Patanjali Hall"]').checked;
+  const eligible = suryaChecked || patanjaliChecked;
+  kitchenCb.disabled = !eligible;
+  kitchenCb.closest('.room-check').style.opacity = eligible ? '1' : '0.5';
+  if (!eligible) kitchenCb.checked = false;
+}
+roomPicker.addEventListener('change', enforceKitchenRule);
+enforceKitchenRule();
 
 // ---- Occurrence list: the source of truth for what actually gets booked ----
 let occurrences = []; // [{ date, startTime, endTime }]
@@ -431,22 +440,22 @@ document.getElementById('btn-regenerate-occurrences').addEventListener('click', 
 
 document.getElementById('f-internal-enabled').addEventListener('change', function () {
   const isInternal = this.checked;
-  document.getElementById('f-name-label').textContent = isInternal ? 'Program / event name' : 'Contact Name';
-  document.getElementById('f-name').placeholder = isInternal ? 'e.g. Weekly Bhajan Sandhya' : 'Jane Doe';
+  document.getElementById('renter-details-title').textContent = isInternal ? 'Program' : 'Renter';
   document.getElementById('renter-details-sub').textContent = isInternal ? 'What is this reserving the space for?' : "Who's booking, and what for.";
+  document.getElementById('f-renter-select-field').style.display = isInternal ? 'none' : 'flex';
+  document.getElementById('f-name-field').style.display = isInternal ? 'flex' : 'none';
   document.getElementById('f-hccg-rep-field').style.display = isInternal ? 'flex' : 'none';
   document.getElementById('publish-event-field').classList.toggle('open', isInternal);
-  document.getElementById('f-renter-select-field').style.display = isInternal ? 'none' : 'flex';
-  document.getElementById('f-save-renter-row').style.display = isInternal ? 'none' : 'flex';
-  document.getElementById('f-email-org-row').style.display = isInternal ? 'none' : 'grid';
-  document.getElementById('f-phone-field').style.display = isInternal ? 'none' : 'flex';
-  document.getElementById('f-address-field').style.display = isInternal ? 'none' : 'flex';
   document.getElementById('nonprofit-row').style.display = isInternal ? 'none' : 'flex';
   document.getElementById('adjustment-card').style.display = isInternal ? 'none' : 'block';
   if (isInternal) {
+    document.getElementById('f-renter-select').value = '';
     document.getElementById('f-nonprofit').checked = false;
     document.getElementById('f-adjustment-enabled').checked = false;
     document.getElementById('adjustment-fields').classList.remove('open');
+  } else {
+    document.getElementById('f-name').value = '';
+    document.getElementById('f-hccg-rep').value = '';
   }
   recalc();
 });
@@ -553,7 +562,7 @@ function renderCalendarEmbed() {
   });
   params.set('ctz', 'America/New_York');
   params.set('wkst', '1');
-  params.set('height', '460');
+  params.set('height', '620');
   params.set('showTitle', '0'); params.set('showPrint', '0'); params.set('showTabs', '0');
 
   // Once a date is picked, jump the embed to the week containing that date.
@@ -589,6 +598,10 @@ async function authedFetch(url, options) {
 }
 
 // ---- Renter directory: pick a returning contact instead of re-typing ----
+// New Booking only ever selects from this list — there's no way to type a
+// new contact here by design; that happens on Add A Renter instead. The
+// backend looks up the renter's actual details by renterId, so nothing
+// beyond the selected ID needs to travel with the booking request.
 let RENTERS = [];
 async function loadRenters() {
   try {
@@ -599,22 +612,12 @@ async function loadRenters() {
     RENTERS = [];
   }
   const select = document.getElementById('f-renter-select');
-  select.innerHTML = '<option value="">+ New renter (enter details below)</option>' +
+  select.innerHTML = '<option value="">Choose a renter…</option>' +
     RENTERS.map(function (r) {
-      const label = r.organization_name ? (r.contact_name + ' — ' + r.organization_name) : r.contact_name;
+      const label = r.contact_name + (r.email ? (' — ' + r.email) : '');
       return '<option value="' + r.renter_id + '">' + label.replace(/</g, '&lt;') + '</option>';
     }).join('');
 }
-document.getElementById('f-renter-select').addEventListener('change', function () {
-  const renter = RENTERS.find(function (r) { return r.renter_id === this.value; }, this);
-  const isExisting = !!renter;
-  document.getElementById('f-name').value = renter ? renter.contact_name : '';
-  document.getElementById('f-email').value = renter ? (renter.email || '') : '';
-  document.getElementById('f-phone').value = renter ? (renter.phone || '') : '';
-  document.getElementById('f-address').value = renter ? (renter.address || '') : '';
-  document.getElementById('f-org').value = renter ? (renter.organization_name || '') : '';
-  document.getElementById('f-save-renter-row').style.display = isExisting ? 'none' : 'flex';
-});
 // loadRenters() is intentionally NOT called here — this runs before Firebase
 // has resolved who's signed in, so authedFetch would throw "Not signed in"
 // every time. It's called instead inside the auth gate's success handler,
@@ -628,22 +631,20 @@ document.getElementById('btn-generate').addEventListener('click', async function
   if (!occurrences.length) regenerateOccurrences();
   if (!occurrences.length) { showResult('error', 'Add a date and time first.'); return; }
   const isInternal = document.getElementById('f-internal-enabled').checked;
-  if (isInternal && !document.getElementById('f-hccg-rep').value.trim()) {
-    showResult('error', 'HCCGC representative name is required for internal bookings.');
+  const selectedRenterId = document.getElementById('f-renter-select').value;
+  if (isInternal) {
+    if (!document.getElementById('f-name').value.trim()) { showResult('error', 'Program/event name is required.'); return; }
+    if (!document.getElementById('f-hccg-rep').value.trim()) { showResult('error', 'HCCGC representative name is required for internal bookings.'); return; }
+  } else if (!selectedRenterId) {
+    showResult('error', 'Select a renter from the list first.');
     return;
   }
 
-  const selectedRenterId = document.getElementById('f-renter-select').value;
   const payload = {
     rooms: rooms,
     isInternal: isInternal,
-    renterId: (!isInternal && selectedRenterId) ? selectedRenterId : null,
-    saveAsNewRenter: (!isInternal && !selectedRenterId) ? document.getElementById('f-save-renter').checked : false,
-    renterName: document.getElementById('f-name').value,
-    renterEmail: document.getElementById('f-email').value,
-    renterPhone: document.getElementById('f-phone').value,
-    renterAddress: document.getElementById('f-address').value,
-    organizationName: document.getElementById('f-org').value,
+    renterId: !isInternal ? selectedRenterId : null,
+    renterName: isInternal ? document.getElementById('f-name').value : null,
     hccgcRepresentativeName: isInternal ? document.getElementById('f-hccg-rep').value : null,
     publishAsEvent: isInternal ? document.getElementById('f-publish-event').checked : false,
     isNonprofit: document.getElementById('f-nonprofit').checked,
@@ -689,7 +690,7 @@ function showResult(type, message) {
 }
 
 function resetForm() {
-  ['f-name','f-email','f-phone','f-org','f-address','f-notes','f-adj-value','f-adj-reason','f-hccg-rep'].forEach(function (id) { document.getElementById(id).value = ''; });
+  ['f-name','f-notes','f-adj-value','f-adj-reason','f-hccg-rep'].forEach(function (id) { document.getElementById(id).value = ''; });
   document.getElementById('f-nonprofit').checked = false;
   document.getElementById('f-adjustment-enabled').checked = false;
   document.getElementById('adjustment-fields').classList.remove('open');
@@ -698,10 +699,9 @@ function resetForm() {
   document.getElementById('f-internal-enabled').checked = false;
   document.getElementById('f-publish-event').checked = true;
   document.getElementById('f-renter-select').value = '';
-  document.getElementById('f-save-renter').checked = true;
-  document.getElementById('f-save-renter-row').style.display = 'flex';
   document.getElementById('f-internal-enabled').dispatchEvent(new Event('change'));
   document.querySelectorAll('.room-cb').forEach(function (cb) { cb.checked = false; });
+  enforceKitchenRule();
   occurrences = [];
   renderOccTable();
   recalc();

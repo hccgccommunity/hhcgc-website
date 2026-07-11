@@ -248,7 +248,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 // Real bookings are loaded from the API below (see loadBookings()).
 const ALL_ROOM_NAMES = ['Surya Hall', 'Patanjali Hall', 'Nataraj Room', 'Ganesh Room'];
 
-const API_BASE = 'https://api-1009110816870.us-central1.run.app'; // e.g. https://us-central1-dharma-nidi-darshan.cloudfunctions.net/api
+const API_BASE = 'PASTE_YOUR_CLOUD_FUNCTION_URL_HERE'; // e.g. https://us-central1-dharma-nidi-darshan.cloudfunctions.net/api
 
 async function authedFetch(url, options) {
   options = options || {};
@@ -415,8 +415,8 @@ document.getElementById('status-filter').addEventListener('change', function (e)
   state.status = e.target.value;
   render();
 });
-
-loadBookings();
+// loadBookings() is intentionally NOT called here — moved into the auth
+// gate's success handler below, since it needs a valid sign-in token first.
 
 // ---- Auth gate: same pattern as the portal shell ----
 // TODO: uncomment and wire once you confirm the app-registry key for this
@@ -519,6 +519,7 @@ onAuthStateChanged(auth, function(user) {
     document.getElementById('app').style.display = 'block';
     var entryDisplay = document.getElementById('f-entered-by-display');
     if (entryDisplay) entryDisplay.textContent = 'Signed in as ' + email;
+    loadBookings();
   }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });
 });
 </script>

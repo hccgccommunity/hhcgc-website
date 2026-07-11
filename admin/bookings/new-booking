@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -577,7 +576,7 @@ document.getElementById('f-date').addEventListener('change', renderCalendarEmbed
 renderCalendarEmbed();
 
 // ---- Submit ----
-const API_BASE = 'PASTE_YOUR_CLOUD_FUNCTION_URL_HERE'; // e.g. https://us-central1-dharma-nidi-darshan.cloudfunctions.net/api
+const API_BASE = 'https://api-1009110816870.us-central1.run.app';
 
 async function authedFetch(url, options) {
   options = options || {};

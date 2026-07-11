@@ -44,7 +44,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .module-nav a.active { background: var(--surface-soft); color: var(--saffron-dark); }
 .module-nav a:not(.active):hover { background: var(--surface-soft); }
 
-.layout { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; padding: 28px 0 60px; align-items: start; }
+.layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 28px 0 60px; align-items: start; }
 .form-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-content: start; }
 .form-col .full-span { grid-column: 1 / -1; }
 @media (max-width: 1000px) {
@@ -261,7 +261,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
         <div class="conflict-note">Availability is checked automatically for every date when you click Create booking — nothing gets created if even one date conflicts.</div>
       </div>
 
-      <div class="card full-span">
+      <div class="card">
         <h2>Cost summary</h2>
         <div class="card-sub" id="cost-summary-sub">Recalculates live as you fill in the form.</div>
         <div class="summary-line"><span class="label">Base total</span><span id="s-base">$0.00</span></div>

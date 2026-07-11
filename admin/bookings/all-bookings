@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -152,6 +153,55 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 
 .discount-chip { display: inline-block; font-size: 0.68rem; font-weight: 700; color: var(--saffron-dark); background: var(--surface-soft); border-radius: 999px; padding: 2px 8px; }
 
+thead th.sortable { cursor: pointer; user-select: none; white-space: nowrap; }
+thead th.sortable:hover { color: var(--saffron-dark); }
+thead th.sortable .sort-arrow { margin-left: 4px; opacity: 0.4; }
+thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
+.notes-cell { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.82rem; color: var(--muted); }
+.updated-cell { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+
+.row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.btn-edit, .btn-cancel-booking {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.76rem; font-weight: 700;
+  padding: 6px 10px; border-radius: 8px; cursor: pointer; transition: background 0.15s;
+}
+.btn-edit { border: 1.5px solid var(--border); background: #fff; color: var(--text); }
+.btn-edit:hover { background: var(--surface-soft); }
+.btn-cancel-booking { border: 1.5px solid rgba(179,56,44,0.4); background: #fff; color: var(--red); }
+.btn-cancel-booking:hover { background: var(--red-bg); }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(44,27,16,0.5); z-index: 100; display: flex; align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto; }
+.modal-panel { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); width: 100%; max-width: 640px; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 22px 26px; border-bottom: 1px solid var(--border); }
+.modal-header h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.2rem; color: var(--maroon); }
+.modal-close { background: none; border: none; font-size: 1.4rem; color: var(--muted); cursor: pointer; line-height: 1; }
+.modal-body { padding: 22px 26px; max-height: 65vh; overflow-y: auto; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 18px 26px; border-top: 1px solid var(--border); }
+.modal-body .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.modal-body .field label { font-size: 0.78rem; font-weight: 700; color: var(--muted); }
+.modal-body .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.modal-body input, .modal-body select, .modal-body textarea {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.9rem; padding: 9px 12px; border: 1.5px solid var(--border);
+  border-radius: 10px; background: #fff; color: var(--text); width: 100%; box-sizing: border-box;
+}
+.modal-body textarea { resize: vertical; min-height: 56px; }
+.modal-room-picker { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 8px; margin-bottom: 8px; }
+.modal-room-check { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; font-size: 0.84rem; }
+.modal-room-check:has(input:checked) { border-color: var(--saffron-dark); background: var(--surface-soft); font-weight: 700; }
+.modal-room-check .rate { margin-left: auto; font-size: 0.72rem; color: var(--muted); }
+.checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 0.86rem; }
+.btn-secondary {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; font-weight: 700; color: var(--text);
+  background: #fff; border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 18px; cursor: pointer;
+}
+.btn-primary {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; font-weight: 700; color: #fff;
+  background: linear-gradient(135deg, var(--saffron-dark), var(--maroon)); border: none; border-radius: 10px; padding: 10px 18px; cursor: pointer;
+}
+.result-box { margin-top: 12px; border-radius: 12px; padding: 10px 14px; font-size: 0.82rem; }
+.result-box.success { background: #e8f5ec; color: #2e7d4f; border: 1px solid rgba(46,125,79,0.25); }
+.result-box.error { background: #fbe9e7; color: #b3382c; border: 1px solid rgba(179,56,44,0.25); }
+
 #gate{padding:60px 16px;display:flex;justify-content:center;}
 .gate-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow);}
 .gate-card h3{font-family:Georgia,serif;font-size:1.3rem;color:var(--maroon);margin-bottom:.5rem;}
@@ -212,7 +262,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
       <option value="">All statuses</option>
       <option value="needs-attention">Needs attention</option>
       <option value="paid">Paid</option>
-      <option value="pending">Draft</option>
+      <option value="pending">Pending (not yet invoiced)</option>
       <option value="cancelled">Cancelled</option>
       <option value="internal">Internal / No charge</option>
     </select>
@@ -223,12 +273,14 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
     <table>
       <thead>
         <tr>
-          <th>Contact Name</th>
+          <th class="sortable" data-sort="renter_name">Contact Name <span class="sort-arrow">&#8645;</span></th>
           <th>Room</th>
-          <th>Date</th>
-          <th>Hours</th>
-          <th>Total</th>
-          <th>Status</th>
+          <th class="sortable" data-sort="event_date">Booking Date <span class="sort-arrow">&#8645;</span></th>
+          <th class="sortable" data-sort="hours">Hours <span class="sort-arrow">&#8645;</span></th>
+          <th class="sortable" data-sort="final_total">Total <span class="sort-arrow">&#8645;</span></th>
+          <th class="sortable" data-sort="payment_status">Status <span class="sort-arrow">&#8645;</span></th>
+          <th>Notes</th>
+          <th class="sortable active" data-sort="updated_display">Updated <span class="sort-arrow">&#8645;</span></th>
           <th></th>
         </tr>
       </thead>
@@ -238,6 +290,57 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
   </div>
 </div>
 
+</div>
+
+<datalist id="common-times">
+  <option value="06:00"><option value="06:30"><option value="07:00"><option value="07:30">
+  <option value="08:00"><option value="08:30"><option value="09:00"><option value="09:30">
+  <option value="10:00"><option value="10:30"><option value="11:00"><option value="11:30">
+  <option value="12:00"><option value="12:30"><option value="13:00"><option value="13:30">
+  <option value="14:00"><option value="14:30"><option value="15:00"><option value="15:30">
+  <option value="16:00"><option value="16:30"><option value="17:00"><option value="17:30">
+  <option value="18:00"><option value="18:30"><option value="19:00"><option value="19:30">
+  <option value="20:00"><option value="20:30"><option value="21:00"><option value="21:30">
+  <option value="22:00">
+</datalist>
+
+<div class="modal-overlay" id="edit-modal-overlay" style="display:none;">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <h2 id="edit-modal-title">Edit booking</h2>
+      <button class="modal-close" id="btn-close-edit">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="field" id="edit-renter-select-field">
+        <label>Select a contact</label>
+        <select id="edit-renter-select"><option value="">Choose a renter…</option></select>
+      </div>
+      <div class="field" id="edit-name-field" style="display:none;">
+        <label>Program / event name</label>
+        <input type="text" id="edit-name">
+      </div>
+      <div class="field" id="edit-hccg-rep-field" style="display:none;">
+        <label>HCCGC representative name</label>
+        <input type="text" id="edit-hccg-rep">
+      </div>
+      <div class="field"><label>Date</label><input type="date" id="edit-date"></div>
+      <div class="field-row">
+        <div class="field"><label>Start time</label><input type="time" id="edit-start" list="common-times"></div>
+        <div class="field"><label>End time</label><input type="time" id="edit-end" list="common-times"></div>
+      </div>
+      <div class="field">
+        <label>Rooms</label>
+        <div class="modal-room-picker" id="edit-room-picker"></div>
+      </div>
+      <div class="checkbox-row" id="edit-nonprofit-row"><input type="checkbox" id="edit-nonprofit"><label for="edit-nonprofit">Renter is a nonprofit</label></div>
+      <div class="field"><label>Notes</label><textarea id="edit-notes"></textarea></div>
+      <div class="result-box" id="edit-result-box" style="display:none;"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-cancel-edit-modal">Close</button>
+      <button type="button" class="btn-primary" id="btn-save-edit">Save changes</button>
+    </div>
+  </div>
 </div>
 
 <div id="site-footer"></div>
@@ -275,15 +378,20 @@ async function loadBookings() {
   render();
 }
 
-let state = { search: '', room: '', status: '' };
+let state = { search: '', room: '', status: '', sortKey: 'updated_display', sortDir: 'desc' };
 
 function formatDate(iso) {
   const d = new Date(iso + 'T00:00:00');
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
+function formatDateTime(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
 
 function isPastDue(b) {
-  return b.payment_status === 'invoiced' && new Date(b.event_date) < new Date();
+  return (b.payment_status === 'invoiced' || b.payment_status === 'pending') && new Date(b.event_date) < new Date();
 }
 
 function statusBadge(b) {
@@ -298,25 +406,27 @@ function statusBadge(b) {
     return '<span class="badge badge-paid"><span class="badge-dot"></span>Paid</span><span class="method-tag">' + methodLabel + '</span>';
   }
   if (b.payment_status === 'cancelled') {
-    return '<span class="badge badge-cancelled"><span class="badge-dot"></span>Cancelled</span>';
+    const feeTag = (b.cancellation_fee !== null && b.cancellation_fee !== undefined)
+      ? '<span class="method-tag">Fee: $' + Number(b.cancellation_fee).toFixed(2) + ' · Refund: $' + Number(b.refund_amount).toFixed(2) + '</span>' : '';
+    return '<span class="badge badge-cancelled"><span class="badge-dot"></span>Cancelled</span>' + feeTag;
   }
-  if (b.payment_status === 'invoiced') {
-    const label = isPastDue(b) ? 'Past due — needs confirmation' : 'Awaiting payment';
-    return '<span class="badge badge-needs-confirm"><span class="badge-dot"></span>' + label + '</span>';
-  }
-  return '<span class="badge badge-draft"><span class="badge-dot"></span>Draft</span>';
+  // "pending" and "invoiced" both mean "not yet paid" — pending is simply the
+  // default status a new booking starts in, since nothing in this system
+  // currently has a separate "invoice sent" step.
+  const label = isPastDue(b) ? 'Past due — needs confirmation' : 'Awaiting payment';
+  return '<span class="badge badge-needs-confirm"><span class="badge-dot"></span>' + label + '</span>';
 }
 
 function isWholeFacility(b) {
-  return b.rooms.length === ALL_ROOM_NAMES.length && ALL_ROOM_NAMES.every(function (r) { return b.rooms.includes(r); });
+  return ALL_ROOM_NAMES.every(function (r) { return b.rooms.includes(r); });
 }
 
 function matchesFilters(b) {
   const q = state.search.trim().toLowerCase();
-  if (q && !(b.renter_name.toLowerCase().includes(q) || b.renter_email.toLowerCase().includes(q))) return false;
+  if (q && !(b.renter_name.toLowerCase().includes(q) || (b.renter_email || '').toLowerCase().includes(q))) return false;
   if (state.room === '__whole_facility__' && !isWholeFacility(b)) return false;
   if (state.room && state.room !== '__whole_facility__' && !b.rooms.includes(state.room)) return false;
-  if (state.status === 'needs-attention' && b.payment_status !== 'invoiced') return false;
+  if (state.status === 'needs-attention' && !(b.payment_status === 'invoiced' || b.payment_status === 'pending')) return false;
   if (state.status === 'paid' && b.payment_status !== 'paid') return false;
   if (state.status === 'pending' && b.payment_status !== 'pending') return false;
   if (state.status === 'cancelled' && b.payment_status !== 'cancelled') return false;
@@ -324,13 +434,31 @@ function matchesFilters(b) {
   return true;
 }
 
+function sortBookings(list) {
+  const key = state.sortKey, dir = state.sortDir === 'asc' ? 1 : -1;
+  return list.slice().sort(function (a, b) {
+    let av = a[key], bv = b[key];
+    if (key === 'renter_name') { av = (av || '').toLowerCase(); bv = (bv || '').toLowerCase(); }
+    if (av === null || av === undefined) av = '';
+    if (bv === null || bv === undefined) bv = '';
+    if (av < bv) return -1 * dir;
+    if (av > bv) return 1 * dir;
+    return 0;
+  });
+}
+
 function render() {
   const tbody = document.getElementById('bookings-tbody');
   const emptyState = document.getElementById('empty-state');
-  const filtered = BOOKINGS.filter(matchesFilters);
+  const filtered = sortBookings(BOOKINGS.filter(matchesFilters));
 
   document.getElementById('result-count').textContent =
     filtered.length + (filtered.length === 1 ? ' booking' : ' bookings');
+
+  document.querySelectorAll('thead th.sortable').forEach(function (th) {
+    th.classList.toggle('active', th.dataset.sort === state.sortKey);
+    th.querySelector('.sort-arrow').textContent = th.dataset.sort === state.sortKey ? (state.sortDir === 'asc' ? '↑' : '↓') : '⇅';
+  });
 
   if (filtered.length === 0) {
     tbody.innerHTML = '';
@@ -340,11 +468,16 @@ function render() {
   emptyState.style.display = 'none';
 
   tbody.innerHTML = filtered.map(function (b) {
-    const needsAction = b.payment_status === 'invoiced';
+    // Both "pending" (the default status a new booking starts in) and
+    // "invoiced" mean "not yet paid" — the old version only checked for
+    // "invoiced", which nothing in the system ever actually sets, so Mark
+    // Paid never appeared for real bookings. This is the fix for that.
+    const needsAction = (b.payment_status === 'pending' || b.payment_status === 'invoiced');
+    const canEdit = b.payment_status !== 'cancelled';
     const roomCell = isWholeFacility(b)
       ? '<span class="room-pill whole-facility">&#9733; Whole Facility</span>'
       : '<span class="room-pill">' + escHtml(b.rooms.join(' + ')) + '</span>';
-    const amountCell = '$' + b.final_total.toFixed(2) +
+    const amountCell = '$' + Number(b.final_total).toFixed(2) +
       (b.manual_adjustment_type ? '<span class="adjusted-tag" title="' + escHtml(b.manual_adjustment_reason || '') + '">Adjusted</span>' : '');
     return (
       '<tr>' +
@@ -354,9 +487,15 @@ function render() {
         '<td>' + b.hours + '</td>' +
         '<td class="amount">' + amountCell + '</td>' +
         '<td>' + statusBadge(b) + '</td>' +
+        '<td class="notes-cell" title="' + escHtml(b.notes || '') + '">' + escHtml(b.notes || '—') + '</td>' +
+        '<td class="updated-cell">' + formatDateTime(b.updated_display) + '</td>' +
         '<td style="position:relative;">' +
-          (needsAction ? '<button class="btn-mark-paid" onclick="togglePopover(event, \'' + b.booking_id + '\')">Mark paid</button>' +
-            '<div class="method-popover" id="popover-' + b.booking_id + '">' +
+          '<div class="row-actions">' +
+          (needsAction ? '<button class="btn-mark-paid" onclick="togglePopover(event, \'' + b.booking_id + '\')">Mark paid</button>' : '') +
+          (canEdit ? '<button class="btn-edit" onclick="openEditModal(\'' + b.booking_id + '\')">Edit</button>' : '') +
+          (canEdit ? '<button class="btn-cancel-booking" onclick="cancelBookingFlow(\'' + b.booking_id + '\')">Cancel</button>' : '') +
+          '</div>' +
+          (needsAction ? '<div class="method-popover" id="popover-' + b.booking_id + '">' +
               '<button onclick="markPaid(\'' + b.booking_id + '\', \'zelle\')">Paid via Zelle</button>' +
               '<button onclick="markPaid(\'' + b.booking_id + '\', \'cash\')">Paid via Cash</button>' +
               '<button onclick="markPaid(\'' + b.booking_id + '\', \'check\')">Paid via Check</button>' +
@@ -366,6 +505,19 @@ function render() {
     );
   }).join('');
 }
+
+document.querySelectorAll('thead th.sortable').forEach(function (th) {
+  th.addEventListener('click', function () {
+    const key = th.dataset.sort;
+    if (state.sortKey === key) {
+      state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      state.sortKey = key;
+      state.sortDir = 'asc';
+    }
+    render();
+  });
+});
 
 function escHtml(str) {
   return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -402,6 +554,170 @@ async function markPaid(bookingId, method) {
   }
 }
 
+// ---- Cancellation ----
+// Client-side preview only, using the same policy the backend enforces
+// authoritatively: 14+ days' notice = no fee. 7-13 days = 50% fee. Under 7
+// days = 100% fee (this last tier was never explicitly specified — it's the
+// natural extension of the stated policy, flagged as an assumption).
+function computeCancellationPreview(b) {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const eventD = new Date(b.event_date + 'T00:00:00');
+  const daysUntil = Math.ceil((eventD - today) / 86400000);
+  let feeRate = daysUntil >= 14 ? 0 : daysUntil >= 7 ? 0.5 : 1.0;
+  const fee = Math.round(Number(b.final_total) * feeRate * 100) / 100;
+  const refund = Math.round((Number(b.final_total) - fee) * 100) / 100;
+  return { daysUntil, feeRate, fee, refund };
+}
+
+async function cancelBookingFlow(bookingId) {
+  const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
+  if (!b) return;
+  const preview = computeCancellationPreview(b);
+  const msg = b.is_internal
+    ? 'Cancel this internal booking? This frees up the room and removes it from the calendar.'
+    : ('Cancel this booking (' + preview.daysUntil + ' days before the event)?\n\n' +
+       'Cancellation fee: $' + preview.fee.toFixed(2) + '\n' +
+       'Refund: $' + preview.refund.toFixed(2) + '\n\n' +
+       'This cannot be undone.');
+  if (!confirm(msg)) return;
+
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/cancel', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) {
+      alert('Could not cancel: ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
+      return;
+    }
+    await loadBookings();
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+  }
+}
+
+// ---- Edit ----
+const EDIT_ROOMS = [
+  { name: 'Surya Hall', rate: 45 }, { name: 'Patanjali Hall', rate: 40 },
+  { name: 'Nataraj Room', rate: 30 }, { name: 'Ganesh Room', rate: 15 }, { name: 'Kitchen', rate: 0 }
+];
+let EDIT_RENTERS = [];
+let editingBookingId = null;
+
+async function loadEditRenters() {
+  try {
+    const res = await authedFetch(API_BASE + '/renters');
+    if (res.ok) EDIT_RENTERS = await res.json();
+  } catch (err) { EDIT_RENTERS = []; }
+}
+
+function buildEditRoomPicker() {
+  const wrap = document.getElementById('edit-room-picker');
+  wrap.innerHTML = EDIT_ROOMS.map(function (r) {
+    const rateText = r.rate > 0 ? ('$' + r.rate + '/hr') : 'Free';
+    return '<label class="modal-room-check"><input type="checkbox" class="edit-room-cb" value="' + r.name + '"> ' + r.name + '<span class="rate">' + rateText + '</span></label>';
+  }).join('');
+  wrap.querySelectorAll('.edit-room-cb').forEach(function (cb) {
+    cb.addEventListener('change', enforceEditKitchenRule);
+  });
+}
+function enforceEditKitchenRule() {
+  const kitchenCb = document.querySelector('.edit-room-cb[value="Kitchen"]');
+  if (!kitchenCb) return;
+  const surya = document.querySelector('.edit-room-cb[value="Surya Hall"]').checked;
+  const patanjali = document.querySelector('.edit-room-cb[value="Patanjali Hall"]').checked;
+  const eligible = surya || patanjali;
+  kitchenCb.disabled = !eligible;
+  if (!eligible) kitchenCb.checked = false;
+}
+
+async function openEditModal(bookingId) {
+  const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
+  if (!b) return;
+  editingBookingId = bookingId;
+
+  buildEditRoomPicker();
+  await loadEditRenters();
+  const select = document.getElementById('edit-renter-select');
+  select.innerHTML = '<option value="">Choose a renter…</option>' + EDIT_RENTERS.map(function (r) {
+    const label = r.contact_name + (r.email ? (' — ' + r.email) : '');
+    return '<option value="' + r.renter_id + '">' + label.replace(/</g, '&lt;') + '</option>';
+  }).join('');
+
+  document.getElementById('edit-renter-select-field').style.display = b.is_internal ? 'none' : 'flex';
+  document.getElementById('edit-name-field').style.display = b.is_internal ? 'flex' : 'none';
+  document.getElementById('edit-hccg-rep-field').style.display = b.is_internal ? 'flex' : 'none';
+  document.getElementById('edit-nonprofit-row').style.display = b.is_internal ? 'none' : 'flex';
+
+  if (b.is_internal) {
+    document.getElementById('edit-name').value = b.renter_name || '';
+    document.getElementById('edit-hccg-rep').value = b.hccgc_representative_name || '';
+  } else {
+    select.value = b.renter_id || '';
+    document.getElementById('edit-nonprofit').checked = !!b.is_nonprofit;
+  }
+  document.getElementById('edit-date').value = b.event_date;
+  document.getElementById('edit-start').value = (b.start_time || '').slice(11, 16);
+  document.getElementById('edit-end').value = (b.end_time || '').slice(11, 16);
+  document.getElementById('edit-notes').value = b.notes || '';
+  document.querySelectorAll('.edit-room-cb').forEach(function (cb) { cb.checked = b.rooms.includes(cb.value); });
+  enforceEditKitchenRule();
+
+  document.getElementById('edit-modal-title').textContent = b.is_internal ? 'Edit internal booking' : 'Edit booking';
+  document.getElementById('edit-result-box').style.display = 'none';
+  document.getElementById('edit-modal-overlay').style.display = 'flex';
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal-overlay').style.display = 'none';
+  editingBookingId = null;
+}
+document.getElementById('btn-close-edit').addEventListener('click', closeEditModal);
+document.getElementById('btn-cancel-edit-modal').addEventListener('click', closeEditModal);
+document.getElementById('edit-modal-overlay').addEventListener('click', function (e) {
+  if (e.target === this) closeEditModal();
+});
+
+document.getElementById('btn-save-edit').addEventListener('click', async function () {
+  const btn = this;
+  const b = BOOKINGS.find(function (x) { return x.booking_id === editingBookingId; });
+  if (!b) return;
+  const rooms = Array.from(document.querySelectorAll('.edit-room-cb:checked')).map(function (cb) { return cb.value; });
+  const resultBox = document.getElementById('edit-result-box');
+
+  const payload = {
+    rooms: rooms,
+    eventDate: document.getElementById('edit-date').value,
+    startTime: document.getElementById('edit-start').value,
+    endTime: document.getElementById('edit-end').value,
+    notes: document.getElementById('edit-notes').value,
+    renterId: b.is_internal ? null : document.getElementById('edit-renter-select').value,
+    renterName: b.is_internal ? document.getElementById('edit-name').value : null,
+    hccgcRepresentativeName: b.is_internal ? document.getElementById('edit-hccg-rep').value : null,
+    isNonprofit: b.is_internal ? false : document.getElementById('edit-nonprofit').checked
+  };
+
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(editingBookingId), {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+      resultBox.textContent = (data.errors || [data.error || 'Something went wrong.']).join(' ');
+    } else {
+      resultBox.style.display = 'block'; resultBox.className = 'result-box success';
+      resultBox.textContent = 'Saved — new total $' + Number(data.finalTotal).toFixed(2) + '.';
+      await loadBookings();
+      setTimeout(closeEditModal, 900);
+    }
+  } catch (err) {
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+    resultBox.textContent = 'Could not reach the booking system: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save changes';
+  }
+});
+
 document.getElementById('search-input').addEventListener('input', function (e) {
   state.search = e.target.value;
   render();
@@ -416,39 +732,6 @@ document.getElementById('status-filter').addEventListener('change', function (e)
 });
 // loadBookings() is intentionally NOT called here — moved into the auth
 // gate's success handler below, since it needs a valid sign-in token first.
-
-// ---- Auth gate: same pattern as the portal shell ----
-// TODO: uncomment and wire once you confirm the app-registry key for this
-// module (e.g. "facility-bookings") and add it to admins' allowedApps in
-// portalUsers via User Management.
-/*
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyA6IzLjWTg7Rq04HsTH-iA3eDmSzKI7xME",
-  authDomain: "hccgc-a7a54.firebaseapp.com",
-  projectId: "hccgc-a7a54",
-  storageBucket: "hccgc-a7a54.firebasestorage.app",
-  messagingSenderId: "75757201418",
-  appId: "1:75757201418:web:c31e9361921242145717f3"
-};
-const fbApp = initializeApp(firebaseConfig);
-const auth = getAuth(fbApp);
-const db = getFirestore(fbApp);
-
-onAuthStateChanged(auth, async function (user) {
-  if (!user || !user.email.toLowerCase().endsWith('@hccgc.org')) {
-    window.location.href = '/admin/';
-    return;
-  }
-  const snap = await getDoc(doc(db, 'portalUsers', user.email.toLowerCase()));
-  const data = snap.exists() ? snap.data() : {};
-  const allowed = data.isAdmin || (data.allowedApps || []).includes('facility-bookings');
-  if (!allowed) window.location.href = '/admin/';
-});
-*/
 
 function loadPartial(id, file) {
   var target = document.getElementById(id);

@@ -91,7 +91,9 @@ body {
 .toolbar .count { margin-left: auto; font-size: 0.82rem; color: var(--muted); }
 
 /* Table */
-.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); margin-bottom: 60px; }
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow-x: auto; box-shadow: var(--shadow); margin-bottom: 60px; }
+thead th:last-child, tbody td:last-child { position: sticky; right: 0; background: var(--surface); box-shadow: -6px 0 8px -6px rgba(0,0,0,0.08); }
+thead th:last-child { background: var(--surface-soft); }
 table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
 thead th {
   text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em;

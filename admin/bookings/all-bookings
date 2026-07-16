@@ -142,6 +142,14 @@ tr.sub-row td:first-child { padding-left: 28px; }
 .method-tag { font-size: 0.72rem; color: var(--muted); display: block; margin-top: 2px; }
 
 .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+.pagination-bar { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 20px 0 50px; }
+.pagination-bar button {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.84rem; font-weight: 700; padding: 7px 14px;
+  border-radius: 8px; border: 1.5px solid var(--border); background: #fff; color: var(--text); cursor: pointer;
+}
+.pagination-bar button:hover:not(:disabled) { background: var(--surface-soft); }
+.pagination-bar button:disabled { opacity: 0.4; cursor: default; }
+.pagination-bar .page-indicator { font-size: 0.84rem; color: var(--muted); }
 
 .mock-notice {
   background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(161,92,0,0.2);
@@ -165,7 +173,7 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
 .btn-kebab:hover { background: var(--surface-soft); }
 .actions-menu {
   position: fixed; background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-  box-shadow: var(--shadow); padding: 8px; z-index: 200; display: none; min-width: 180px;
+  box-shadow: var(--shadow); padding: 8px; z-index: 9999; display: none; min-width: 180px;
 }
 .actions-menu.open { display: block; }
 .actions-menu button {
@@ -285,7 +293,7 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
       <li><a href="new-booking">New Booking</a></li>
       <li><a href="all-bookings" class="active">All Bookings</a></li>
       <li><a href="rooms-rates">Rooms &amp; Rates</a></li>
-      <li><a href="log-transaction">Log Transaction</a></li>
+      <li><a href="change-log">Change Log</a></li>
       <li><a href="add-renter">Add A Renter</a></li>
     </ul>
   </div>
@@ -320,6 +328,12 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
       <button type="button" class="btn-secondary" id="btn-columns" style="padding:9px 14px;font-size:0.86rem;">Columns</button>
       <div class="columns-panel" id="columns-panel" style="display:none;"></div>
     </div>
+    <select id="page-size-filter" style="font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; padding: 9px 10px; border: 1.5px solid var(--border); border-radius: 10px;">
+      <option value="10">10 per page</option>
+      <option value="20" selected>20 per page</option>
+      <option value="30">30 per page</option>
+      <option value="50">50 per page</option>
+    </select>
     <span class="count" id="result-count"></span>
   </div>
 
@@ -332,6 +346,7 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
     </table>
     <div class="empty-state" id="empty-state" style="display:none;">No bookings match your filters.</div>
   </div>
+  <div class="pagination-bar" id="pagination-bar"></div>
 </div>
 
 </div>
@@ -477,7 +492,7 @@ async function loadBookings() {
   render();
 }
 
-let state = { search: '', room: '', status: '', month: 'default3', sortKey: 'updated_display', sortDir: 'desc' };
+let state = { search: '', room: '', status: '', month: 'default3', sortKey: 'updated_display', sortDir: 'desc', pageSize: 20, page: 1 };
 
 // ---- Column configurator ----
 // Contact Name and Actions are always shown — everything else is
@@ -844,13 +859,20 @@ function render() {
   const tbody = document.getElementById('bookings-tbody');
   const emptyState = document.getElementById('empty-state');
   const filteredBookings = BOOKINGS.filter(matchesFilters);
-  const items = sortDisplayItems(groupIntoDisplayItems(filteredBookings));
+  const allItems = sortDisplayItems(groupIntoDisplayItems(filteredBookings));
+
+  const totalPages = Math.max(1, Math.ceil(allItems.length / state.pageSize));
+  if (state.page > totalPages) state.page = totalPages;
+  if (state.page < 1) state.page = 1;
+  const pageStart = (state.page - 1) * state.pageSize;
+  const items = allItems.slice(pageStart, pageStart + state.pageSize);
 
   document.getElementById('result-count').textContent =
     filteredBookings.length + (filteredBookings.length === 1 ? ' booking' : ' bookings') +
-    (items.length !== filteredBookings.length ? ' (' + items.length + ' rows shown, grouped)' : '');
+    (allItems.length !== filteredBookings.length ? ' (' + allItems.length + ' rows, grouped)' : '');
 
   renderTableHead();
+  renderPaginationBar(totalPages);
 
   if (items.length === 0) {
     tbody.innerHTML = '';
@@ -865,6 +887,20 @@ function render() {
     if (!expandedSeries.has(item.seriesId)) return summary;
     return summary + item.occurrences.map(function (occ) { return renderBookingRow(occ, true); }).join('');
   }).join('');
+}
+
+function renderPaginationBar(totalPages) {
+  const bar = document.getElementById('pagination-bar');
+  if (totalPages <= 1) { bar.innerHTML = ''; return; }
+  bar.innerHTML =
+    '<button ' + (state.page <= 1 ? 'disabled' : '') + ' onclick="goToPage(' + (state.page - 1) + ')">&lsaquo; Prev</button>' +
+    '<span class="page-indicator">Page ' + state.page + ' of ' + totalPages + '</span>' +
+    '<button ' + (state.page >= totalPages ? 'disabled' : '') + ' onclick="goToPage(' + (state.page + 1) + ')">Next &rsaquo;</button>';
+}
+function goToPage(p) {
+  state.page = p;
+  render();
+  document.querySelector('.table-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function escHtml(str) {
@@ -894,10 +930,23 @@ function toggleActionsMenu(evt, rowId) {
       return '<button class="' + (a.danger ? 'danger' : '') + '" onclick="runRowAction(\'' + rowId + '\', ' + i + ')">' + a.label + '</button>';
     }).join('');
     const rect = evt.target.getBoundingClientRect();
-    menu.style.top = (rect.bottom + 6) + 'px';
     menu.style.left = Math.max(8, rect.right - 190) + 'px';
+    // Render first (off-screen positioning doesn't matter yet) so we can
+    // measure its real height, then decide whether it fits below the
+    // button or needs to open upward instead — otherwise a menu opened
+    // near the bottom of the page renders partly hidden under the footer.
+    menu.style.top = '-9999px';
+    menu.classList.add('open');
+    const menuHeight = menu.getBoundingClientRect().height;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    if (spaceBelow < menuHeight + 20) {
+      menu.style.top = Math.max(8, rect.top - menuHeight - 6) + 'px';
+    } else {
+      menu.style.top = (rect.bottom + 6) + 'px';
+    }
+  } else {
+    menu.classList.remove('open');
   }
-  menu.classList.toggle('open', willOpen);
 }
 function runRowAction(rowId, index) {
   const menu = document.getElementById('actions-menu-' + rowId);
@@ -1418,14 +1467,22 @@ document.getElementById('btn-save-series-edit').addEventListener('click', async 
 
 document.getElementById('search-input').addEventListener('input', function (e) {
   state.search = e.target.value;
+  state.page = 1;
   render();
 });
 document.getElementById('room-filter').addEventListener('change', function (e) {
   state.room = e.target.value;
+  state.page = 1;
   render();
 });
 document.getElementById('status-filter').addEventListener('change', function (e) {
   state.status = e.target.value;
+  state.page = 1;
+  render();
+});
+document.getElementById('page-size-filter').addEventListener('change', function (e) {
+  state.pageSize = Number(e.target.value);
+  state.page = 1;
   render();
 });
 
@@ -1471,6 +1528,7 @@ function shiftMonthCalendarYear(delta) {
 }
 function selectMonthFilter(value) {
   state.month = value;
+  state.page = 1;
   document.getElementById('btn-month-filter').textContent = monthFilterLabel(value);
   document.getElementById('month-calendar-panel').style.display = 'none';
   render();

@@ -141,17 +141,6 @@ tr.sub-row td:first-child { padding-left: 28px; }
 .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
 .method-tag { font-size: 0.72rem; color: var(--muted); display: block; margin-top: 2px; }
 
-.method-popover {
-  position: fixed; background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-  box-shadow: var(--shadow); padding: 8px; z-index: 200; display: none; min-width: 160px;
-}
-.method-popover.open { display: block; }
-.method-popover button {
-  display: block; width: 100%; text-align: left; padding: 8px 10px; border: none; background: none;
-  font-size: 0.84rem; color: var(--text); cursor: pointer; border-radius: 6px; font-family: Arial, Helvetica, sans-serif;
-}
-.method-popover button:hover { background: var(--surface-soft); }
-
 .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
 
 .mock-notice {
@@ -169,17 +158,23 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
 .notes-cell { max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.78rem; color: var(--muted); }
 .updated-cell { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
 
-.row-actions { display: flex; flex-direction: column; gap: 4px; width: 76px; }
-.btn-mark-paid, .btn-edit, .btn-cancel-booking {
-  font-family: Arial, Helvetica, sans-serif; font-size: 0.7rem; font-weight: 700;
-  padding: 5px 6px; border-radius: 7px; cursor: pointer; transition: background 0.15s; text-align: center; white-space: nowrap;
+.btn-kebab {
+  width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid var(--border); background: #fff;
+  color: var(--text); font-size: 1.1rem; line-height: 1; cursor: pointer; transition: background 0.15s;
 }
-.btn-mark-paid { border: 1.5px solid var(--saffron-dark); background: #fff; color: var(--saffron-dark); }
-.btn-mark-paid:hover { background: var(--surface-soft); }
-.btn-edit { border: 1.5px solid var(--border); background: #fff; color: var(--text); }
-.btn-edit:hover { background: var(--surface-soft); }
-.btn-cancel-booking { border: 1.5px solid rgba(179,56,44,0.4); background: #fff; color: var(--red); }
-.btn-cancel-booking:hover { background: var(--red-bg); }
+.btn-kebab:hover { background: var(--surface-soft); }
+.actions-menu {
+  position: fixed; background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  box-shadow: var(--shadow); padding: 8px; z-index: 200; display: none; min-width: 180px;
+}
+.actions-menu.open { display: block; }
+.actions-menu button {
+  display: block; width: 100%; text-align: left; padding: 8px 10px; border: none; background: none;
+  font-size: 0.84rem; color: var(--text); cursor: pointer; border-radius: 6px; font-family: Arial, Helvetica, sans-serif;
+}
+.actions-menu button:hover { background: var(--surface-soft); }
+.actions-menu button.danger { color: var(--red); }
+.actions-menu .menu-divider { border-top: 1px solid var(--border); margin: 6px 2px; }
 
 .modal-overlay { position: fixed; inset: 0; background: rgba(44,27,16,0.5); z-index: 100; display: flex; align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto; }
 .modal-panel { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); width: 100%; max-width: 640px; }
@@ -220,6 +215,26 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
 .match-candidate .match-label { font-weight: 700; font-size: 0.9rem; }
 .match-candidate .match-reason { font-size: 0.78rem; color: var(--muted); margin: 2px 0 8px; }
 .match-candidate .match-source-tag { display: inline-block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--surface-soft); color: var(--saffron-dark); margin-bottom: 6px; }
+.month-calendar-panel {
+  position: absolute; top: calc(100% + 6px); left: 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; box-shadow: var(--shadow); padding: 14px; z-index: 30; width: 260px;
+}
+.month-calendar-quick { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.month-calendar-quick button {
+  text-align: left; padding: 7px 10px; border-radius: 8px; border: none; background: none; cursor: pointer;
+  font-size: 0.84rem; font-family: Arial, Helvetica, sans-serif; color: var(--text);
+}
+.month-calendar-quick button:hover, .month-calendar-quick button.active { background: var(--surface-soft); color: var(--saffron-dark); font-weight: 700; }
+.month-calendar-year-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.month-calendar-year-nav button { border: none; background: var(--surface-soft); border-radius: 6px; width: 26px; height: 26px; cursor: pointer; font-size: 0.9rem; }
+.month-calendar-year-nav span { font-weight: 700; color: var(--maroon); font-family: Georgia, serif; }
+.month-calendar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.month-calendar-grid button {
+  padding: 8px 4px; border-radius: 8px; border: 1.5px solid var(--border); background: #fff; cursor: pointer;
+  font-size: 0.8rem; font-family: Arial, Helvetica, sans-serif; color: var(--text);
+}
+.month-calendar-grid button:hover { background: var(--surface-soft); }
+.month-calendar-grid button.active { border-color: var(--saffron-dark); background: var(--surface-soft); color: var(--saffron-dark); font-weight: 700; }
 .checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 0.86rem; }
 .btn-secondary {
   font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; font-weight: 700; color: var(--text);
@@ -297,7 +312,10 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
       <option value="cancelled">Cancelled</option>
       <option value="internal">Internal / No charge</option>
     </select>
-    <select id="month-filter"></select>
+    <div style="position:relative;">
+      <button type="button" class="btn-secondary" id="btn-month-filter" style="padding:9px 14px;font-size:0.86rem;"></button>
+      <div class="month-calendar-panel" id="month-calendar-panel" style="display:none;"></div>
+    </div>
     <div style="position:relative;">
       <button type="button" class="btn-secondary" id="btn-columns" style="padding:9px 14px;font-size:0.86rem;">Columns</button>
       <div class="columns-panel" id="columns-panel" style="display:none;"></div>
@@ -687,41 +705,49 @@ function visibleColumnCells(data) {
 const PAST_BOOKING_EDIT_ALLOWLIST = ['nilaj@hccgc.org', 'admin@hccgc.org'];
 function currentUserEmail() { return ((window.__hccgcCurrentUser && window.__hccgcCurrentUser.email) || '').toLowerCase(); }
 function isBookingPast(b) { return new Date(b.event_date + 'T00:00:00') < new Date(new Date().toDateString()); }
+function isPicktimeHistoricalPaid(b) { return b.created_by === 'picktime-import' && b.payment_status === 'paid'; }
+
+function isHistoricallyLocked(b) {
+  // Anything that already happened, or was already paid via the Picktime
+  // import (a real historical transaction that predates this system) — no
+  // point offering to invoice, search for a payment, or (for anyone but the
+  // two allowlisted admins) edit those.
+  return isBookingPast(b) || isPicktimeHistoricalPaid(b);
+}
 
 function renderBookingRow(b, isSubRow) {
   const needsAction = (b.payment_status === 'pending' || b.payment_status === 'invoiced');
   const notCancelled = b.payment_status !== 'cancelled';
-  const past = isBookingPast(b);
-  const canEditThis = notCancelled && (!past || PAST_BOOKING_EDIT_ALLOWLIST.includes(currentUserEmail()));
-  const canSendInvoice = needsAction && !b.is_internal && b.renter_email &&
+  const locked = isHistoricallyLocked(b);
+  // Editing specifically has the one narrow admin override; every other
+  // locked action (invoice, find-payment, cancel) has no override at all.
+  const canEditThis = notCancelled && (!locked || (isBookingPast(b) && !isPicktimeHistoricalPaid(b) && PAST_BOOKING_EDIT_ALLOWLIST.includes(currentUserEmail())));
+  const canSendInvoice = needsAction && !locked && !b.is_internal && b.renter_email &&
     (!b.invoice_sent_at || (b.updated_at && new Date(b.updated_at) > new Date(b.invoice_sent_at)));
-  const canFindPayment = needsAction && !b.is_internal && b.renter_email;
+  const canFindPayment = needsAction && !locked && !b.is_internal && b.renter_email;
   const canUnlink = b.payment_status === 'paid';
+  const canDownloadInvoice = !b.is_internal;
+  const canDownloadReceipt = b.payment_status === 'paid';
   const rowClasses = (b.payment_status === 'cancelled' ? 'cancelled-row ' : '') + (isSubRow ? 'sub-row' : '');
+
+  const actions = [];
+  if (needsAction) {
+    actions.push({ label: 'Mark paid \u2014 Zelle', fn: () => markPaid(b.booking_id, 'zelle') });
+    actions.push({ label: 'Mark paid \u2014 Cash', fn: () => markPaid(b.booking_id, 'cash') });
+    actions.push({ label: 'Mark paid \u2014 Check', fn: () => markPaid(b.booking_id, 'check') });
+  }
+  if (canFindPayment) actions.push({ label: 'Find payment', fn: () => findPaymentAction(b.booking_id) });
+  if (canSendInvoice) actions.push({ label: 'Send invoice', fn: () => sendInvoiceAction(b.booking_id) });
+  if (canUnlink) actions.push({ label: 'Unlink payment', fn: () => unlinkPaymentAction(b.booking_id) });
+  if (canDownloadInvoice) actions.push({ label: 'Download invoice', fn: () => downloadDocument(b.booking_id, 'invoice') });
+  if (canDownloadReceipt) actions.push({ label: 'Download receipt', fn: () => downloadDocument(b.booking_id, 'receipt') });
+  if (canEditThis) actions.push({ label: 'Edit', fn: () => openEditModal(b.booking_id) });
+  if (notCancelled && !locked) actions.push({ label: 'Cancel', danger: true, fn: () => cancelBookingFlow(b.booking_id) });
+
   // Sub-rows (occurrences within an expanded series) are display-only —
   // paying, editing, and cancelling all happen at the series level, since a
   // renter pays for the whole series at once, not occurrence by occurrence.
-  const actionsCell = isSubRow
-    ? '<td></td>'
-    : (
-      '<td style="position:relative;">' +
-        '<div class="row-actions">' +
-        (needsAction ? '<button class="btn-mark-paid" onclick="togglePopover(event, \'' + b.booking_id + '\')">Mark paid</button>' : '') +
-        (canFindPayment ? '<button class="btn-edit" onclick="findPaymentAction(\'' + b.booking_id + '\')">Find payment</button>' : '') +
-        (canSendInvoice ? '<button class="btn-edit" onclick="sendInvoiceAction(\'' + b.booking_id + '\')">Send invoice</button>' : '') +
-        (canUnlink ? '<button class="btn-edit" onclick="unlinkPaymentAction(\'' + b.booking_id + '\')">Unlink payment</button>' : '') +
-        (canEditThis ? '<button class="btn-edit" onclick="openEditModal(\'' + b.booking_id + '\')">Edit</button>' : '') +
-        (notCancelled ? '<button class="btn-cancel-booking" onclick="cancelBookingFlow(\'' + b.booking_id + '\')">Cancel</button>' : '') +
-        (!notCancelled ? '<span style="font-size:0.68rem;color:var(--muted);text-align:center;">Locked</span>' : '') +
-        (notCancelled && !canEditThis ? '<span style="font-size:0.68rem;color:var(--muted);text-align:center;">Past — locked</span>' : '') +
-        '</div>' +
-        (needsAction ? '<div class="method-popover" id="popover-' + b.booking_id + '">' +
-            '<button onclick="markPaid(\'' + b.booking_id + '\', \'zelle\')">Paid via Zelle</button>' +
-            '<button onclick="markPaid(\'' + b.booking_id + '\', \'cash\')">Paid via Cash</button>' +
-            '<button onclick="markPaid(\'' + b.booking_id + '\', \'check\')">Paid via Check</button>' +
-          '</div>' : '') +
-      '</td>'
-    );
+  const actionsCell = isSubRow ? '<td></td>' : '<td>' + renderActionsKebab(b.booking_id, actions) + '</td>';
   return (
     '<tr' + (rowClasses ? ' class="' + rowClasses.trim() + '"' : '') + '>' +
       '<td>' + (isSubRow ? '<div class="renter-sub">' + formatDate(b.event_date) + '</div>' : '<div class="renter-name">' + escHtml(b.renter_name) + '</div><div class="renter-sub">' + escHtml(b.renter_email) + '</div>') + '</td>' +
@@ -736,25 +762,25 @@ function renderSeriesSummaryRow(item) {
   const needsAction = item.payment_status === 'pending' || item.payment_status === 'invoiced' || item.payment_status === 'mixed';
   const notCancelled = item.payment_status !== 'cancelled';
   const allPast = item.occurrences.every(isBookingPast);
-  const canEditThis = notCancelled && (!allPast || PAST_BOOKING_EDIT_ALLOWLIST.includes(currentUserEmail()));
+  const allHistoricallyLocked = item.occurrences.every(isHistoricallyLocked);
+  const canEditThis = notCancelled && (!allHistoricallyLocked || (allPast && PAST_BOOKING_EDIT_ALLOWLIST.includes(currentUserEmail())));
+
+  const actions = [];
+  if (needsAction) {
+    actions.push({ label: 'Mark all paid \u2014 Zelle', fn: () => markSeriesPaidAction(item.seriesId, 'zelle') });
+    actions.push({ label: 'Mark all paid \u2014 Cash', fn: () => markSeriesPaidAction(item.seriesId, 'cash') });
+    actions.push({ label: 'Mark all paid \u2014 Check', fn: () => markSeriesPaidAction(item.seriesId, 'check') });
+  }
+  if (canEditThis) actions.push({ label: 'Edit series', fn: () => openSeriesEditModal(item.seriesId) });
+  if (!item.is_internal) actions.push({ label: 'Download invoice', fn: () => downloadDocument(item.occurrences[0].booking_id, 'invoice') });
+  if (item.payment_status === 'paid') actions.push({ label: 'Download receipt', fn: () => downloadDocument(item.occurrences[0].booking_id, 'receipt') });
+  if (notCancelled && !allHistoricallyLocked) actions.push({ label: 'Cancel all', danger: true, fn: () => cancelSeriesFlow(item.seriesId) });
+
   return (
     '<tr class="series-summary-row">' +
       '<td onclick="toggleSeries(\'' + item.seriesId + '\')" style="cursor:pointer;"><div class="renter-name">' + (isExpanded ? '&#9660; ' : '&#9654; ') + escHtml(item.renter_name) + ' <span class="discount-chip" style="margin-left:4px;">' + item.occurrences.length + ' occurrences</span></div><div class="renter-sub">' + escHtml(item.renter_email) + '</div></td>' +
       visibleColumnCells(item) +
-      '<td style="position:relative;">' +
-        '<div class="row-actions">' +
-        (needsAction ? '<button class="btn-mark-paid" onclick="toggleSeriesPopover(event, \'' + item.seriesId + '\')">Mark paid</button>' : '') +
-        (canEditThis ? '<button class="btn-edit" onclick="openSeriesEditModal(\'' + item.seriesId + '\')">Edit series</button>' : '') +
-        (notCancelled ? '<button class="btn-cancel-booking" onclick="cancelSeriesFlow(\'' + item.seriesId + '\')">Cancel all</button>' : '') +
-        (!notCancelled ? '<span style="font-size:0.68rem;color:var(--muted);text-align:center;">Locked</span>' : '') +
-        (notCancelled && !canEditThis ? '<span style="font-size:0.68rem;color:var(--muted);text-align:center;">Past — locked</span>' : '') +
-        '</div>' +
-        (needsAction ? '<div class="method-popover" id="series-popover-' + item.seriesId + '">' +
-            '<button onclick="markSeriesPaidAction(\'' + item.seriesId + '\', \'zelle\')">Paid via Zelle</button>' +
-            '<button onclick="markSeriesPaidAction(\'' + item.seriesId + '\', \'cash\')">Paid via Cash</button>' +
-            '<button onclick="markSeriesPaidAction(\'' + item.seriesId + '\', \'check\')">Paid via Check</button>' +
-          '</div>' : '') +
-      '</td>' +
+      '<td>' + renderActionsKebab(item.seriesId, actions) + '</td>' +
     '</tr>'
   );
 }
@@ -845,26 +871,68 @@ function escHtml(str) {
   return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function togglePopover(evt, bookingId) {
+// ---- Generic per-row actions menu (kebab button + dropdown) — replaces
+// the old stack of individual buttons, which got unwieldy once a row could
+// have 5-6 possible actions at once. ----
+let ROW_ACTIONS_REGISTRY = {};
+function renderActionsKebab(rowId, actions) {
+  ROW_ACTIONS_REGISTRY[rowId] = actions;
+  if (!actions.length) return '<span style="font-size:0.7rem;color:var(--muted);">&mdash;</span>';
+  return '<button class="btn-kebab" onclick="toggleActionsMenu(event, \'' + rowId + '\')">&#8942;</button>' +
+    '<div class="actions-menu" id="actions-menu-' + rowId + '"></div>';
+}
+function toggleActionsMenu(evt, rowId) {
   evt.stopPropagation();
-  document.querySelectorAll('.method-popover.open').forEach(function (el) {
-    if (el.id !== 'popover-' + bookingId) el.classList.remove('open');
+  document.querySelectorAll('.actions-menu.open').forEach(function (el) {
+    if (el.id !== 'actions-menu-' + rowId) el.classList.remove('open');
   });
-  const pop = document.getElementById('popover-' + bookingId);
-  const willOpen = !pop.classList.contains('open');
-  pop.classList.toggle('open');
+  const menu = document.getElementById('actions-menu-' + rowId);
+  const willOpen = !menu.classList.contains('open');
   if (willOpen) {
+    const actions = ROW_ACTIONS_REGISTRY[rowId] || [];
+    menu.innerHTML = actions.map(function (a, i) {
+      return '<button class="' + (a.danger ? 'danger' : '') + '" onclick="runRowAction(\'' + rowId + '\', ' + i + ')">' + a.label + '</button>';
+    }).join('');
     const rect = evt.target.getBoundingClientRect();
-    pop.style.top = (rect.bottom + 6) + 'px';
-    pop.style.left = Math.max(8, rect.right - 170) + 'px';
+    menu.style.top = (rect.bottom + 6) + 'px';
+    menu.style.left = Math.max(8, rect.right - 190) + 'px';
   }
+  menu.classList.toggle('open', willOpen);
+}
+function runRowAction(rowId, index) {
+  const menu = document.getElementById('actions-menu-' + rowId);
+  if (menu) menu.classList.remove('open');
+  const actions = ROW_ACTIONS_REGISTRY[rowId] || [];
+  if (actions[index]) actions[index].fn();
 }
 document.addEventListener('click', function () {
-  document.querySelectorAll('.method-popover.open').forEach(function (el) { el.classList.remove('open'); });
+  document.querySelectorAll('.actions-menu.open').forEach(function (el) { el.classList.remove('open'); });
 });
 
+async function downloadDocument(bookingId, kind) {
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/' + kind + '-preview');
+    if (!res.ok) {
+      const data = await res.json().catch(function () { return {}; });
+      alert('Could not generate ' + kind + ': ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
+      return;
+    }
+    const html = await res.text();
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = kind + '-' + bookingId + '.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+  }
+}
+
 async function markPaid(bookingId, method) {
-  document.getElementById('popover-' + bookingId).classList.remove('open');
   try {
     const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/mark-paid', {
       method: 'POST',
@@ -927,7 +995,12 @@ async function findPaymentAction(bookingId) {
       return;
     }
     if (!data.candidates.length) {
-      body.innerHTML = '<div class="card-sub">No matching payments found for the invoice total of $' + data.invoiceTotal.toFixed(2) + '. Try again later, or use Mark Paid directly if you\'ve confirmed payment another way.</div>';
+      body.innerHTML = '<div class="card-sub" style="margin-bottom:14px;">No matching payments found for the invoice total of $' + data.invoiceTotal.toFixed(2) + '. If you\'ve confirmed payment another way, mark it paid manually:</div>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+        '<button type="button" class="btn-secondary" onclick="markPaidFromModal(' + JSON.stringify(bookingId) + ', \'zelle\')">Paid via Zelle</button>' +
+        '<button type="button" class="btn-secondary" onclick="markPaidFromModal(' + JSON.stringify(bookingId) + ', \'cash\')">Paid via Cash</button>' +
+        '<button type="button" class="btn-secondary" onclick="markPaidFromModal(' + JSON.stringify(bookingId) + ', \'check\')">Paid via Check</button>' +
+        '</div>';
       return;
     }
     body.innerHTML = '<div class="card-sub" style="margin-bottom:14px;">Invoice total: $' + data.invoiceTotal.toFixed(2) + '. Review before linking — this is a suggestion, not an automatic match.</div>' +
@@ -949,6 +1022,11 @@ document.getElementById('btn-close-payment-match').addEventListener('click', fun
 document.getElementById('payment-match-modal-overlay').addEventListener('click', function (e) {
   if (e.target === this) this.style.display = 'none';
 });
+
+async function markPaidFromModal(bookingId, method) {
+  document.getElementById('payment-match-modal-overlay').style.display = 'none';
+  await markPaid(bookingId, method);
+}
 
 async function linkPaymentAction(bookingId, candidate) {
   if (!confirm('Link this ' + candidate.source + ' payment ($' + candidate.amount.toFixed(2) + ') to this booking and mark it paid?')) return;
@@ -1029,21 +1107,6 @@ async function cancelBookingFlow(bookingId) {
 
 // ---- Series-level actions: a renter pays for (and cancels) a whole
 // recurring series at once, not occurrence by occurrence. ----
-function toggleSeriesPopover(evt, seriesId) {
-  evt.stopPropagation();
-  document.querySelectorAll('.method-popover.open').forEach(function (el) {
-    if (el.id !== 'series-popover-' + seriesId) el.classList.remove('open');
-  });
-  const pop = document.getElementById('series-popover-' + seriesId);
-  const willOpen = !pop.classList.contains('open');
-  pop.classList.toggle('open');
-  if (willOpen) {
-    const rect = evt.target.getBoundingClientRect();
-    pop.style.top = (rect.bottom + 6) + 'px';
-    pop.style.left = Math.max(8, rect.right - 170) + 'px';
-  }
-}
-
 async function markSeriesPaidAction(seriesId, method) {
   const pop = document.getElementById('series-popover-' + seriesId);
   if (pop) pop.classList.remove('open');
@@ -1366,25 +1429,63 @@ document.getElementById('status-filter').addEventListener('change', function (e)
   render();
 });
 
-// Month filter — defaults to a rolling 3-month window (last, this, next),
-// with individual months and an "all time" option available too.
-(function populateMonthFilter() {
-  const sel = document.getElementById('month-filter');
-  const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  let html = '<option value="default3">This, last &amp; next month</option>';
-  html += '<option value="all">All time</option>';
-  const today = new Date();
-  for (let offset = -6; offset <= 6; offset++) {
-    const d = new Date(today.getFullYear(), today.getMonth() + offset, 1);
-    const value = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-    html += '<option value="' + value + '">' + MONTH_NAMES[d.getMonth()] + ' ' + d.getFullYear() + '</option>';
-  }
-  sel.innerHTML = html;
-  sel.value = state.month;
-})();
-document.getElementById('month-filter').addEventListener('change', function (e) {
-  state.month = e.target.value;
+// Month filter — a real popup calendar (quick picks + a navigable
+// year/month grid) rather than a long flat dropdown list.
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTH_NAMES_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+let monthCalendarViewYear = new Date().getFullYear();
+
+function monthFilterLabel(value) {
+  if (value === 'default3') return 'This, last & next month';
+  if (value === 'all') return 'All time';
+  const [y, m] = value.split('-').map(Number);
+  return MONTH_NAMES[m - 1] + ' ' + y;
+}
+
+function renderMonthCalendarPanel() {
+  const panel = document.getElementById('month-calendar-panel');
+  const selectedIsSpecificMonth = /^\d{4}-\d{2}$/.test(state.month);
+  const selectedYear = selectedIsSpecificMonth ? Number(state.month.split('-')[0]) : null;
+
+  let html = '<div class="month-calendar-quick">' +
+    '<button class="' + (state.month === 'default3' ? 'active' : '') + '" onclick="selectMonthFilter(\'default3\')">This, last &amp; next month</button>' +
+    '<button class="' + (state.month === 'all' ? 'active' : '') + '" onclick="selectMonthFilter(\'all\')">All time</button>' +
+    '</div>';
+  html += '<div class="month-calendar-year-nav">' +
+    '<button onclick="shiftMonthCalendarYear(-1)">&lsaquo;</button>' +
+    '<span>' + monthCalendarViewYear + '</span>' +
+    '<button onclick="shiftMonthCalendarYear(1)">&rsaquo;</button>' +
+    '</div>';
+  html += '<div class="month-calendar-grid">' +
+    MONTH_NAMES_SHORT.map(function (name, i) {
+      const value = monthCalendarViewYear + '-' + String(i + 1).padStart(2, '0');
+      const isActive = selectedIsSpecificMonth && selectedYear === monthCalendarViewYear && Number(state.month.split('-')[1]) === i + 1;
+      return '<button class="' + (isActive ? 'active' : '') + '" onclick="selectMonthFilter(\'' + value + '\')">' + name + '</button>';
+    }).join('') +
+    '</div>';
+  panel.innerHTML = html;
+}
+function shiftMonthCalendarYear(delta) {
+  monthCalendarViewYear += delta;
+  renderMonthCalendarPanel();
+}
+function selectMonthFilter(value) {
+  state.month = value;
+  document.getElementById('btn-month-filter').textContent = monthFilterLabel(value);
+  document.getElementById('month-calendar-panel').style.display = 'none';
   render();
+}
+document.getElementById('btn-month-filter').textContent = monthFilterLabel(state.month);
+document.getElementById('btn-month-filter').addEventListener('click', function (e) {
+  e.stopPropagation();
+  const panel = document.getElementById('month-calendar-panel');
+  const willOpen = panel.style.display === 'none';
+  if (willOpen) renderMonthCalendarPanel();
+  panel.style.display = willOpen ? 'block' : 'none';
+});
+document.addEventListener('click', function (e) {
+  const panel = document.getElementById('month-calendar-panel');
+  if (panel.style.display !== 'none' && !panel.contains(e.target) && e.target.id !== 'btn-month-filter') panel.style.display = 'none';
 });
 // loadBookings() is intentionally NOT called here — moved into the auth
 // gate's success handler below, since it needs a valid sign-in token first.

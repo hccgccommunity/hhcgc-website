@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -181,7 +182,7 @@ tbody input[type="text"], tbody input[type="number"] {
 <div id="site-footer"></div>
 
 <script>
-const API_BASE = 'https://api-1009110816870.us-central1.run.app';
+const API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';
 
 async function authedFetch(url, options) {
   options = options || {};

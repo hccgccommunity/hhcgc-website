@@ -207,6 +207,14 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
 .occ-table input[type="date"], .occ-table input[type="time"] { font-family: Arial, Helvetica, sans-serif; font-size: 0.82rem; padding: 6px 8px; border: 1.5px solid var(--border); border-radius: 8px; width: 100%; box-sizing: border-box; }
 .occ-table input[type="checkbox"] { width: 16px; height: 16px; }
 .occ-table tr.marked-for-removal td { opacity: 0.4; text-decoration: line-through; }
+.columns-panel {
+  position: absolute; top: calc(100% + 6px); right: 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; box-shadow: var(--shadow); padding: 12px; z-index: 30; min-width: 220px;
+}
+.columns-panel .columns-panel-note { font-size: 0.72rem; color: var(--muted); margin-bottom: 8px; }
+.columns-panel label { display: flex; align-items: center; gap: 8px; font-size: 0.84rem; padding: 5px 4px; cursor: pointer; border-radius: 6px; }
+.columns-panel label:hover { background: var(--surface-soft); }
+.columns-panel input:disabled + span { color: var(--muted); }
 .checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 0.86rem; }
 .btn-secondary {
   font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; font-weight: 700; color: var(--text);
@@ -284,23 +292,18 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
       <option value="cancelled">Cancelled</option>
       <option value="internal">Internal / No charge</option>
     </select>
+    <select id="month-filter"></select>
+    <div style="position:relative;">
+      <button type="button" class="btn-secondary" id="btn-columns" style="padding:9px 14px;font-size:0.86rem;">Columns</button>
+      <div class="columns-panel" id="columns-panel" style="display:none;"></div>
+    </div>
     <span class="count" id="result-count"></span>
   </div>
 
   <div class="table-wrap">
     <table>
       <thead>
-        <tr>
-          <th class="sortable" data-sort="renter_name">Contact Name <span class="sort-arrow">&#8645;</span></th>
-          <th>Room</th>
-          <th class="sortable" data-sort="event_date">Booking Date <span class="sort-arrow">&#8645;</span></th>
-          <th class="sortable" data-sort="hours">Hours <span class="sort-arrow">&#8645;</span></th>
-          <th class="sortable" data-sort="final_total">Total <span class="sort-arrow">&#8645;</span></th>
-          <th class="sortable" data-sort="payment_status">Status <span class="sort-arrow">&#8645;</span></th>
-          <th>Notes</th>
-          <th class="sortable active" data-sort="updated_display">Updated <span class="sort-arrow">&#8645;</span></th>
-          <th></th>
-        </tr>
+        <tr id="thead-row"></tr>
       </thead>
       <tbody id="bookings-tbody"></tbody>
     </table>
@@ -438,7 +441,40 @@ async function loadBookings() {
   render();
 }
 
-let state = { search: '', room: '', status: '', sortKey: 'updated_display', sortDir: 'desc' };
+let state = { search: '', room: '', status: '', month: 'default3', sortKey: 'updated_display', sortDir: 'desc' };
+
+// ---- Column configurator ----
+// Contact Name and Actions are always shown — everything else is
+// toggleable. Capped at MAX_VISIBLE so re-enabling everything can't just
+// recreate the same clutter we fixed earlier.
+const COLUMN_DEFS = [
+  { key: 'event_name', label: 'Event Name' },
+  { key: 'room', label: 'Room' },
+  { key: 'event_date', label: 'Booking Date', sortable: true },
+  { key: 'hours', label: 'Hours', sortable: true },
+  { key: 'final_total', label: 'Total', sortable: true },
+  { key: 'payment_status', label: 'Status', sortable: true },
+  { key: 'organization_name', label: 'Organization' },
+  { key: 'notes', label: 'Notes' },
+  { key: 'created_by', label: 'Booked By' },
+  { key: 'updated_display', label: 'Updated', sortable: true }
+];
+const DEFAULT_VISIBLE_COLUMNS = ['event_name', 'room', 'event_date', 'hours', 'final_total', 'payment_status'];
+const MAX_VISIBLE_COLUMNS = 7;
+
+function loadVisibleColumns() {
+  try {
+    const stored = JSON.parse(localStorage.getItem('hccgc-bookings-visible-columns'));
+    if (Array.isArray(stored) && stored.length) return new Set(stored);
+  } catch (err) { /* fall through to default */ }
+  return new Set(DEFAULT_VISIBLE_COLUMNS);
+}
+let visibleColumns = loadVisibleColumns();
+function saveVisibleColumns() {
+  try { localStorage.setItem('hccgc-bookings-visible-columns', JSON.stringify(Array.from(visibleColumns))); } catch (err) { /* ignore storage errors */ }
+}
+
+
 
 function formatDate(iso) {
   const d = new Date(iso + 'T00:00:00');
@@ -481,6 +517,18 @@ function isWholeFacility(b) {
   return ALL_ROOM_NAMES.every(function (r) { return b.rooms.includes(r); });
 }
 
+function monthRangeFor(monthValue) {
+  const today = new Date(); today.setDate(1); today.setHours(0, 0, 0, 0);
+  if (monthValue === 'all') return null;
+  if (monthValue === 'default3') {
+    const start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const end = new Date(today.getFullYear(), today.getMonth() + 2, 1); // exclusive, i.e. end of next month
+    return { start, end };
+  }
+  const [y, m] = monthValue.split('-').map(Number);
+  return { start: new Date(y, m - 1, 1), end: new Date(y, m, 1) };
+}
+
 function matchesFilters(b) {
   const q = state.search.trim().toLowerCase();
   if (q && !(b.renter_name.toLowerCase().includes(q) || (b.renter_email || '').toLowerCase().includes(q))) return false;
@@ -491,6 +539,11 @@ function matchesFilters(b) {
   if (state.status === 'pending' && b.payment_status !== 'pending') return false;
   if (state.status === 'cancelled' && b.payment_status !== 'cancelled') return false;
   if (state.status === 'internal' && !(b.is_internal || b.payment_status === 'n/a')) return false;
+  const range = monthRangeFor(state.month);
+  if (range) {
+    const d = new Date(b.event_date + 'T00:00:00');
+    if (d < range.start || d >= range.end) return false;
+  }
   return true;
 }
 
@@ -545,6 +598,9 @@ function groupIntoDisplayItems(list) {
     item.payment_status = occ.every(function (o) { return o.payment_status === first.payment_status; }) ? first.payment_status : 'mixed';
     item.paidCount = occ.filter(function (o) { return o.payment_status === 'paid'; }).length;
     item.notes = first.notes;
+    item.event_name = first.event_name;
+    item.organization_name = first.organization_name;
+    item.created_by = first.created_by;
     item.updated_display = occ.reduce(function (latest, o) { return o.updated_display > latest ? o.updated_display : latest; }, first.updated_display);
     item.recurrence_summary = first.recurrence_summary || (occ.length + ' occurrences');
   });
@@ -558,14 +614,57 @@ function toggleSeries(seriesId) {
   render();
 }
 
+function getColumnCellHtml(columnKey, data) {
+  const isSeries = !!data.occurrences;
+  switch (columnKey) {
+    case 'event_name':
+      return '<td>' + escHtml(data.event_name || '—') + '</td>';
+    case 'room':
+      return '<td>' + (isWholeFacility(data)
+        ? '<span class="room-pill whole-facility">&#9733; Whole Facility</span>'
+        : '<span class="room-pill">' + escHtml(data.rooms.join(' + ')) + '</span>') + '</td>';
+    case 'event_date':
+      return '<td>' + (isSeries ? formatDate(data.event_date) + ' &ndash; ' + formatDate(data.event_date_last) : formatDate(data.event_date)) + '</td>';
+    case 'hours':
+      return '<td>' + data.hours + '</td>';
+    case 'final_total': {
+      let amt = '$' + Number(data.final_total).toFixed(2);
+      if (!isSeries && data.manual_adjustment_type) amt += '<span class="adjusted-tag" title="' + escHtml(data.manual_adjustment_reason || '') + '">Adjusted</span>';
+      if (isSeries) amt += ' <span class="method-tag">total</span>';
+      return '<td class="amount">' + amt + '</td>';
+    }
+    case 'payment_status': {
+      let html;
+      if (data.payment_status === 'mixed') {
+        html = '<span class="badge badge-needs-confirm"><span class="badge-dot"></span>' + data.paidCount + ' of ' + data.occurrences.length + ' paid</span>';
+      } else if (isSeries) {
+        html = statusBadge({ payment_status: data.payment_status, is_internal: data.is_internal, cancellation_fee: null, event_date: data.event_date_last });
+      } else {
+        html = statusBadge(data);
+      }
+      return '<td>' + html + '</td>';
+    }
+    case 'organization_name':
+      return '<td>' + escHtml(data.organization_name || '—') + '</td>';
+    case 'notes':
+      return '<td class="notes-cell" title="' + escHtml(data.notes || '') + '">' + escHtml(data.notes || '—') + '</td>';
+    case 'created_by':
+      return '<td style="font-size:0.8rem;color:var(--muted);">' + escHtml(data.created_by || '—') + '</td>';
+    case 'updated_display':
+      return '<td class="updated-cell">' + formatDateTime(data.updated_display) + '</td>';
+    default:
+      return '<td></td>';
+  }
+}
+
+function visibleColumnCells(data) {
+  return COLUMN_DEFS.filter(function (c) { return visibleColumns.has(c.key); })
+    .map(function (c) { return getColumnCellHtml(c.key, data); }).join('');
+}
+
 function renderBookingRow(b, isSubRow) {
   const needsAction = (b.payment_status === 'pending' || b.payment_status === 'invoiced');
   const canEdit = b.payment_status !== 'cancelled';
-  const roomCell = isWholeFacility(b)
-    ? '<span class="room-pill whole-facility">&#9733; Whole Facility</span>'
-    : '<span class="room-pill">' + escHtml(b.rooms.join(' + ')) + '</span>';
-  const amountCell = '$' + Number(b.final_total).toFixed(2) +
-    (b.manual_adjustment_type ? '<span class="adjusted-tag" title="' + escHtml(b.manual_adjustment_reason || '') + '">Adjusted</span>' : '');
   const rowClasses = (b.payment_status === 'cancelled' ? 'cancelled-row ' : '') + (isSubRow ? 'sub-row' : '');
   // Sub-rows (occurrences within an expanded series) are display-only —
   // paying, editing, and cancelling all happen at the series level, since a
@@ -576,6 +675,7 @@ function renderBookingRow(b, isSubRow) {
       '<td style="position:relative;">' +
         '<div class="row-actions">' +
         (needsAction ? '<button class="btn-mark-paid" onclick="togglePopover(event, \'' + b.booking_id + '\')">Mark paid</button>' : '') +
+        (needsAction && !b.is_internal && b.renter_email ? '<button class="btn-edit" onclick="sendInvoiceAction(\'' + b.booking_id + '\')">Send invoice</button>' : '') +
         (canEdit ? '<button class="btn-edit" onclick="openEditModal(\'' + b.booking_id + '\')">Edit</button>' : '') +
         (canEdit ? '<button class="btn-cancel-booking" onclick="cancelBookingFlow(\'' + b.booking_id + '\')">Cancel</button>' : '') +
         (!canEdit ? '<span style="font-size:0.68rem;color:var(--muted);text-align:center;">Locked</span>' : '') +
@@ -590,13 +690,7 @@ function renderBookingRow(b, isSubRow) {
   return (
     '<tr' + (rowClasses ? ' class="' + rowClasses.trim() + '"' : '') + '>' +
       '<td>' + (isSubRow ? '<div class="renter-sub">' + formatDate(b.event_date) + '</div>' : '<div class="renter-name">' + escHtml(b.renter_name) + '</div><div class="renter-sub">' + escHtml(b.renter_email) + '</div>') + '</td>' +
-      '<td>' + roomCell + '</td>' +
-      '<td>' + formatDate(b.event_date) + '</td>' +
-      '<td>' + b.hours + '</td>' +
-      '<td class="amount">' + amountCell + '</td>' +
-      '<td>' + statusBadge(b) + '</td>' +
-      '<td class="notes-cell" title="' + escHtml(b.notes || '') + '">' + escHtml(b.notes || '—') + '</td>' +
-      '<td class="updated-cell">' + formatDateTime(b.updated_display) + '</td>' +
+      visibleColumnCells(b) +
       actionsCell +
     '</tr>'
   );
@@ -604,28 +698,12 @@ function renderBookingRow(b, isSubRow) {
 
 function renderSeriesSummaryRow(item) {
   const isExpanded = expandedSeries.has(item.seriesId);
-  const roomCell = isWholeFacility(item)
-    ? '<span class="room-pill whole-facility">&#9733; Whole Facility</span>'
-    : '<span class="room-pill">' + escHtml(item.rooms.join(' + ')) + '</span>';
-  const dateRangeCell = formatDate(item.event_date) + ' &ndash; ' + formatDate(item.event_date_last);
   const needsAction = item.payment_status === 'pending' || item.payment_status === 'invoiced' || item.payment_status === 'mixed';
   const canEdit = item.payment_status !== 'cancelled';
-  let statusCell;
-  if (item.payment_status === 'mixed') {
-    statusCell = '<span class="badge badge-needs-confirm"><span class="badge-dot"></span>' + item.paidCount + ' of ' + item.occurrences.length + ' paid</span>';
-  } else {
-    statusCell = statusBadge({ payment_status: item.payment_status, is_internal: item.is_internal, cancellation_fee: null, event_date: item.event_date_last });
-  }
   return (
     '<tr class="series-summary-row">' +
       '<td onclick="toggleSeries(\'' + item.seriesId + '\')" style="cursor:pointer;"><div class="renter-name">' + (isExpanded ? '&#9660; ' : '&#9654; ') + escHtml(item.renter_name) + ' <span class="discount-chip" style="margin-left:4px;">' + item.occurrences.length + ' occurrences</span></div><div class="renter-sub">' + escHtml(item.renter_email) + '</div></td>' +
-      '<td>' + roomCell + '</td>' +
-      '<td>' + dateRangeCell + '</td>' +
-      '<td>' + item.hours + '</td>' +
-      '<td class="amount">$' + item.final_total.toFixed(2) + ' <span class="method-tag">total</span></td>' +
-      '<td>' + statusCell + '</td>' +
-      '<td class="notes-cell" title="' + escHtml(item.notes || '') + '">' + escHtml(item.notes || '—') + '</td>' +
-      '<td class="updated-cell">' + formatDateTime(item.updated_display) + '</td>' +
+      visibleColumnCells(item) +
       '<td style="position:relative;">' +
         '<div class="row-actions">' +
         (needsAction ? '<button class="btn-mark-paid" onclick="toggleSeriesPopover(event, \'' + item.seriesId + '\')">Mark paid</button>' : '') +
@@ -643,6 +721,61 @@ function renderSeriesSummaryRow(item) {
   );
 }
 
+function renderTableHead() {
+  const theadRow = document.getElementById('thead-row');
+  let html = '<th class="sortable" data-sort="renter_name">Contact Name <span class="sort-arrow">&#8645;</span></th>';
+  COLUMN_DEFS.forEach(function (col) {
+    if (!visibleColumns.has(col.key)) return;
+    html += col.sortable
+      ? '<th class="sortable" data-sort="' + col.key + '">' + col.label + ' <span class="sort-arrow">&#8645;</span></th>'
+      : '<th>' + col.label + '</th>';
+  });
+  html += '<th></th>';
+  theadRow.innerHTML = html;
+  theadRow.querySelectorAll('th.sortable').forEach(function (th) {
+    th.classList.toggle('active', th.dataset.sort === state.sortKey);
+    th.querySelector('.sort-arrow').textContent = th.dataset.sort === state.sortKey ? (state.sortDir === 'asc' ? '↑' : '↓') : '⇅';
+    th.addEventListener('click', function () {
+      const key = th.dataset.sort;
+      if (state.sortKey === key) { state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc'; }
+      else { state.sortKey = key; state.sortDir = 'asc'; }
+      render();
+    });
+  });
+}
+
+function renderColumnsPanel() {
+  const panel = document.getElementById('columns-panel');
+  const atCap = visibleColumns.size >= MAX_VISIBLE_COLUMNS;
+  panel.innerHTML = '<div class="columns-panel-note">Contact Name is always shown. Up to ' + MAX_VISIBLE_COLUMNS + ' more at a time, to keep things readable.</div>' +
+    COLUMN_DEFS.map(function (col) {
+      const checked = visibleColumns.has(col.key);
+      const disable = !checked && atCap;
+      return '<label><input type="checkbox" data-col="' + col.key + '" ' + (checked ? 'checked' : '') + (disable ? ' disabled' : '') + '><span>' + col.label + '</span></label>';
+    }).join('');
+  panel.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      const key = cb.dataset.col;
+      if (cb.checked) visibleColumns.add(key); else visibleColumns.delete(key);
+      saveVisibleColumns();
+      renderTableHead();
+      renderColumnsPanel();
+      render();
+    });
+  });
+}
+document.getElementById('btn-columns').addEventListener('click', function (e) {
+  e.stopPropagation();
+  const panel = document.getElementById('columns-panel');
+  const willOpen = panel.style.display === 'none';
+  panel.style.display = willOpen ? 'block' : 'none';
+  if (willOpen) renderColumnsPanel();
+});
+document.addEventListener('click', function (e) {
+  const panel = document.getElementById('columns-panel');
+  if (panel.style.display !== 'none' && !panel.contains(e.target) && e.target.id !== 'btn-columns') panel.style.display = 'none';
+});
+
 function render() {
   const tbody = document.getElementById('bookings-tbody');
   const emptyState = document.getElementById('empty-state');
@@ -653,10 +786,7 @@ function render() {
     filteredBookings.length + (filteredBookings.length === 1 ? ' booking' : ' bookings') +
     (items.length !== filteredBookings.length ? ' (' + items.length + ' rows shown, grouped)' : '');
 
-  document.querySelectorAll('thead th.sortable').forEach(function (th) {
-    th.classList.toggle('active', th.dataset.sort === state.sortKey);
-    th.querySelector('.sort-arrow').textContent = th.dataset.sort === state.sortKey ? (state.sortDir === 'asc' ? '↑' : '↓') : '⇅';
-  });
+  renderTableHead();
 
   if (items.length === 0) {
     tbody.innerHTML = '';
@@ -672,19 +802,6 @@ function render() {
     return summary + item.occurrences.map(function (occ) { return renderBookingRow(occ, true); }).join('');
   }).join('');
 }
-
-document.querySelectorAll('thead th.sortable').forEach(function (th) {
-  th.addEventListener('click', function () {
-    const key = th.dataset.sort;
-    if (state.sortKey === key) {
-      state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc';
-    } else {
-      state.sortKey = key;
-      state.sortDir = 'asc';
-    }
-    render();
-  });
-});
 
 function escHtml(str) {
   return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -722,6 +839,38 @@ async function markPaid(bookingId, method) {
       return;
     }
     await loadBookings();
+    if (confirm('Marked paid. Send a payment receipt to the renter now?')) {
+      await sendReceiptAction(bookingId);
+    }
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+  }
+}
+
+async function sendReceiptAction(bookingId) {
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/send-receipt', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) {
+      alert('Could not send receipt: ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
+      return;
+    }
+    alert('Receipt sent to ' + data.sentTo + '.');
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+  }
+}
+
+async function sendInvoiceAction(bookingId) {
+  if (!confirm('Send an invoice email to this renter now?')) return;
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/send-invoice', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) {
+      alert('Could not send invoice: ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
+      return;
+    }
+    alert('Invoice sent to ' + data.sentTo + '.');
   } catch (err) {
     alert('Could not reach the booking system: ' + err.message);
   }
@@ -1103,6 +1252,27 @@ document.getElementById('room-filter').addEventListener('change', function (e) {
 });
 document.getElementById('status-filter').addEventListener('change', function (e) {
   state.status = e.target.value;
+  render();
+});
+
+// Month filter — defaults to a rolling 3-month window (last, this, next),
+// with individual months and an "all time" option available too.
+(function populateMonthFilter() {
+  const sel = document.getElementById('month-filter');
+  const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  let html = '<option value="default3">This, last &amp; next month</option>';
+  html += '<option value="all">All time</option>';
+  const today = new Date();
+  for (let offset = -6; offset <= 6; offset++) {
+    const d = new Date(today.getFullYear(), today.getMonth() + offset, 1);
+    const value = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    html += '<option value="' + value + '">' + MONTH_NAMES[d.getMonth()] + ' ' + d.getFullYear() + '</option>';
+  }
+  sel.innerHTML = html;
+  sel.value = state.month;
+})();
+document.getElementById('month-filter').addEventListener('change', function (e) {
+  state.month = e.target.value;
   render();
 });
 // loadBookings() is intentionally NOT called here — moved into the auth

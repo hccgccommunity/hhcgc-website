@@ -106,6 +106,16 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 tbody tr.cancelled-row { background: var(--red-bg); }
 tbody tr.cancelled-row:hover { background: rgba(179,56,44,0.12); }
 tbody tr.cancelled-row td { color: var(--muted); }
+tr.series-summary-row { cursor: pointer; background: var(--surface-soft); }
+tr.series-summary-row:hover { background: rgba(217,138,30,0.10); }
+tr.sub-row td { background: rgba(0,0,0,0.015); }
+tr.sub-row td:first-child { padding-left: 28px; }
+.btn-expand-series {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.7rem; font-weight: 700;
+  padding: 5px 8px; border-radius: 7px; border: 1.5px solid var(--saffron-dark);
+  background: #fff; color: var(--saffron-dark); cursor: pointer; white-space: nowrap;
+}
+.btn-expand-series:hover { background: var(--surface-soft); }
 .renter-name { font-weight: 700; color: var(--text); }
 .renter-sub { font-size: 0.78rem; color: var(--muted); }
 .room-pill { font-size: 0.78rem; font-weight: 700; color: var(--saffron-dark); }
@@ -436,9 +446,9 @@ function matchesFilters(b) {
   return true;
 }
 
-function sortBookings(list) {
+function sortDisplayItems(items) {
   const key = state.sortKey, dir = state.sortDir === 'asc' ? 1 : -1;
-  return list.slice().sort(function (a, b) {
+  return items.slice().sort(function (a, b) {
     let av = a[key], bv = b[key];
     if (key === 'renter_name') { av = (av || '').toLowerCase(); bv = (bv || '').toLowerCase(); }
     if (av === null || av === undefined) av = '';
@@ -449,63 +459,147 @@ function sortBookings(list) {
   });
 }
 
+// Recurring Picktime series (and real recurring bookings made through New
+// Booking) share a recurring_series_id — group those into one collapsed
+// summary row by default instead of showing every occurrence separately.
+function groupIntoDisplayItems(list) {
+  const seriesMap = {};
+  const items = [];
+  list.forEach(function (b) {
+    if (b.recurring_series_id) {
+      if (!seriesMap[b.recurring_series_id]) {
+        const item = { type: 'series', seriesId: b.recurring_series_id, occurrences: [] };
+        seriesMap[b.recurring_series_id] = item;
+        items.push(item);
+      }
+      seriesMap[b.recurring_series_id].occurrences.push(b);
+    } else {
+      items.push({
+        type: 'single', booking: b, renter_name: b.renter_name, event_date: b.event_date,
+        hours: b.hours, final_total: Number(b.final_total), payment_status: b.payment_status,
+        updated_display: b.updated_display
+      });
+    }
+  });
+  items.forEach(function (item) {
+    if (item.type !== 'series') return;
+    const occ = item.occurrences.slice().sort(function (a, b) { return a.event_date < b.event_date ? -1 : (a.event_date > b.event_date ? 1 : 0); });
+    item.occurrences = occ;
+    const first = occ[0];
+    item.renter_name = first.renter_name;
+    item.renter_email = first.renter_email;
+    item.rooms = first.rooms;
+    item.is_internal = first.is_internal;
+    item.event_date = first.event_date;
+    item.event_date_last = occ[occ.length - 1].event_date;
+    item.hours = first.hours;
+    item.final_total = occ.reduce(function (sum, o) { return sum + Number(o.final_total); }, 0);
+    item.payment_status = occ.every(function (o) { return o.payment_status === first.payment_status; }) ? first.payment_status : 'mixed';
+    item.paidCount = occ.filter(function (o) { return o.payment_status === 'paid'; }).length;
+    item.notes = first.notes;
+    item.updated_display = occ.reduce(function (latest, o) { return o.updated_display > latest ? o.updated_display : latest; }, first.updated_display);
+    item.recurrence_summary = first.recurrence_summary || (occ.length + ' occurrences');
+  });
+  return items;
+}
+
+let expandedSeries = new Set();
+function toggleSeries(seriesId) {
+  if (expandedSeries.has(seriesId)) expandedSeries.delete(seriesId);
+  else expandedSeries.add(seriesId);
+  render();
+}
+
+function renderBookingRow(b, isSubRow) {
+  const needsAction = (b.payment_status === 'pending' || b.payment_status === 'invoiced');
+  const canEdit = b.payment_status !== 'cancelled';
+  const roomCell = isWholeFacility(b)
+    ? '<span class="room-pill whole-facility">&#9733; Whole Facility</span>'
+    : '<span class="room-pill">' + escHtml(b.rooms.join(' + ')) + '</span>';
+  const amountCell = '$' + Number(b.final_total).toFixed(2) +
+    (b.manual_adjustment_type ? '<span class="adjusted-tag" title="' + escHtml(b.manual_adjustment_reason || '') + '">Adjusted</span>' : '');
+  const rowClasses = (b.payment_status === 'cancelled' ? 'cancelled-row ' : '') + (isSubRow ? 'sub-row' : '');
+  return (
+    '<tr' + (rowClasses ? ' class="' + rowClasses.trim() + '"' : '') + '>' +
+      '<td>' + (isSubRow ? '<div class="renter-sub">' + formatDate(b.event_date) + '</div>' : '<div class="renter-name">' + escHtml(b.renter_name) + '</div><div class="renter-sub">' + escHtml(b.renter_email) + '</div>') + '</td>' +
+      '<td>' + roomCell + '</td>' +
+      '<td>' + formatDate(b.event_date) + '</td>' +
+      '<td>' + b.hours + '</td>' +
+      '<td class="amount">' + amountCell + '</td>' +
+      '<td>' + statusBadge(b) + '</td>' +
+      '<td class="notes-cell" title="' + escHtml(b.notes || '') + '">' + escHtml(b.notes || '—') + '</td>' +
+      '<td class="updated-cell">' + formatDateTime(b.updated_display) + '</td>' +
+      '<td style="position:relative;">' +
+        '<div class="row-actions">' +
+        (needsAction ? '<button class="btn-mark-paid" onclick="togglePopover(event, \'' + b.booking_id + '\')">Mark paid</button>' : '') +
+        (canEdit ? '<button class="btn-edit" onclick="openEditModal(\'' + b.booking_id + '\')">Edit</button>' : '') +
+        (canEdit ? '<button class="btn-cancel-booking" onclick="cancelBookingFlow(\'' + b.booking_id + '\')">Cancel</button>' : '') +
+        (!canEdit ? '<span style="font-size:0.68rem;color:var(--muted);text-align:center;">Locked</span>' : '') +
+        '</div>' +
+        (needsAction ? '<div class="method-popover" id="popover-' + b.booking_id + '">' +
+            '<button onclick="markPaid(\'' + b.booking_id + '\', \'zelle\')">Paid via Zelle</button>' +
+            '<button onclick="markPaid(\'' + b.booking_id + '\', \'cash\')">Paid via Cash</button>' +
+            '<button onclick="markPaid(\'' + b.booking_id + '\', \'check\')">Paid via Check</button>' +
+          '</div>' : '') +
+      '</td>' +
+    '</tr>'
+  );
+}
+
+function renderSeriesSummaryRow(item) {
+  const isExpanded = expandedSeries.has(item.seriesId);
+  const roomCell = isWholeFacility(item)
+    ? '<span class="room-pill whole-facility">&#9733; Whole Facility</span>'
+    : '<span class="room-pill">' + escHtml(item.rooms.join(' + ')) + '</span>';
+  const dateRangeCell = formatDate(item.event_date) + ' &ndash; ' + formatDate(item.event_date_last);
+  let statusCell;
+  if (item.payment_status === 'mixed') {
+    statusCell = '<span class="badge badge-needs-confirm"><span class="badge-dot"></span>' + item.paidCount + ' of ' + item.occurrences.length + ' paid</span>';
+  } else {
+    statusCell = statusBadge({ payment_status: item.payment_status, is_internal: item.is_internal, cancellation_fee: null, event_date: item.event_date_last });
+  }
+  return (
+    '<tr class="series-summary-row" onclick="toggleSeries(\'' + item.seriesId + '\')">' +
+      '<td><div class="renter-name">' + escHtml(item.renter_name) + ' <span class="discount-chip" style="margin-left:4px;">' + item.occurrences.length + ' occurrences</span></div><div class="renter-sub">' + escHtml(item.renter_email) + '</div></td>' +
+      '<td>' + roomCell + '</td>' +
+      '<td>' + dateRangeCell + '</td>' +
+      '<td>' + item.hours + '</td>' +
+      '<td class="amount">$' + item.final_total.toFixed(2) + ' <span class="method-tag">total</span></td>' +
+      '<td>' + statusCell + '</td>' +
+      '<td class="notes-cell" title="' + escHtml(item.notes || '') + '">' + escHtml(item.notes || '—') + '</td>' +
+      '<td class="updated-cell">' + formatDateTime(item.updated_display) + '</td>' +
+      '<td><button class="btn-expand-series" onclick="event.stopPropagation(); toggleSeries(\'' + item.seriesId + '\')">' + (isExpanded ? '&#9650; Hide' : '&#9660; Show all') + '</button></td>' +
+    '</tr>'
+  );
+}
+
 function render() {
   const tbody = document.getElementById('bookings-tbody');
   const emptyState = document.getElementById('empty-state');
-  const filtered = sortBookings(BOOKINGS.filter(matchesFilters));
+  const filteredBookings = BOOKINGS.filter(matchesFilters);
+  const items = sortDisplayItems(groupIntoDisplayItems(filteredBookings));
 
   document.getElementById('result-count').textContent =
-    filtered.length + (filtered.length === 1 ? ' booking' : ' bookings');
+    filteredBookings.length + (filteredBookings.length === 1 ? ' booking' : ' bookings') +
+    (items.length !== filteredBookings.length ? ' (' + items.length + ' rows shown, grouped)' : '');
 
   document.querySelectorAll('thead th.sortable').forEach(function (th) {
     th.classList.toggle('active', th.dataset.sort === state.sortKey);
     th.querySelector('.sort-arrow').textContent = th.dataset.sort === state.sortKey ? (state.sortDir === 'asc' ? '↑' : '↓') : '⇅';
   });
 
-  if (filtered.length === 0) {
+  if (items.length === 0) {
     tbody.innerHTML = '';
     emptyState.style.display = 'block';
     return;
   }
   emptyState.style.display = 'none';
 
-  tbody.innerHTML = filtered.map(function (b) {
-    // Both "pending" (the default status a new booking starts in) and
-    // "invoiced" mean "not yet paid" — the old version only checked for
-    // "invoiced", which nothing in the system ever actually sets, so Mark
-    // Paid never appeared for real bookings. This is the fix for that.
-    const needsAction = (b.payment_status === 'pending' || b.payment_status === 'invoiced');
-    const canEdit = b.payment_status !== 'cancelled';
-    const roomCell = isWholeFacility(b)
-      ? '<span class="room-pill whole-facility">&#9733; Whole Facility</span>'
-      : '<span class="room-pill">' + escHtml(b.rooms.join(' + ')) + '</span>';
-    const amountCell = '$' + Number(b.final_total).toFixed(2) +
-      (b.manual_adjustment_type ? '<span class="adjusted-tag" title="' + escHtml(b.manual_adjustment_reason || '') + '">Adjusted</span>' : '');
-    return (
-      '<tr' + (b.payment_status === 'cancelled' ? ' class="cancelled-row"' : '') + '>' +
-        '<td><div class="renter-name">' + escHtml(b.renter_name) + (b.recurring_series_id ? ' <span class="discount-chip" style="margin-left:4px;" title="' + escHtml(b.recurrence_summary || '') + '">Recurring</span>' : '') + '</div><div class="renter-sub">' + escHtml(b.renter_email) + '</div></td>' +
-        '<td>' + roomCell + '</td>' +
-        '<td>' + formatDate(b.event_date) + '</td>' +
-        '<td>' + b.hours + '</td>' +
-        '<td class="amount">' + amountCell + '</td>' +
-        '<td>' + statusBadge(b) + '</td>' +
-        '<td class="notes-cell" title="' + escHtml(b.notes || '') + '">' + escHtml(b.notes || '—') + '</td>' +
-        '<td class="updated-cell">' + formatDateTime(b.updated_display) + '</td>' +
-        '<td style="position:relative;">' +
-          '<div class="row-actions">' +
-          (needsAction ? '<button class="btn-mark-paid" onclick="togglePopover(event, \'' + b.booking_id + '\')">Mark paid</button>' : '') +
-          (canEdit ? '<button class="btn-edit" onclick="openEditModal(\'' + b.booking_id + '\')">Edit</button>' : '') +
-          (canEdit ? '<button class="btn-cancel-booking" onclick="cancelBookingFlow(\'' + b.booking_id + '\')">Cancel</button>' : '') +
-          (!canEdit ? '<span style="font-size:0.68rem;color:var(--muted);text-align:center;">Locked</span>' : '') +
-          '</div>' +
-          (needsAction ? '<div class="method-popover" id="popover-' + b.booking_id + '">' +
-              '<button onclick="markPaid(\'' + b.booking_id + '\', \'zelle\')">Paid via Zelle</button>' +
-              '<button onclick="markPaid(\'' + b.booking_id + '\', \'cash\')">Paid via Cash</button>' +
-              '<button onclick="markPaid(\'' + b.booking_id + '\', \'check\')">Paid via Check</button>' +
-            '</div>' : '') +
-        '</td>' +
-      '</tr>'
-    );
+  tbody.innerHTML = items.map(function (item) {
+    if (item.type === 'single') return renderBookingRow(item.booking, false);
+    const summary = renderSeriesSummaryRow(item);
+    if (!expandedSeries.has(item.seriesId)) return summary;
+    return summary + item.occurrences.map(function (occ) { return renderBookingRow(occ, true); }).join('');
   }).join('');
 }
 

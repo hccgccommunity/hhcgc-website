@@ -352,7 +352,7 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
 // Real bookings are loaded from the API below (see loadBookings()).
 const ALL_ROOM_NAMES = ['Surya Hall', 'Patanjali Hall', 'Nataraj Room', 'Ganesh Room'];
 
-const API_BASE = 'https://api-1009110816870.us-central1.run.app';
+const API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';
 
 async function authedFetch(url, options) {
   options = options || {};

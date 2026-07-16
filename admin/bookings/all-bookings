@@ -215,6 +215,11 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
 .columns-panel label { display: flex; align-items: center; gap: 8px; font-size: 0.84rem; padding: 5px 4px; cursor: pointer; border-radius: 6px; }
 .columns-panel label:hover { background: var(--surface-soft); }
 .columns-panel input:disabled + span { color: var(--muted); }
+.match-candidate { border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; }
+.match-candidate.high-confidence { border-color: var(--saffron-dark); background: var(--surface-soft); }
+.match-candidate .match-label { font-weight: 700; font-size: 0.9rem; }
+.match-candidate .match-reason { font-size: 0.78rem; color: var(--muted); margin: 2px 0 8px; }
+.match-candidate .match-source-tag { display: inline-block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--surface-soft); color: var(--saffron-dark); margin-bottom: 6px; }
 .checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 0.86rem; }
 .btn-secondary {
   font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; font-weight: 700; color: var(--text);
@@ -406,6 +411,19 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
   </div>
 </div>
 
+<div class="modal-overlay" id="payment-match-modal-overlay" style="display:none;">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <h2>Find a matching payment</h2>
+      <button class="modal-close" id="btn-close-payment-match">&times;</button>
+    </div>
+    <div class="modal-body" id="payment-match-body"></div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-close-payment-match-2" onclick="document.getElementById('payment-match-modal-overlay').style.display='none';">Close</button>
+    </div>
+  </div>
+</div>
+
 <div id="site-footer"></div>
 
 <script>
@@ -494,23 +512,27 @@ function statusBadge(b) {
   if (b.is_internal || b.payment_status === 'n/a') {
     return '<span class="badge badge-draft"><span class="badge-dot"></span>Internal · No charge</span>';
   }
-  if (b.payment_status === 'paid') {
-    const methodLabel = b.payment_method === 'zeffy' ? 'Zeffy · auto-matched' :
-      b.payment_method === 'zelle' ? 'Zelle · confirmed' :
-      b.payment_method === 'cash' ? 'Cash · confirmed' :
-      b.payment_method === 'check' ? 'Check · confirmed' : 'Confirmed';
-    return '<span class="badge badge-paid"><span class="badge-dot"></span>Paid</span><span class="method-tag">' + methodLabel + '</span>';
-  }
   if (b.payment_status === 'cancelled') {
     const feeTag = (b.cancellation_fee !== null && b.cancellation_fee !== undefined)
       ? '<span class="method-tag">Fee: $' + Number(b.cancellation_fee).toFixed(2) + ' · Refund: $' + Number(b.refund_amount).toFixed(2) + '</span>' : '';
     return '<span class="badge badge-cancelled"><span class="badge-dot"></span>Cancelled</span>' + feeTag;
   }
-  // "pending" and "invoiced" both mean "not yet paid" — pending is simply the
-  // default status a new booking starts in, since nothing in this system
-  // currently has a separate "invoice sent" step.
-  const label = isPastDue(b) ? 'Past due — needs confirmation' : 'Awaiting payment';
-  return '<span class="badge badge-needs-confirm"><span class="badge-dot"></span>' + label + '</span>';
+  if (b.receipt_sent_at) {
+    return '<span class="badge badge-paid"><span class="badge-dot"></span>Receipt Sent</span><span class="method-tag">' + formatDateTime(b.receipt_sent_at) + '</span>';
+  }
+  if (b.payment_status === 'paid') {
+    const methodLabel = b.payment_match_source === 'zeffy' ? 'Zeffy · auto-matched' :
+      b.payment_match_source === 'zelle' ? 'Zelle · auto-matched' :
+      b.payment_method === 'zelle' ? 'Zelle · confirmed' :
+      b.payment_method === 'cash' ? 'Cash · confirmed' :
+      b.payment_method === 'check' ? 'Check · confirmed' : 'Confirmed';
+    return '<span class="badge badge-paid"><span class="badge-dot"></span>Paid</span><span class="method-tag">' + methodLabel + '</span>';
+  }
+  if (b.invoice_sent_at) {
+    const label = isPastDue(b) ? 'Invoice sent · past due' : 'Invoice Sent';
+    return '<span class="badge badge-needs-confirm"><span class="badge-dot"></span>' + label + '</span><span class="method-tag">' + formatDateTime(b.invoice_sent_at) + '</span>';
+  }
+  return '<span class="badge badge-draft"><span class="badge-dot"></span>Booked</span>';
 }
 
 function isWholeFacility(b) {
@@ -662,9 +684,19 @@ function visibleColumnCells(data) {
     .map(function (c) { return getColumnCellHtml(c.key, data); }).join('');
 }
 
+const PAST_BOOKING_EDIT_ALLOWLIST = ['nilaj@hccgc.org', 'admin@hccgc.org'];
+function currentUserEmail() { return ((window.__hccgcCurrentUser && window.__hccgcCurrentUser.email) || '').toLowerCase(); }
+function isBookingPast(b) { return new Date(b.event_date + 'T00:00:00') < new Date(new Date().toDateString()); }
+
 function renderBookingRow(b, isSubRow) {
   const needsAction = (b.payment_status === 'pending' || b.payment_status === 'invoiced');
-  const canEdit = b.payment_status !== 'cancelled';
+  const notCancelled = b.payment_status !== 'cancelled';
+  const past = isBookingPast(b);
+  const canEditThis = notCancelled && (!past || PAST_BOOKING_EDIT_ALLOWLIST.includes(currentUserEmail()));
+  const canSendInvoice = needsAction && !b.is_internal && b.renter_email &&
+    (!b.invoice_sent_at || (b.updated_at && new Date(b.updated_at) > new Date(b.invoice_sent_at)));
+  const canFindPayment = needsAction && !b.is_internal && b.renter_email;
+  const canUnlink = b.payment_status === 'paid';
   const rowClasses = (b.payment_status === 'cancelled' ? 'cancelled-row ' : '') + (isSubRow ? 'sub-row' : '');
   // Sub-rows (occurrences within an expanded series) are display-only —
   // paying, editing, and cancelling all happen at the series level, since a
@@ -675,10 +707,13 @@ function renderBookingRow(b, isSubRow) {
       '<td style="position:relative;">' +
         '<div class="row-actions">' +
         (needsAction ? '<button class="btn-mark-paid" onclick="togglePopover(event, \'' + b.booking_id + '\')">Mark paid</button>' : '') +
-        (needsAction && !b.is_internal && b.renter_email ? '<button class="btn-edit" onclick="sendInvoiceAction(\'' + b.booking_id + '\')">Send invoice</button>' : '') +
-        (canEdit ? '<button class="btn-edit" onclick="openEditModal(\'' + b.booking_id + '\')">Edit</button>' : '') +
-        (canEdit ? '<button class="btn-cancel-booking" onclick="cancelBookingFlow(\'' + b.booking_id + '\')">Cancel</button>' : '') +
-        (!canEdit ? '<span style="font-size:0.68rem;color:var(--muted);text-align:center;">Locked</span>' : '') +
+        (canFindPayment ? '<button class="btn-edit" onclick="findPaymentAction(\'' + b.booking_id + '\')">Find payment</button>' : '') +
+        (canSendInvoice ? '<button class="btn-edit" onclick="sendInvoiceAction(\'' + b.booking_id + '\')">Send invoice</button>' : '') +
+        (canUnlink ? '<button class="btn-edit" onclick="unlinkPaymentAction(\'' + b.booking_id + '\')">Unlink payment</button>' : '') +
+        (canEditThis ? '<button class="btn-edit" onclick="openEditModal(\'' + b.booking_id + '\')">Edit</button>' : '') +
+        (notCancelled ? '<button class="btn-cancel-booking" onclick="cancelBookingFlow(\'' + b.booking_id + '\')">Cancel</button>' : '') +
+        (!notCancelled ? '<span style="font-size:0.68rem;color:var(--muted);text-align:center;">Locked</span>' : '') +
+        (notCancelled && !canEditThis ? '<span style="font-size:0.68rem;color:var(--muted);text-align:center;">Past — locked</span>' : '') +
         '</div>' +
         (needsAction ? '<div class="method-popover" id="popover-' + b.booking_id + '">' +
             '<button onclick="markPaid(\'' + b.booking_id + '\', \'zelle\')">Paid via Zelle</button>' +
@@ -699,7 +734,9 @@ function renderBookingRow(b, isSubRow) {
 function renderSeriesSummaryRow(item) {
   const isExpanded = expandedSeries.has(item.seriesId);
   const needsAction = item.payment_status === 'pending' || item.payment_status === 'invoiced' || item.payment_status === 'mixed';
-  const canEdit = item.payment_status !== 'cancelled';
+  const notCancelled = item.payment_status !== 'cancelled';
+  const allPast = item.occurrences.every(isBookingPast);
+  const canEditThis = notCancelled && (!allPast || PAST_BOOKING_EDIT_ALLOWLIST.includes(currentUserEmail()));
   return (
     '<tr class="series-summary-row">' +
       '<td onclick="toggleSeries(\'' + item.seriesId + '\')" style="cursor:pointer;"><div class="renter-name">' + (isExpanded ? '&#9660; ' : '&#9654; ') + escHtml(item.renter_name) + ' <span class="discount-chip" style="margin-left:4px;">' + item.occurrences.length + ' occurrences</span></div><div class="renter-sub">' + escHtml(item.renter_email) + '</div></td>' +
@@ -707,9 +744,10 @@ function renderSeriesSummaryRow(item) {
       '<td style="position:relative;">' +
         '<div class="row-actions">' +
         (needsAction ? '<button class="btn-mark-paid" onclick="toggleSeriesPopover(event, \'' + item.seriesId + '\')">Mark paid</button>' : '') +
-        (canEdit ? '<button class="btn-edit" onclick="openSeriesEditModal(\'' + item.seriesId + '\')">Edit series</button>' : '') +
-        (canEdit ? '<button class="btn-cancel-booking" onclick="cancelSeriesFlow(\'' + item.seriesId + '\')">Cancel all</button>' : '') +
-        (!canEdit ? '<span style="font-size:0.68rem;color:var(--muted);text-align:center;">Locked</span>' : '') +
+        (canEditThis ? '<button class="btn-edit" onclick="openSeriesEditModal(\'' + item.seriesId + '\')">Edit series</button>' : '') +
+        (notCancelled ? '<button class="btn-cancel-booking" onclick="cancelSeriesFlow(\'' + item.seriesId + '\')">Cancel all</button>' : '') +
+        (!notCancelled ? '<span style="font-size:0.68rem;color:var(--muted);text-align:center;">Locked</span>' : '') +
+        (notCancelled && !canEditThis ? '<span style="font-size:0.68rem;color:var(--muted);text-align:center;">Past — locked</span>' : '') +
         '</div>' +
         (needsAction ? '<div class="method-popover" id="series-popover-' + item.seriesId + '">' +
             '<button onclick="markSeriesPaidAction(\'' + item.seriesId + '\', \'zelle\')">Paid via Zelle</button>' +
@@ -871,6 +909,79 @@ async function sendInvoiceAction(bookingId) {
       return;
     }
     alert('Invoice sent to ' + data.sentTo + '.');
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+  }
+}
+
+// ---- Payment matching (Zeffy + Zelle) ----
+async function findPaymentAction(bookingId) {
+  const body = document.getElementById('payment-match-body');
+  body.innerHTML = '<div class="card-sub">Searching Zeffy and Zelle for a matching payment…</div>';
+  document.getElementById('payment-match-modal-overlay').style.display = 'flex';
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/payment-matches');
+    const data = await res.json();
+    if (!res.ok) {
+      body.innerHTML = '<div class="result-box error" style="display:block;">' + escHtml((data.errors || [data.error]).join(' ')) + '</div>';
+      return;
+    }
+    if (!data.candidates.length) {
+      body.innerHTML = '<div class="card-sub">No matching payments found for the invoice total of $' + data.invoiceTotal.toFixed(2) + '. Try again later, or use Mark Paid directly if you\'ve confirmed payment another way.</div>';
+      return;
+    }
+    body.innerHTML = '<div class="card-sub" style="margin-bottom:14px;">Invoice total: $' + data.invoiceTotal.toFixed(2) + '. Review before linking — this is a suggestion, not an automatic match.</div>' +
+      data.candidates.map(function (c) {
+        return '<div class="match-candidate' + (c.confidence === 'high' ? ' high-confidence' : '') + '">' +
+          '<div class="match-source-tag">' + c.source + (c.confidence === 'high' ? ' · likely match' : ' · possible') + '</div>' +
+          '<div class="match-label">' + escHtml(c.label) + '</div>' +
+          '<div class="match-reason">' + escHtml(c.date) + ' — ' + escHtml(c.reason) + '</div>' +
+          '<button type="button" class="btn-primary" style="padding:7px 14px;font-size:0.82rem;" onclick=\'linkPaymentAction(' + JSON.stringify(bookingId) + ', ' + JSON.stringify(c) + ')\'>Link this payment</button>' +
+        '</div>';
+      }).join('');
+  } catch (err) {
+    body.innerHTML = '<div class="result-box error" style="display:block;">Could not reach the booking system: ' + escHtml(err.message) + '</div>';
+  }
+}
+document.getElementById('btn-close-payment-match').addEventListener('click', function () {
+  document.getElementById('payment-match-modal-overlay').style.display = 'none';
+});
+document.getElementById('payment-match-modal-overlay').addEventListener('click', function (e) {
+  if (e.target === this) this.style.display = 'none';
+});
+
+async function linkPaymentAction(bookingId, candidate) {
+  if (!confirm('Link this ' + candidate.source + ' payment ($' + candidate.amount.toFixed(2) + ') to this booking and mark it paid?')) return;
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/link-payment', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source: candidate.source, id: candidate.id, amount: candidate.amount, date: candidate.date })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert('Could not link payment: ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
+      return;
+    }
+    document.getElementById('payment-match-modal-overlay').style.display = 'none';
+    await loadBookings();
+    if (confirm('Payment linked. Send a payment receipt to the renter now?')) {
+      await sendReceiptAction(bookingId);
+    }
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+  }
+}
+
+async function unlinkPaymentAction(bookingId) {
+  if (!confirm('Unlink this payment? The booking will go back to awaiting payment.')) return;
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/unlink-payment', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) {
+      alert('Could not unlink: ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
+      return;
+    }
+    await loadBookings();
   } catch (err) {
     alert('Could not reach the booking system: ' + err.message);
   }

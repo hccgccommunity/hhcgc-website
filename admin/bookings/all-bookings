@@ -201,6 +201,12 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
 .modal-room-check input[type="checkbox"] { width: 16px; height: 16px; flex-shrink: 0; margin: 0; }
 .modal-room-check:has(input:checked) { border-color: var(--saffron-dark); background: var(--surface-soft); font-weight: 700; }
 .modal-room-check .rate { margin-left: auto; font-size: 0.72rem; color: var(--muted); flex-shrink: 0; }
+.occ-table { border-collapse: collapse; margin: 10px 0 16px; }
+.occ-table th { text-align: left; font-size: 0.7rem; text-transform: uppercase; color: var(--muted); padding: 6px 8px; }
+.occ-table td { padding: 5px 8px; }
+.occ-table input[type="date"], .occ-table input[type="time"] { font-family: Arial, Helvetica, sans-serif; font-size: 0.82rem; padding: 6px 8px; border: 1.5px solid var(--border); border-radius: 8px; width: 100%; box-sizing: border-box; }
+.occ-table input[type="checkbox"] { width: 16px; height: 16px; }
+.occ-table tr.marked-for-removal td { opacity: 0.4; text-decoration: line-through; }
 .checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 0.86rem; }
 .btn-secondary {
   font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; font-weight: 700; color: var(--text);
@@ -351,6 +357,48 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
     <div class="modal-footer">
       <button type="button" class="btn-secondary" id="btn-cancel-edit-modal">Close</button>
       <button type="button" class="btn-primary" id="btn-save-edit">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="series-edit-modal-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:760px;">
+    <div class="modal-header">
+      <h2 id="series-edit-modal-title">Edit series</h2>
+      <button class="modal-close" id="btn-close-series-edit">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="card-sub" style="margin-bottom:14px;">Renter, rooms, and notes apply to every occurrence in this series. Each occurrence keeps its own date and time below — edit any of them, or remove one to cancel just that occurrence (with its own cancellation fee, per policy) without affecting the rest.</div>
+      <div class="field" id="series-edit-renter-select-field">
+        <label>Select a contact</label>
+        <select id="series-edit-renter-select"><option value="">Choose a renter…</option></select>
+      </div>
+      <div class="field" id="series-edit-name-field" style="display:none;">
+        <label>Program / event name</label>
+        <input type="text" id="series-edit-name">
+      </div>
+      <div class="field" id="series-edit-hccg-rep-field" style="display:none;">
+        <label>HCCGC representative name</label>
+        <input type="text" id="series-edit-hccg-rep">
+      </div>
+      <div class="field">
+        <label>Rooms</label>
+        <div class="modal-room-picker" id="series-edit-room-picker"></div>
+      </div>
+      <div class="checkbox-row" id="series-edit-nonprofit-row"><input type="checkbox" id="series-edit-nonprofit"><label for="series-edit-nonprofit">Renter is a nonprofit</label></div>
+      <div class="field"><label>Notes</label><textarea id="series-edit-notes"></textarea></div>
+
+      <div class="field"><label>Occurrences</label></div>
+      <table class="occ-table" style="width:100%;">
+        <thead><tr><th>Date</th><th>Start</th><th>End</th><th>Remove</th></tr></thead>
+        <tbody id="series-edit-occ-tbody"></tbody>
+      </table>
+
+      <div class="result-box" id="series-edit-result-box" style="display:none;"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-cancel-series-edit-modal">Close</button>
+      <button type="button" class="btn-primary" id="btn-save-series-edit">Save changes</button>
     </div>
   </div>
 </div>
@@ -519,16 +567,12 @@ function renderBookingRow(b, isSubRow) {
   const amountCell = '$' + Number(b.final_total).toFixed(2) +
     (b.manual_adjustment_type ? '<span class="adjusted-tag" title="' + escHtml(b.manual_adjustment_reason || '') + '">Adjusted</span>' : '');
   const rowClasses = (b.payment_status === 'cancelled' ? 'cancelled-row ' : '') + (isSubRow ? 'sub-row' : '');
-  return (
-    '<tr' + (rowClasses ? ' class="' + rowClasses.trim() + '"' : '') + '>' +
-      '<td>' + (isSubRow ? '<div class="renter-sub">' + formatDate(b.event_date) + '</div>' : '<div class="renter-name">' + escHtml(b.renter_name) + '</div><div class="renter-sub">' + escHtml(b.renter_email) + '</div>') + '</td>' +
-      '<td>' + roomCell + '</td>' +
-      '<td>' + formatDate(b.event_date) + '</td>' +
-      '<td>' + b.hours + '</td>' +
-      '<td class="amount">' + amountCell + '</td>' +
-      '<td>' + statusBadge(b) + '</td>' +
-      '<td class="notes-cell" title="' + escHtml(b.notes || '') + '">' + escHtml(b.notes || '—') + '</td>' +
-      '<td class="updated-cell">' + formatDateTime(b.updated_display) + '</td>' +
+  // Sub-rows (occurrences within an expanded series) are display-only —
+  // paying, editing, and cancelling all happen at the series level, since a
+  // renter pays for the whole series at once, not occurrence by occurrence.
+  const actionsCell = isSubRow
+    ? '<td></td>'
+    : (
       '<td style="position:relative;">' +
         '<div class="row-actions">' +
         (needsAction ? '<button class="btn-mark-paid" onclick="togglePopover(event, \'' + b.booking_id + '\')">Mark paid</button>' : '') +
@@ -541,7 +585,19 @@ function renderBookingRow(b, isSubRow) {
             '<button onclick="markPaid(\'' + b.booking_id + '\', \'cash\')">Paid via Cash</button>' +
             '<button onclick="markPaid(\'' + b.booking_id + '\', \'check\')">Paid via Check</button>' +
           '</div>' : '') +
-      '</td>' +
+      '</td>'
+    );
+  return (
+    '<tr' + (rowClasses ? ' class="' + rowClasses.trim() + '"' : '') + '>' +
+      '<td>' + (isSubRow ? '<div class="renter-sub">' + formatDate(b.event_date) + '</div>' : '<div class="renter-name">' + escHtml(b.renter_name) + '</div><div class="renter-sub">' + escHtml(b.renter_email) + '</div>') + '</td>' +
+      '<td>' + roomCell + '</td>' +
+      '<td>' + formatDate(b.event_date) + '</td>' +
+      '<td>' + b.hours + '</td>' +
+      '<td class="amount">' + amountCell + '</td>' +
+      '<td>' + statusBadge(b) + '</td>' +
+      '<td class="notes-cell" title="' + escHtml(b.notes || '') + '">' + escHtml(b.notes || '—') + '</td>' +
+      '<td class="updated-cell">' + formatDateTime(b.updated_display) + '</td>' +
+      actionsCell +
     '</tr>'
   );
 }
@@ -552,6 +608,8 @@ function renderSeriesSummaryRow(item) {
     ? '<span class="room-pill whole-facility">&#9733; Whole Facility</span>'
     : '<span class="room-pill">' + escHtml(item.rooms.join(' + ')) + '</span>';
   const dateRangeCell = formatDate(item.event_date) + ' &ndash; ' + formatDate(item.event_date_last);
+  const needsAction = item.payment_status === 'pending' || item.payment_status === 'invoiced' || item.payment_status === 'mixed';
+  const canEdit = item.payment_status !== 'cancelled';
   let statusCell;
   if (item.payment_status === 'mixed') {
     statusCell = '<span class="badge badge-needs-confirm"><span class="badge-dot"></span>' + item.paidCount + ' of ' + item.occurrences.length + ' paid</span>';
@@ -559,8 +617,8 @@ function renderSeriesSummaryRow(item) {
     statusCell = statusBadge({ payment_status: item.payment_status, is_internal: item.is_internal, cancellation_fee: null, event_date: item.event_date_last });
   }
   return (
-    '<tr class="series-summary-row" onclick="toggleSeries(\'' + item.seriesId + '\')">' +
-      '<td><div class="renter-name">' + escHtml(item.renter_name) + ' <span class="discount-chip" style="margin-left:4px;">' + item.occurrences.length + ' occurrences</span></div><div class="renter-sub">' + escHtml(item.renter_email) + '</div></td>' +
+    '<tr class="series-summary-row">' +
+      '<td onclick="toggleSeries(\'' + item.seriesId + '\')" style="cursor:pointer;"><div class="renter-name">' + (isExpanded ? '&#9660; ' : '&#9654; ') + escHtml(item.renter_name) + ' <span class="discount-chip" style="margin-left:4px;">' + item.occurrences.length + ' occurrences</span></div><div class="renter-sub">' + escHtml(item.renter_email) + '</div></td>' +
       '<td>' + roomCell + '</td>' +
       '<td>' + dateRangeCell + '</td>' +
       '<td>' + item.hours + '</td>' +
@@ -568,7 +626,19 @@ function renderSeriesSummaryRow(item) {
       '<td>' + statusCell + '</td>' +
       '<td class="notes-cell" title="' + escHtml(item.notes || '') + '">' + escHtml(item.notes || '—') + '</td>' +
       '<td class="updated-cell">' + formatDateTime(item.updated_display) + '</td>' +
-      '<td><button class="btn-expand-series" onclick="event.stopPropagation(); toggleSeries(\'' + item.seriesId + '\')">' + (isExpanded ? '&#9650; Hide' : '&#9660; Show all') + '</button></td>' +
+      '<td style="position:relative;">' +
+        '<div class="row-actions">' +
+        (needsAction ? '<button class="btn-mark-paid" onclick="toggleSeriesPopover(event, \'' + item.seriesId + '\')">Mark paid</button>' : '') +
+        (canEdit ? '<button class="btn-edit" onclick="openSeriesEditModal(\'' + item.seriesId + '\')">Edit series</button>' : '') +
+        (canEdit ? '<button class="btn-cancel-booking" onclick="cancelSeriesFlow(\'' + item.seriesId + '\')">Cancel all</button>' : '') +
+        (!canEdit ? '<span style="font-size:0.68rem;color:var(--muted);text-align:center;">Locked</span>' : '') +
+        '</div>' +
+        (needsAction ? '<div class="method-popover" id="series-popover-' + item.seriesId + '">' +
+            '<button onclick="markSeriesPaidAction(\'' + item.seriesId + '\', \'zelle\')">Paid via Zelle</button>' +
+            '<button onclick="markSeriesPaidAction(\'' + item.seriesId + '\', \'cash\')">Paid via Cash</button>' +
+            '<button onclick="markSeriesPaidAction(\'' + item.seriesId + '\', \'check\')">Paid via Check</button>' +
+          '</div>' : '') +
+      '</td>' +
     '</tr>'
   );
 }
@@ -697,6 +767,66 @@ async function cancelBookingFlow(bookingId) {
   }
 }
 
+// ---- Series-level actions: a renter pays for (and cancels) a whole
+// recurring series at once, not occurrence by occurrence. ----
+function toggleSeriesPopover(evt, seriesId) {
+  evt.stopPropagation();
+  document.querySelectorAll('.method-popover.open').forEach(function (el) {
+    if (el.id !== 'series-popover-' + seriesId) el.classList.remove('open');
+  });
+  const pop = document.getElementById('series-popover-' + seriesId);
+  const willOpen = !pop.classList.contains('open');
+  pop.classList.toggle('open');
+  if (willOpen) {
+    const rect = evt.target.getBoundingClientRect();
+    pop.style.top = (rect.bottom + 6) + 'px';
+    pop.style.left = Math.max(8, rect.right - 170) + 'px';
+  }
+}
+
+async function markSeriesPaidAction(seriesId, method) {
+  const pop = document.getElementById('series-popover-' + seriesId);
+  if (pop) pop.classList.remove('open');
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/series/' + encodeURIComponent(seriesId) + '/mark-paid', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paymentMethod: method })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert('Could not mark series as paid: ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
+      return;
+    }
+    await loadBookings();
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+  }
+}
+
+async function cancelSeriesFlow(seriesId) {
+  const occurrences = BOOKINGS.filter(function (b) { return b.recurring_series_id === seriesId && b.payment_status !== 'cancelled'; });
+  if (!occurrences.length) return;
+  const isInternal = occurrences[0].is_internal;
+  const msg = isInternal
+    ? ('Cancel all ' + occurrences.length + ' remaining occurrences in this series? This frees up the rooms and removes them from the calendar.')
+    : ('Cancel all ' + occurrences.length + ' remaining occurrences in this series?\n\n' +
+       'Each occurrence\'s cancellation fee is calculated individually based on its own date, per policy.\n\n' +
+       'This cannot be undone.');
+  if (!confirm(msg)) return;
+
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/series/' + encodeURIComponent(seriesId) + '/cancel', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) {
+      alert('Could not cancel series: ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
+      return;
+    }
+    alert('Cancelled ' + data.occurrencesCancelled + ' occurrence(s). Total fee: $' + data.totalFee.toFixed(2) + ', total refund: $' + data.totalRefund.toFixed(2) + '.');
+    await loadBookings();
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+  }
+}
+
 // ---- Edit ----
 const EDIT_ROOMS = [
   { name: 'Surya Hall', rate: 45 }, { name: 'Patanjali Hall', rate: 40 },
@@ -812,6 +942,148 @@ document.getElementById('btn-save-edit').addEventListener('click', async functio
       resultBox.textContent = 'Saved — new total $' + Number(data.finalTotal).toFixed(2) + '.';
       await loadBookings();
       setTimeout(closeEditModal, 900);
+    }
+  } catch (err) {
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+    resultBox.textContent = 'Could not reach the booking system: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save changes';
+  }
+});
+
+// ---- Series edit ----
+let editingSeriesId = null;
+
+function buildSeriesEditRoomPicker() {
+  const wrap = document.getElementById('series-edit-room-picker');
+  wrap.innerHTML = EDIT_ROOMS.map(function (r) {
+    const rateText = r.rate > 0 ? ('$' + r.rate + '/hr') : 'Free';
+    return '<label class="modal-room-check"><input type="checkbox" class="series-edit-room-cb" value="' + r.name + '"> ' + r.name + '<span class="rate">' + rateText + '</span></label>';
+  }).join('');
+  wrap.querySelectorAll('.series-edit-room-cb').forEach(function (cb) {
+    cb.addEventListener('change', enforceSeriesEditKitchenRule);
+  });
+}
+function enforceSeriesEditKitchenRule() {
+  const kitchenCb = document.querySelector('.series-edit-room-cb[value="Kitchen"]');
+  if (!kitchenCb) return;
+  const surya = document.querySelector('.series-edit-room-cb[value="Surya Hall"]').checked;
+  const patanjali = document.querySelector('.series-edit-room-cb[value="Patanjali Hall"]').checked;
+  const eligible = surya || patanjali;
+  kitchenCb.disabled = !eligible;
+  if (!eligible) kitchenCb.checked = false;
+}
+
+function renderSeriesEditOccTable(occurrences) {
+  const tbody = document.getElementById('series-edit-occ-tbody');
+  tbody.innerHTML = occurrences.map(function (occ) {
+    return '<tr data-booking-id="' + occ.booking_id + '">' +
+      '<td><input type="date" class="series-occ-date" value="' + occ.event_date + '"></td>' +
+      '<td><input type="time" class="series-occ-start" value="' + (occ.start_time || '').slice(11, 16) + '" list="common-times"></td>' +
+      '<td><input type="time" class="series-occ-end" value="' + (occ.end_time || '').slice(11, 16) + '" list="common-times"></td>' +
+      '<td style="text-align:center;"><input type="checkbox" class="series-occ-remove"></td>' +
+    '</tr>';
+  }).join('');
+  tbody.querySelectorAll('.series-occ-remove').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      this.closest('tr').classList.toggle('marked-for-removal', this.checked);
+    });
+  });
+}
+
+async function openSeriesEditModal(seriesId) {
+  const occurrences = BOOKINGS.filter(function (b) { return b.recurring_series_id === seriesId && b.payment_status !== 'cancelled'; })
+    .sort(function (a, b) { return a.event_date < b.event_date ? -1 : 1; });
+  if (!occurrences.length) return;
+  editingSeriesId = seriesId;
+  const first = occurrences[0];
+
+  buildSeriesEditRoomPicker();
+  await loadEditRenters();
+  const select = document.getElementById('series-edit-renter-select');
+  select.innerHTML = '<option value="">Choose a renter…</option>' + EDIT_RENTERS.map(function (r) {
+    const label = r.contact_name + (r.email ? (' — ' + r.email) : '');
+    return '<option value="' + r.renter_id + '">' + label.replace(/</g, '&lt;') + '</option>';
+  }).join('');
+
+  document.getElementById('series-edit-renter-select-field').style.display = first.is_internal ? 'none' : 'flex';
+  document.getElementById('series-edit-name-field').style.display = first.is_internal ? 'flex' : 'none';
+  document.getElementById('series-edit-hccg-rep-field').style.display = first.is_internal ? 'flex' : 'none';
+  document.getElementById('series-edit-nonprofit-row').style.display = first.is_internal ? 'none' : 'flex';
+
+  if (first.is_internal) {
+    document.getElementById('series-edit-name').value = first.renter_name || '';
+    document.getElementById('series-edit-hccg-rep').value = first.hccgc_representative_name || '';
+  } else {
+    select.value = first.renter_id || '';
+    document.getElementById('series-edit-nonprofit').checked = !!first.is_nonprofit;
+  }
+  document.getElementById('series-edit-notes').value = first.notes || '';
+  document.querySelectorAll('.series-edit-room-cb').forEach(function (cb) { cb.checked = first.rooms.includes(cb.value); });
+  enforceSeriesEditKitchenRule();
+  renderSeriesEditOccTable(occurrences);
+
+  document.getElementById('series-edit-modal-title').textContent = (first.is_internal ? 'Edit internal series' : 'Edit series') + ' (' + occurrences.length + ' occurrences)';
+  document.getElementById('series-edit-result-box').style.display = 'none';
+  document.getElementById('series-edit-modal-overlay').style.display = 'flex';
+}
+
+function closeSeriesEditModal() {
+  document.getElementById('series-edit-modal-overlay').style.display = 'none';
+  editingSeriesId = null;
+}
+document.getElementById('btn-close-series-edit').addEventListener('click', closeSeriesEditModal);
+document.getElementById('btn-cancel-series-edit-modal').addEventListener('click', closeSeriesEditModal);
+document.getElementById('series-edit-modal-overlay').addEventListener('click', function (e) {
+  if (e.target === this) closeSeriesEditModal();
+});
+
+document.getElementById('btn-save-series-edit').addEventListener('click', async function () {
+  const btn = this;
+  const occurrences = BOOKINGS.filter(function (b) { return b.recurring_series_id === editingSeriesId && b.payment_status !== 'cancelled'; });
+  if (!occurrences.length) return;
+  const isInternal = occurrences[0].is_internal;
+  const rooms = Array.from(document.querySelectorAll('.series-edit-room-cb:checked')).map(function (cb) { return cb.value; });
+  const resultBox = document.getElementById('series-edit-result-box');
+
+  const occInputs = Array.from(document.querySelectorAll('#series-edit-occ-tbody tr')).map(function (tr) {
+    return {
+      bookingId: tr.dataset.bookingId,
+      eventDate: tr.querySelector('.series-occ-date').value,
+      startTime: tr.querySelector('.series-occ-start').value,
+      endTime: tr.querySelector('.series-occ-end').value,
+      remove: tr.querySelector('.series-occ-remove').checked
+    };
+  });
+
+  const payload = {
+    rooms: rooms,
+    notes: document.getElementById('series-edit-notes').value,
+    renterId: isInternal ? null : document.getElementById('series-edit-renter-select').value,
+    renterName: isInternal ? document.getElementById('series-edit-name').value : null,
+    hccgcRepresentativeName: isInternal ? document.getElementById('series-edit-hccg-rep').value : null,
+    isNonprofit: isInternal ? false : document.getElementById('series-edit-nonprofit').checked,
+    occurrences: occInputs
+  };
+
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/series/' + encodeURIComponent(editingSeriesId), {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+      resultBox.textContent = (data.errors || [data.error || 'Something went wrong.']).join(' ');
+    } else {
+      resultBox.style.display = 'block'; resultBox.className = 'result-box success';
+      let msg = 'Saved — ' + data.updatedCount + ' occurrence(s) updated';
+      if (data.removedCount) msg += ', ' + data.removedCount + ' removed';
+      msg += '.';
+      if (data.occurrenceErrors && data.occurrenceErrors.length) msg += ' Some rows had issues: ' + data.occurrenceErrors.join(' ');
+      resultBox.textContent = msg;
+      await loadBookings();
+      setTimeout(closeSeriesEditModal, 1200);
     }
   } catch (err) {
     resultBox.style.display = 'block'; resultBox.className = 'result-box error';

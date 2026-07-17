@@ -447,7 +447,7 @@ function renderOccTable() {
   table.style.display = 'table';
   tbody.innerHTML = occurrences.map(function (occ, i) {
     return '<tr>' +
-      '<td><input type="date" value="' + occ.date + '" data-i="' + i + '" data-f="date"></td>' +
+      '<td><input type="date" value="' + occ.date + '" data-i="' + i + '" data-f="date"' + (window.__hccgcCurrentUser && window.__hccgcCurrentUser.email !== 'tech-admin@hccgc.org' ? ' min="' + new Date().toISOString().slice(0, 10) + '"' : '') + '></td>' +
       '<td><input type="time" value="' + occ.startTime + '" data-i="' + i + '" data-f="startTime" list="common-times"></td>' +
       '<td><input type="time" value="' + occ.endTime + '" data-i="' + i + '" data-f="endTime" list="common-times"></td>' +
       '<td><button type="button" class="occ-remove" data-remove="' + i + '" title="Remove this date">&times;</button></td>' +
@@ -889,6 +889,13 @@ onAuthStateChanged(auth, function(user) {
     document.getElementById('app').style.display = 'block';
     var entryDisplay = document.getElementById('f-entered-by-display');
     if (entryDisplay) entryDisplay.textContent = 'Signed in as ' + email;
+    if (email !== 'tech-admin@hccgc.org') {
+      var todayStr = new Date().toISOString().slice(0, 10);
+      var dateField = document.getElementById('f-date');
+      if (dateField) dateField.min = todayStr;
+      var untilField = document.getElementById('f-recur-until');
+      if (untilField) untilField.min = todayStr;
+    }
     loadRenters();
   }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });
 });

@@ -314,10 +314,12 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
     </select>
     <select id="status-filter">
       <option value="">All statuses</option>
+      <option value="requested">Requested — awaiting review</option>
       <option value="needs-attention">Needs attention</option>
       <option value="paid">Paid</option>
       <option value="pending">Pending (not yet invoiced)</option>
       <option value="cancelled">Cancelled</option>
+      <option value="rejected">Rejected</option>
       <option value="internal">Internal / No charge</option>
     </select>
     <div style="position:relative;">
@@ -545,6 +547,13 @@ function statusBadge(b) {
   if (b.is_internal || b.payment_status === 'n/a') {
     return '<span class="badge badge-draft"><span class="badge-dot"></span>Internal · No charge</span>';
   }
+  if (b.payment_status === 'requested') {
+    return '<span class="badge badge-needs-confirm"><span class="badge-dot"></span>Requested — awaiting review</span>';
+  }
+  if (b.payment_status === 'rejected') {
+    const reasonTag = b.rejection_reason ? '<span class="method-tag" title="' + escHtml(b.rejection_reason) + '">' + escHtml(b.rejection_reason.slice(0, 40)) + (b.rejection_reason.length > 40 ? '…' : '') + '</span>' : '';
+    return '<span class="badge badge-cancelled"><span class="badge-dot"></span>Rejected</span>' + reasonTag;
+  }
   if (b.payment_status === 'cancelled') {
     const feeTag = (b.cancellation_fee !== null && b.cancellation_fee !== undefined)
       ? '<span class="method-tag">Fee: $' + Number(b.cancellation_fee).toFixed(2) + ' · Refund: $' + Number(b.refund_amount).toFixed(2) + '</span>' : '';
@@ -594,6 +603,8 @@ function matchesFilters(b) {
   if (state.status === 'pending' && b.payment_status !== 'pending') return false;
   if (state.status === 'cancelled' && b.payment_status !== 'cancelled') return false;
   if (state.status === 'internal' && !(b.is_internal || b.payment_status === 'n/a')) return false;
+  if (state.status === 'requested' && b.payment_status !== 'requested') return false;
+  if (state.status === 'rejected' && b.payment_status !== 'rejected') return false;
   const range = monthRangeFor(state.month);
   if (range) {
     const d = new Date(b.event_date + 'T00:00:00');
@@ -731,6 +742,29 @@ function isHistoricallyLocked(b) {
 }
 
 function renderBookingRow(b, isSubRow) {
+  const rowClasses = (b.payment_status === 'cancelled' || b.payment_status === 'rejected' ? 'cancelled-row ' : '') + (isSubRow ? 'sub-row' : '');
+
+  // A public booking request awaiting review is a totally different case
+  // from every other status — nothing else (Mark Paid, Edit, Cancel, etc.)
+  // applies until an admin has actually approved or rejected it.
+  if (b.payment_status === 'requested' || b.payment_status === 'rejected') {
+    const actions = b.payment_status === 'requested'
+      ? [
+          { label: 'Approve request', fn: () => approveRequestAction(b.booking_id) },
+          { label: 'Reject request', danger: true, fn: () => rejectRequestAction(b.booking_id) },
+          { label: 'Download invoice', fn: () => downloadDocument(b.booking_id, 'invoice') }
+        ]
+      : [];
+    const actionsCell = isSubRow ? '<td></td>' : '<td>' + renderActionsKebab(b.booking_id, actions) + '</td>';
+    return (
+      '<tr' + (rowClasses ? ' class="' + rowClasses.trim() + '"' : '') + '>' +
+        '<td>' + (isSubRow ? '<div class="renter-sub">' + formatDate(b.event_date) + '</div>' : '<div class="renter-name">' + escHtml(b.renter_name) + '</div><div class="renter-sub">' + escHtml(b.renter_email) + '</div>') + '</td>' +
+        visibleColumnCells(b) +
+        actionsCell +
+      '</tr>'
+    );
+  }
+
   const needsAction = (b.payment_status === 'pending' || b.payment_status === 'invoiced');
   const notCancelled = b.payment_status !== 'cancelled';
   const locked = isHistoricallyLocked(b);
@@ -743,7 +777,6 @@ function renderBookingRow(b, isSubRow) {
   const canUnlink = b.payment_status === 'paid';
   const canDownloadInvoice = !b.is_internal;
   const canDownloadReceipt = b.payment_status === 'paid';
-  const rowClasses = (b.payment_status === 'cancelled' ? 'cancelled-row ' : '') + (isSubRow ? 'sub-row' : '');
 
   const actions = [];
   if (needsAction) {
@@ -774,6 +807,24 @@ function renderBookingRow(b, isSubRow) {
 
 function renderSeriesSummaryRow(item) {
   const isExpanded = expandedSeries.has(item.seriesId);
+
+  if (item.payment_status === 'requested' || item.payment_status === 'rejected') {
+    const actions = item.payment_status === 'requested'
+      ? [
+          { label: 'Approve request (all dates)', fn: () => approveRequestAction(item.occurrences[0].booking_id) },
+          { label: 'Reject request (all dates)', danger: true, fn: () => rejectRequestAction(item.occurrences[0].booking_id) },
+          { label: 'Download invoice', fn: () => downloadDocument(item.occurrences[0].booking_id, 'invoice') }
+        ]
+      : [];
+    return (
+      '<tr class="series-summary-row">' +
+        '<td onclick="toggleSeries(\'' + item.seriesId + '\')" style="cursor:pointer;"><div class="renter-name">' + (isExpanded ? '&#9660; ' : '&#9654; ') + escHtml(item.renter_name) + ' <span class="discount-chip" style="margin-left:4px;">' + item.occurrences.length + ' occurrences</span></div><div class="renter-sub">' + escHtml(item.renter_email) + '</div></td>' +
+        visibleColumnCells(item) +
+        '<td>' + renderActionsKebab(item.seriesId, actions) + '</td>' +
+      '</tr>'
+    );
+  }
+
   const needsAction = item.payment_status === 'pending' || item.payment_status === 'invoiced' || item.payment_status === 'mixed';
   const notCancelled = item.payment_status !== 'cancelled';
   const allPast = item.occurrences.every(isBookingPast);
@@ -1011,6 +1062,34 @@ async function sendReceiptAction(bookingId) {
       return;
     }
     alert('Receipt sent to ' + data.sentTo + '.');
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+  }
+}
+
+async function approveRequestAction(bookingId) {
+  if (!confirm('Approve this booking request? This syncs it to the calendar and moves it into the normal booking flow.')) return;
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/approve-request', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) { alert('Could not approve: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+    await loadBookings();
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+  }
+}
+
+async function rejectRequestAction(bookingId) {
+  const reason = prompt('Reason for rejecting this request? This will be emailed to the renter.');
+  if (reason === null) return;
+  if (!reason.trim()) { alert('A reason is required.'); return; }
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/reject-request', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason })
+    });
+    const data = await res.json();
+    if (!res.ok) { alert('Could not reject: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+    await loadBookings();
   } catch (err) {
     alert('Could not reach the booking system: ' + err.message);
   }

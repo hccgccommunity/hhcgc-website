@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -435,6 +436,17 @@ const db = getFirestore(fbApp);
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ hd: ALLOWED_DOMAIN });
 
+// Persistence is set ONCE here, at load — not inside the click handler.
+// Awaiting it before calling signInWithPopup was the actual bug: the popup
+// call landed outside the synchronous click-event call stack, so browsers
+// silently blocked it on the first click (Firebase throws, generic error
+// shows), and only allowed it through on an immediate second click under
+// some browsers' relaxed heuristic for that. Popup must be opened
+// synchronously, directly inside the click handler, every time.
+setPersistence(auth, browserLocalPersistence).catch(function (err) {
+  console.error("[HCCGC AUTH] setPersistence failed:", err.code, err.message);
+});
+
 window.__hccgcPortal = { auth, db, doc, getDoc, setDoc, serverTimestamp, USERS_COLLECTION, ALLOWED_DOMAIN };
 
 function isMobileDevice() {
@@ -445,17 +457,11 @@ document.getElementById("btn-signin").addEventListener("click", function () {
   var errorBox = document.getElementById("signin-error");
   errorBox.style.display = "none";
 
-  // Explicitly set local persistence before signing in — ensures the session
-  // is stored in localStorage on all browsers including mobile Safari,
-  // which can default to sessionStorage in certain in-app browser contexts.
-  setPersistence(auth, browserLocalPersistence).then(function () {
-    if (isMobileDevice()) {
-      console.log("[HCCGC AUTH] Mobile — using redirect sign-in...");
-      return signInWithRedirect(auth, provider);
-    }
-    console.log("[HCCGC AUTH] Desktop — opening popup...");
-    return signInWithPopup(auth, provider);
-  }).catch(function (err) {
+  var signInPromise = isMobileDevice()
+    ? signInWithRedirect(auth, provider)
+    : signInWithPopup(auth, provider);
+
+  signInPromise.catch(function (err) {
     console.error("[HCCGC AUTH] Sign-in failed:", err.code, err.message);
     if (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request") return;
     errorBox.textContent = "Sign-in failed. Please try again.";

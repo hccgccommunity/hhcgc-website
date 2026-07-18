@@ -104,6 +104,8 @@ tbody td { padding: 10px 10px; border-bottom: 1px solid var(--border); vertical-
 tbody tr:last-child td { border-bottom: none; }
 tbody tr:hover { background: rgba(217,138,30,0.04); }
 tbody tr.cancelled-row { background: var(--red-bg); }
+tbody tr.match-found-row { background: #eef5ff; }
+tbody tr.match-found-row:hover { background: #e0edff; }
 tbody tr.cancelled-row:hover { background: rgba(179,56,44,0.12); }
 tbody tr.cancelled-row td { color: var(--muted); }
 tr.series-summary-row { cursor: pointer; background: var(--surface-soft); }
@@ -136,6 +138,7 @@ tr.sub-row td:first-child { padding-left: 28px; }
 }
 .badge-paid { background: var(--green-bg); color: var(--green); }
 .badge-needs-confirm { background: var(--amber-bg); color: var(--amber); }
+.badge-match-found { background: #e6f0ff; color: #2255a4; border: 1.5px solid #a8c8f0; }
 .badge-draft { background: var(--grey-bg); color: var(--muted); }
 .badge-cancelled { background: var(--red-bg); color: var(--red); }
 .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
@@ -559,6 +562,12 @@ function statusBadge(b) {
       ? '<span class="method-tag">Fee: $' + Number(b.cancellation_fee).toFixed(2) + ' · Refund: $' + Number(b.refund_amount).toFixed(2) + '</span>' : '';
     return '<span class="badge badge-cancelled"><span class="badge-dot"></span>Cancelled</span>' + feeTag;
   }
+  // A match was confirmed in Finance but the booking hasn't been marked
+  // paid yet — deliberately not automatic, so this needs to stand out
+  // until someone actually clicks Mark Paid to finish it.
+  if (b.payment_match_source && (b.payment_status === 'pending' || b.payment_status === 'invoiced')) {
+    return '<span class="badge badge-match-found"><span class="badge-dot"></span>Match found in Finance</span><span class="method-tag" title="' + escHtml(b.payment_match_details || '') + '">Confirm with Mark Paid</span>';
+  }
   if (b.receipt_sent_at) {
     return '<span class="badge badge-paid"><span class="badge-dot"></span>Receipt Sent</span><span class="method-tag">' + formatDateTime(b.receipt_sent_at) + '</span>';
   }
@@ -742,7 +751,8 @@ function isHistoricallyLocked(b) {
 }
 
 function renderBookingRow(b, isSubRow) {
-  const rowClasses = (b.payment_status === 'cancelled' || b.payment_status === 'rejected' ? 'cancelled-row ' : '') + (isSubRow ? 'sub-row' : '');
+  const hasUnconfirmedMatch = b.payment_match_source && (b.payment_status === 'pending' || b.payment_status === 'invoiced');
+  const rowClasses = (b.payment_status === 'cancelled' || b.payment_status === 'rejected' ? 'cancelled-row ' : '') + (hasUnconfirmedMatch ? 'match-found-row ' : '') + (isSubRow ? 'sub-row' : '');
 
   // A public booking request awaiting review is a totally different case
   // from every other status — nothing else (Mark Paid, Edit, Cancel, etc.)
@@ -780,6 +790,7 @@ function renderBookingRow(b, isSubRow) {
 
   const actions = [];
   if (needsAction) {
+    if (b.payment_match_source === 'zeffy') actions.push({ label: 'Mark paid \u2014 Zeffy (matched)', fn: () => markPaid(b.booking_id, 'zeffy') });
     actions.push({ label: 'Mark paid \u2014 Zelle', fn: () => markPaid(b.booking_id, 'zelle') });
     actions.push({ label: 'Mark paid \u2014 Cash', fn: () => markPaid(b.booking_id, 'cash') });
     actions.push({ label: 'Mark paid \u2014 Check', fn: () => markPaid(b.booking_id, 'check') });

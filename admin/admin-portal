@@ -407,7 +407,7 @@ body {
     "key": "org-finance",
     "name": "Finance",
     "description": "Categorize transactions, reconcile Zeffy payouts, and generate the Statement of Activities.",
-    "url": "finance-page",
+    "url": "finance-portal",
     "icon": "dollar"
   }
 ]

@@ -62,6 +62,8 @@ footer a { color: var(--saffron-dark); }
 </head>
 <body>
 
+<div id="header-placeholder"></div>
+
 <div class="page-hero">
   <div class="container">
     <h1>Submit Expenses for Reimbursement</h1>
@@ -97,12 +99,24 @@ footer a { color: var(--saffron-dark); }
   </div>
 </div>
 
-<footer>
-  Hindu Community Center of Greater Cincinnati<br>
-  Questions? <a href="mailto:finance@hccgc.org">finance@hccgc.org</a>
-</footer>
+<div id="footer-placeholder"></div>
 
 <script>
+async function loadPartial(placeholderId, filePath) {
+  const target = document.getElementById(placeholderId);
+  if (!target) return;
+  try {
+    const response = await fetch(filePath);
+    if (!response.ok) throw new Error("Unable to load " + filePath);
+    target.innerHTML = await response.text();
+  } catch (error) {
+    console.error(error);
+    target.innerHTML = "";
+  }
+}
+loadPartial("header-placeholder", "header.html");
+loadPartial("footer-placeholder", "footer.html");
+
 const API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';
 let expenseCount = 0;
 
@@ -120,7 +134,7 @@ function addExpenseCard() {
       '<div class="field"><label>Amount <span class="req">*</span></label><input type="number" step="0.01" min="0.01" class="ex-amount" required></div>' +
     '</div>' +
     '<div class="field"><label>Receipt <span class="req">*</span></label>' +
-      '<label class="file-upload-label" id="upload-label-' + id + '">📎 Choose a file (photo or PDF)<input type="file" class="ex-receipt" accept="image/*,application/pdf" style="display:none;" required></label>' +
+      '<label class="file-upload-label" id="upload-label-' + id + '">📎 Choose a file (photo or PDF)<input type="file" class="ex-receipt" accept="image/*,application/pdf" style="display:none;"></label>' +
     '</div>';
   card.querySelector('.btn-remove-expense').addEventListener('click', function () {
     if (document.querySelectorAll('.expense-card').length === 1) return;
@@ -165,12 +179,23 @@ document.getElementById('expenseForm').addEventListener('submit', async function
   e.preventDefault();
   const btn = document.getElementById('ef-submit-btn');
 
+  const firstName = document.getElementById('ef-first-name').value.trim();
+  const lastName = document.getElementById('ef-last-name').value.trim();
+  const email = document.getElementById('ef-email').value.trim();
+  const zelleId = document.getElementById('ef-zelle-id').value.trim();
+  if (!firstName || !lastName) { showResult('First and last name are both required.'); return; }
+  if (!email || !email.includes('@')) { showResult('A valid email is required.'); return; }
+  if (!zelleId) { showResult('Your Zelle ID is required.'); return; }
+
   const cards = document.querySelectorAll('.expense-card');
-  for (const card of cards) {
-    if (!card.querySelector('.ex-receipt').files.length) {
-      showResult('Every expense needs a receipt attached.');
-      return;
-    }
+  for (let i = 0; i < cards.length; i++) {
+    const card = cards[i];
+    const label = 'Expense ' + (i + 1);
+    if (!card.querySelector('.ex-for').value.trim()) { showResult(label + ': please describe what this was for.'); return; }
+    if (!card.querySelector('.ex-date').value) { showResult(label + ': a date is required.'); return; }
+    const amount = Number(card.querySelector('.ex-amount').value);
+    if (!amount || amount <= 0) { showResult(label + ': a valid amount is required.'); return; }
+    if (!card.querySelector('.ex-receipt').files.length) { showResult(label + ': a receipt is required.'); return; }
   }
 
   btn.disabled = true; btn.textContent = 'Uploading…';

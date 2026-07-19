@@ -682,7 +682,7 @@ async function loadReconciliation() {
           }).join('')
         : '<div class="recon-none">No matching bank deposit found yet — may not have landed.</div>';
       return '<div class="recon-week-card">' +
-        '<div class="recon-week-header"><span class="week-label">Week of ' + formatDate(w.weekStart) + '</span><span class="expected">Expected payout: ' + money(w.expectedPayout) + ' (' + w.txnCount + ' transactions)</span></div>' +
+        '<div class="recon-week-header"><span class="week-label">' + formatDate(w.weekStart) + ' – ' + formatDate(w.weekEnd) + '</span><span class="expected">Expected on ' + formatDate(w.expectedPayoutDate) + ': ' + money(w.expectedPayout) + ' (' + w.txnCount + ' transactions, net of refunds)</span></div>' +
         candidatesHtml +
       '</div>';
     }).join('');

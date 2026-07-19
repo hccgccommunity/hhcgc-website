@@ -682,12 +682,19 @@ function openExpenseReview(submissionId) {
   currentReviewSubmission = s;
   document.getElementById('exp-review-title').textContent = 'Review — ' + s.firstName + ' ' + s.lastName;
   document.getElementById('exp-review-result').style.display = 'none';
-  renderExpenseReviewDetails();
   document.getElementById('exp-review-receipt').innerHTML = '<span style="color:var(--muted);font-size:0.86rem;">Click an expense to view its receipt</span>';
   const canAct = s.items.some(function (i) { return i.status === 'submitted'; });
   document.getElementById('btn-approve-expense').style.display = canAct ? 'inline-block' : 'none';
   document.getElementById('btn-reject-expense').style.display = canAct ? 'inline-block' : 'none';
+  // Show the modal FIRST — if rendering the details below throws for any
+  // reason, the modal still opens and the error is visible, instead of the
+  // whole click silently doing nothing with no clue why.
   document.getElementById('expense-review-overlay').style.display = 'flex';
+  try {
+    renderExpenseReviewDetails();
+  } catch (err) {
+    document.getElementById('exp-review-details').innerHTML = '<div class="empty-state">Could not render details: ' + escHtml(err.message) + '</div>';
+  }
   if (s.items.length) selectExpenseLineItem(s.items[0].line_item_id);
 }
 function closeExpenseReview() { document.getElementById('expense-review-overlay').style.display = 'none'; }

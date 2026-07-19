@@ -58,8 +58,6 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .success-panel h2 { font-family: Georgia, "Times New Roman", serif; color: var(--maroon); margin-bottom: 10px; }
 .success-panel p { color: var(--muted); font-size: 0.92rem; line-height: 1.6; }
 .total-bar { display: flex; justify-content: space-between; padding: 14px 18px; background: var(--surface-soft); border-radius: 12px; font-weight: 700; margin-bottom: 16px; }
-footer { text-align: center; padding: 20px; font-size: 0.78rem; color: var(--muted); }
-footer a { color: var(--saffron-dark); }
 
 /* Header partial styling — required by header.html's markup. Copied
    directly from admin-portal so header.html renders identically here as

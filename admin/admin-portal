@@ -1,859 +1,667 @@
 
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Finance — HCCGC Admin Portal</title>
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<title>HCCGC Admin Portal</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' x='50%25' text-anchor='middle' font-size='82'%3E%E0%A5%90%3C/text%3E%3C/svg%3E">
+
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F5ZHQ4CDR9');</script>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-TPBF5VKB');</script>
+
 <style>
 :root {
-  --bg: #fff9f1; --surface: #ffffff; --surface-soft: #fff6ea; --border: rgba(121,62,17,0.14);
-  --text: #2c1b10; --muted: #6a5141; --saffron: #b55a18; --saffron-dark: #8d3e0d; --maroon: #7f2e16;
-  --green: #2e7d4f; --green-bg: #e8f5ec; --red: #b3382c; --red-bg: #fbe9e7;
-  --radius: 22px; --shadow: 0 18px 45px rgba(93,43,14,0.10);
+  --bg: #fff9f1;
+  --surface: #ffffff;
+  --surface-soft: #fff6ea;
+  --border: rgba(121,62,17,0.14);
+  --text: #2c1b10;
+  --muted: #6a5141;
+  --saffron: #b55a18;
+  --saffron-dark: #8d3e0d;
+  --maroon: #7f2e16;
+  --radius: 22px;
+  --shadow: 0 18px 45px rgba(93,43,14,0.10);
 }
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%), radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%), var(--bg); color: var(--text); min-height: 100vh; }
-.container { width: min(calc(100% - 32px), 1300px); margin: 0 auto; }
-.site-header { position: sticky; top: 0; z-index: 50; background: rgba(255,249,241,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
-.nav { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 92px; padding: 12px 0; }
-.site-header a.brand, .site-header a.brand:link, .site-header a.brand:visited { text-decoration: none; color: inherit; }
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%),
+    radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%),
+    var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.container { width: min(calc(100% - 32px), 1100px); margin: 0 auto; }
+
+/* HERO */
+.page-hero {
+  padding: 48px 0 36px;
+  text-align: center;
+  background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%);
+  color: #fff;
+  position: relative;
+}
+.page-hero h1 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 2rem;
+  color: #fff;
+  margin-bottom: 10px;
+}
+.page-hero p {
+  color: #ffffff;
+  font-size: 0.95rem;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* GATE */
+#gate { padding: 40px 16px 80px; display: flex; justify-content: center; }
+.gate-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2.5rem 2rem;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.gate-card img.logo {
+  width: 90px; height: 90px;
+  object-fit: contain;
+  border-radius: 50%;
+  margin: 0 auto 1.25rem;
+  display: block;
+  border: 3px solid var(--border);
+}
+.gate-card h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.3rem;
+  color: var(--maroon);
+  margin-bottom: 0.5rem;
+}
+.gate-card > p { color: var(--muted); font-size: 0.86rem; line-height: 1.6; margin-bottom: 1.6rem; }
+
+.btn-google {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 0.72rem 1rem; background: #fff;
+  border: 1.5px solid var(--border); border-radius: 10px;
+  font-size: 0.95rem; font-weight: 600; color: #3c4043;
+  cursor: pointer; transition: background 0.15s, box-shadow 0.15s;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.btn-google:hover { background: #f8f9fa; box-shadow: 0 1px 8px rgba(0,0,0,0.13); }
+
+#signin-error {
+  display: none;
+  color: #c0392b;
+  background: #fdecea;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  margin-top: 1rem;
+  text-align: left;
+}
+
+.gate-note { margin-top: 1.2rem; font-size: 0.78rem; color: var(--muted); }
+.gate-note a { color: var(--saffron-dark); text-decoration: none; }
+.gate-note a:hover { text-decoration: underline; }
+
+/* APP GRID */
+#app { display: none; }
+
+.app-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+  padding: 8px 0 60px;
+}
+
+.app-tile {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 1.75rem 1.5rem;
+  text-decoration: none;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 4px 16px rgba(93,43,14,0.06);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.app-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(93,43,14,0.14);
+}
+
+.app-tile-icon {
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  background: var(--surface-soft);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--saffron-dark);
+}
+.app-tile-icon svg { width: 24px; height: 24px; }
+
+.app-tile h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.15rem;
+  color: var(--maroon);
+}
+.app-tile p {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.app-tile-badge {
+  align-self: flex-start;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--saffron-dark);
+  background: rgba(217,138,30,0.12);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.no-apps {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+  background: #fff;
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+.spinner {
+  width: 20px; height: 20px;
+  border: 3px solid rgba(141,62,13,0.18);
+  border-top-color: var(--saffron-dark);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+/* Header partial styling — required by header.html's markup.
+   Copied to match the rest of the site so header.html renders
+   identically here as it does everywhere else. */
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(255, 249, 241, 0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+}
+.nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    min-height: 92px;
+    padding: 12px 0;
+}
+.site-header a.brand,
+.site-header a.brand:link,
+.site-header a.brand:visited {
+  text-decoration: none;
+  color: inherit;
+}
 .brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
-.brand-logo-wrap { background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 8px; box-shadow: var(--shadow); flex-shrink: 0; }
+.brand-logo-wrap {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 8px;
+    box-shadow: var(--shadow);
+    flex-shrink: 0;
+}
 .brand-logo { width: 88px; height: auto; border-radius: 12px; object-fit: contain; }
 .brand-text h1 { margin: 0; font-size: 1.2rem; line-height: 1.15; color: var(--maroon); }
-.site-header nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 18px; margin: 0; padding: 0; align-items: center; justify-content: flex-end; }
-.site-header nav a, .site-header nav a:link, .site-header nav a:visited { font-weight: 700; color: var(--text); font-size: 0.96rem; text-decoration: none; }
+.site-header nav ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+    justify-content: flex-end;
+}
+.site-header nav a,
+.site-header nav a:link,
+.site-header nav a:visited { font-weight: 700; color: var(--text); font-size: 0.96rem; text-decoration: none; }
 .site-header nav a:hover { color: var(--saffron-dark); }
-.menu-toggle { display: none; border: 0; background: transparent; padding: 6px 0; cursor: pointer; color: #2c1b10; align-self: flex-end; }
+.menu-toggle {
+    display: none;
+    border: 0;
+    background: transparent;
+    padding: 6px 0;
+    cursor: pointer;
+    color: #2c1b10;
+    align-self: flex-end;
+}
 .menu-toggle .bar { display: block; width: 26px; height: 2px; margin: 5px 0; background: currentColor; }
 @media (max-width: 768px) {
-  .nav { flex-direction: column; align-items: stretch; gap: 8px; } .menu-toggle { display: inline-block; }
-  .site-header nav { display: none; width: 100%; background: rgba(255,249,241,0.95); padding: 10px 0; }
-  .site-header nav.is-open { display: block; } .site-header nav ul { flex-direction: column; gap: 14px; }
-}
-.page-hero { padding: 28px 0 22px; background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%); color: #fff; }
-.page-hero h1 { font-family: Georgia, "Times New Roman", serif; font-size: 1.9rem; color: #fff; margin-bottom: 6px; }
-.page-hero p { color: #ffffff; opacity: 0.9; font-size: 0.92rem; max-width: 620px; }
-.back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.85); text-decoration: none; margin-bottom: 14px; }
-.back-link:hover { color: #fff; text-decoration: underline; }
-
-.tab-nav { background: var(--surface); border-bottom: 1px solid var(--border); }
-.tab-nav ul { list-style: none; display: flex; gap: 4px; padding: 10px 0; flex-wrap: wrap; }
-.tab-nav button { display: inline-block; padding: 8px 16px; border-radius: 999px; font-size: 0.86rem; font-weight: 700; color: var(--muted); background: none; border: none; cursor: pointer; transition: background 0.15s, color 0.15s; font-family: inherit; }
-.tab-nav button.active { background: var(--surface-soft); color: var(--saffron-dark); }
-.tab-nav button:not(.active):hover { background: var(--surface-soft); }
-
-.tab-panel { display: none; padding: 24px 0 60px; }
-.tab-panel.active { display: block; }
-
-.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
-.toolbar input, .toolbar select {
-  font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; padding: 9px 14px;
-  border: 1.5px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text);
-}
-.toolbar .count { margin-left: auto; font-size: 0.82rem; color: var(--muted); }
-.btn-primary {
-  font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; font-weight: 700; color: #fff;
-  background: linear-gradient(135deg, var(--saffron-dark), var(--maroon)); border: none; border-radius: 10px;
-  padding: 10px 16px; cursor: pointer;
-}
-.btn-secondary {
-  font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; font-weight: 700; color: var(--text);
-  background: #fff; border: 1.5px solid var(--border); border-radius: 10px; padding: 9px 14px; cursor: pointer;
+    .nav { flex-direction: column; align-items: stretch; gap: 8px; }
+    .menu-toggle { display: inline-block; }
+    .site-header nav {
+        display: none;
+        width: 100%;
+        background: rgba(255, 249, 241, 0.95);
+        padding: 10px 0;
+    }
+    .site-header nav.is-open { display: block; }
+    .site-header nav ul { flex-direction: column; gap: 14px; }
 }
 
-.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow-x: auto; box-shadow: var(--shadow); }
-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
-thead th { text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); background: var(--surface-soft); padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
-tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-tbody tr:last-child td { border-bottom: none; }
-tbody tr:hover { background: rgba(217,138,30,0.04); }
-.amount { font-weight: 700; }
-.amount.income { color: var(--green); }
-.amount.expense { color: var(--red); }
-.source-tag { display: inline-block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--surface-soft); color: var(--saffron-dark); }
-.cat-select { font-family: inherit; font-size: 0.82rem; padding: 6px 10px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; }
-.cat-select.uncategorized { border-color: var(--red); background: var(--red-bg); }
-.empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
-
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; box-shadow: var(--shadow); margin-bottom: 20px; }
-.stmt-section-title { font-family: Georgia, "Times New Roman", serif; color: var(--maroon); font-size: 1.1rem; margin: 18px 0 8px; }
-.stmt-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 0.92rem; }
-.stmt-row .count { color: var(--muted); font-size: 0.78rem; margin-left: 6px; }
-.stmt-total { display: flex; justify-content: space-between; padding: 12px 0; font-weight: 800; font-size: 1rem; border-top: 2px solid var(--border); margin-top: 6px; }
-.stmt-net { display: flex; justify-content: space-between; padding: 16px 20px; border-radius: 14px; font-weight: 800; font-size: 1.2rem; margin-top: 16px; }
-.stmt-net.positive { background: var(--green-bg); color: var(--green); }
-.stmt-net.negative { background: var(--red-bg); color: var(--red); }
-
-.recon-week-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px 20px; margin-bottom: 12px; }
-.recon-week-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.recon-week-header .week-label { font-weight: 700; font-size: 0.94rem; }
-.recon-week-header .expected { color: var(--muted); font-size: 0.84rem; }
-.recon-candidate { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 10px; font-size: 0.86rem; margin-bottom: 6px; }
-.recon-candidate.match { background: var(--green-bg); }
-.recon-candidate.mismatch { background: var(--red-bg); }
-.recon-none { color: var(--muted); font-size: 0.84rem; font-style: italic; }
-
-.category-pill { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border: 1.5px solid var(--border); border-radius: 999px; font-size: 0.86rem; }
-.category-pill.inactive { opacity: 0.5; }
-.category-pill .type-dot { width: 8px; height: 8px; border-radius: 50%; }
-.category-pill .type-dot.income { background: var(--green); }
-.category-pill .type-dot.expense { background: var(--red); }
-.category-pill button { border: none; background: none; cursor: pointer; font-size: 0.76rem; font-weight: 700; color: var(--saffron-dark); padding: 0; margin-left: 4px; }
-.category-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
-
-#gate{padding:60px 16px;display:flex;justify-content:center;}
-.gate-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow);}
-.gate-card h3{font-family:Georgia,serif;font-size:1.3rem;color:var(--maroon);margin-bottom:.5rem;}
-.gate-card p{color:var(--muted);font-size:.88rem;line-height:1.6;}
-.gate-card a{color:var(--saffron-dark);}
+/* Simple signed-in status row (replaces a custom topbar so the page
+   keeps the standard site header/footer instead of its own chrome) */
+.user-status-row {
+  display: none;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.85);
+  position: absolute;
+  top: 14px;
+  right: 0;
+}
+.user-status-row.show { display: flex; }
+.user-status-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(255,255,255,0.2);
+  border: 1.5px solid rgba(255,255,255,0.4);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+.user-status-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.btn-signout-inline {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  font-size: 0.76rem;
+  cursor: pointer;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-family: Arial, Helvetica, sans-serif;
+  transition: background 0.15s;
+}
+.btn-signout-inline:hover { background: rgba(255,255,255,0.25); }
 </style>
 </head>
 <body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TPBF5VKB" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
 <div id="site-header"></div>
+
+<div class="page-hero">
+  <div class="container" style="position:relative;">
+    <div class="user-status-row" id="user-status-row">
+      <div class="user-status-avatar" id="status-avatar">?</div>
+      <span id="status-name"></span>
+      <button class="btn-signout-inline" id="btn-signout">Sign out</button>
+    </div>
+    <h1>Welcome to the Admin Portal</h1>
+    <p>Sign in with your HCCGC Google account to access the tools you've been granted.</p>
+  </div>
+</div>
 
 <div id="gate">
   <div class="gate-card">
-    <h3>Checking access&hellip;</h3>
-    <p>Please sign in from the <a href="/admin/admin-portal">Admin Portal</a> first.</p>
+    <img class="logo" src="../hccgc-logo.jpeg" alt="HCCGC Logo">
+    <h3>Sign in to continue</h3>
+    <p>This portal is for authorized HCCGC members only.</p>
+    <button class="btn-google" id="btn-signin">
+      <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <path d="M19.6 10.23c0-.68-.06-1.36-.17-2H10v3.77h5.4a4.63 4.63 0 01-2.01 3.04v2.52h3.25c1.9-1.75 3-4.33 3-7.33z" fill="#4285F4"/>
+        <path d="M10 20c2.7 0 4.97-.9 6.63-2.44l-3.25-2.52c-.9.6-2.05.96-3.38.96-2.6 0-4.8-1.75-5.59-4.11H1.07v2.6A10 10 0 0010 20z" fill="#34A853"/>
+        <path d="M4.41 11.89A5.98 5.98 0 014.1 10c0-.65.11-1.29.31-1.89V5.51H1.07A10 10 0 000 10c0 1.61.38 3.13 1.07 4.49l3.34-2.6z" fill="#FBBC05"/>
+        <path d="M10 3.98c1.46 0 2.77.5 3.8 1.49l2.85-2.85C14.96.99 12.7 0 10 0A10 10 0 001.07 5.51l3.34 2.6C5.2 5.73 7.4 3.98 10 3.98z" fill="#EA4335"/>
+      </svg>
+      Sign in with Google
+    </button>
+    <div id="signin-error"></div>
+    <p class="gate-note">Need access? Contact <a href="mailto:admin@hccgc.org">admin@hccgc.org</a></p>
   </div>
 </div>
 
-<div id="app" style="display:none;">
-
-<div class="page-hero">
+<div id="app">
   <div class="container">
-    <a class="back-link" href="https://hccgc.org/admin/admin-portal">&larr; Back to apps</a>
-    <h1>Finance</h1>
-    <p>Categorize every transaction, reconcile Zeffy payouts, and generate the Statement of Activities — one place for all of it.</p>
-  </div>
-</div>
-
-<div class="tab-nav">
-  <div class="container">
-    <ul>
-      <li><button class="tab-btn active" data-tab="transactions">Transactions</button></li>
-      <li><button class="tab-btn" data-tab="categories">Categories</button></li>
-      <li><button class="tab-btn" data-tab="statement">Statement of Activities</button></li>
-      <li><button class="tab-btn" data-tab="reconciliation">Zeffy Reconciliation</button></li>
-      <li><button class="tab-btn" data-tab="matching">Invoice Matching</button></li>
-      <li><button class="tab-btn" data-tab="balance-sheet">Balance Sheet</button></li>
-      <li><button class="tab-btn" data-tab="expenses">Expense Approvals</button></li>
-    </ul>
-  </div>
-</div>
-
-<div class="container">
-
-  <!-- ── TRANSACTIONS TAB ── -->
-  <div class="tab-panel active" id="tab-transactions">
-    <div class="toolbar">
-      <input type="date" id="tx-start-date">
-      <input type="date" id="tx-end-date">
-      <select id="tx-source-filter">
-        <option value="">All sources</option>
-        <option value="bank">Bank (Zelle etc.)</option>
-        <option value="zeffy">Zeffy</option>
-      </select>
-      <select id="tx-status-filter">
-        <option value="">All</option>
-        <option value="uncategorized">Uncategorized only</option>
-        <option value="categorized">Categorized only</option>
-      </select>
-      <button type="button" class="btn-secondary" id="btn-load-tx">Refresh</button>
-      <span class="count" id="tx-count"></span>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Date</th><th>Source</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead>
-        <tbody id="tx-tbody"></tbody>
-      </table>
-      <div class="empty-state" id="tx-empty" style="display:none;">No transactions in this range.</div>
-    </div>
-  </div>
-
-  <!-- ── CATEGORIES TAB ── -->
-  <div class="tab-panel" id="tab-categories">
-    <div class="card">
-      <h2 style="font-family:Georgia,serif;color:var(--maroon);margin-bottom:14px;">Income categories</h2>
-      <div class="category-list" id="income-category-list"></div>
-      <h2 style="font-family:Georgia,serif;color:var(--maroon);margin:22px 0 14px;">Expense categories</h2>
-      <div class="category-list" id="expense-category-list"></div>
-
-      <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
-        <div style="flex:1;min-width:200px;">
-          <label style="font-size:0.82rem;font-weight:700;color:var(--muted);display:block;margin-bottom:6px;">New category name</label>
-          <input type="text" id="new-cat-name" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;">
-        </div>
-        <select id="new-cat-type" style="font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;">
-          <option value="income">Income</option>
-          <option value="expense">Expense</option>
-        </select>
-        <button type="button" class="btn-primary" id="btn-add-category">Add category</button>
-      </div>
-      <div class="result-box" id="cat-result-box" style="display:none;margin-top:12px;border-radius:10px;padding:10px 14px;font-size:0.85rem;"></div>
-    </div>
-  </div>
-
-  <!-- ── STATEMENT OF ACTIVITIES TAB ── -->
-  <div class="tab-panel" id="tab-statement">
-    <div class="toolbar">
-      <input type="date" id="stmt-start-date">
-      <input type="date" id="stmt-end-date">
-      <button type="button" class="btn-secondary" id="btn-load-statement">Generate</button>
-    </div>
-    <div class="card" id="statement-card">
-      <div class="empty-state">Choose a date range and click Generate.</div>
-    </div>
-  </div>
-
-  <!-- ── RECONCILIATION TAB ── -->
-  <div class="tab-panel" id="tab-reconciliation">
-    <div class="card" style="margin-bottom:20px;">
-      <p style="font-size:0.88rem;color:var(--muted);line-height:1.6;">Zeffy pays out once a week (Mondays) as one lump deposit, covering all the individual transactions logged that week. This compares each week's expected payout (sum of that week's Zeffy transactions) against the bank deposits that showed up around the same time — review and confirm the match yourself, nothing here links automatically.</p>
-    </div>
-    <div id="reconciliation-list"></div>
-  </div>
-
-  <!-- ── INVOICE MATCHING TAB ── -->
-  <div class="tab-panel" id="tab-matching">
-    <div class="card" style="margin-bottom:20px;">
-      <p style="font-size:0.88rem;color:var(--muted);line-height:1.6;">Rental-campaign Zeffy payments that look like they belong to an open, unpaid booking. Confirming a match here links the payment to that booking and highlights it in All Bookings — it does <strong>not</strong> mark the booking paid by itself. That final step is still a manual Mark Paid click in All Bookings, on purpose.</p>
-    </div>
-    <div id="matching-list"></div>
-  </div>
-
-  <!-- ── BALANCE SHEET TAB ── -->
-  <div class="tab-panel" id="tab-balance-sheet">
-    <div class="card" style="margin-bottom:20px;">
-      <p style="font-size:0.88rem;color:var(--muted);line-height:1.6;">Cash is computed from every recorded bank transaction to date — it's only as accurate as that history is complete. If you know the real starting balance before this data began, add it below as an asset (e.g. "Starting balance adjustment") so the total lines up. Receivables, fixed assets, loans, and anything else a real balance sheet needs has no source of truth in this system yet — add it manually below.</p>
-    </div>
-    <div class="toolbar">
-      <input type="date" id="bs-as-of-date">
-      <button type="button" class="btn-secondary" id="btn-load-balance-sheet">Generate</button>
-    </div>
-    <div class="card" id="balance-sheet-card" style="margin-bottom:20px;">
-      <div class="empty-state">Choose a date and click Generate.</div>
-    </div>
-    <div class="card">
-      <h2 style="font-family:Georgia,serif;color:var(--maroon);margin-bottom:14px;">Manual assets &amp; liabilities</h2>
-      <div id="bs-items-list" style="margin-bottom:16px;"></div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;padding-top:16px;border-top:1px solid var(--border);">
-        <div style="flex:1;min-width:180px;">
-          <label style="font-size:0.82rem;font-weight:700;color:var(--muted);display:block;margin-bottom:6px;">Item name</label>
-          <input type="text" id="bs-new-name" placeholder="e.g. Starting balance adjustment" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;">
-        </div>
-        <select id="bs-new-category" style="font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;">
-          <option value="asset">Asset</option>
-          <option value="liability">Liability</option>
-        </select>
-        <div>
-          <label style="font-size:0.82rem;font-weight:700;color:var(--muted);display:block;margin-bottom:6px;">Amount</label>
-          <input type="number" step="0.01" id="bs-new-amount" style="width:140px;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;">
-        </div>
-        <button type="button" class="btn-primary" id="btn-add-bs-item">Add item</button>
-      </div>
-      <div class="result-box" id="bs-result-box" style="display:none;margin-top:12px;border-radius:10px;padding:10px 14px;font-size:0.85rem;"></div>
-    </div>
-  </div>
-
-  <!-- ── EXPENSE APPROVALS TAB ── -->
-  <div class="tab-panel" id="tab-expenses">
-    <div class="toolbar">
-      <select id="exp-status-filter">
-        <option value="submitted">Awaiting review</option>
-        <option value="approved">Approved (not yet paid)</option>
-        <option value="paid">Paid</option>
-        <option value="rejected">Rejected</option>
-        <option value="">All</option>
-      </select>
-      <button type="button" class="btn-secondary" id="btn-load-expenses">Refresh</button>
-    </div>
-    <div id="expenses-submission-list"></div>
-  </div>
-
-</div>
-</div>
-
-<div class="modal-overlay" id="expense-review-overlay" style="display:none;">
-  <div class="modal-panel" style="max-width:1000px;width:95%;">
-    <div class="modal-header">
-      <h2 id="exp-review-title">Review submission</h2>
-      <button class="modal-close" id="btn-close-expense-review">&times;</button>
-    </div>
-    <div class="modal-body" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;max-height:70vh;overflow-y:auto;">
-      <div id="exp-review-details"></div>
-      <div>
-        <div style="font-size:0.82rem;font-weight:700;color:var(--muted);margin-bottom:8px;">Receipt</div>
-        <div id="exp-review-receipt" style="border:1.5px solid var(--border);border-radius:12px;min-height:300px;display:flex;align-items:center;justify-content:center;background:var(--surface-soft);">
-          <span style="color:var(--muted);font-size:0.86rem;">Click an expense to view its receipt</span>
-        </div>
-      </div>
-    </div>
-    <div class="result-box" id="exp-review-result" style="display:none;margin:0 26px 16px;"></div>
-    <div class="modal-footer">
-      <button type="button" class="btn-secondary" id="btn-reject-expense">Reject submission</button>
-      <button type="button" class="btn-primary" id="btn-approve-expense" style="margin-top:0;">Approve all</button>
+    <div id="apps-container" class="loading-state">
+      <div class="spinner"></div>
+      Loading your apps&hellip;
     </div>
   </div>
 </div>
 
 <div id="site-footer"></div>
 
-<style>
-.modal-overlay { position: fixed; inset: 0; background: rgba(44,27,16,0.5); z-index: 100; display: flex; align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto; }
-.modal-panel { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); }
-.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 22px 26px; border-bottom: 1px solid var(--border); }
-.modal-header h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.15rem; color: var(--maroon); }
-.modal-close { background: none; border: none; font-size: 1.4rem; color: var(--muted); cursor: pointer; line-height: 1; }
-.modal-body { padding: 22px 26px; }
-.modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 18px 26px; border-top: 1px solid var(--border); }
-.exp-line-item { border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; cursor: pointer; }
-.exp-line-item:hover, .exp-line-item.active { border-color: var(--saffron-dark); background: var(--surface-soft); }
-.exp-line-item .exp-top-row { display: flex; justify-content: space-between; font-weight: 700; font-size: 0.9rem; margin-bottom: 4px; }
-.exp-line-item .exp-date { font-size: 0.78rem; color: var(--muted); margin-bottom: 8px; }
-.exp-submission-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-.exp-submission-card .exp-sub-info { font-size: 0.9rem; }
-.exp-submission-card .exp-sub-total { font-weight: 700; color: var(--maroon); font-size: 1rem; }
-.result-box.success { background: var(--green-bg); color: var(--green); border: 1px solid rgba(46,125,79,0.25); }
-.result-box.error { background: var(--red-bg); color: var(--red); border: 1px solid rgba(179,56,44,0.25); }
-</style>
+<!-- App registry: every app available in the portal lives here.
+     "key" must match an entry in each user's allowedApps array in Firestore. -->
+<script id="app-registry" type="application/json">
+[
+  {
+    "key": "manage-events",
+    "name": "Manage Events",
+    "description": "Add, edit, and remove events shown on the public Upcoming Events page.",
+    "url": "manage-events",
+    "icon": "calendar"
+  },
+  {
+    "key": "marketing-assistant",
+    "name": "Hey HCCGC",
+    "description": "Your AI marketing assistant — generate flyers, WhatsApp announcements, emails, and social posts. Opens in ChatGPT.",
+    "url": "https://chatgpt.com/g/g-6a4517d567ec8191998bc6c43891728a-hey-hccgc",
+    "icon": "sparkles",
+    "external": true
+  },
+  {
+    "key": "user-management",
+    "name": "User Management",
+    "description": "Grant or revoke portal access for HCCGC members. Admins only.",
+    "url": "user-management",
+    "icon": "users"
+  },
+  {
+    "key": "manage-pages",
+    "name": "Manage Pages",
+    "description": "Create and publish public event and initiative pages. Goes live instantly — no deploy needed.",
+    "url": "manage-pages",
+    "icon": "globe"
+  },
+  {
+    "key": "bookings-finance",
+    "name": "Facility Bookings",
+    "description": "Book facility rentals and HCCGC events, manage rooms/rates, and log Zelle/cash transactions.",
+    "url": "bookings/new-booking",
+    "icon": "calendar"
+  },
+  {
+    "key": "org-finance",
+    "name": "Finance",
+    "description": "Categorize transactions, reconcile Zeffy payouts, and generate the Statement of Activities.",
+    "url": "finance-portal",
+    "icon": "dollar"
+  }
+]
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import {
+  getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect,
+  getRedirectResult, browserLocalPersistence, setPersistence,
+  signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA6IzLjWTg7Rq04HsTH-iA3eDmSzKI7xME",
+  authDomain: "hccgc-a7a54.firebaseapp.com",
+  projectId: "hccgc-a7a54",
+  storageBucket: "hccgc-a7a54.firebasestorage.app",
+  messagingSenderId: "75757201418",
+  appId: "1:75757201418:web:c31e9361921242145717f3",
+  measurementId: "G-F9K6GVD5CS"
+};
+
+const ALLOWED_DOMAIN = "hccgc.org";
+const USERS_COLLECTION = "portalUsers";
+
+const fbApp = initializeApp(firebaseConfig);
+const auth = getAuth(fbApp);
+const db = getFirestore(fbApp);
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ hd: ALLOWED_DOMAIN });
+
+// Persistence is set ONCE here, at load — not inside the click handler.
+// Awaiting it before calling signInWithPopup was the actual bug: the popup
+// call landed outside the synchronous click-event call stack, so browsers
+// silently blocked it on the first click (Firebase throws, generic error
+// shows), and only allowed it through on an immediate second click under
+// some browsers' relaxed heuristic for that. Popup must be opened
+// synchronously, directly inside the click handler, every time.
+setPersistence(auth, browserLocalPersistence).catch(function (err) {
+  console.error("[HCCGC AUTH] setPersistence failed:", err.code, err.message);
+});
+
+window.__hccgcPortal = { auth, db, doc, getDoc, setDoc, serverTimestamp, USERS_COLLECTION, ALLOWED_DOMAIN };
+
+function isMobileDevice() {
+  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+}
+
+document.getElementById("btn-signin").addEventListener("click", function () {
+  var errorBox = document.getElementById("signin-error");
+  errorBox.style.display = "none";
+
+  var signInPromise = isMobileDevice()
+    ? signInWithRedirect(auth, provider)
+    : signInWithPopup(auth, provider);
+
+  signInPromise.catch(function (err) {
+    console.error("[HCCGC AUTH] Sign-in failed:", err.code, err.message);
+    if (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request") return;
+    errorBox.textContent = "Sign-in failed. Please try again.";
+    errorBox.style.display = "block";
+  });
+});
+
+// Belt-and-suspenders: attempt to pick up the redirect result directly,
+// in case onAuthStateChanged fires before Firebase fully restores the session.
+getRedirectResult(auth).then(function (result) {
+  if (result && result.user) {
+    console.log("[HCCGC AUTH] getRedirectResult caught session:", result.user.email);
+  }
+}).catch(function (err) {
+  if (err.code !== "auth/no-current-user") {
+    console.error("[HCCGC AUTH] getRedirectResult error:", err.code);
+  }
+});
+
+document.getElementById("btn-signout").addEventListener("click", function () {
+  signOut(auth);
+});
+
+onAuthStateChanged(auth, function (user) {
+  var errorBox = document.getElementById("signin-error");
+
+  if (!user) {
+    document.getElementById("app").style.display = "none";
+    document.getElementById("gate").style.display = "flex";
+    document.getElementById("user-status-row").classList.remove("show");
+    return;
+  }
+
+  var email = (user.email || "").toLowerCase();
+  if (!email.endsWith("@" + ALLOWED_DOMAIN)) {
+    errorBox.textContent = "Please sign in with your @" + ALLOWED_DOMAIN + " account.";
+    errorBox.style.display = "block";
+    signOut(auth);
+    return;
+  }
+
+  document.getElementById("gate").style.display = "none";
+  document.getElementById("app").style.display = "block";
+
+  var statusRow = document.getElementById("user-status-row");
+  statusRow.classList.add("show");
+  document.getElementById("status-name").textContent = user.displayName || email;
+  var avatarEl = document.getElementById("status-avatar");
+  if (user.photoURL) {
+    avatarEl.innerHTML = '<img src="' + user.photoURL + '" alt="">';
+  } else {
+    avatarEl.textContent = (user.displayName || email).charAt(0).toUpperCase();
+  }
+
+  window.dispatchEvent(new CustomEvent("hccgc-portal-signed-in", { detail: { user: user } }));
+});
+</script>
 
 <script>
-const API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';
+var ICONS = {
+  calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  sparkles: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>',
+  users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',
+  globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+  dollar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+  default: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>'
+};
 
-async function authedFetch(url, options) {
-  options = options || {};
-  var user = window.__hccgcFirebaseUser;
-  if (!user) throw new Error('Not signed in.');
-  var token = await user.getIdToken();
-  options.headers = Object.assign({}, options.headers, { 'Authorization': 'Bearer ' + token });
-  return fetch(url, options);
+function escHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
-function escHtml(str) { return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
-function formatDate(d) { if (!d) return '—'; return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
-function money(n) { return '$' + Number(n).toFixed(2); }
 
-// ── Tabs ──
-document.querySelectorAll('.tab-btn').forEach(function (btn) {
-  btn.addEventListener('click', function () {
-    document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
-    document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
-    btn.classList.add('active');
-    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-    if (btn.dataset.tab === 'reconciliation' && !window.__reconLoaded) loadReconciliation();
-    if (btn.dataset.tab === 'matching' && !window.__matchingLoaded) loadUnmatchedRentalPayments();
-    if (btn.dataset.tab === 'balance-sheet' && !window.__bsItemsLoaded) loadBalanceSheetItems();
-    if (btn.dataset.tab === 'expenses') loadExpenseSubmissions();
-  });
+function getAppRegistry() {
+  var el = document.getElementById('app-registry');
+  try {
+    return JSON.parse(el.textContent);
+  } catch (e) {
+    console.error('Could not parse app registry', e);
+    return [];
+  }
+}
+
+window.addEventListener('hccgc-portal-signed-in', function (e) {
+  loadUserApps(e.detail.user);
 });
 
-// ── Categories (shared across tabs) ──
-let CATEGORIES = [];
-async function loadCategories() {
-  const res = await authedFetch(API_BASE + '/finance/categories');
-  CATEGORIES = await res.json();
-  renderCategoriesTab();
-}
-function renderCategoriesTab() {
-  const income = CATEGORIES.filter(function (c) { return c.type === 'income'; });
-  const expense = CATEGORIES.filter(function (c) { return c.type === 'expense'; });
-  document.getElementById('income-category-list').innerHTML = income.map(renderCategoryPill).join('');
-  document.getElementById('expense-category-list').innerHTML = expense.map(renderCategoryPill).join('');
-}
-function renderCategoryPill(c) {
-  return '<div class="category-pill' + (c.active ? '' : ' inactive') + '">' +
-    '<span class="type-dot ' + c.type + '"></span>' + escHtml(c.name) +
-    '<button onclick="toggleCategoryActive(\'' + c.category_id + '\', ' + !c.active + ')">' + (c.active ? 'Deactivate' : 'Activate') + '</button>' +
-    '</div>';
-}
-async function toggleCategoryActive(categoryId, active) {
-  await authedFetch(API_BASE + '/finance/categories/' + encodeURIComponent(categoryId), {
-    method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ active: active })
-  });
-  await loadCategories();
-}
-document.getElementById('btn-add-category').addEventListener('click', async function () {
-  const name = document.getElementById('new-cat-name').value.trim();
-  const type = document.getElementById('new-cat-type').value;
-  const box = document.getElementById('cat-result-box');
-  if (!name) { box.style.display = 'block'; box.style.background = 'var(--red-bg)'; box.style.color = 'var(--red)'; box.textContent = 'Category name is required.'; return; }
-  try {
-    const res = await authedFetch(API_BASE + '/finance/categories', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, type: type })
+function loadUserApps(user) {
+  var fb = window.__hccgcPortal;
+  var container = document.getElementById('apps-container');
+
+  fb.getDoc(fb.doc(fb.db, fb.USERS_COLLECTION, user.email.toLowerCase()))
+    .then(function (snap) {
+      var allowedApps = [];
+      var isAdmin = false;
+
+      if (snap.exists()) {
+        var data = snap.data();
+        allowedApps = Array.isArray(data.allowedApps) ? data.allowedApps : [];
+        isAdmin = !!data.isAdmin;
+      } else {
+        // First-time sign-in: create a record with no app access yet.
+        // An existing admin will need to grant access via User Management.
+        fb.setDoc(fb.doc(fb.db, fb.USERS_COLLECTION, user.email.toLowerCase()), {
+          email: user.email,
+          name: user.displayName || '',
+          allowedApps: [],
+          isAdmin: false,
+          createdAt: fb.serverTimestamp(),
+          lastSignIn: fb.serverTimestamp()
+        });
+      }
+
+      renderApps(allowedApps, isAdmin);
+    })
+    .catch(function (err) {
+      console.error(err);
+      container.innerHTML = '<div class="no-apps">Could not load your apps. Please try refreshing.</div>';
     });
-    const data = await res.json();
-    box.style.display = 'block';
-    if (!res.ok) {
-      box.style.background = 'var(--red-bg)'; box.style.color = 'var(--red)';
-      box.textContent = (data.errors || [data.error]).join(' ');
-    } else {
-      box.style.background = 'var(--green-bg)'; box.style.color = 'var(--green)';
-      box.textContent = 'Added "' + name + '".';
-      document.getElementById('new-cat-name').value = '';
-      await loadCategories();
-      populateCategorySelects();
-    }
-  } catch (err) {
-    box.style.display = 'block'; box.style.background = 'var(--red-bg)'; box.style.color = 'var(--red)';
-    box.textContent = 'Could not reach the server: ' + err.message;
-  }
-});
-
-// ── Transactions ──
-let TRANSACTIONS = [];
-function defaultDateRange() {
-  const end = new Date();
-  const start = new Date(); start.setMonth(start.getMonth() - 1);
-  return { start: start.toISOString().slice(0, 10), end: end.toISOString().slice(0, 10) };
 }
-(function initDateFields() {
-  const range = defaultDateRange();
-  ['tx-start-date', 'stmt-start-date'].forEach(function (id) { document.getElementById(id).value = range.start; });
-  ['tx-end-date', 'stmt-end-date'].forEach(function (id) { document.getElementById(id).value = range.end; });
-})();
 
-async function loadTransactions() {
-  const start = document.getElementById('tx-start-date').value;
-  const end = document.getElementById('tx-end-date').value;
-  const source = document.getElementById('tx-source-filter').value;
-  const status = document.getElementById('tx-status-filter').value;
-  const params = new URLSearchParams({ startDate: start, endDate: end });
-  if (source) params.set('source', source);
-  if (status) params.set('status', status);
+function renderApps(allowedApps, isAdmin) {
+  var container = document.getElementById('apps-container');
+  var registry = getAppRegistry();
 
-  const tbody = document.getElementById('tx-tbody');
-  const emptyState = document.getElementById('tx-empty');
-  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:30px;">Loading…</td></tr>';
-  try {
-    const res = await authedFetch(API_BASE + '/finance/transactions?' + params.toString());
-    TRANSACTIONS = await res.json();
-    document.getElementById('tx-count').textContent = TRANSACTIONS.length + ' transactions';
-    if (!TRANSACTIONS.length) { tbody.innerHTML = ''; emptyState.style.display = 'block'; return; }
-    emptyState.style.display = 'none';
-    tbody.innerHTML = TRANSACTIONS.map(renderTxRow).join('');
-    populateCategorySelects();
-  } catch (err) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--red);padding:30px;">Could not load: ' + escHtml(err.message) + '</td></tr>';
-  }
-}
-function renderTxRow(t) {
-  const rowId = t.source + '|' + t.sourceKey;
-  return '<tr>' +
-    '<td>' + formatDate(t.date) + '</td>' +
-    '<td><span class="source-tag">' + t.source + '</span></td>' +
-    '<td>' + escHtml(t.description) + '</td>' +
-    '<td class="amount">' + money(t.amount) + '</td>' +
-    '<td><select class="cat-select' + (t.categoryId ? '' : ' uncategorized') + '" data-row="' + rowId + '" onchange="assignCategory(\'' + t.source + '\', ' + JSON.stringify(t.sourceKey) + ', this.value)"><option value="">Uncategorized</option></select></td>' +
-  '</tr>';
-}
-function populateCategorySelects() {
-  document.querySelectorAll('.cat-select').forEach(function (sel) {
-    const rowId = sel.dataset.row;
-    const tx = TRANSACTIONS.find(function (t) { return (t.source + '|' + t.sourceKey) === rowId; });
-    const currentCatId = tx ? tx.categoryId : null;
-    sel.innerHTML = '<option value="">Uncategorized</option>' +
-      CATEGORIES.filter(function (c) { return c.active || c.category_id === currentCatId; }).map(function (c) {
-        return '<option value="' + c.category_id + '"' + (c.category_id === currentCatId ? ' selected' : '') + '>' + (c.type === 'income' ? '↑ ' : '↓ ') + escHtml(c.name) + '</option>';
-      }).join('');
-    sel.classList.toggle('uncategorized', !currentCatId);
+  var visibleApps = registry.filter(function (app) {
+    if (app.key === 'user-management') return isAdmin;
+    return isAdmin || allowedApps.indexOf(app.key) !== -1;
   });
-}
-async function assignCategory(source, sourceKey, categoryId) {
-  if (!categoryId) return;
-  try {
-    await authedFetch(API_BASE + '/finance/categorize', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ source: source, sourceKey: sourceKey, categoryId: categoryId })
-    });
-    const tx = TRANSACTIONS.find(function (t) { return t.source === source && t.sourceKey === sourceKey; });
-    if (tx) tx.categoryId = categoryId;
-    populateCategorySelects();
-  } catch (err) {
-    alert('Could not save category: ' + err.message);
-  }
-}
-document.getElementById('btn-load-tx').addEventListener('click', loadTransactions);
 
-// ── Statement of Activities ──
-document.getElementById('btn-load-statement').addEventListener('click', async function () {
-  const start = document.getElementById('stmt-start-date').value;
-  const end = document.getElementById('stmt-end-date').value;
-  const card = document.getElementById('statement-card');
-  card.innerHTML = '<div class="empty-state">Generating…</div>';
-  try {
-    const res = await authedFetch(API_BASE + '/finance/statement-of-activities?startDate=' + start + '&endDate=' + end);
-    const data = await res.json();
-    let html = '<div style="font-size:0.82rem;color:var(--muted);margin-bottom:6px;">' + formatDate(start) + ' – ' + formatDate(end) + '</div>';
-    html += '<div class="stmt-section-title">Income</div>';
-    html += data.income.map(function (r) { return '<div class="stmt-row"><span>' + escHtml(r.name) + '<span class="count">(' + r.count + ')</span></span><span class="amount income">' + money(r.total) + '</span></div>'; }).join('') || '<div class="empty-state" style="padding:14px;">No categorized income yet.</div>';
-    html += '<div class="stmt-total"><span>Total Income</span><span>' + money(data.totalIncome) + '</span></div>';
-    html += '<div class="stmt-section-title">Expenses</div>';
-    html += data.expense.map(function (r) { return '<div class="stmt-row"><span>' + escHtml(r.name) + '<span class="count">(' + r.count + ')</span></span><span class="amount expense">' + money(r.total) + '</span></div>'; }).join('') || '<div class="empty-state" style="padding:14px;">No categorized expenses yet.</div>';
-    html += '<div class="stmt-total"><span>Total Expenses</span><span>' + money(data.totalExpense) + '</span></div>';
-    html += '<div class="stmt-net ' + (data.netIncome >= 0 ? 'positive' : 'negative') + '"><span>Net Income</span><span>' + money(data.netIncome) + '</span></div>';
-    card.innerHTML = html;
-  } catch (err) {
-    card.innerHTML = '<div class="empty-state">Could not generate: ' + escHtml(err.message) + '</div>';
-  }
-});
-
-// ── Reconciliation ──
-async function loadReconciliation() {
-  window.__reconLoaded = true;
-  const list = document.getElementById('reconciliation-list');
-  list.innerHTML = '<div class="empty-state">Loading…</div>';
-  try {
-    const res = await authedFetch(API_BASE + '/finance/reconciliation');
-    const weeks = await res.json();
-    if (!weeks.length) { list.innerHTML = '<div class="empty-state">No Zeffy activity found.</div>'; return; }
-    list.innerHTML = weeks.map(function (w) {
-      const candidatesHtml = w.candidates.length
-        ? w.candidates.map(function (c) {
-            const diff = Math.abs(c.amount - w.expectedPayout);
-            const isMatch = diff < 1;
-            return '<div class="recon-candidate ' + (isMatch ? 'match' : 'mismatch') + '">' +
-              '<span>' + formatDate(c.date) + ' — ' + escHtml(c.description) + '</span>' +
-              '<span class="amount">' + money(c.amount) + (isMatch ? ' ✓' : ' (diff: ' + money(diff) + ')') + '</span>' +
-            '</div>';
-          }).join('')
-        : '<div class="recon-none">No matching bank deposit found yet — may not have landed.</div>';
-      return '<div class="recon-week-card">' +
-        '<div class="recon-week-header"><span class="week-label">Week of ' + formatDate(w.weekStart) + '</span><span class="expected">Expected payout: ' + money(w.expectedPayout) + ' (' + w.txnCount + ' transactions)</span></div>' +
-        candidatesHtml +
+  if (visibleApps.length === 0) {
+    container.innerHTML =
+      '<div class="no-apps">' +
+        "<p>You're signed in, but don't have access to any tools yet.</p>" +
+        '<p style="margin-top:8px; font-size:0.8rem;">Contact <a href="mailto:admin@hccgc.org" style="color:var(--saffron-dark)">admin@hccgc.org</a> to request access.</p>' +
       '</div>';
-    }).join('');
-  } catch (err) {
-    list.innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
+    return;
   }
-}
 
-// ── Invoice Matching ──
-async function loadUnmatchedRentalPayments() {
-  window.__matchingLoaded = true;
-  const list = document.getElementById('matching-list');
-  list.innerHTML = '<div class="empty-state">Loading…</div>';
-  try {
-    const res = await authedFetch(API_BASE + '/finance/unmatched-rental-payments');
-    const payments = await res.json();
-    if (!payments.length) { list.innerHTML = '<div class="empty-state">No unmatched rental payments with a plausible booking match right now.</div>'; return; }
-    list.innerHTML = payments.map(function (p) {
-      const candidatesHtml = p.candidates.map(function (c) {
-        return '<div class="recon-candidate match" style="cursor:pointer;" onclick="confirmFinanceMatch(' + JSON.stringify(p.paymentId) + ', ' + JSON.stringify(c.bookingId) + ', ' + p.amount + ', ' + JSON.stringify(p.date) + ')">' +
-          '<span>' + escHtml(c.renterName) + ' — ' + formatDate(c.eventDate) + ' (' + escHtml(c.bookingId) + ')</span>' +
-          '<span class="amount">' + money(c.amount) + ' — click to confirm</span>' +
-        '</div>';
-      }).join('');
-      return '<div class="recon-week-card">' +
-        '<div class="recon-week-header"><span class="week-label">' + escHtml(p.donor) + ' — ' + formatDate(p.date) + '</span><span class="expected">' + money(p.amount) + '</span></div>' +
-        candidatesHtml +
-      '</div>';
-    }).join('');
-  } catch (err) {
-    list.innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
-  }
-}
-async function confirmFinanceMatch(paymentId, bookingId, amount, date) {
-  if (!confirm('Link this Zeffy payment to booking ' + bookingId + '? This highlights it in All Bookings — you still confirm Mark Paid there.')) return;
-  try {
-    const res = await authedFetch(API_BASE + '/finance/confirm-match', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bookingId: bookingId, paymentId: paymentId, amount: amount, date: date })
-    });
-    const data = await res.json();
-    if (!res.ok) { alert('Could not confirm: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
-    await loadUnmatchedRentalPayments();
-  } catch (err) {
-    alert('Could not reach the server: ' + err.message);
-  }
-}
-
-// ── Balance Sheet ──
-document.getElementById('bs-as-of-date').value = new Date().toISOString().slice(0, 10);
-document.getElementById('btn-load-balance-sheet').addEventListener('click', async function () {
-  const asOfDate = document.getElementById('bs-as-of-date').value;
-  const card = document.getElementById('balance-sheet-card');
-  card.innerHTML = '<div class="empty-state">Generating…</div>';
-  try {
-    const res = await authedFetch(API_BASE + '/finance/balance-sheet?asOfDate=' + asOfDate);
-    const data = await res.json();
-    let html = '<div style="font-size:0.82rem;color:var(--muted);margin-bottom:6px;">As of ' + formatDate(data.asOfDate) + '</div>';
-    html += '<div class="stmt-section-title">Assets</div>';
-    html += '<div class="stmt-row"><span>Cash (from bank transaction history)</span><span class="amount income">' + money(data.cash) + '</span></div>';
-    html += data.assets.map(function (a) { return '<div class="stmt-row"><span>' + escHtml(a.name) + '</span><span class="amount income">' + money(a.amount) + '</span></div>'; }).join('');
-    html += '<div class="stmt-total"><span>Total Assets</span><span>' + money(data.totalAssets) + '</span></div>';
-    html += '<div class="stmt-section-title">Liabilities</div>';
-    html += data.liabilities.length ? data.liabilities.map(function (l) { return '<div class="stmt-row"><span>' + escHtml(l.name) + '</span><span class="amount expense">' + money(l.amount) + '</span></div>'; }).join('') : '<div class="empty-state" style="padding:14px;">None recorded.</div>';
-    html += '<div class="stmt-total"><span>Total Liabilities</span><span>' + money(data.totalLiabilities) + '</span></div>';
-    html += '<div class="stmt-net ' + (data.netAssets >= 0 ? 'positive' : 'negative') + '"><span>Net Assets</span><span>' + money(data.netAssets) + '</span></div>';
-    card.innerHTML = html;
-  } catch (err) {
-    card.innerHTML = '<div class="empty-state">Could not generate: ' + escHtml(err.message) + '</div>';
-  }
-});
-
-async function loadBalanceSheetItems() {
-  window.__bsItemsLoaded = true;
-  const list = document.getElementById('bs-items-list');
-  list.innerHTML = '<div class="empty-state">Loading…</div>';
-  try {
-    const res = await authedFetch(API_BASE + '/finance/balance-sheet-items');
-    const items = await res.json();
-    if (!items.length) { list.innerHTML = '<div class="empty-state" style="padding:14px;">No manual items yet.</div>'; return; }
-    list.innerHTML = items.map(function (i) {
-      return '<div class="stmt-row"><span><span class="type-dot ' + (i.category === 'asset' ? 'income' : 'expense') + '" style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;"></span>' + escHtml(i.name) + (i.active ? '' : ' (inactive)') + '</span>' +
-        '<span>' + money(i.amount) + ' <button onclick="toggleBsItemActive(' + JSON.stringify(i.item_id) + ', ' + !i.active + ')" style="border:none;background:none;color:var(--saffron-dark);font-weight:700;font-size:0.78rem;cursor:pointer;margin-left:10px;">' + (i.active ? 'Deactivate' : 'Activate') + '</button></span></div>';
-    }).join('');
-  } catch (err) {
-    list.innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
-  }
-}
-async function toggleBsItemActive(itemId, active) {
-  await authedFetch(API_BASE + '/finance/balance-sheet-items/' + encodeURIComponent(itemId), {
-    method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ active: active })
+  var html = '<div class="app-grid">';
+  visibleApps.forEach(function (app) {
+    var icon = ICONS[app.icon] || ICONS.default;
+    html +=
+      '<a class="app-tile" href="' + escHtml(app.url) + '"' + (app.external ? ' target="_blank" rel="noopener noreferrer"' : '') + '>' +
+        (app.key === 'user-management' ? '<span class="app-tile-badge">Admin</span>' : '') +
+        '<div class="app-tile-icon">' + icon + '</div>' +
+        '<h3>' + escHtml(app.name) + '</h3>' +
+        '<p>' + escHtml(app.description) + '</p>' +
+      '</a>';
   });
-  await loadBalanceSheetItems();
+  html += '</div>';
+
+  container.className = '';
+  container.innerHTML = html;
 }
-document.getElementById('btn-add-bs-item').addEventListener('click', async function () {
-  const name = document.getElementById('bs-new-name').value.trim();
-  const category = document.getElementById('bs-new-category').value;
-  const amount = document.getElementById('bs-new-amount').value;
-  const box = document.getElementById('bs-result-box');
-  if (!name || amount === '') { box.style.display = 'block'; box.style.background = 'var(--red-bg)'; box.style.color = 'var(--red)'; box.textContent = 'Name and amount are both required.'; return; }
-  try {
-    const res = await authedFetch(API_BASE + '/finance/balance-sheet-items', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: name, category: category, amount: Number(amount) })
-    });
-    const data = await res.json();
-    box.style.display = 'block';
-    if (!res.ok) {
-      box.style.background = 'var(--red-bg)'; box.style.color = 'var(--red)';
-      box.textContent = (data.errors || [data.error]).join(' ');
-    } else {
-      box.style.background = 'var(--green-bg)'; box.style.color = 'var(--green)';
-      box.textContent = 'Added "' + name + '".';
-      document.getElementById('bs-new-name').value = ''; document.getElementById('bs-new-amount').value = '';
-      await loadBalanceSheetItems();
-    }
-  } catch (err) {
-    box.style.display = 'block'; box.style.background = 'var(--red-bg)'; box.style.color = 'var(--red)';
-    box.textContent = 'Could not reach the server: ' + err.message;
-  }
-});
-
-// ── Expense Approvals ──
-let EXPENSE_SUBMISSIONS = [];
-let currentReviewSubmission = null;
-let currentReviewLineItemId = null;
-
-document.getElementById('btn-load-expenses').addEventListener('click', loadExpenseSubmissions);
-document.getElementById('exp-status-filter').addEventListener('change', loadExpenseSubmissions);
-
-async function loadExpenseSubmissions() {
-  const status = document.getElementById('exp-status-filter').value;
-  const list = document.getElementById('expenses-submission-list');
-  list.innerHTML = '<div class="empty-state">Loading…</div>';
-  try {
-    const res = await authedFetch(API_BASE + '/finance/expense-submissions' + (status ? '?status=' + status : ''));
-    EXPENSE_SUBMISSIONS = await res.json();
-    if (!EXPENSE_SUBMISSIONS.length) { list.innerHTML = '<div class="empty-state">Nothing here.</div>'; return; }
-    list.innerHTML = EXPENSE_SUBMISSIONS.map(function (s) {
-      const total = s.items.reduce(function (sum, i) { return sum + i.amount; }, 0);
-      return '<div class="exp-submission-card">' +
-        '<div class="exp-sub-info"><strong>' + escHtml(s.firstName) + ' ' + escHtml(s.lastName) + '</strong> — ' + s.items.length + ' expense(s)<br>' +
-        '<span style="color:var(--muted);font-size:0.82rem;">' + escHtml(s.email) + ' · Zelle: ' + escHtml(s.zelleId || '—') + '</span></div>' +
-        '<div style="display:flex;align-items:center;gap:16px;"><span class="exp-sub-total">' + money(total) + '</span>' +
-        '<button type="button" class="btn-secondary" onclick="openExpenseReview(' + JSON.stringify(s.submissionId) + ')">Review</button></div>' +
-      '</div>';
-    }).join('');
-  } catch (err) {
-    list.innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
-  }
-}
-
-function openExpenseReview(submissionId) {
-  const s = EXPENSE_SUBMISSIONS.find(function (x) { return x.submissionId === submissionId; });
-  if (!s) return;
-  currentReviewSubmission = s;
-  document.getElementById('exp-review-title').textContent = 'Review — ' + s.firstName + ' ' + s.lastName;
-  document.getElementById('exp-review-result').style.display = 'none';
-  document.getElementById('exp-review-receipt').innerHTML = '<span style="color:var(--muted);font-size:0.86rem;">Click an expense to view its receipt</span>';
-  const canAct = s.items.some(function (i) { return i.status === 'submitted'; });
-  document.getElementById('btn-approve-expense').style.display = canAct ? 'inline-block' : 'none';
-  document.getElementById('btn-reject-expense').style.display = canAct ? 'inline-block' : 'none';
-  // Show the modal FIRST — if rendering the details below throws for any
-  // reason, the modal still opens and the error is visible, instead of the
-  // whole click silently doing nothing with no clue why.
-  document.getElementById('expense-review-overlay').style.display = 'flex';
-  try {
-    renderExpenseReviewDetails();
-  } catch (err) {
-    document.getElementById('exp-review-details').innerHTML = '<div class="empty-state">Could not render details: ' + escHtml(err.message) + '</div>';
-  }
-  if (s.items.length) selectExpenseLineItem(s.items[0].line_item_id);
-}
-function closeExpenseReview() { document.getElementById('expense-review-overlay').style.display = 'none'; }
-document.getElementById('btn-close-expense-review').addEventListener('click', closeExpenseReview);
-document.getElementById('expense-review-overlay').addEventListener('click', function (e) { if (e.target === this) closeExpenseReview(); });
-
-function renderExpenseReviewDetails() {
-  const s = currentReviewSubmission;
-  const total = s.items.reduce(function (sum, i) { return sum + i.amount; }, 0);
-  let html = '<div style="margin-bottom:14px;font-size:0.88rem;"><strong>' + escHtml(s.email) + '</strong><br>Zelle ID: <strong>' + escHtml(s.zelleId || '—') + '</strong><br>Total: <strong>' + money(total) + '</strong></div>';
-  html += s.items.map(function (i) {
-    const catOptions = '<option value="">Choose category…</option>' + CATEGORIES.filter(function (c) { return c.type === 'expense' && c.active; }).map(function (c) {
-      return '<option value="' + c.category_id + '"' + (c.category_id === i.category_id ? ' selected' : '') + '>' + escHtml(c.name) + '</option>';
-    }).join('');
-    return '<div class="exp-line-item' + (i.line_item_id === currentReviewLineItemId ? ' active' : '') + '" data-line-id="' + i.line_item_id + '" onclick="selectExpenseLineItem(' + JSON.stringify(i.line_item_id) + ')">' +
-      '<div class="exp-top-row"><span>' + escHtml(i.expense_for) + '</span><span>' + money(i.amount) + '</span></div>' +
-      '<div class="exp-date">' + formatDate(i.expense_date) + ' · <span class="source-tag">' + i.status + '</span></div>' +
-      (i.status === 'submitted' ? '<select class="cat-select' + (i.category_id ? '' : ' uncategorized') + '" onclick="event.stopPropagation();" onchange="setExpenseCategory(' + JSON.stringify(i.line_item_id) + ', this.value)">' + catOptions + '</select>' : '') +
-    '</div>';
-  }).join('');
-  document.getElementById('exp-review-details').innerHTML = html;
-}
-
-async function selectExpenseLineItem(lineItemId) {
-  currentReviewLineItemId = lineItemId;
-  document.querySelectorAll('.exp-line-item').forEach(function (el) { el.classList.toggle('active', el.dataset.lineId === lineItemId); });
-  const receiptBox = document.getElementById('exp-review-receipt');
-  receiptBox.innerHTML = '<span style="color:var(--muted);font-size:0.86rem;">Loading receipt…</span>';
-  try {
-    const res = await authedFetch(API_BASE + '/finance/expense-receipt-url/' + encodeURIComponent(lineItemId));
-    const data = await res.json();
-    if (!data.url) { receiptBox.innerHTML = '<span style="color:var(--muted);font-size:0.86rem;">No receipt on file.</span>'; return; }
-    // Drive's "open?id=" link is a viewer page, not a raw file stream — it
-    // can't be embedded as an <img src>, so this always opens in a new tab
-    // rather than trying (and failing) to show it inline.
-    receiptBox.innerHTML = '<a href="' + data.url + '" target="_blank" rel="noopener" style="color:var(--saffron-dark);font-weight:700;font-size:1rem;">📄 Open receipt in Google Drive &rarr;</a>';
-  } catch (err) {
-    receiptBox.innerHTML = '<span style="color:var(--red);font-size:0.86rem;">Could not load receipt: ' + escHtml(err.message) + '</span>';
-  }
-}
-
-async function setExpenseCategory(lineItemId, categoryId) {
-  if (!categoryId) return;
-  await authedFetch(API_BASE + '/finance/expense-line-items/' + encodeURIComponent(lineItemId) + '/categorize', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ categoryId: categoryId })
-  });
-  const item = currentReviewSubmission.items.find(function (i) { return i.line_item_id === lineItemId; });
-  if (item) item.category_id = categoryId;
-}
-
-document.getElementById('btn-approve-expense').addEventListener('click', async function () {
-  const box = document.getElementById('exp-review-result');
-  try {
-    const res = await authedFetch(API_BASE + '/finance/expense-submissions/' + encodeURIComponent(currentReviewSubmission.submissionId) + '/approve', { method: 'POST' });
-    const data = await res.json();
-    box.style.display = 'block';
-    if (!res.ok) {
-      box.className = 'result-box error'; box.textContent = (data.errors || [data.error]).join(' ');
-    } else {
-      box.className = 'result-box success'; box.textContent = 'Approved ' + data.approvedCount + ' expense(s), total ' + money(data.total) + '. Email sent to the approver.';
-      await loadExpenseSubmissions();
-      setTimeout(closeExpenseReview, 1400);
-    }
-  } catch (err) {
-    box.style.display = 'block'; box.className = 'result-box error'; box.textContent = 'Could not reach the server: ' + err.message;
-  }
-});
-document.getElementById('btn-reject-expense').addEventListener('click', async function () {
-  const reason = prompt('Reason for rejecting this submission? This will be emailed to the submitter.');
-  if (reason === null) return;
-  if (!reason.trim()) { alert('A reason is required.'); return; }
-  const box = document.getElementById('exp-review-result');
-  try {
-    const res = await authedFetch(API_BASE + '/finance/expense-submissions/' + encodeURIComponent(currentReviewSubmission.submissionId) + '/reject', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason: reason })
-    });
-    const data = await res.json();
-    box.style.display = 'block';
-    if (!res.ok) {
-      box.className = 'result-box error'; box.textContent = (data.errors || [data.error]).join(' ');
-    } else {
-      box.className = 'result-box success'; box.textContent = 'Rejected.';
-      await loadExpenseSubmissions();
-      setTimeout(closeExpenseReview, 1000);
-    }
-  } catch (err) {
-    box.style.display = 'block'; box.className = 'result-box error'; box.textContent = 'Could not reach the server: ' + err.message;
-  }
-});
 
 function loadPartial(id, file) {
   var target = document.getElementById(id);
   if (!target) return;
-  fetch(file).then(function (r) { return r.text(); }).then(function (html) {
-    target.innerHTML = html;
-    if (id === 'site-header') fixHeaderLinksForSubfolder(target);
-  }).catch(function () {});
+  fetch(file)
+    .then(function (r) { return r.text(); })
+    .then(function (html) {
+      target.innerHTML = html;
+      if (id === 'site-header') {
+        fixHeaderLinksForSubfolder(target);
+      }
+    })
+    .catch(function () {});
 }
+
+// header.html uses paths that are relative to the page calling it
+// (e.g. src="hccgc-logo.jpeg", href="index.html#about"). That works fine
+// for pages at the site root, but breaks when header.html is loaded from
+// a subfolder like /admin/. Rather than edit the shared header.html file
+// itself, we patch the loaded copy here so it points to the right place.
 function fixHeaderLinksForSubfolder(headerEl) {
   var logo = headerEl.querySelector('.brand-logo');
   if (logo && logo.getAttribute('src') && !logo.getAttribute('src').startsWith('/') && !logo.getAttribute('src').startsWith('http')) {
     logo.setAttribute('src', '/' + logo.getAttribute('src'));
   }
-  headerEl.querySelectorAll('a[href]').forEach(function (link) {
+
+  var links = headerEl.querySelectorAll('a[href]');
+  links.forEach(function (link) {
     var href = link.getAttribute('href');
-    if (!href || href.startsWith('http') || href.startsWith('/') || href.startsWith('#')) return;
+    if (!href) return;
+    // Leave absolute URLs (http/https) and already-root-relative links alone.
+    if (href.startsWith('http') || href.startsWith('/') || href.startsWith('#')) return;
     link.setAttribute('href', '/' + href);
   });
 }
+
 loadPartial('site-header', '/header.html');
 loadPartial('site-footer', '/footer.html');
-</script>
-
-<script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js';
-import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
-
-var firebaseConfig = {
-  apiKey: 'AIzaSyA6IzLjWTg7Rq04HsTH-iA3eDmSzKI7xME',
-  authDomain: 'hccgc-a7a54.firebaseapp.com',
-  projectId: 'hccgc-a7a54',
-  storageBucket: 'hccgc-a7a54.firebasestorage.app',
-  messagingSenderId: '75757201418',
-  appId: '1:75757201418:web:c31e9361921242145717f3'
-};
-
-var ALLOWED_DOMAIN = 'hccgc.org';
-var REQUIRED_APP_KEY = 'org-finance';
-var PORTAL_URL = '/admin/admin-portal';
-
-var fbApp = initializeApp(firebaseConfig);
-var auth = getAuth(fbApp);
-var db = getFirestore(fbApp);
-
-function showGate(title, msg) {
-  document.getElementById('gate').querySelector('h3').textContent = title;
-  document.getElementById('gate').querySelector('p').innerHTML = msg;
-  document.getElementById('gate').style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
-}
-
-onAuthStateChanged(auth, function(user) {
-  if (!user) { showGate('Sign in required', 'Please sign in from the <a href="'+PORTAL_URL+'">Admin Portal</a> first.'); return; }
-  var email = (user.email||'').toLowerCase();
-  window.__hccgcCurrentUser = { email: email };
-  window.__hccgcFirebaseUser = user;
-  if (!email.endsWith('@'+ALLOWED_DOMAIN)) { showGate('Access denied', 'Please use an @'+ALLOWED_DOMAIN+' account.'); return; }
-  getDoc(doc(db, 'portalUsers', email)).then(function(snap) {
-    var data = snap.exists() ? snap.data() : {};
-    if (!data.isAdmin && !(Array.isArray(data.allowedApps) && data.allowedApps.includes(REQUIRED_APP_KEY))) {
-      showGate('Access not granted', "You don't have access to Finance. Ask an admin to grant it.");
-      return;
-    }
-    document.getElementById('gate').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    loadCategories().then(loadTransactions);
-  }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });
-});
 </script>
 </body>
 </html>

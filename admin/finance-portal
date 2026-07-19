@@ -296,8 +296,8 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
     </div>
     <div class="result-box" id="exp-review-result" style="display:none;margin:0 26px 16px;"></div>
     <div class="modal-footer">
-      <button type="button" class="btn-secondary" id="btn-reject-expense">Reject submission</button>
-      <button type="button" class="btn-primary" id="btn-approve-expense" style="margin-top:0;">Approve all</button>
+      <button type="button" class="btn-secondary" id="btn-reject-expense">Reject selected</button>
+      <button type="button" class="btn-primary" id="btn-approve-expense" style="margin-top:0;">Approve selected</button>
     </div>
   </div>
 </div>
@@ -735,20 +735,33 @@ function renderExpenseReviewDetails() {
   const s = currentReviewSubmission;
   const total = s.items.reduce(function (sum, i) { return sum + i.amount; }, 0);
   let html = '<div style="margin-bottom:14px;font-size:0.88rem;"><strong>' + escHtml(s.email) + '</strong><br>Zelle ID: <strong>' + escHtml(s.zelleId || '—') + '</strong><br>Total: <strong>' + money(total) + '</strong></div>';
+  const pendingCount = s.items.filter(function (i) { return i.status === 'submitted'; }).length;
+  if (pendingCount > 1) {
+    html += '<div style="font-size:0.8rem;color:var(--muted);margin-bottom:10px;">Uncheck any expense you don\'t want to include in this action — Approve/Reject only apply to the checked ones.</div>';
+  }
   html += s.items.map(function (i) {
     const catOptions = '<option value="">Choose category…</option>' + CATEGORIES.filter(function (c) { return c.type === 'expense' && c.active; }).map(function (c) {
       return '<option value="' + c.category_id + '"' + (c.category_id === i.category_id ? ' selected' : '') + '>' + escHtml(c.name) + '</option>';
     }).join('');
-    return '<div class="exp-line-item' + (i.line_item_id === currentReviewLineItemId ? ' active' : '') + '" data-line-id="' + i.line_item_id + '" data-select-line="' + i.line_item_id + '">' +
-      '<div class="exp-top-row"><span>' + escHtml(i.expense_for) + '</span><span>' + money(i.amount) + '</span></div>' +
-      '<div class="exp-date">' + formatDate(i.expense_date) + ' · <span class="source-tag">' + i.status + '</span></div>' +
-      (i.status === 'submitted' ? '<select class="cat-select' + (i.category_id ? '' : ' uncategorized') + '" data-set-expense-category="' + i.line_item_id + '">' + catOptions + '</select>' : '') +
+    const checkbox = i.status === 'submitted'
+      ? '<input type="checkbox" class="exp-item-select" data-select-checkbox="' + i.line_item_id + '" checked style="margin-right:10px;width:16px;height:16px;flex-shrink:0;">'
+      : '';
+    return '<div class="exp-line-item' + (i.line_item_id === currentReviewLineItemId ? ' active' : '') + '" data-line-id="' + i.line_item_id + '" data-select-line="' + i.line_item_id + '" style="display:flex;align-items:flex-start;">' +
+      checkbox +
+      '<div style="flex:1;">' +
+        '<div class="exp-top-row"><span>' + escHtml(i.expense_for) + '</span><span>' + money(i.amount) + '</span></div>' +
+        '<div class="exp-date">' + formatDate(i.expense_date) + ' · <span class="source-tag">' + i.status + '</span></div>' +
+        (i.status === 'submitted' ? '<select class="cat-select' + (i.category_id ? '' : ' uncategorized') + '" data-set-expense-category="' + i.line_item_id + '">' + catOptions + '</select>' : '') +
+      '</div>' +
     '</div>';
   }).join('');
   document.getElementById('exp-review-details').innerHTML = html;
 }
+function getSelectedPendingLineItemIds() {
+  return Array.from(document.querySelectorAll('.exp-item-select:checked')).map(function (cb) { return cb.dataset.selectCheckbox; });
+}
 document.getElementById('exp-review-details').addEventListener('click', function (e) {
-  if (e.target.closest('select')) return; // interacting with the category dropdown shouldn't also re-select the line
+  if (e.target.closest('select') || e.target.closest('input[type="checkbox"]')) return; // interacting with the dropdown or checkbox shouldn't also re-select the line
   const el = e.target.closest('[data-select-line]');
   if (!el) return;
   selectExpenseLineItem(el.dataset.selectLine);
@@ -803,8 +816,12 @@ async function setExpenseCategory(lineItemId, categoryId) {
 
 document.getElementById('btn-approve-expense').addEventListener('click', async function () {
   const box = document.getElementById('exp-review-result');
+  const lineItemIds = getSelectedPendingLineItemIds();
+  if (!lineItemIds.length) { box.style.display = 'block'; box.className = 'result-box error'; box.textContent = 'Check at least one expense to approve.'; return; }
   try {
-    const res = await authedFetch(API_BASE + '/finance/expense-submissions/' + encodeURIComponent(currentReviewSubmission.submissionId) + '/approve', { method: 'POST' });
+    const res = await authedFetch(API_BASE + '/finance/expense-submissions/' + encodeURIComponent(currentReviewSubmission.submissionId) + '/approve', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ lineItemIds: lineItemIds })
+    });
     const data = await res.json();
     box.style.display = 'block';
     if (!res.ok) {
@@ -819,13 +836,15 @@ document.getElementById('btn-approve-expense').addEventListener('click', async f
   }
 });
 document.getElementById('btn-reject-expense').addEventListener('click', async function () {
-  const reason = prompt('Reason for rejecting this submission? This will be emailed to the submitter.');
+  const lineItemIds = getSelectedPendingLineItemIds();
+  const box = document.getElementById('exp-review-result');
+  if (!lineItemIds.length) { box.style.display = 'block'; box.className = 'result-box error'; box.textContent = 'Check at least one expense to reject.'; return; }
+  const reason = prompt('Reason for rejecting ' + (lineItemIds.length === 1 ? 'this expense' : 'these ' + lineItemIds.length + ' expenses') + '? This will be emailed to the submitter.');
   if (reason === null) return;
   if (!reason.trim()) { alert('A reason is required.'); return; }
-  const box = document.getElementById('exp-review-result');
   try {
     const res = await authedFetch(API_BASE + '/finance/expense-submissions/' + encodeURIComponent(currentReviewSubmission.submissionId) + '/reject', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason: reason })
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason: reason, lineItemIds: lineItemIds })
     });
     const data = await res.json();
     box.style.display = 'block';

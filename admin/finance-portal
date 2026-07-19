@@ -765,13 +765,28 @@ async function selectExpenseLineItem(lineItemId) {
   const receiptBox = document.getElementById('exp-review-receipt');
   receiptBox.innerHTML = '<span style="color:var(--muted);font-size:0.86rem;">Loading receipt…</span>';
   try {
-    const res = await authedFetch(API_BASE + '/finance/expense-receipt-url/' + encodeURIComponent(lineItemId));
-    const data = await res.json();
-    if (!data.url) { receiptBox.innerHTML = '<span style="color:var(--muted);font-size:0.86rem;">No receipt on file.</span>'; return; }
-    // Drive's "open?id=" link is a viewer page, not a raw file stream — it
-    // can't be embedded as an <img src>, so this always opens in a new tab
-    // rather than trying (and failing) to show it inline.
-    receiptBox.innerHTML = '<a href="' + data.url + '" target="_blank" rel="noopener" style="color:var(--saffron-dark);font-weight:700;font-size:1rem;">📄 Open receipt in Google Drive &rarr;</a>';
+    const res = await authedFetch(API_BASE + '/finance/expense-receipt-image/' + encodeURIComponent(lineItemId));
+    if (!res.ok) {
+      const data = await res.json().catch(function () { return {}; });
+      receiptBox.innerHTML = '<span style="color:var(--red);font-size:0.86rem;">' + escHtml((data.errors || ['Could not load receipt.']).join(' ')) + '</span>';
+      return;
+    }
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      // Historical import — an external link we can't proxy, so it's a
+      // plain "open" link instead of an inline preview.
+      const data = await res.json();
+      if (!data.externalUrl) { receiptBox.innerHTML = '<span style="color:var(--muted);font-size:0.86rem;">No receipt on file.</span>'; return; }
+      receiptBox.innerHTML = '<a href="' + data.externalUrl + '" target="_blank" rel="noopener" style="color:var(--saffron-dark);font-weight:700;font-size:1rem;">📄 Open receipt &rarr;</a>';
+      return;
+    }
+    const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    if (contentType.includes('pdf')) {
+      receiptBox.innerHTML = '<iframe src="' + objectUrl + '" style="width:100%;height:65vh;border:none;border-radius:8px;"></iframe>';
+    } else {
+      receiptBox.innerHTML = '<img src="' + objectUrl + '" style="max-width:100%;max-height:65vh;border-radius:8px;">';
+    }
   } catch (err) {
     receiptBox.innerHTML = '<span style="color:var(--red);font-size:0.86rem;">Could not load receipt: ' + escHtml(err.message) + '</span>';
   }

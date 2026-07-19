@@ -261,6 +261,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
     <div class="sub-tab-nav">
       <button class="sub-tab-btn active" data-subtab="income-statement">Income Statement (P&amp;L)</button>
       <button class="sub-tab-btn" data-subtab="balance-sheet-sub">Balance Sheet</button>
+      <button class="sub-tab-btn" data-subtab="cash-flow-sub">Cash Flow</button>
     </div>
 
     <div class="sub-tab-panel active" id="subtab-income-statement">
@@ -304,6 +305,17 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
           <button type="button" class="btn-primary" id="btn-add-bs-item">Add item</button>
         </div>
         <div class="result-box" id="bs-result-box" style="display:none;margin-top:12px;border-radius:10px;padding:10px 14px;font-size:0.85rem;"></div>
+      </div>
+    </div>
+
+    <div class="sub-tab-panel" id="subtab-cash-flow-sub">
+      <div class="toolbar">
+        <input type="date" id="cf-start-date">
+        <input type="date" id="cf-end-date">
+        <button type="button" class="btn-secondary" id="btn-load-cash-flow">Generate</button>
+      </div>
+      <div class="card" id="cash-flow-card">
+        <div class="empty-state">Choose a date range and click Generate.</div>
       </div>
     </div>
   </div>
@@ -492,8 +504,8 @@ function defaultDateRange() {
 }
 (function initDateFields() {
   const range = defaultDateRange();
-  ['tx-start-date', 'stmt-start-date', 'dash-start-date'].forEach(function (id) { document.getElementById(id).value = range.start; });
-  ['tx-end-date', 'stmt-end-date', 'dash-end-date'].forEach(function (id) { document.getElementById(id).value = range.end; });
+  ['tx-start-date', 'stmt-start-date', 'dash-start-date', 'cf-start-date'].forEach(function (id) { document.getElementById(id).value = range.start; });
+  ['tx-end-date', 'stmt-end-date', 'dash-end-date', 'cf-end-date'].forEach(function (id) { document.getElementById(id).value = range.end; });
 })();
 
 // ── Dashboard ──
@@ -742,6 +754,33 @@ document.getElementById('btn-load-balance-sheet').addEventListener('click', asyn
     html += data.liabilities.length ? data.liabilities.map(function (l) { return '<div class="stmt-row"><span>' + escHtml(l.name) + '</span><span class="amount expense">' + money(l.amount) + '</span></div>'; }).join('') : '<div class="empty-state" style="padding:14px;">None recorded.</div>';
     html += '<div class="stmt-total"><span>Total Liabilities</span><span>' + money(data.totalLiabilities) + '</span></div>';
     html += '<div class="stmt-net ' + (data.netAssets >= 0 ? 'positive' : 'negative') + '"><span>Net Assets</span><span>' + money(data.netAssets) + '</span></div>';
+    card.innerHTML = html;
+  } catch (err) {
+    card.innerHTML = '<div class="empty-state">Could not generate: ' + escHtml(err.message) + '</div>';
+  }
+});
+
+document.getElementById('btn-load-cash-flow').addEventListener('click', async function () {
+  const start = document.getElementById('cf-start-date').value;
+  const end = document.getElementById('cf-end-date').value;
+  const card = document.getElementById('cash-flow-card');
+  card.innerHTML = '<div class="empty-state">Generating…</div>';
+  try {
+    const res = await authedFetch(API_BASE + '/finance/cash-flow-statement?startDate=' + start + '&endDate=' + end);
+    const data = await res.json();
+    let html = '<div style="font-size:0.82rem;color:var(--muted);margin-bottom:6px;">' + formatDate(data.startDate) + ' – ' + formatDate(data.endDate) + '</div>';
+    html += '<div class="stmt-row"><span>Beginning cash balance</span><span class="amount">' + money(data.beginningCash) + '</span></div>';
+    html += '<div class="stmt-section-title">Cash In (categorized income)</div>';
+    html += '<div class="stmt-row"><span>Total cash in</span><span class="amount income">' + money(data.cashIn) + '</span></div>';
+    html += '<div class="stmt-section-title">Cash Out (categorized expenses)</div>';
+    html += '<div class="stmt-row"><span>Total cash out</span><span class="amount expense">' + money(data.cashOut) + '</span></div>';
+    if (Math.abs(data.uncategorizedNet) > 0.01) {
+      html += '<div class="stmt-section-title">Not yet categorized</div>';
+      html += '<div class="stmt-row"><span>Net movement, uncategorized</span><span class="amount">' + money(data.uncategorizedNet) + '</span></div>';
+      html += '<div style="font-size:0.78rem;color:var(--muted);margin:4px 0 10px;">Categorize these in the Transactions tab for a more complete picture.</div>';
+    }
+    html += '<div class="stmt-total"><span>Net Change in Cash</span><span>' + money(data.netChange) + '</span></div>';
+    html += '<div class="stmt-net ' + (data.endingCash >= 0 ? 'positive' : 'negative') + '"><span>Ending Cash Balance</span><span>' + money(data.endingCash) + '</span></div>';
     card.innerHTML = html;
   } catch (err) {
     card.innerHTML = '<div class="empty-state">Could not generate: ' + escHtml(err.message) + '</div>';

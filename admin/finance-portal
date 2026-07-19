@@ -448,7 +448,7 @@ function renderTxRow(t) {
     '<td><span class="source-tag">' + t.source + '</span></td>' +
     '<td>' + escHtml(t.description) + '</td>' +
     '<td class="amount">' + money(t.amount) + '</td>' +
-    '<td><select class="cat-select' + (t.categoryId ? '' : ' uncategorized') + '" data-row="' + rowId + '" onchange="assignCategory(\'' + t.source + '\', ' + JSON.stringify(t.sourceKey) + ', this.value)"><option value="">Uncategorized</option></select></td>' +
+    '<td><select class="cat-select' + (t.categoryId ? '' : ' uncategorized') + '" data-row="' + rowId + '" onchange="assignCategory(\'' + t.source + '\', \'' + t.sourceKey + '\', this.value)"><option value="">Uncategorized</option></select></td>' +
   '</tr>';
 }
 function populateCategorySelects() {
@@ -543,7 +543,7 @@ async function loadUnmatchedRentalPayments() {
     if (!payments.length) { list.innerHTML = '<div class="empty-state">No unmatched rental payments with a plausible booking match right now.</div>'; return; }
     list.innerHTML = payments.map(function (p) {
       const candidatesHtml = p.candidates.map(function (c) {
-        return '<div class="recon-candidate match" style="cursor:pointer;" onclick="confirmFinanceMatch(' + JSON.stringify(p.paymentId) + ', ' + JSON.stringify(c.bookingId) + ', ' + p.amount + ', ' + JSON.stringify(p.date) + ')">' +
+        return '<div class="recon-candidate match" style="cursor:pointer;" onclick="confirmFinanceMatch(\'' + p.paymentId + '\', \'' + c.bookingId + '\', ' + p.amount + ', \'' + p.date + '\')">' +
           '<span>' + escHtml(c.renterName) + ' — ' + formatDate(c.eventDate) + ' (' + escHtml(c.bookingId) + ')</span>' +
           '<span class="amount">' + money(c.amount) + ' — click to confirm</span>' +
         '</div>';
@@ -606,7 +606,7 @@ async function loadBalanceSheetItems() {
     if (!items.length) { list.innerHTML = '<div class="empty-state" style="padding:14px;">No manual items yet.</div>'; return; }
     list.innerHTML = items.map(function (i) {
       return '<div class="stmt-row"><span><span class="type-dot ' + (i.category === 'asset' ? 'income' : 'expense') + '" style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;"></span>' + escHtml(i.name) + (i.active ? '' : ' (inactive)') + '</span>' +
-        '<span>' + money(i.amount) + ' <button onclick="toggleBsItemActive(' + JSON.stringify(i.item_id) + ', ' + !i.active + ')" style="border:none;background:none;color:var(--saffron-dark);font-weight:700;font-size:0.78rem;cursor:pointer;margin-left:10px;">' + (i.active ? 'Deactivate' : 'Activate') + '</button></span></div>';
+        '<span>' + money(i.amount) + ' <button onclick="toggleBsItemActive(\'' + i.item_id + '\', ' + !i.active + ')" style="border:none;background:none;color:var(--saffron-dark);font-weight:700;font-size:0.78rem;cursor:pointer;margin-left:10px;">' + (i.active ? 'Deactivate' : 'Activate') + '</button></span></div>';
     }).join('');
   } catch (err) {
     list.innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
@@ -668,7 +668,7 @@ async function loadExpenseSubmissions() {
         '<div class="exp-sub-info"><strong>' + escHtml(s.firstName) + ' ' + escHtml(s.lastName) + '</strong> — ' + s.items.length + ' expense(s)<br>' +
         '<span style="color:var(--muted);font-size:0.82rem;">' + escHtml(s.email) + ' · Zelle: ' + escHtml(s.zelleId || '—') + '</span></div>' +
         '<div style="display:flex;align-items:center;gap:16px;"><span class="exp-sub-total">' + money(total) + '</span>' +
-        '<button type="button" class="btn-secondary" onclick="openExpenseReview(' + JSON.stringify(s.submissionId) + ')">Review</button></div>' +
+        '<button type="button" class="btn-secondary" onclick="openExpenseReview(\'' + s.submissionId + '\')">Review</button></div>' +
       '</div>';
     }).join('');
   } catch (err) {
@@ -677,25 +677,28 @@ async function loadExpenseSubmissions() {
 }
 
 function openExpenseReview(submissionId) {
-  const s = EXPENSE_SUBMISSIONS.find(function (x) { return x.submissionId === submissionId; });
-  if (!s) return;
-  currentReviewSubmission = s;
-  document.getElementById('exp-review-title').textContent = 'Review — ' + s.firstName + ' ' + s.lastName;
-  document.getElementById('exp-review-result').style.display = 'none';
-  document.getElementById('exp-review-receipt').innerHTML = '<span style="color:var(--muted);font-size:0.86rem;">Click an expense to view its receipt</span>';
-  const canAct = s.items.some(function (i) { return i.status === 'submitted'; });
-  document.getElementById('btn-approve-expense').style.display = canAct ? 'inline-block' : 'none';
-  document.getElementById('btn-reject-expense').style.display = canAct ? 'inline-block' : 'none';
-  // Show the modal FIRST — if rendering the details below throws for any
-  // reason, the modal still opens and the error is visible, instead of the
-  // whole click silently doing nothing with no clue why.
-  document.getElementById('expense-review-overlay').style.display = 'flex';
+  console.log('[openExpenseReview] called with', submissionId);
   try {
-    renderExpenseReviewDetails();
+    const s = EXPENSE_SUBMISSIONS.find(function (x) { return x.submissionId === submissionId; });
+    if (!s) { alert('Could not find that submission (id: ' + submissionId + '). Try Refresh and try again.'); return; }
+    currentReviewSubmission = s;
+    document.getElementById('exp-review-title').textContent = 'Review — ' + s.firstName + ' ' + s.lastName;
+    document.getElementById('exp-review-result').style.display = 'none';
+    document.getElementById('exp-review-receipt').innerHTML = '<span style="color:var(--muted);font-size:0.86rem;">Click an expense to view its receipt</span>';
+    const canAct = s.items.some(function (i) { return i.status === 'submitted'; });
+    document.getElementById('btn-approve-expense').style.display = canAct ? 'inline-block' : 'none';
+    document.getElementById('btn-reject-expense').style.display = canAct ? 'inline-block' : 'none';
+    document.getElementById('expense-review-overlay').style.display = 'flex';
+    try {
+      renderExpenseReviewDetails();
+    } catch (err) {
+      document.getElementById('exp-review-details').innerHTML = '<div class="empty-state">Could not render details: ' + escHtml(err.message) + '</div>';
+    }
+    if (s.items.length) selectExpenseLineItem(s.items[0].line_item_id);
   } catch (err) {
-    document.getElementById('exp-review-details').innerHTML = '<div class="empty-state">Could not render details: ' + escHtml(err.message) + '</div>';
+    alert('openExpenseReview failed: ' + err.message);
+    console.error('[openExpenseReview] error:', err);
   }
-  if (s.items.length) selectExpenseLineItem(s.items[0].line_item_id);
 }
 function closeExpenseReview() { document.getElementById('expense-review-overlay').style.display = 'none'; }
 document.getElementById('btn-close-expense-review').addEventListener('click', closeExpenseReview);
@@ -709,10 +712,10 @@ function renderExpenseReviewDetails() {
     const catOptions = '<option value="">Choose category…</option>' + CATEGORIES.filter(function (c) { return c.type === 'expense' && c.active; }).map(function (c) {
       return '<option value="' + c.category_id + '"' + (c.category_id === i.category_id ? ' selected' : '') + '>' + escHtml(c.name) + '</option>';
     }).join('');
-    return '<div class="exp-line-item' + (i.line_item_id === currentReviewLineItemId ? ' active' : '') + '" data-line-id="' + i.line_item_id + '" onclick="selectExpenseLineItem(' + JSON.stringify(i.line_item_id) + ')">' +
+    return '<div class="exp-line-item' + (i.line_item_id === currentReviewLineItemId ? ' active' : '') + '" data-line-id="' + i.line_item_id + '" onclick="selectExpenseLineItem(\'' + i.line_item_id + '\')">' +
       '<div class="exp-top-row"><span>' + escHtml(i.expense_for) + '</span><span>' + money(i.amount) + '</span></div>' +
       '<div class="exp-date">' + formatDate(i.expense_date) + ' · <span class="source-tag">' + i.status + '</span></div>' +
-      (i.status === 'submitted' ? '<select class="cat-select' + (i.category_id ? '' : ' uncategorized') + '" onclick="event.stopPropagation();" onchange="setExpenseCategory(' + JSON.stringify(i.line_item_id) + ', this.value)">' + catOptions + '</select>' : '') +
+      (i.status === 'submitted' ? '<select class="cat-select' + (i.category_id ? '' : ' uncategorized') + '" onclick="event.stopPropagation();" onchange="setExpenseCategory(\'' + i.line_item_id + '\', this.value)">' + catOptions + '</select>' : '') +
     '</div>';
   }).join('');
   document.getElementById('exp-review-details').innerHTML = html;

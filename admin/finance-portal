@@ -142,6 +142,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
       <li><button class="tab-btn" data-tab="reconciliation">Zeffy Reconciliation</button></li>
       <li><button class="tab-btn" data-tab="matching">Invoice Matching</button></li>
       <li><button class="tab-btn" data-tab="balance-sheet">Balance Sheet</button></li>
+      <li><button class="tab-btn" data-tab="expenses">Expense Approvals</button></li>
     </ul>
   </div>
 </div>
@@ -260,10 +261,67 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
     </div>
   </div>
 
+  <!-- ── EXPENSE APPROVALS TAB ── -->
+  <div class="tab-panel" id="tab-expenses">
+    <div class="toolbar">
+      <select id="exp-status-filter">
+        <option value="submitted">Awaiting review</option>
+        <option value="approved">Approved (not yet paid)</option>
+        <option value="paid">Paid</option>
+        <option value="rejected">Rejected</option>
+        <option value="">All</option>
+      </select>
+      <button type="button" class="btn-secondary" id="btn-load-expenses">Refresh</button>
+    </div>
+    <div id="expenses-submission-list"></div>
+  </div>
+
 </div>
 </div>
 
+<div class="modal-overlay" id="expense-review-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:1000px;width:95%;">
+    <div class="modal-header">
+      <h2 id="exp-review-title">Review submission</h2>
+      <button class="modal-close" id="btn-close-expense-review">&times;</button>
+    </div>
+    <div class="modal-body" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;max-height:70vh;overflow-y:auto;">
+      <div id="exp-review-details"></div>
+      <div>
+        <div style="font-size:0.82rem;font-weight:700;color:var(--muted);margin-bottom:8px;">Receipt</div>
+        <div id="exp-review-receipt" style="border:1.5px solid var(--border);border-radius:12px;min-height:300px;display:flex;align-items:center;justify-content:center;background:var(--surface-soft);">
+          <span style="color:var(--muted);font-size:0.86rem;">Click an expense to view its receipt</span>
+        </div>
+      </div>
+    </div>
+    <div class="result-box" id="exp-review-result" style="display:none;margin:0 26px 16px;"></div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-reject-expense">Reject submission</button>
+      <button type="button" class="btn-primary" id="btn-approve-expense" style="margin-top:0;">Approve all</button>
+    </div>
+  </div>
+</div>
+
 <div id="site-footer"></div>
+
+<style>
+.modal-overlay { position: fixed; inset: 0; background: rgba(44,27,16,0.5); z-index: 100; display: flex; align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto; }
+.modal-panel { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 22px 26px; border-bottom: 1px solid var(--border); }
+.modal-header h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.15rem; color: var(--maroon); }
+.modal-close { background: none; border: none; font-size: 1.4rem; color: var(--muted); cursor: pointer; line-height: 1; }
+.modal-body { padding: 22px 26px; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 18px 26px; border-top: 1px solid var(--border); }
+.exp-line-item { border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; cursor: pointer; }
+.exp-line-item:hover, .exp-line-item.active { border-color: var(--saffron-dark); background: var(--surface-soft); }
+.exp-line-item .exp-top-row { display: flex; justify-content: space-between; font-weight: 700; font-size: 0.9rem; margin-bottom: 4px; }
+.exp-line-item .exp-date { font-size: 0.78rem; color: var(--muted); margin-bottom: 8px; }
+.exp-submission-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+.exp-submission-card .exp-sub-info { font-size: 0.9rem; }
+.exp-submission-card .exp-sub-total { font-weight: 700; color: var(--maroon); font-size: 1rem; }
+.result-box.success { background: var(--green-bg); color: var(--green); border: 1px solid rgba(46,125,79,0.25); }
+.result-box.error { background: var(--red-bg); color: var(--red); border: 1px solid rgba(179,56,44,0.25); }
+</style>
 
 <script>
 const API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';
@@ -290,6 +348,7 @@ document.querySelectorAll('.tab-btn').forEach(function (btn) {
     if (btn.dataset.tab === 'reconciliation' && !window.__reconLoaded) loadReconciliation();
     if (btn.dataset.tab === 'matching' && !window.__matchingLoaded) loadUnmatchedRentalPayments();
     if (btn.dataset.tab === 'balance-sheet' && !window.__bsItemsLoaded) loadBalanceSheetItems();
+    if (btn.dataset.tab === 'expenses') loadExpenseSubmissions();
   });
 });
 
@@ -584,6 +643,138 @@ document.getElementById('btn-add-bs-item').addEventListener('click', async funct
   } catch (err) {
     box.style.display = 'block'; box.style.background = 'var(--red-bg)'; box.style.color = 'var(--red)';
     box.textContent = 'Could not reach the server: ' + err.message;
+  }
+});
+
+// ── Expense Approvals ──
+let EXPENSE_SUBMISSIONS = [];
+let currentReviewSubmission = null;
+let currentReviewLineItemId = null;
+
+document.getElementById('btn-load-expenses').addEventListener('click', loadExpenseSubmissions);
+document.getElementById('exp-status-filter').addEventListener('change', loadExpenseSubmissions);
+
+async function loadExpenseSubmissions() {
+  const status = document.getElementById('exp-status-filter').value;
+  const list = document.getElementById('expenses-submission-list');
+  list.innerHTML = '<div class="empty-state">Loading…</div>';
+  try {
+    const res = await authedFetch(API_BASE + '/finance/expense-submissions' + (status ? '?status=' + status : ''));
+    EXPENSE_SUBMISSIONS = await res.json();
+    if (!EXPENSE_SUBMISSIONS.length) { list.innerHTML = '<div class="empty-state">Nothing here.</div>'; return; }
+    list.innerHTML = EXPENSE_SUBMISSIONS.map(function (s) {
+      const total = s.items.reduce(function (sum, i) { return sum + i.amount; }, 0);
+      return '<div class="exp-submission-card">' +
+        '<div class="exp-sub-info"><strong>' + escHtml(s.firstName) + ' ' + escHtml(s.lastName) + '</strong> — ' + s.items.length + ' expense(s)<br>' +
+        '<span style="color:var(--muted);font-size:0.82rem;">' + escHtml(s.email) + ' · Zelle: ' + escHtml(s.zelleId || '—') + '</span></div>' +
+        '<div style="display:flex;align-items:center;gap:16px;"><span class="exp-sub-total">' + money(total) + '</span>' +
+        '<button type="button" class="btn-secondary" onclick="openExpenseReview(' + JSON.stringify(s.submissionId) + ')">Review</button></div>' +
+      '</div>';
+    }).join('');
+  } catch (err) {
+    list.innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
+  }
+}
+
+function openExpenseReview(submissionId) {
+  const s = EXPENSE_SUBMISSIONS.find(function (x) { return x.submissionId === submissionId; });
+  if (!s) return;
+  currentReviewSubmission = s;
+  document.getElementById('exp-review-title').textContent = 'Review — ' + s.firstName + ' ' + s.lastName;
+  document.getElementById('exp-review-result').style.display = 'none';
+  renderExpenseReviewDetails();
+  document.getElementById('exp-review-receipt').innerHTML = '<span style="color:var(--muted);font-size:0.86rem;">Click an expense to view its receipt</span>';
+  const canAct = s.items.some(function (i) { return i.status === 'submitted'; });
+  document.getElementById('btn-approve-expense').style.display = canAct ? 'inline-block' : 'none';
+  document.getElementById('btn-reject-expense').style.display = canAct ? 'inline-block' : 'none';
+  document.getElementById('expense-review-overlay').style.display = 'flex';
+  if (s.items.length) selectExpenseLineItem(s.items[0].line_item_id);
+}
+function closeExpenseReview() { document.getElementById('expense-review-overlay').style.display = 'none'; }
+document.getElementById('btn-close-expense-review').addEventListener('click', closeExpenseReview);
+document.getElementById('expense-review-overlay').addEventListener('click', function (e) { if (e.target === this) closeExpenseReview(); });
+
+function renderExpenseReviewDetails() {
+  const s = currentReviewSubmission;
+  const total = s.items.reduce(function (sum, i) { return sum + i.amount; }, 0);
+  let html = '<div style="margin-bottom:14px;font-size:0.88rem;"><strong>' + escHtml(s.email) + '</strong><br>Zelle ID: <strong>' + escHtml(s.zelleId || '—') + '</strong><br>Total: <strong>' + money(total) + '</strong></div>';
+  html += s.items.map(function (i) {
+    const catOptions = '<option value="">Choose category…</option>' + CATEGORIES.filter(function (c) { return c.type === 'expense' && c.active; }).map(function (c) {
+      return '<option value="' + c.category_id + '"' + (c.category_id === i.category_id ? ' selected' : '') + '>' + escHtml(c.name) + '</option>';
+    }).join('');
+    return '<div class="exp-line-item' + (i.line_item_id === currentReviewLineItemId ? ' active' : '') + '" data-line-id="' + i.line_item_id + '" onclick="selectExpenseLineItem(' + JSON.stringify(i.line_item_id) + ')">' +
+      '<div class="exp-top-row"><span>' + escHtml(i.expense_for) + '</span><span>' + money(i.amount) + '</span></div>' +
+      '<div class="exp-date">' + formatDate(i.expense_date) + ' · <span class="source-tag">' + i.status + '</span></div>' +
+      (i.status === 'submitted' ? '<select class="cat-select' + (i.category_id ? '' : ' uncategorized') + '" onclick="event.stopPropagation();" onchange="setExpenseCategory(' + JSON.stringify(i.line_item_id) + ', this.value)">' + catOptions + '</select>' : '') +
+    '</div>';
+  }).join('');
+  document.getElementById('exp-review-details').innerHTML = html;
+}
+
+async function selectExpenseLineItem(lineItemId) {
+  currentReviewLineItemId = lineItemId;
+  document.querySelectorAll('.exp-line-item').forEach(function (el) { el.classList.toggle('active', el.dataset.lineId === lineItemId); });
+  const receiptBox = document.getElementById('exp-review-receipt');
+  receiptBox.innerHTML = '<span style="color:var(--muted);font-size:0.86rem;">Loading receipt…</span>';
+  try {
+    const res = await authedFetch(API_BASE + '/finance/expense-receipt-url/' + encodeURIComponent(lineItemId));
+    const data = await res.json();
+    if (!data.url) { receiptBox.innerHTML = '<span style="color:var(--muted);font-size:0.86rem;">No receipt on file.</span>'; return; }
+    // Drive's "open?id=" link is a viewer page, not a raw file stream — it
+    // can't be embedded as an <img src>, so this always opens in a new tab
+    // rather than trying (and failing) to show it inline.
+    receiptBox.innerHTML = '<a href="' + data.url + '" target="_blank" rel="noopener" style="color:var(--saffron-dark);font-weight:700;font-size:1rem;">📄 Open receipt in Google Drive &rarr;</a>';
+  } catch (err) {
+    receiptBox.innerHTML = '<span style="color:var(--red);font-size:0.86rem;">Could not load receipt: ' + escHtml(err.message) + '</span>';
+  }
+}
+
+async function setExpenseCategory(lineItemId, categoryId) {
+  if (!categoryId) return;
+  await authedFetch(API_BASE + '/finance/expense-line-items/' + encodeURIComponent(lineItemId) + '/categorize', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ categoryId: categoryId })
+  });
+  const item = currentReviewSubmission.items.find(function (i) { return i.line_item_id === lineItemId; });
+  if (item) item.category_id = categoryId;
+}
+
+document.getElementById('btn-approve-expense').addEventListener('click', async function () {
+  const box = document.getElementById('exp-review-result');
+  try {
+    const res = await authedFetch(API_BASE + '/finance/expense-submissions/' + encodeURIComponent(currentReviewSubmission.submissionId) + '/approve', { method: 'POST' });
+    const data = await res.json();
+    box.style.display = 'block';
+    if (!res.ok) {
+      box.className = 'result-box error'; box.textContent = (data.errors || [data.error]).join(' ');
+    } else {
+      box.className = 'result-box success'; box.textContent = 'Approved ' + data.approvedCount + ' expense(s), total ' + money(data.total) + '. Email sent to the approver.';
+      await loadExpenseSubmissions();
+      setTimeout(closeExpenseReview, 1400);
+    }
+  } catch (err) {
+    box.style.display = 'block'; box.className = 'result-box error'; box.textContent = 'Could not reach the server: ' + err.message;
+  }
+});
+document.getElementById('btn-reject-expense').addEventListener('click', async function () {
+  const reason = prompt('Reason for rejecting this submission? This will be emailed to the submitter.');
+  if (reason === null) return;
+  if (!reason.trim()) { alert('A reason is required.'); return; }
+  const box = document.getElementById('exp-review-result');
+  try {
+    const res = await authedFetch(API_BASE + '/finance/expense-submissions/' + encodeURIComponent(currentReviewSubmission.submissionId) + '/reject', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason: reason })
+    });
+    const data = await res.json();
+    box.style.display = 'block';
+    if (!res.ok) {
+      box.className = 'result-box error'; box.textContent = (data.errors || [data.error]).join(' ');
+    } else {
+      box.className = 'result-box success'; box.textContent = 'Rejected.';
+      await loadExpenseSubmissions();
+      setTimeout(closeExpenseReview, 1000);
+    }
+  } catch (err) {
+    box.style.display = 'block'; box.className = 'result-box error'; box.textContent = 'Could not reach the server: ' + err.message;
   }
 });
 

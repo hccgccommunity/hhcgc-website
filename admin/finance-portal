@@ -118,7 +118,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .annual-trend-bar.below { background: linear-gradient(180deg, #d9564a, var(--red)); }
 .annual-trend-month-label { font-size: 0.68rem; color: var(--muted); margin-top: 8px; white-space: nowrap; }
 .annual-trend-threshold-line { position: absolute; left: 0; right: 0; border-top: 2px dashed var(--maroon); }
-.annual-trend-threshold-label { position: absolute; right: 4px; top: -18px; font-size: 0.7rem; color: var(--maroon); font-weight: 700; background: var(--surface); padding: 0 4px; }
+.annual-trend-threshold-label { position: absolute; left: 4px; top: -18px; font-size: 0.7rem; color: var(--maroon); font-weight: 700; background: var(--surface); padding: 0 4px; }
 .toolbar input, .toolbar select {
   font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; padding: 9px 14px;
   border: 1.5px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text);
@@ -1090,9 +1090,13 @@ async function loadReconciliation() {
   list.innerHTML = '<div class="empty-state">Loading…</div>';
   try {
     const res = await authedFetch(API_BASE + '/finance/reconciliation');
-    const deposits = await res.json();
-    if (!deposits.length) { list.innerHTML = '<div class="empty-state">No Zeffy deposits found.</div>'; return; }
-    list.innerHTML = deposits.map(function (d) {
+    const data = await res.json();
+    const deposits = data.payouts || [];
+    const refunds = data.refunds || [];
+    if (!deposits.length && !refunds.length) { list.innerHTML = '<div class="empty-state">No Zeffy activity found.</div>'; return; }
+
+    let html = '<h2 style="font-family:Georgia,serif;color:var(--maroon);margin-bottom:14px;font-size:1.05rem;">Revenue payouts</h2>';
+    html += deposits.map(function (d) {
       const bucketsHtml = d.buckets.map(function (b) {
         return '<div class="recon-candidate' + (Math.abs(b.total) < 0.01 ? '' : ' match') + '" style="background:var(--surface-soft);">' +
           '<span>' + escHtml(b.label) + '</span><span class="amount">' + money(b.total) + '</span>' +
@@ -1102,7 +1106,7 @@ async function loadReconciliation() {
       return '<div class="recon-week-card ' + matchClass + '">' +
         '<div class="recon-week-header">' +
           '<span class="week-label">Deposit on ' + formatDate(d.payoutDate) + ': ' + money(d.depositAmount) + '</span>' +
-          '<span class="expected">Activity window ' + formatDate(d.weekStart) + ' \u2013 ' + formatDate(d.weekEnd) + ' (' + d.txnCount + ' transactions, net of refunds)</span>' +
+          '<span class="expected">Activity window ' + formatDate(d.weekStart) + ' \u2013 ' + formatDate(d.weekEnd) + ' (' + d.txnCount + ' transactions)</span>' +
         '</div>' +
         bucketsHtml +
         '<div class="recon-total-row">' +
@@ -1110,7 +1114,21 @@ async function loadReconciliation() {
           '<span class="recon-match-badge">' + (d.isMatching ? '\u2713 Matches deposit' : '\u26a0 Off by ' + money(Math.abs(d.difference))) + '</span>' +
         '</div>' +
       '</div>';
-    }).join('');
+    }).join('') || '<div class="empty-state">No payout deposits found.</div>';
+
+    html += '<h2 style="font-family:Georgia,serif;color:var(--maroon);margin:24px 0 14px;font-size:1.05rem;">Refund withdrawals</h2>';
+    html += '<div class="card" style="margin-bottom:14px;"><p style="font-size:0.84rem;color:var(--muted);margin:0;">Refunds arrive as their own separate withdrawal from Zeffy, not merged into a revenue payout — reconciled separately here against the days right around each one.</p></div>';
+    html += refunds.map(function (r) {
+      const matchClass = r.isMatching ? 'recon-match-yes' : 'recon-match-no';
+      return '<div class="recon-week-card ' + matchClass + '">' +
+        '<div class="recon-total-row" style="border-top:none;margin-top:0;">' +
+          '<span>Withdrawal on ' + formatDate(r.refundDate) + ': ' + money(r.bankAmount) + ' (' + r.count + ' refund' + (r.count === 1 ? '' : 's') + ' found nearby)</span>' +
+          '<span class="recon-match-badge">' + (r.isMatching ? '\u2713 Matches records (' + money(r.expectedFromRecords) + ')' : '\u26a0 Records show ' + money(r.expectedFromRecords)) + '</span>' +
+        '</div>' +
+      '</div>';
+    }).join('') || '<div class="empty-state">No refund withdrawals found.</div>';
+
+    list.innerHTML = html;
   } catch (err) {
     list.innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
   }

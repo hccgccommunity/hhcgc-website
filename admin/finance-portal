@@ -146,6 +146,13 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 .source-tag { display: inline-block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--surface-soft); color: var(--saffron-dark); }
 .cat-select { font-family: inherit; font-size: 0.82rem; padding: 6px 10px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; }
 .cat-select.uncategorized { border-color: var(--red); background: var(--red-bg); }
+.btn-note { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 26px; height: 26px; cursor: pointer; font-size: 0.8rem; vertical-align: middle; }
+.btn-note:hover { background: var(--surface-soft); }
+.collapsible-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 12px 0; }
+.collapsible-header .toggle-arrow { transition: transform 0.15s ease; }
+.collapsible-header.is-open .toggle-arrow { transform: rotate(90deg); }
+.collapsible-body { display: none; }
+.collapsible-body.is-open { display: block; }
 .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
 
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; box-shadow: var(--shadow); margin-bottom: 20px; }
@@ -165,6 +172,12 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 .recon-candidate.match { background: var(--green-bg); }
 .recon-candidate.mismatch { background: var(--red-bg); }
 .recon-none { color: var(--muted); font-size: 0.84rem; font-style: italic; }
+.recon-week-card.recon-match-yes { border: 1.5px solid rgba(46,125,79,0.4); background: rgba(232,245,236,0.4); }
+.recon-week-card.recon-match-no { border: 1.5px solid rgba(179,56,44,0.4); background: rgba(251,233,231,0.4); }
+.recon-total-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; margin-top: 6px; border-top: 1px solid var(--border); font-weight: 700; font-size: 0.88rem; }
+.recon-match-badge { font-size: 0.82rem; }
+.recon-match-yes .recon-match-badge { color: var(--green); }
+.recon-match-no .recon-match-badge { color: var(--red); }
 
 .category-pill { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border: 1.5px solid var(--border); border-radius: 999px; font-size: 0.86rem; }
 .category-pill.inactive { opacity: 0.5; }
@@ -262,6 +275,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
       <div class="card">
         <h2 style="font-family:Georgia,serif;color:var(--maroon);margin-bottom:14px;font-size:1.05rem;">Future booked facility rental revenue</h2>
         <div id="dash-future-revenue"></div>
+        <div id="dash-future-revenue-chart" style="margin-top:14px;"></div>
       </div>
     </div>
 
@@ -307,8 +321,17 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
     </div>
 
     <div class="toolbar">
-      <input type="date" id="tx-start-date">
-      <input type="date" id="tx-end-date">
+      <select id="tx-range-preset" class="range-preset-select">
+        <option value="last3months" selected>Last 3 months</option>
+        <option value="thismonth">This month</option>
+        <option value="thisquarter">This quarter</option>
+        <option value="lastmonth">Last month</option>
+        <option value="lastquarter">Last quarter</option>
+        <option value="thisyear">This year</option>
+        <option value="custom">Custom</option>
+      </select>
+      <input type="date" id="tx-start-date" style="display:none;">
+      <input type="date" id="tx-end-date" style="display:none;">
       <select id="tx-status-filter">
         <option value="">All</option>
         <option value="uncategorized">Uncategorized only</option>
@@ -327,13 +350,18 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
         <div class="empty-state" id="tx-zeffy-empty" style="display:none;">No Zeffy campaign activity in this range.</div>
       </div>
       <div class="card" style="margin-top:16px;">
-        <h2 style="font-family:Georgia,serif;color:var(--maroon);margin-bottom:14px;font-size:1rem;">Zeffy refunds (from bank transactions)</h2>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead>
-            <tbody id="tx-zeffy-refunds-tbody"></tbody>
-          </table>
-          <div class="empty-state" id="tx-zeffy-refunds-empty" style="display:none;">No Zeffy refunds in this range.</div>
+        <div class="collapsible-header" id="zeffy-refunds-toggle">
+          <h2 style="font-family:Georgia,serif;color:var(--maroon);font-size:1rem;margin:0;">Zeffy refunds (from bank transactions) <span id="zeffy-refunds-count" style="color:var(--muted);font-weight:400;font-size:0.86rem;"></span></h2>
+          <span class="toggle-arrow">&#9654;</span>
+        </div>
+        <div class="collapsible-body" id="zeffy-refunds-body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead>
+              <tbody id="tx-zeffy-refunds-tbody"></tbody>
+            </table>
+            <div class="empty-state" id="tx-zeffy-refunds-empty" style="display:none;">No Zeffy refunds in this range.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -391,9 +419,19 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 
     <div class="sub-tab-panel active" id="subtab-income-statement">
       <div class="toolbar">
-        <input type="date" id="stmt-start-date">
-        <input type="date" id="stmt-end-date">
+        <select id="stmt-range-preset" class="range-preset-select">
+          <option value="last3months" selected>Last 3 months</option>
+          <option value="thismonth">This month</option>
+          <option value="thisquarter">This quarter</option>
+          <option value="lastmonth">Last month</option>
+          <option value="lastquarter">Last quarter</option>
+          <option value="thisyear">This year</option>
+          <option value="custom">Custom</option>
+        </select>
+        <input type="date" id="stmt-start-date" style="display:none;">
+        <input type="date" id="stmt-end-date" style="display:none;">
         <button type="button" class="btn-secondary" id="btn-load-statement">Generate</button>
+        <button type="button" class="btn-secondary" id="btn-download-statement" style="display:none;">Download CSV</button>
       </div>
       <div class="card" id="statement-card">
         <div class="empty-state">Choose a date range and click Generate.</div>
@@ -407,6 +445,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
       <div class="toolbar">
         <input type="date" id="bs-as-of-date">
         <button type="button" class="btn-secondary" id="btn-load-balance-sheet">Generate</button>
+        <button type="button" class="btn-secondary" id="btn-download-balance-sheet" style="display:none;">Download CSV</button>
       </div>
       <div class="card" id="balance-sheet-card" style="margin-bottom:20px;">
         <div class="empty-state">Choose a date and click Generate.</div>
@@ -435,9 +474,19 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 
     <div class="sub-tab-panel" id="subtab-cash-flow-sub">
       <div class="toolbar">
-        <input type="date" id="cf-start-date">
-        <input type="date" id="cf-end-date">
+        <select id="cf-range-preset" class="range-preset-select">
+          <option value="last3months" selected>Last 3 months</option>
+          <option value="thismonth">This month</option>
+          <option value="thisquarter">This quarter</option>
+          <option value="lastmonth">Last month</option>
+          <option value="lastquarter">Last quarter</option>
+          <option value="thisyear">This year</option>
+          <option value="custom">Custom</option>
+        </select>
+        <input type="date" id="cf-start-date" style="display:none;">
+        <input type="date" id="cf-end-date" style="display:none;">
         <button type="button" class="btn-secondary" id="btn-load-cash-flow">Generate</button>
+        <button type="button" class="btn-secondary" id="btn-download-cash-flow" style="display:none;">Download CSV</button>
       </div>
       <div class="card" id="cash-flow-card">
         <div class="empty-state">Choose a date range and click Generate.</div>
@@ -539,6 +588,31 @@ function formatDate(d) { if (!d) return '—'; return new Date(d + 'T00:00:00').
 function money(n) { return '$' + Number(n).toFixed(2); }
 function moneyRound(n) { return '$' + Math.round(Number(n)).toLocaleString('en-US'); }
 
+// Shared CSV export — every statement download uses this so the format
+// (statement name, org name, date range, then line items) stays consistent.
+function csvCell(v) {
+  const s = String(v === undefined || v === null ? '' : v);
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function downloadCsv(filename, rows) {
+  const csv = rows.map(function (row) { return row.map(csvCell).join(','); }).join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function statementCsvHeader(statementName, startDate, endDate) {
+  return [
+    ['Hindu Community Center of Greater Cincinnati'],
+    [statementName],
+    ['Date range', formatDate(startDate) + ' - ' + formatDate(endDate)],
+    ['Generated', new Date().toLocaleString('en-US')],
+    []
+  ];
+}
+
 // ── Tabs ──
 document.querySelectorAll('.tab-btn').forEach(function (btn) {
   btn.addEventListener('click', function () {
@@ -630,12 +704,9 @@ function defaultDateRange() {
   return { start: start.toISOString().slice(0, 10), end: end.toISOString().slice(0, 10) };
 }
 (function initDateFields() {
-  const range = defaultDateRange();
-  ['tx-start-date', 'stmt-start-date', 'cf-start-date'].forEach(function (id) { document.getElementById(id).value = range.start; });
-  ['tx-end-date', 'stmt-end-date', 'cf-end-date'].forEach(function (id) { document.getElementById(id).value = range.end; });
-  const dashRange = computePresetRange('last3months');
-  document.getElementById('dash-start-date').value = dashRange.start;
-  document.getElementById('dash-end-date').value = dashRange.end;
+  const range = computePresetRange('last3months');
+  ['tx-start-date', 'stmt-start-date', 'cf-start-date', 'dash-start-date'].forEach(function (id) { document.getElementById(id).value = range.start; });
+  ['tx-end-date', 'stmt-end-date', 'cf-end-date', 'dash-end-date'].forEach(function (id) { document.getElementById(id).value = range.end; });
 })();
 
 // ── Dashboard ──
@@ -664,6 +735,29 @@ document.getElementById('dash-range-preset').addEventListener('change', function
   document.getElementById('dash-end-date').value = range.end;
   loadDashboard();
 });
+
+// Same preset pattern as the dashboard, reused for any other date-range
+// toolbar — wires the dropdown, shows/hides the raw date inputs for
+// Custom, and calls onApply() with nothing (it just reads the now-updated
+// start/end fields) whenever a non-custom preset is chosen.
+function setupRangePreset(presetId, startId, endId, onApply) {
+  document.getElementById(presetId).addEventListener('change', function () {
+    const preset = this.value;
+    const customInputs = [document.getElementById(startId), document.getElementById(endId)];
+    if (preset === 'custom') {
+      customInputs.forEach(function (el) { el.style.display = 'inline-block'; });
+      return;
+    }
+    customInputs.forEach(function (el) { el.style.display = 'none'; });
+    const range = computePresetRange(preset);
+    document.getElementById(startId).value = range.start;
+    document.getElementById(endId).value = range.end;
+    onApply();
+  });
+}
+setupRangePreset('tx-range-preset', 'tx-start-date', 'tx-end-date', loadTransactions);
+setupRangePreset('stmt-range-preset', 'stmt-start-date', 'stmt-end-date', function () { document.getElementById('btn-load-statement').click(); });
+setupRangePreset('cf-range-preset', 'cf-start-date', 'cf-end-date', function () { document.getElementById('btn-load-cash-flow').click(); });
 document.getElementById('btn-load-dashboard').addEventListener('click', loadDashboard);
 async function loadDashboard() {
   const start = document.getElementById('dash-start-date').value;
@@ -679,6 +773,7 @@ async function loadDashboard() {
     renderBalanceGauge(data);
     renderIncomeChart(data.incomeBreakdown);
     renderFutureRevenue(data);
+    renderFutureRevenueByMonth(data.futureBookedRevenueByMonth);
     renderFundraisingChart(data.fundraisingBreakdown);
     renderBarChart('dash-expense-chart', data.expenseBreakdown, 'No categorized expenses in this range yet.');
     renderTrendChart(data.monthlyTrend);
@@ -783,6 +878,15 @@ function renderContributorList(containerId, items, emptyMessage) {
     '</div>';
   }).join('');
 }
+function renderFutureRevenueByMonth(byMonth) {
+  const container = document.getElementById('dash-future-revenue-chart');
+  if (!byMonth || !byMonth.length) { container.innerHTML = ''; return; }
+  const items = byMonth.map(function (m) {
+    return { name: new Date(m.month + '-02').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) + ' (' + m.count + ')', total: m.total };
+  });
+  container.innerHTML = '<div style="font-size:0.8rem;font-weight:700;color:var(--muted);margin-bottom:8px;">By month</div><div id="dash-future-revenue-chart-inner"></div>';
+  renderBarChart('dash-future-revenue-chart-inner', items, 'No upcoming bookings.');
+}
 function renderFutureRevenue(data) {
   document.getElementById('dash-future-revenue').innerHTML =
     '<div class="stat-card-big"><div class="value">' + moneyRound(data.futureBookedRevenue) + '</div>' +
@@ -813,6 +917,10 @@ async function showFutureBookingsDetail() {
   }
 }
 
+document.getElementById('zeffy-refunds-toggle').addEventListener('click', function () {
+  this.classList.toggle('is-open');
+  document.getElementById('zeffy-refunds-body').classList.toggle('is-open');
+});
 async function loadTransactions() {
   const start = document.getElementById('tx-start-date').value;
   const end = document.getElementById('tx-end-date').value;
@@ -832,6 +940,7 @@ async function loadTransactions() {
 
     renderGroup('tx-zeffy', data.zeffy, renderZeffyCampaignRow, 'No Zeffy campaign activity in this range.');
     renderGroup('tx-zeffy-refunds', data.zeffyRefunds, renderTxRow, 'No Zeffy refunds in this range.');
+    document.getElementById('zeffy-refunds-count').textContent = data.zeffyRefunds.length ? '(' + data.zeffyRefunds.length + ')' : '(none)';
     renderGroup('tx-zelle', data.zelle, renderTxRow, 'No Zelle transactions in this range.');
     renderGroup('tx-other', data.other, renderTxRow, 'No other transactions in this range.');
     populateCategorySelects();
@@ -850,20 +959,22 @@ function renderGroup(prefix, items, rowFn, emptyMessage) {
 }
 function renderTxRow(t) {
   const rowId = t.source + '|' + t.sourceKey;
+  const noteBtn = '<button type="button" class="btn-note" title="' + (t.notes ? 'Note: ' + escHtml(t.notes) : 'Add a note') + '" data-edit-note-source="' + t.source + '" data-edit-note-key="' + t.sourceKey + '">' + (t.notes ? '📝' : '➕') + '</button>';
   return '<tr>' +
     '<td>' + formatDate(t.date) + '</td>' +
     '<td>' + escHtml(t.description) + '</td>' +
     '<td class="amount">' + money(t.amount) + '</td>' +
-    '<td><select class="cat-select' + (t.categoryId ? '' : ' uncategorized') + '" data-row="' + rowId + '" data-assign-category-source="' + t.source + '" data-assign-category-key="' + t.sourceKey + '"><option value="">Uncategorized</option></select></td>' +
+    '<td><select class="cat-select' + (t.categoryId ? '' : ' uncategorized') + '" data-row="' + rowId + '" data-assign-category-source="' + t.source + '" data-assign-category-key="' + t.sourceKey + '" data-assign-category-desc="' + escHtml(t.description) + '"><option value="">Uncategorized</option></select> ' + noteBtn + '</td>' +
   '</tr>';
 }
 function renderZeffyCampaignRow(t) {
   const rowId = t.source + '|' + t.sourceKey;
+  const noteBtn = '<button type="button" class="btn-note" title="' + (t.notes ? 'Note: ' + escHtml(t.notes) : 'Add a note') + '" data-edit-note-source="' + t.source + '" data-edit-note-key="' + t.sourceKey + '">' + (t.notes ? '📝' : '➕') + '</button>';
   return '<tr>' +
     '<td>' + escHtml(t.name) + '</td>' +
     '<td>' + t.count + '</td>' +
     '<td class="amount">' + money(t.total) + '</td>' +
-    '<td><select class="cat-select' + (t.categoryId ? '' : ' uncategorized') + '" data-row="' + rowId + '" data-assign-category-source="' + t.source + '" data-assign-category-key="' + t.sourceKey + '"><option value="">Uncategorized</option></select></td>' +
+    '<td><select class="cat-select' + (t.categoryId ? '' : ' uncategorized') + '" data-row="' + rowId + '" data-assign-category-source="' + t.source + '" data-assign-category-key="' + t.sourceKey + '"><option value="">Uncategorized</option></select> ' + noteBtn + '</td>' +
   '</tr>';
 }
 function categoryOptionsHtml(currentCatId) {
@@ -884,25 +995,47 @@ function populateCategorySelects() {
     sel.classList.toggle('uncategorized', !resolvedCatId);
   });
 }
-async function assignCategory(source, sourceKey, categoryId) {
+async function assignCategory(source, sourceKey, categoryId, description) {
   if (!categoryId) return;
   try {
+    const tx = TRANSACTIONS.find(function (t) { return t.source === source && t.sourceKey === sourceKey; });
     await authedFetch(API_BASE + '/finance/categorize', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ source: source, sourceKey: sourceKey, categoryId: categoryId })
+      body: JSON.stringify({ source: source, sourceKey: sourceKey, categoryId: categoryId, description: description, notes: tx ? tx.notes : null })
     });
-    const tx = TRANSACTIONS.find(function (t) { return t.source === source && t.sourceKey === sourceKey; });
     if (tx) tx.categoryId = categoryId;
     populateCategorySelects();
   } catch (err) {
     alert('Could not save category: ' + err.message);
   }
 }
+async function editTransactionNote(source, sourceKey) {
+  const tx = TRANSACTIONS.find(function (t) { return t.source === source && t.sourceKey === sourceKey; });
+  if (!tx) return;
+  if (!tx.categoryId) { alert('Assign a category first, then you can add a note.'); return; }
+  const note = prompt('Note for this transaction:', tx.notes || '');
+  if (note === null) return;
+  try {
+    await authedFetch(API_BASE + '/finance/categorize', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source: source, sourceKey: sourceKey, categoryId: tx.categoryId, notes: note })
+    });
+    tx.notes = note;
+    loadTransactions();
+  } catch (err) {
+    alert('Could not save note: ' + err.message);
+  }
+}
+document.addEventListener('click', function (e) {
+  const btn = e.target.closest('[data-edit-note-source]');
+  if (!btn) return;
+  editTransactionNote(btn.dataset.editNoteSource, btn.dataset.editNoteKey);
+});
 ['tx-zeffy-tbody', 'tx-zeffy-refunds-tbody', 'tx-zelle-tbody', 'tx-other-tbody'].forEach(function (id) {
   document.getElementById(id).addEventListener('change', function (e) {
     const sel = e.target.closest('[data-assign-category-source]');
     if (!sel) return;
-    assignCategory(sel.dataset.assignCategorySource, sel.dataset.assignCategoryKey, sel.value);
+    assignCategory(sel.dataset.assignCategorySource, sel.dataset.assignCategoryKey, sel.value, sel.dataset.assignCategoryDesc);
   });
 });
 document.getElementById('btn-load-tx').addEventListener('click', loadTransactions);
@@ -913,6 +1046,7 @@ document.getElementById('btn-load-statement').addEventListener('click', async fu
   const end = document.getElementById('stmt-end-date').value;
   const card = document.getElementById('statement-card');
   card.innerHTML = '<div class="empty-state">Generating…</div>';
+  document.getElementById('btn-download-statement').style.display = 'none';
   try {
     const res = await authedFetch(API_BASE + '/finance/statement-of-activities?startDate=' + start + '&endDate=' + end);
     const data = await res.json();
@@ -925,9 +1059,28 @@ document.getElementById('btn-load-statement').addEventListener('click', async fu
     html += '<div class="stmt-total"><span>Total Expenses</span><span>' + money(data.totalExpense) + '</span></div>';
     html += '<div class="stmt-net ' + (data.netIncome >= 0 ? 'positive' : 'negative') + '"><span>Net Income</span><span>' + money(data.netIncome) + '</span></div>';
     card.innerHTML = html;
+    window.__lastIncomeStatement = data;
+    document.getElementById('btn-download-statement').style.display = 'inline-block';
   } catch (err) {
     card.innerHTML = '<div class="empty-state">Could not generate: ' + escHtml(err.message) + '</div>';
   }
+});
+document.getElementById('btn-download-statement').addEventListener('click', function () {
+  const data = window.__lastIncomeStatement;
+  if (!data) return;
+  const rows = statementCsvHeader('Income Statement (Profit & Loss)', data.startDate, data.endDate);
+  rows.push(['INCOME', '', '']);
+  rows.push(['Category', 'Count', 'Amount']);
+  data.income.forEach(function (r) { rows.push([r.name, r.count, r.total.toFixed(2)]); });
+  rows.push(['Total Income', '', data.totalIncome.toFixed(2)]);
+  rows.push([]);
+  rows.push(['EXPENSES', '', '']);
+  rows.push(['Category', 'Count', 'Amount']);
+  data.expense.forEach(function (r) { rows.push([r.name, r.count, r.total.toFixed(2)]); });
+  rows.push(['Total Expenses', '', data.totalExpense.toFixed(2)]);
+  rows.push([]);
+  rows.push(['Net Income', '', data.netIncome.toFixed(2)]);
+  downloadCsv('Income-Statement_' + data.startDate + '_to_' + data.endDate + '.csv', rows);
 });
 
 // ── Reconciliation ──
@@ -937,22 +1090,25 @@ async function loadReconciliation() {
   list.innerHTML = '<div class="empty-state">Loading…</div>';
   try {
     const res = await authedFetch(API_BASE + '/finance/reconciliation');
-    const weeks = await res.json();
-    if (!weeks.length) { list.innerHTML = '<div class="empty-state">No Zeffy activity found.</div>'; return; }
-    list.innerHTML = weeks.map(function (w) {
-      const candidatesHtml = w.candidates.length
-        ? w.candidates.map(function (c) {
-            const diff = Math.abs(c.amount - w.expectedPayout);
-            const isMatch = diff < 1;
-            return '<div class="recon-candidate ' + (isMatch ? 'match' : 'mismatch') + '">' +
-              '<span>' + formatDate(c.date) + ' — ' + escHtml(c.description) + '</span>' +
-              '<span class="amount">' + money(c.amount) + (isMatch ? ' ✓' : ' (diff: ' + money(diff) + ')') + '</span>' +
-            '</div>';
-          }).join('')
-        : '<div class="recon-none">No matching bank deposit found yet — may not have landed.</div>';
-      return '<div class="recon-week-card">' +
-        '<div class="recon-week-header"><span class="week-label">' + formatDate(w.weekStart) + ' – ' + formatDate(w.weekEnd) + '</span><span class="expected">Expected on ' + formatDate(w.expectedPayoutDate) + ': ' + money(w.expectedPayout) + ' (' + w.txnCount + ' transactions, net of refunds)</span></div>' +
-        candidatesHtml +
+    const deposits = await res.json();
+    if (!deposits.length) { list.innerHTML = '<div class="empty-state">No Zeffy deposits found.</div>'; return; }
+    list.innerHTML = deposits.map(function (d) {
+      const bucketsHtml = d.buckets.map(function (b) {
+        return '<div class="recon-candidate' + (Math.abs(b.total) < 0.01 ? '' : ' match') + '" style="background:var(--surface-soft);">' +
+          '<span>' + escHtml(b.label) + '</span><span class="amount">' + money(b.total) + '</span>' +
+        '</div>';
+      }).join('');
+      const matchClass = d.isMatching ? 'recon-match-yes' : 'recon-match-no';
+      return '<div class="recon-week-card ' + matchClass + '">' +
+        '<div class="recon-week-header">' +
+          '<span class="week-label">Deposit on ' + formatDate(d.payoutDate) + ': ' + money(d.depositAmount) + '</span>' +
+          '<span class="expected">Activity window ' + formatDate(d.weekStart) + ' \u2013 ' + formatDate(d.weekEnd) + ' (' + d.txnCount + ' transactions, net of refunds)</span>' +
+        '</div>' +
+        bucketsHtml +
+        '<div class="recon-total-row">' +
+          '<span>Sum of buckets: ' + money(d.bucketsTotal) + '</span>' +
+          '<span class="recon-match-badge">' + (d.isMatching ? '\u2713 Matches deposit' : '\u26a0 Off by ' + money(Math.abs(d.difference))) + '</span>' +
+        '</div>' +
       '</div>';
     }).join('');
   } catch (err) {
@@ -1011,6 +1167,7 @@ document.getElementById('btn-load-balance-sheet').addEventListener('click', asyn
   const asOfDate = document.getElementById('bs-as-of-date').value;
   const card = document.getElementById('balance-sheet-card');
   card.innerHTML = '<div class="empty-state">Generating…</div>';
+  document.getElementById('btn-download-balance-sheet').style.display = 'none';
   try {
     const res = await authedFetch(API_BASE + '/finance/balance-sheet?asOfDate=' + asOfDate);
     const data = await res.json();
@@ -1024,9 +1181,27 @@ document.getElementById('btn-load-balance-sheet').addEventListener('click', asyn
     html += '<div class="stmt-total"><span>Total Liabilities</span><span>' + money(data.totalLiabilities) + '</span></div>';
     html += '<div class="stmt-net ' + (data.netAssets >= 0 ? 'positive' : 'negative') + '"><span>Net Assets</span><span>' + money(data.netAssets) + '</span></div>';
     card.innerHTML = html;
+    window.__lastBalanceSheet = data;
+    document.getElementById('btn-download-balance-sheet').style.display = 'inline-block';
   } catch (err) {
     card.innerHTML = '<div class="empty-state">Could not generate: ' + escHtml(err.message) + '</div>';
   }
+});
+document.getElementById('btn-download-balance-sheet').addEventListener('click', function () {
+  const data = window.__lastBalanceSheet;
+  if (!data) return;
+  const rows = statementCsvHeader('Balance Sheet', data.asOfDate, data.asOfDate);
+  rows.push(['ASSETS', '']);
+  rows.push(['Cash (from bank transaction history)', data.cash.toFixed(2)]);
+  data.assets.forEach(function (a) { rows.push([a.name, a.amount.toFixed(2)]); });
+  rows.push(['Total Assets', data.totalAssets.toFixed(2)]);
+  rows.push([]);
+  rows.push(['LIABILITIES', '']);
+  data.liabilities.forEach(function (l) { rows.push([l.name, l.amount.toFixed(2)]); });
+  rows.push(['Total Liabilities', data.totalLiabilities.toFixed(2)]);
+  rows.push([]);
+  rows.push(['Net Assets', data.netAssets.toFixed(2)]);
+  downloadCsv('Balance-Sheet_' + data.asOfDate + '.csv', rows);
 });
 
 document.getElementById('btn-load-cash-flow').addEventListener('click', async function () {
@@ -1034,6 +1209,7 @@ document.getElementById('btn-load-cash-flow').addEventListener('click', async fu
   const end = document.getElementById('cf-end-date').value;
   const card = document.getElementById('cash-flow-card');
   card.innerHTML = '<div class="empty-state">Generating…</div>';
+  document.getElementById('btn-download-cash-flow').style.display = 'none';
   try {
     const res = await authedFetch(API_BASE + '/finance/cash-flow-statement?startDate=' + start + '&endDate=' + end);
     const data = await res.json();
@@ -1051,9 +1227,25 @@ document.getElementById('btn-load-cash-flow').addEventListener('click', async fu
     html += '<div class="stmt-total"><span>Net Change in Cash</span><span>' + money(data.netChange) + '</span></div>';
     html += '<div class="stmt-net ' + (data.endingCash >= 0 ? 'positive' : 'negative') + '"><span>Ending Cash Balance</span><span>' + money(data.endingCash) + '</span></div>';
     card.innerHTML = html;
+    window.__lastCashFlow = data;
+    document.getElementById('btn-download-cash-flow').style.display = 'inline-block';
   } catch (err) {
     card.innerHTML = '<div class="empty-state">Could not generate: ' + escHtml(err.message) + '</div>';
   }
+});
+document.getElementById('btn-download-cash-flow').addEventListener('click', function () {
+  const data = window.__lastCashFlow;
+  if (!data) return;
+  const rows = statementCsvHeader('Cash Flow Statement', data.startDate, data.endDate);
+  rows.push(['Beginning cash balance', data.beginningCash.toFixed(2)]);
+  rows.push([]);
+  rows.push(['Cash In (categorized income)', data.cashIn.toFixed(2)]);
+  rows.push(['Cash Out (categorized expenses)', data.cashOut.toFixed(2)]);
+  if (Math.abs(data.uncategorizedNet) > 0.01) rows.push(['Not yet categorized (net movement)', data.uncategorizedNet.toFixed(2)]);
+  rows.push([]);
+  rows.push(['Net Change in Cash', data.netChange.toFixed(2)]);
+  rows.push(['Ending Cash Balance', data.endingCash.toFixed(2)]);
+  downloadCsv('Cash-Flow-Statement_' + data.startDate + '_to_' + data.endDate + '.csv', rows);
 });
 
 async function loadBalanceSheetItems() {

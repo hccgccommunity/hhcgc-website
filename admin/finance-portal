@@ -206,7 +206,6 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
     <ul>
       <li><button class="tab-btn active" data-tab="dashboard">Dashboard</button></li>
       <li><button class="tab-btn" data-tab="transactions">Transactions</button></li>
-      <li><button class="tab-btn" data-tab="categories">Categories</button></li>
       <li><button class="tab-btn" data-tab="statements">Statements</button></li>
       <li><button class="tab-btn" data-tab="reconciliation">Zeffy Reconciliation</button></li>
       <li><button class="tab-btn" data-tab="matching">Invoice Matching</button></li>
@@ -297,8 +296,16 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 
   <div class="tab-panel" id="tab-transactions">
     <div class="card" style="margin-bottom:16px;">
-      <p style="font-size:0.86rem;color:var(--muted);line-height:1.6;margin:0;">Sourced entirely from bank transactions — the single source of truth for accounting, so nothing gets double-counted. Zeffy's weekly payout deposit is automatically split into Individual Donations, Facility Rental Income, and Fundraising Event Income based on that week's underlying campaign activity, each pre-tagged — override any of them below if a suggestion looks wrong.</p>
+      <p style="font-size:0.86rem;color:var(--muted);line-height:1.6;margin:0;">Zeffy revenue is shown at the campaign level, summed straight from Zeffy's own records — not tied to when the weekly payout actually lands in the bank, so nothing here depends on guessing which deposit covers which activity. Zelle and everything else comes straight from bank transactions. The weekly Zeffy payout deposit itself is intentionally left out below, since its content is already represented by the campaign totals — showing both would double-count it.</p>
     </div>
+
+    <div class="sub-tab-nav">
+      <button class="sub-tab-btn active" data-subtab="tx-zeffy">Zeffy</button>
+      <button class="sub-tab-btn" data-subtab="tx-zelle">Zelle</button>
+      <button class="sub-tab-btn" data-subtab="tx-other">Other</button>
+      <button class="sub-tab-btn" data-subtab="tx-categories">Categories</button>
+    </div>
+
     <div class="toolbar">
       <input type="date" id="tx-start-date">
       <input type="date" id="tx-end-date">
@@ -310,35 +317,67 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
       <button type="button" class="btn-secondary" id="btn-load-tx">Refresh</button>
       <span class="count" id="tx-count"></span>
     </div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead>
-        <tbody id="tx-tbody"></tbody>
-      </table>
-      <div class="empty-state" id="tx-empty" style="display:none;">No transactions in this range.</div>
-    </div>
-  </div>
 
-  <!-- ── CATEGORIES TAB ── -->
-  <div class="tab-panel" id="tab-categories">
-    <div class="card">
-      <h2 style="font-family:Georgia,serif;color:var(--maroon);margin-bottom:14px;">Income categories</h2>
-      <div class="category-list" id="income-category-list"></div>
-      <h2 style="font-family:Georgia,serif;color:var(--maroon);margin:22px 0 14px;">Expense categories</h2>
-      <div class="category-list" id="expense-category-list"></div>
-
-      <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
-        <div style="flex:1;min-width:200px;">
-          <label style="font-size:0.82rem;font-weight:700;color:var(--muted);display:block;margin-bottom:6px;">New category name</label>
-          <input type="text" id="new-cat-name" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;">
-        </div>
-        <select id="new-cat-type" style="font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;">
-          <option value="income">Income</option>
-          <option value="expense">Expense</option>
-        </select>
-        <button type="button" class="btn-primary" id="btn-add-category">Add category</button>
+    <div class="sub-tab-panel active" id="subtab-tx-zeffy">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Campaign</th><th># Payments</th><th>Gross Amount</th><th>Category</th></tr></thead>
+          <tbody id="tx-zeffy-tbody"></tbody>
+        </table>
+        <div class="empty-state" id="tx-zeffy-empty" style="display:none;">No Zeffy campaign activity in this range.</div>
       </div>
-      <div class="result-box" id="cat-result-box" style="display:none;margin-top:12px;border-radius:10px;padding:10px 14px;font-size:0.85rem;"></div>
+      <div class="card" style="margin-top:16px;">
+        <h2 style="font-family:Georgia,serif;color:var(--maroon);margin-bottom:14px;font-size:1rem;">Zeffy refunds (from bank transactions)</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead>
+            <tbody id="tx-zeffy-refunds-tbody"></tbody>
+          </table>
+          <div class="empty-state" id="tx-zeffy-refunds-empty" style="display:none;">No Zeffy refunds in this range.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-tab-panel" id="subtab-tx-zelle">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead>
+          <tbody id="tx-zelle-tbody"></tbody>
+        </table>
+        <div class="empty-state" id="tx-zelle-empty" style="display:none;">No Zelle transactions in this range.</div>
+      </div>
+    </div>
+
+    <div class="sub-tab-panel" id="subtab-tx-other">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead>
+          <tbody id="tx-other-tbody"></tbody>
+        </table>
+        <div class="empty-state" id="tx-other-empty" style="display:none;">No other transactions in this range.</div>
+      </div>
+    </div>
+
+    <div class="sub-tab-panel" id="subtab-tx-categories">
+      <div class="card">
+        <h2 style="font-family:Georgia,serif;color:var(--maroon);margin-bottom:14px;">Income categories</h2>
+        <div class="category-list" id="income-category-list"></div>
+        <h2 style="font-family:Georgia,serif;color:var(--maroon);margin:22px 0 14px;">Expense categories</h2>
+        <div class="category-list" id="expense-category-list"></div>
+
+        <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+          <div style="flex:1;min-width:200px;">
+            <label style="font-size:0.82rem;font-weight:700;color:var(--muted);display:block;margin-bottom:6px;">New category name</label>
+            <input type="text" id="new-cat-name" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;">
+          </div>
+          <select id="new-cat-type" style="font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;">
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+          <button type="button" class="btn-primary" id="btn-add-category">Add category</button>
+        </div>
+        <div class="result-box" id="cat-result-box" style="display:none;margin-top:12px;border-radius:10px;padding:10px 14px;font-size:0.85rem;"></div>
+      </div>
     </div>
   </div>
 
@@ -516,8 +555,9 @@ document.querySelectorAll('.tab-btn').forEach(function (btn) {
 });
 document.querySelectorAll('.sub-tab-btn').forEach(function (btn) {
   btn.addEventListener('click', function () {
-    document.querySelectorAll('.sub-tab-btn').forEach(function (b) { b.classList.remove('active'); });
-    document.querySelectorAll('.sub-tab-panel').forEach(function (p) { p.classList.remove('active'); });
+    const scope = btn.closest('.tab-panel');
+    scope.querySelectorAll('.sub-tab-btn').forEach(function (b) { b.classList.remove('active'); });
+    scope.querySelectorAll('.sub-tab-panel').forEach(function (p) { p.classList.remove('active'); });
     btn.classList.add('active');
     document.getElementById('subtab-' + btn.dataset.subtab).classList.add('active');
   });
@@ -780,20 +820,33 @@ async function loadTransactions() {
   const params = new URLSearchParams({ startDate: start, endDate: end });
   if (status) params.set('status', status);
 
-  const tbody = document.getElementById('tx-tbody');
-  const emptyState = document.getElementById('tx-empty');
-  tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:30px;">Loading…</td></tr>';
+  ['tx-zeffy', 'tx-zeffy-refunds', 'tx-zelle', 'tx-other'].forEach(function (id) {
+    document.getElementById(id + '-tbody').innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px;">Loading…</td></tr>';
+  });
   try {
     const res = await authedFetch(API_BASE + '/finance/transactions?' + params.toString());
-    TRANSACTIONS = await res.json();
-    document.getElementById('tx-count').textContent = TRANSACTIONS.length + ' transactions';
-    if (!TRANSACTIONS.length) { tbody.innerHTML = ''; emptyState.style.display = 'block'; return; }
-    emptyState.style.display = 'none';
-    tbody.innerHTML = TRANSACTIONS.map(renderTxRow).join('');
+    const data = await res.json();
+    TRANSACTIONS = [].concat(data.zeffy, data.zelle, data.zeffyRefunds, data.other);
+    const totalCount = data.zeffy.length + data.zelle.length + data.zeffyRefunds.length + data.other.length;
+    document.getElementById('tx-count').textContent = totalCount + ' entries';
+
+    renderGroup('tx-zeffy', data.zeffy, renderZeffyCampaignRow, 'No Zeffy campaign activity in this range.');
+    renderGroup('tx-zeffy-refunds', data.zeffyRefunds, renderTxRow, 'No Zeffy refunds in this range.');
+    renderGroup('tx-zelle', data.zelle, renderTxRow, 'No Zelle transactions in this range.');
+    renderGroup('tx-other', data.other, renderTxRow, 'No other transactions in this range.');
     populateCategorySelects();
   } catch (err) {
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--red);padding:30px;">Could not load: ' + escHtml(err.message) + '</td></tr>';
+    ['tx-zeffy', 'tx-zeffy-refunds', 'tx-zelle', 'tx-other'].forEach(function (id) {
+      document.getElementById(id + '-tbody').innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--red);padding:24px;">Could not load: ' + escHtml(err.message) + '</td></tr>';
+    });
   }
+}
+function renderGroup(prefix, items, rowFn, emptyMessage) {
+  const tbody = document.getElementById(prefix + '-tbody');
+  const emptyState = document.getElementById(prefix + '-empty');
+  if (!items.length) { tbody.innerHTML = ''; emptyState.style.display = 'block'; return; }
+  emptyState.style.display = 'none';
+  tbody.innerHTML = items.map(rowFn).join('');
 }
 function renderTxRow(t) {
   const rowId = t.source + '|' + t.sourceKey;
@@ -801,6 +854,15 @@ function renderTxRow(t) {
     '<td>' + formatDate(t.date) + '</td>' +
     '<td>' + escHtml(t.description) + '</td>' +
     '<td class="amount">' + money(t.amount) + '</td>' +
+    '<td><select class="cat-select' + (t.categoryId ? '' : ' uncategorized') + '" data-row="' + rowId + '" data-assign-category-source="' + t.source + '" data-assign-category-key="' + t.sourceKey + '"><option value="">Uncategorized</option></select></td>' +
+  '</tr>';
+}
+function renderZeffyCampaignRow(t) {
+  const rowId = t.source + '|' + t.sourceKey;
+  return '<tr>' +
+    '<td>' + escHtml(t.name) + '</td>' +
+    '<td>' + t.count + '</td>' +
+    '<td class="amount">' + money(t.total) + '</td>' +
     '<td><select class="cat-select' + (t.categoryId ? '' : ' uncategorized') + '" data-row="' + rowId + '" data-assign-category-source="' + t.source + '" data-assign-category-key="' + t.sourceKey + '"><option value="">Uncategorized</option></select></td>' +
   '</tr>';
 }
@@ -817,9 +879,9 @@ function populateCategorySelects() {
   document.querySelectorAll('.cat-select').forEach(function (sel) {
     const rowId = sel.dataset.row;
     const tx = TRANSACTIONS.find(function (t) { return (t.source + '|' + t.sourceKey) === rowId; });
-    const currentCatId = tx ? tx.categoryId : null;
-    sel.innerHTML = categoryOptionsHtml(currentCatId);
-    sel.classList.toggle('uncategorized', !currentCatId);
+    const resolvedCatId = tx ? tx.categoryId : null;
+    sel.innerHTML = categoryOptionsHtml(resolvedCatId);
+    sel.classList.toggle('uncategorized', !resolvedCatId);
   });
 }
 async function assignCategory(source, sourceKey, categoryId) {
@@ -836,10 +898,12 @@ async function assignCategory(source, sourceKey, categoryId) {
     alert('Could not save category: ' + err.message);
   }
 }
-document.getElementById('tx-tbody').addEventListener('change', function (e) {
-  const sel = e.target.closest('[data-assign-category-source]');
-  if (!sel) return;
-  assignCategory(sel.dataset.assignCategorySource, sel.dataset.assignCategoryKey, sel.value);
+['tx-zeffy-tbody', 'tx-zeffy-refunds-tbody', 'tx-zelle-tbody', 'tx-other-tbody'].forEach(function (id) {
+  document.getElementById(id).addEventListener('change', function (e) {
+    const sel = e.target.closest('[data-assign-category-source]');
+    if (!sel) return;
+    assignCategory(sel.dataset.assignCategorySource, sel.dataset.assignCategoryKey, sel.value);
+  });
 });
 document.getElementById('btn-load-tx').addEventListener('click', loadTransactions);
 

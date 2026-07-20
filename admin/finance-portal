@@ -80,6 +80,26 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .stat-card-big { text-align: center; padding: 20px; }
 .stat-card-big .value { font-size: 2.2rem; font-weight: 800; color: var(--maroon); }
 .stat-card-big .sub { font-size: 0.86rem; color: var(--muted); margin-top: 6px; }
+
+.trend-chart { display: flex; align-items: flex-end; gap: 14px; height: 200px; padding: 10px 4px 0; overflow-x: auto; }
+.trend-month { display: flex; flex-direction: column; align-items: center; min-width: 64px; flex-shrink: 0; }
+.trend-bars { display: flex; align-items: flex-end; gap: 4px; height: 150px; }
+.trend-bar { width: 20px; border-radius: 4px 4px 0 0; position: relative; }
+.trend-bar.income-bar { background: linear-gradient(180deg, #4caf7d, var(--green)); }
+.trend-bar.expense-bar { background: linear-gradient(180deg, #d9564a, var(--red)); }
+.trend-month-label { font-size: 0.72rem; color: var(--muted); margin-top: 8px; white-space: nowrap; }
+.trend-legend { display: flex; gap: 18px; margin-bottom: 8px; font-size: 0.8rem; }
+.trend-legend span { display: flex; align-items: center; gap: 6px; }
+.trend-legend .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.trend-legend .dot.income { background: var(--green); }
+.trend-legend .dot.expense { background: var(--red); }
+
+.contributor-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 0.86rem; }
+.contributor-row:last-child { border-bottom: none; }
+.contributor-row .rank { width: 22px; color: var(--muted); font-weight: 700; }
+.contributor-row .name { flex: 1; }
+.contributor-row .meta { color: var(--muted); font-size: 0.76rem; }
+.contributor-row .amount { font-weight: 700; }
 .toolbar input, .toolbar select {
   font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; padding: 9px 14px;
   border: 1.5px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text);
@@ -206,6 +226,27 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
     <div class="card">
       <h2 style="font-family:Georgia,serif;color:var(--maroon);margin-bottom:14px;font-size:1.05rem;">Fundraising events breakdown</h2>
       <div id="dash-fundraising-chart"></div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h2 style="font-family:Georgia,serif;color:var(--maroon);margin-bottom:14px;font-size:1.05rem;">Expenses by category</h2>
+      <div id="dash-expense-chart"></div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h2 style="font-family:Georgia,serif;color:var(--maroon);margin-bottom:14px;font-size:1.05rem;">Income vs. expenses, month over month</h2>
+      <div id="dash-trend-chart"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;">
+      <div class="card">
+        <h2 style="font-family:Georgia,serif;color:var(--maroon);margin-bottom:14px;font-size:1.05rem;">Top donors</h2>
+        <div id="dash-top-donors"></div>
+      </div>
+      <div class="card">
+        <h2 style="font-family:Georgia,serif;color:var(--maroon);margin-bottom:14px;font-size:1.05rem;">Top renters</h2>
+        <div id="dash-top-renters"></div>
+      </div>
     </div>
   </div>
 
@@ -412,6 +453,7 @@ async function authedFetch(url, options) {
 function escHtml(str) { return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function formatDate(d) { if (!d) return '—'; return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
 function money(n) { return '$' + Number(n).toFixed(2); }
+function moneyRound(n) { return '$' + Math.round(Number(n)).toLocaleString('en-US'); }
 
 // ── Tabs ──
 document.querySelectorAll('.tab-btn').forEach(function (btn) {
@@ -520,6 +562,10 @@ async function loadDashboard() {
     renderIncomeChart(data.incomeBreakdown);
     renderFutureRevenue(data);
     renderFundraisingChart(data.fundraisingBreakdown);
+    renderBarChart('dash-expense-chart', data.expenseBreakdown, 'No categorized expenses in this range yet.');
+    renderTrendChart(data.monthlyTrend);
+    renderContributorList('dash-top-donors', data.topDonors, 'No donation activity in this range.');
+    renderContributorList('dash-top-renters', data.topRenters, 'No paid rentals in this range.');
   } catch (err) {
     document.getElementById('dash-balance-gauge').innerHTML = '<div class="empty-state">Could not load dashboard: ' + escHtml(err.message) + '</div>';
   }
@@ -528,19 +574,20 @@ function renderBalanceGauge(data) {
   const min = data.minimumBalanceRequirement;
   const cash = data.currentCash;
   const isAbove = cash >= min;
-  // Scale the bar so the minimum-requirement marker sits at roughly the
+  // Scale the bar so the sustainability-metric marker sits at roughly the
   // 40% mark, giving room to show being comfortably above it too.
   const scaleMax = Math.max(cash, min) * 1.4;
   const cashPct = Math.max(0, Math.min(100, (cash / scaleMax) * 100));
   const minPct = Math.max(0, Math.min(100, (min / scaleMax) * 100));
   document.getElementById('dash-balance-gauge').innerHTML =
     '<div class="gauge-track"><div class="gauge-fill ' + (isAbove ? 'positive' : 'negative') + '" style="width:' + cashPct + '%;">' +
-      '<span style="color:#fff;font-size:0.78rem;font-weight:700;">' + money(cash) + '</span>' +
+      '<span style="color:#fff;font-size:0.78rem;font-weight:700;">' + moneyRound(cash) + '</span>' +
     '</div><div class="gauge-marker" style="left:' + minPct + '%;"></div></div>' +
-    '<div class="gauge-labels"><span>$0</span><span>Minimum required: ' + money(min) + '</span></div>' +
+    '<div class="gauge-labels"><span>$0</span><span>Sustainability metric: ' + moneyRound(min) + (data.monthsOfRunway ? ' (\u2248' + data.monthsOfRunway + ' months of avg. expenses)' : '') + '</span></div>' +
     '<div class="gauge-stats">' +
-      '<div class="gauge-stat"><div class="label">Current cash</div><div class="value">' + money(cash) + '</div></div>' +
-      '<div class="gauge-stat"><div class="label">' + (isAbove ? 'Above minimum' : 'Below minimum') + '</div><div class="value ' + (isAbove ? 'positive' : 'negative') + '">' + money(Math.abs(data.aboveMinimum)) + '</div></div>' +
+      '<div class="gauge-stat"><div class="label">Current cash</div><div class="value">' + moneyRound(cash) + '</div></div>' +
+      '<div class="gauge-stat"><div class="label">' + (isAbove ? 'Buffer above sustainability metric' : 'Gap below sustainability metric') + '</div><div class="value ' + (isAbove ? 'positive' : 'negative') + '">' + moneyRound(Math.abs(data.aboveMinimum)) + '</div></div>' +
+      (data.avgMonthlyExpense ? '<div class="gauge-stat"><div class="label">Avg. monthly expense (this range)</div><div class="value">' + moneyRound(data.avgMonthlyExpense) + '</div></div>' : '') +
     '</div>';
 }
 function renderBarChart(containerId, items, emptyMessage) {
@@ -552,7 +599,7 @@ function renderBarChart(containerId, items, emptyMessage) {
     return '<div class="bar-chart-row">' +
       '<div class="bar-chart-label" title="' + escHtml(i.name) + '">' + escHtml(i.name) + '</div>' +
       '<div class="bar-chart-track"><div class="bar-chart-fill" style="width:' + pct + '%;"></div></div>' +
-      '<div class="bar-chart-value">' + money(i.total) + '</div>' +
+      '<div class="bar-chart-value">' + moneyRound(i.total) + '</div>' +
     '</div>';
   }).join('');
 }
@@ -562,10 +609,64 @@ function renderIncomeChart(incomeBreakdown) {
 function renderFundraisingChart(fundraisingBreakdown) {
   renderBarChart('dash-fundraising-chart', fundraisingBreakdown, 'No fundraising campaign activity in this range.');
 }
+function renderTrendChart(monthlyTrend) {
+  const container = document.getElementById('dash-trend-chart');
+  if (!monthlyTrend.length) { container.innerHTML = '<div class="empty-state" style="padding:20px;">No categorized activity in this range yet.</div>'; return; }
+  const max = Math.max.apply(null, monthlyTrend.map(function (m) { return Math.max(m.income, m.expense); })) || 1;
+  const legend = '<div class="trend-legend"><span><span class="dot income"></span>Income</span><span><span class="dot expense"></span>Expenses</span></div>';
+  const bars = monthlyTrend.map(function (m) {
+    const incomeH = Math.max(2, (m.income / max) * 150);
+    const expenseH = Math.max(2, (m.expense / max) * 150);
+    const label = new Date(m.month + '-02').toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+    return '<div class="trend-month">' +
+      '<div class="trend-bars">' +
+        '<div class="trend-bar income-bar" style="height:' + incomeH + 'px;" title="Income: ' + money(m.income) + '"></div>' +
+        '<div class="trend-bar expense-bar" style="height:' + expenseH + 'px;" title="Expenses: ' + money(m.expense) + '"></div>' +
+      '</div>' +
+      '<div class="trend-month-label">' + label + '</div>' +
+    '</div>';
+  }).join('');
+  container.innerHTML = legend + '<div class="trend-chart">' + bars + '</div>';
+}
+function renderContributorList(containerId, items, emptyMessage) {
+  const container = document.getElementById(containerId);
+  if (!items.length) { container.innerHTML = '<div class="empty-state" style="padding:14px;">' + emptyMessage + '</div>'; return; }
+  container.innerHTML = items.map(function (item, i) {
+    return '<div class="contributor-row">' +
+      '<span class="rank">' + (i + 1) + '</span>' +
+      '<span class="name">' + escHtml(item.name) + ' <span class="meta">(' + item.count + ')</span></span>' +
+      '<span class="amount">' + money(item.total) + '</span>' +
+    '</div>';
+  }).join('');
+}
 function renderFutureRevenue(data) {
   document.getElementById('dash-future-revenue').innerHTML =
-    '<div class="stat-card-big"><div class="value">' + money(data.futureBookedRevenue) + '</div>' +
-    '<div class="sub">' + data.futureBookingsCount + ' upcoming booking' + (data.futureBookingsCount === 1 ? '' : 's') + ', not yet paid</div></div>';
+    '<div class="stat-card-big"><div class="value">' + moneyRound(data.futureBookedRevenue) + '</div>' +
+    '<div class="sub">' + data.futureBookingsCount + ' upcoming booking' + (data.futureBookingsCount === 1 ? '' : 's') + ', not yet paid</div>' +
+    '<button type="button" id="btn-view-future-bookings" style="margin-top:10px;border:none;background:none;color:var(--saffron-dark);font-weight:700;font-size:0.82rem;cursor:pointer;text-decoration:underline;">View the bookings behind this &rarr;</button></div>';
+  document.getElementById('btn-view-future-bookings').addEventListener('click', showFutureBookingsDetail);
+}
+async function showFutureBookingsDetail() {
+  const container = document.getElementById('dash-future-revenue');
+  const existing = document.getElementById('future-bookings-detail');
+  if (existing) { existing.remove(); return; }
+  const detail = document.createElement('div');
+  detail.id = 'future-bookings-detail';
+  detail.style.marginTop = '16px';
+  detail.style.textAlign = 'left';
+  detail.innerHTML = '<div class="empty-state" style="padding:14px;">Loading…</div>';
+  container.appendChild(detail);
+  try {
+    const res = await authedFetch(API_BASE + '/finance/future-booked-revenue-detail');
+    const rows = await res.json();
+    if (!rows.length) { detail.innerHTML = '<div class="empty-state" style="padding:14px;">No upcoming unpaid bookings.</div>'; return; }
+    detail.innerHTML = '<table style="width:100%;font-size:0.82rem;"><thead><tr><th style="text-align:left;padding:4px;">Renter</th><th style="text-align:left;padding:4px;">Event date</th><th style="text-align:left;padding:4px;">Status</th><th style="text-align:right;padding:4px;">Amount</th></tr></thead><tbody>' +
+      rows.map(function (b) {
+        return '<tr><td style="padding:4px;">' + escHtml(b.renterName) + '</td><td style="padding:4px;">' + formatDate(b.eventDate) + '</td><td style="padding:4px;">' + escHtml(b.paymentStatus) + '</td><td style="padding:4px;text-align:right;font-weight:700;">' + money(b.amount) + '</td></tr>';
+      }).join('') + '</tbody></table>';
+  } catch (err) {
+    detail.innerHTML = '<div class="empty-state" style="padding:14px;">Could not load: ' + escHtml(err.message) + '</div>';
+  }
 }
 
 async function loadTransactions() {

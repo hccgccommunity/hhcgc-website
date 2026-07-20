@@ -6,6 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Finance — HCCGC Admin Portal</title>
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F5ZHQ4CDR9');</script>
 <style>
@@ -100,6 +102,23 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .contributor-row .name { flex: 1; }
 .contributor-row .meta { color: var(--muted); font-size: 0.76rem; }
 .contributor-row .amount { font-weight: 700; }
+
+.spinner {
+  display: inline-block; width: 18px; height: 18px; border: 2.5px solid var(--border);
+  border-top-color: var(--saffron-dark); border-radius: 50%; animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+#dash-content.is-loading { opacity: 0.4; pointer-events: none; filter: grayscale(0.4); transition: opacity 0.15s ease; }
+
+.annual-trend-chart { display: flex; align-items: flex-end; gap: 8px; height: 180px; padding: 10px 4px 0; position: relative; }
+.annual-trend-bar-wrap { display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 0; }
+.annual-trend-bars { display: flex; align-items: flex-end; height: 140px; width: 100%; justify-content: center; }
+.annual-trend-bar { width: 60%; border-radius: 4px 4px 0 0; }
+.annual-trend-bar.above { background: linear-gradient(180deg, #4caf7d, var(--green)); }
+.annual-trend-bar.below { background: linear-gradient(180deg, #d9564a, var(--red)); }
+.annual-trend-month-label { font-size: 0.68rem; color: var(--muted); margin-top: 8px; white-space: nowrap; }
+.annual-trend-threshold-line { position: absolute; left: 0; right: 0; border-top: 2px dashed var(--maroon); }
+.annual-trend-threshold-label { position: absolute; right: 4px; top: -18px; font-size: 0.7rem; color: var(--maroon); font-weight: 700; background: var(--surface); padding: 0 4px; }
 .toolbar input, .toolbar select {
   font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; padding: 9px 14px;
   border: 1.5px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text);
@@ -201,11 +220,35 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
   <!-- ── TRANSACTIONS TAB ── -->
   <!-- ── DASHBOARD TAB ── -->
   <div class="tab-panel active" id="tab-dashboard">
-    <div class="toolbar">
-      <input type="date" id="dash-start-date">
-      <input type="date" id="dash-end-date">
-      <button type="button" class="btn-secondary" id="btn-load-dashboard">Refresh</button>
+    <div class="card" style="margin-bottom:20px;">
+      <h2 style="font-family:Georgia,serif;color:var(--maroon);margin-bottom:6px;font-size:1.05rem;">Monthly cash vs. sustainability threshold — last 12 months</h2>
+      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:10px;">Always the trailing 12 months — not affected by the date filter below.</p>
+      <div id="dash-annual-trend"></div>
     </div>
+
+    <div class="toolbar">
+      <select id="dash-range-preset">
+        <option value="last3months" selected>Last 3 months</option>
+        <option value="thismonth">This month</option>
+        <option value="thisquarter">This quarter</option>
+        <option value="lastmonth">Last month</option>
+        <option value="lastquarter">Last quarter</option>
+        <option value="thisyear">This year</option>
+        <option value="custom">Custom</option>
+      </select>
+      <input type="date" id="dash-start-date" style="display:none;">
+      <input type="date" id="dash-end-date" style="display:none;">
+      <button type="button" class="btn-secondary" id="btn-load-dashboard">Refresh</button>
+      <span id="dash-range-label" style="font-size:0.82rem;color:var(--muted);"></span>
+    </div>
+
+    <div id="dash-loading-overlay" style="display:none;position:relative;">
+      <div style="display:flex;align-items:center;gap:10px;padding:14px 0;color:var(--muted);font-size:0.86rem;">
+        <span class="spinner"></span> Loading dashboard…
+      </div>
+    </div>
+
+    <div id="dash-content">
 
     <div class="card" style="margin-bottom:20px;">
       <h2 style="font-family:Georgia,serif;color:var(--maroon);margin-bottom:14px;">Cash position</h2>
@@ -247,6 +290,8 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
         <h2 style="font-family:Georgia,serif;color:var(--maroon);margin-bottom:14px;font-size:1.05rem;">Top renters</h2>
         <div id="dash-top-renters"></div>
       </div>
+    </div>
+
     </div>
   </div>
 
@@ -546,15 +591,48 @@ function defaultDateRange() {
 }
 (function initDateFields() {
   const range = defaultDateRange();
-  ['tx-start-date', 'stmt-start-date', 'dash-start-date', 'cf-start-date'].forEach(function (id) { document.getElementById(id).value = range.start; });
-  ['tx-end-date', 'stmt-end-date', 'dash-end-date', 'cf-end-date'].forEach(function (id) { document.getElementById(id).value = range.end; });
+  ['tx-start-date', 'stmt-start-date', 'cf-start-date'].forEach(function (id) { document.getElementById(id).value = range.start; });
+  ['tx-end-date', 'stmt-end-date', 'cf-end-date'].forEach(function (id) { document.getElementById(id).value = range.end; });
+  const dashRange = computePresetRange('last3months');
+  document.getElementById('dash-start-date').value = dashRange.start;
+  document.getElementById('dash-end-date').value = dashRange.end;
 })();
 
 // ── Dashboard ──
+function computePresetRange(preset) {
+  const now = new Date();
+  const fmt = d => d.toISOString().slice(0, 10);
+  const y = now.getFullYear(), m = now.getMonth();
+  if (preset === 'thismonth') return { start: fmt(new Date(y, m, 1)), end: fmt(new Date(y, m + 1, 0)) };
+  if (preset === 'lastmonth') return { start: fmt(new Date(y, m - 1, 1)), end: fmt(new Date(y, m, 0)) };
+  if (preset === 'thisquarter') { const qStart = Math.floor(m / 3) * 3; return { start: fmt(new Date(y, qStart, 1)), end: fmt(new Date(y, qStart + 3, 0)) }; }
+  if (preset === 'lastquarter') { const qStart = Math.floor(m / 3) * 3 - 3; return { start: fmt(new Date(y, qStart, 1)), end: fmt(new Date(y, qStart + 3, 0)) }; }
+  if (preset === 'thisyear') return { start: fmt(new Date(y, 0, 1)), end: fmt(new Date(y, 11, 31)) };
+  // last3months (default) and fallback
+  return { start: fmt(new Date(y, m - 2, 1)), end: fmt(new Date(y, m + 1, 0)) };
+}
+document.getElementById('dash-range-preset').addEventListener('change', function () {
+  const preset = this.value;
+  const customInputs = [document.getElementById('dash-start-date'), document.getElementById('dash-end-date')];
+  if (preset === 'custom') {
+    customInputs.forEach(function (el) { el.style.display = 'inline-block'; });
+    return; // wait for the user to actually pick dates before reloading
+  }
+  customInputs.forEach(function (el) { el.style.display = 'none'; });
+  const range = computePresetRange(preset);
+  document.getElementById('dash-start-date').value = range.start;
+  document.getElementById('dash-end-date').value = range.end;
+  loadDashboard();
+});
 document.getElementById('btn-load-dashboard').addEventListener('click', loadDashboard);
 async function loadDashboard() {
   const start = document.getElementById('dash-start-date').value;
   const end = document.getElementById('dash-end-date').value;
+  document.getElementById('dash-range-label').textContent = formatDate(start) + ' \u2013 ' + formatDate(end);
+  const overlay = document.getElementById('dash-loading-overlay');
+  const content = document.getElementById('dash-content');
+  overlay.style.display = 'block';
+  content.classList.add('is-loading');
   try {
     const res = await authedFetch(API_BASE + '/finance/dashboard?startDate=' + start + '&endDate=' + end);
     const data = await res.json();
@@ -568,6 +646,32 @@ async function loadDashboard() {
     renderContributorList('dash-top-renters', data.topRenters, 'No paid rentals in this range.');
   } catch (err) {
     document.getElementById('dash-balance-gauge').innerHTML = '<div class="empty-state">Could not load dashboard: ' + escHtml(err.message) + '</div>';
+  } finally {
+    overlay.style.display = 'none';
+    content.classList.remove('is-loading');
+  }
+}
+async function loadAnnualTrendChart() {
+  const container = document.getElementById('dash-annual-trend');
+  try {
+    const res = await authedFetch(API_BASE + '/finance/monthly-cash-trend');
+    const data = await res.json();
+    const min = data.minimumBalanceRequirement;
+    const max = Math.max(min, Math.max.apply(null, data.months.map(function (m) { return m.cash; }))) * 1.15;
+    const thresholdPct = Math.min(95, (min / max) * 100);
+    const bars = data.months.map(function (m) {
+      const heightPx = Math.max(2, (m.cash / max) * 140);
+      const label = new Date(m.month + '-02').toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+      return '<div class="annual-trend-bar-wrap">' +
+        '<div class="annual-trend-bars"><div class="annual-trend-bar ' + (m.cash >= min ? 'above' : 'below') + '" style="height:' + heightPx + 'px;" title="' + label + ': ' + moneyRound(m.cash) + '"></div></div>' +
+        '<div class="annual-trend-month-label">' + label + '</div>' +
+      '</div>';
+    }).join('');
+    container.innerHTML = '<div class="annual-trend-chart">' +
+      '<div class="annual-trend-threshold-line" style="bottom:' + (thresholdPct * 1.4) + 'px;"><span class="annual-trend-threshold-label">Threshold: ' + moneyRound(min) + '</span></div>' +
+      bars + '</div>';
+  } catch (err) {
+    container.innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
   }
 }
 function renderBalanceGauge(data) {
@@ -583,10 +687,10 @@ function renderBalanceGauge(data) {
     '<div class="gauge-track"><div class="gauge-fill ' + (isAbove ? 'positive' : 'negative') + '" style="width:' + cashPct + '%;">' +
       '<span style="color:#fff;font-size:0.78rem;font-weight:700;">' + moneyRound(cash) + '</span>' +
     '</div><div class="gauge-marker" style="left:' + minPct + '%;"></div></div>' +
-    '<div class="gauge-labels"><span>$0</span><span>Sustainability metric: ' + moneyRound(min) + (data.monthsOfRunway ? ' (\u2248' + data.monthsOfRunway + ' months of avg. expenses)' : '') + '</span></div>' +
+    '<div class="gauge-labels"><span>$0</span><span>Sustainability threshold: ' + moneyRound(min) + (data.monthsOfRunway ? ' (\u2248' + data.monthsOfRunway + ' months of avg. expenses)' : '') + '</span></div>' +
     '<div class="gauge-stats">' +
       '<div class="gauge-stat"><div class="label">Current cash</div><div class="value">' + moneyRound(cash) + '</div></div>' +
-      '<div class="gauge-stat"><div class="label">' + (isAbove ? 'Buffer above sustainability metric' : 'Gap below sustainability metric') + '</div><div class="value ' + (isAbove ? 'positive' : 'negative') + '">' + moneyRound(Math.abs(data.aboveMinimum)) + '</div></div>' +
+      '<div class="gauge-stat"><div class="label">' + (isAbove ? 'Buffer above sustainability threshold' : 'Gap below sustainability threshold') + '</div><div class="value ' + (isAbove ? 'positive' : 'negative') + '">' + moneyRound(Math.abs(data.aboveMinimum)) + '</div></div>' +
       (data.avgMonthlyExpense ? '<div class="gauge-stat"><div class="label">Avg. monthly expense (this range)</div><div class="value">' + moneyRound(data.avgMonthlyExpense) + '</div></div>' : '') +
     '</div>';
 }
@@ -620,8 +724,8 @@ function renderTrendChart(monthlyTrend) {
     const label = new Date(m.month + '-02').toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
     return '<div class="trend-month">' +
       '<div class="trend-bars">' +
-        '<div class="trend-bar income-bar" style="height:' + incomeH + 'px;" title="Income: ' + money(m.income) + '"></div>' +
-        '<div class="trend-bar expense-bar" style="height:' + expenseH + 'px;" title="Expenses: ' + money(m.expense) + '"></div>' +
+        '<div class="trend-bar income-bar" style="height:' + incomeH + 'px;" title="Income: ' + moneyRound(m.income) + '"></div>' +
+        '<div class="trend-bar expense-bar" style="height:' + expenseH + 'px;" title="Expenses: ' + moneyRound(m.expense) + '"></div>' +
       '</div>' +
       '<div class="trend-month-label">' + label + '</div>' +
     '</div>';
@@ -635,7 +739,7 @@ function renderContributorList(containerId, items, emptyMessage) {
     return '<div class="contributor-row">' +
       '<span class="rank">' + (i + 1) + '</span>' +
       '<span class="name">' + escHtml(item.name) + ' <span class="meta">(' + item.count + ')</span></span>' +
-      '<span class="amount">' + money(item.total) + '</span>' +
+      '<span class="amount">' + moneyRound(item.total) + '</span>' +
     '</div>';
   }).join('');
 }
@@ -662,7 +766,7 @@ async function showFutureBookingsDetail() {
     if (!rows.length) { detail.innerHTML = '<div class="empty-state" style="padding:14px;">No upcoming unpaid bookings.</div>'; return; }
     detail.innerHTML = '<table style="width:100%;font-size:0.82rem;"><thead><tr><th style="text-align:left;padding:4px;">Renter</th><th style="text-align:left;padding:4px;">Event date</th><th style="text-align:left;padding:4px;">Status</th><th style="text-align:right;padding:4px;">Amount</th></tr></thead><tbody>' +
       rows.map(function (b) {
-        return '<tr><td style="padding:4px;">' + escHtml(b.renterName) + '</td><td style="padding:4px;">' + formatDate(b.eventDate) + '</td><td style="padding:4px;">' + escHtml(b.paymentStatus) + '</td><td style="padding:4px;text-align:right;font-weight:700;">' + money(b.amount) + '</td></tr>';
+        return '<tr><td style="padding:4px;">' + escHtml(b.renterName) + '</td><td style="padding:4px;">' + formatDate(b.eventDate) + '</td><td style="padding:4px;">' + escHtml(b.paymentStatus) + '</td><td style="padding:4px;text-align:right;font-weight:700;">' + moneyRound(b.amount) + '</td></tr>';
       }).join('') + '</tbody></table>';
   } catch (err) {
     detail.innerHTML = '<div class="empty-state" style="padding:14px;">Could not load: ' + escHtml(err.message) + '</div>';
@@ -1201,7 +1305,7 @@ onAuthStateChanged(auth, function(user) {
     }
     document.getElementById('gate').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    loadCategories().then(function () { loadDashboard(); loadTransactions(); });
+    loadCategories().then(function () { loadDashboard(); loadAnnualTrendChart(); loadTransactions(); });
   }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });
 });
 </script>

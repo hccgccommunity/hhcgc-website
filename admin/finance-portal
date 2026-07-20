@@ -79,9 +79,9 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .bar-chart-fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, var(--saffron-dark), var(--saffron)); }
 .bar-chart-value { width: 110px; flex-shrink: 0; text-align: right; font-weight: 700; font-size: 0.88rem; }
 
-.pie-chart-wrap { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
-.pie-chart-wrap svg { flex-shrink: 0; }
-.pie-legend { flex: 1; min-width: 180px; }
+.pie-chart-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 8px 0; }
+.pie-chart-wrap svg { flex-shrink: 0; width: 100%; max-width: 260px; height: auto; }
+.pie-legend { width: 100%; max-width: 340px; }
 .pie-legend-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 0.84rem; }
 .pie-legend-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
 .pie-legend-name { flex: 1; }
@@ -864,7 +864,7 @@ function renderPieChart(containerId, items, emptyMessage) {
   const total = items.reduce(function (s, i) { return s + Math.max(0, i.total); }, 0);
   if (total <= 0) { container.innerHTML = '<div class="empty-state" style="padding:20px;">' + emptyMessage + '</div>'; return; }
 
-  const cx = 90, cy = 90, r = 80;
+  const cx = 130, cy = 130, r = 120;
   let angleStart = -90; // start at 12 o'clock
   const slices = items.map(function (item, i) {
     const value = Math.max(0, item.total);
@@ -892,7 +892,7 @@ function renderPieChart(containerId, items, emptyMessage) {
   }).join('');
 
   container.innerHTML = '<div class="pie-chart-wrap">' +
-    '<svg viewBox="0 0 180 180" width="180" height="180">' + slices + '</svg>' +
+    '<svg viewBox="0 0 260 260" width="260" height="260">' + slices + '</svg>' +
     '<div class="pie-legend">' + legend + '</div>' +
   '</div>';
 }

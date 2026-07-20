@@ -79,6 +79,14 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .bar-chart-fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, var(--saffron-dark), var(--saffron)); }
 .bar-chart-value { width: 110px; flex-shrink: 0; text-align: right; font-weight: 700; font-size: 0.88rem; }
 
+.pie-chart-wrap { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+.pie-chart-wrap svg { flex-shrink: 0; }
+.pie-legend { flex: 1; min-width: 180px; }
+.pie-legend-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 0.84rem; }
+.pie-legend-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+.pie-legend-name { flex: 1; }
+.pie-legend-value { font-weight: 700; white-space: nowrap; }
+
 .stat-card-big { text-align: center; padding: 20px; }
 .stat-card-big .value { font-size: 2.2rem; font-weight: 800; color: var(--maroon); }
 .stat-card-big .sub { font-size: 0.86rem; color: var(--muted); margin-top: 6px; }
@@ -843,7 +851,46 @@ function renderBarChart(containerId, items, emptyMessage) {
   }).join('');
 }
 function renderIncomeChart(incomeBreakdown) {
-  renderBarChart('dash-income-chart', incomeBreakdown, 'No categorized income in this range yet.');
+  renderPieChart('dash-income-chart', incomeBreakdown, 'No categorized income in this range yet.');
+}
+const PIE_COLORS = ['#b55a18', '#7f2e16', '#2e7d4f', '#8d3e0d', '#4caf7d', '#d9564a', '#c98a3e', '#5a8f6e', '#a3421f', '#6b8e5a'];
+function renderPieChart(containerId, items, emptyMessage) {
+  const container = document.getElementById(containerId);
+  if (!items || !items.length) { container.innerHTML = '<div class="empty-state" style="padding:20px;">' + emptyMessage + '</div>'; return; }
+  const total = items.reduce(function (s, i) { return s + Math.max(0, i.total); }, 0);
+  if (total <= 0) { container.innerHTML = '<div class="empty-state" style="padding:20px;">' + emptyMessage + '</div>'; return; }
+
+  const cx = 90, cy = 90, r = 80;
+  let angleStart = -90; // start at 12 o'clock
+  const slices = items.map(function (item, i) {
+    const value = Math.max(0, item.total);
+    const pct = value / total;
+    const angleSweep = pct * 360;
+    const angleEnd = angleStart + angleSweep;
+    const largeArc = angleSweep > 180 ? 1 : 0;
+    const toRad = function (deg) { return (deg * Math.PI) / 180; };
+    const x1 = cx + r * Math.cos(toRad(angleStart)), y1 = cy + r * Math.sin(toRad(angleStart));
+    const x2 = cx + r * Math.cos(toRad(angleEnd)), y2 = cy + r * Math.sin(toRad(angleEnd));
+    const path = pct >= 0.9999
+      ? '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + PIE_COLORS[i % PIE_COLORS.length] + '"></circle>'
+      : '<path d="M' + cx + ',' + cy + ' L' + x1.toFixed(2) + ',' + y1.toFixed(2) + ' A' + r + ',' + r + ' 0 ' + largeArc + ' 1 ' + x2.toFixed(2) + ',' + y2.toFixed(2) + ' Z" fill="' + PIE_COLORS[i % PIE_COLORS.length] + '"><title>' + escHtml(item.name) + ': ' + money(value) + ' (' + (pct * 100).toFixed(1) + '%)</title></path>';
+    angleStart = angleEnd;
+    return path;
+  }).join('');
+
+  const legend = items.map(function (item, i) {
+    const pct = total > 0 ? (Math.max(0, item.total) / total) * 100 : 0;
+    return '<div class="pie-legend-row">' +
+      '<span class="pie-legend-dot" style="background:' + PIE_COLORS[i % PIE_COLORS.length] + ';"></span>' +
+      '<span class="pie-legend-name">' + escHtml(item.name) + '</span>' +
+      '<span class="pie-legend-value">' + moneyRound(item.total) + ' (' + pct.toFixed(1) + '%)</span>' +
+    '</div>';
+  }).join('');
+
+  container.innerHTML = '<div class="pie-chart-wrap">' +
+    '<svg viewBox="0 0 180 180" width="180" height="180">' + slices + '</svg>' +
+    '<div class="pie-legend">' + legend + '</div>' +
+  '</div>';
 }
 function renderFundraisingChart(fundraisingBreakdown) {
   renderBarChart('dash-fundraising-chart', fundraisingBreakdown, 'No fundraising campaign activity in this range.');

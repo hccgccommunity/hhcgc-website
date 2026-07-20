@@ -853,7 +853,11 @@ function renderBarChart(containerId, items, emptyMessage) {
 function renderIncomeChart(incomeBreakdown) {
   renderPieChart('dash-income-chart', incomeBreakdown, 'No categorized income in this range yet.');
 }
-const PIE_COLORS = ['#b55a18', '#7f2e16', '#2e7d4f', '#8d3e0d', '#4caf7d', '#d9564a', '#c98a3e', '#5a8f6e', '#a3421f', '#6b8e5a'];
+const PIE_COLORS = [
+  '#b55a18', '#2e7d4f', '#2255a4', '#a4283a', '#7d5ba6',
+  '#c98a1f', '#1f8a8a', '#c23b7a', '#4a7d1f', '#8d3e0d',
+  '#3a5fa0', '#a4632e', '#5a8f6e', '#7f2e16'
+];
 function renderPieChart(containerId, items, emptyMessage) {
   const container = document.getElementById(containerId);
   if (!items || !items.length) { container.innerHTML = '<div class="empty-state" style="padding:20px;">' + emptyMessage + '</div>'; return; }

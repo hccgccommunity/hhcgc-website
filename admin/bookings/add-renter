@@ -165,6 +165,7 @@ tbody tr:last-child td { border-bottom: none; }
     <div class="field-row">
       <div class="field"><label>Email</label><input type="email" id="f-email" placeholder="jane@example.com"></div>
       <div class="field"><label>Organization (optional)</label><input type="text" id="f-org" placeholder="e.g. a company or community group"></div>
+      <div class="field"><label>Website (optional)</label><input type="url" id="f-website" placeholder="https://"></div>
     </div>
     <div class="field" style="position:relative;">
       <label>Street address</label>
@@ -206,6 +207,20 @@ tbody tr:last-child td { border-bottom: none; }
 
 </div>
 
+<div class="modal-overlay" id="review-renter-modal-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:560px;">
+    <div class="modal-header">
+      <h2>Review request</h2>
+      <button class="modal-close" id="btn-close-review-renter">&times;</button>
+    </div>
+    <div class="modal-body" id="review-renter-body"></div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-review-reject">Reject</button>
+      <button type="button" class="btn-primary" id="btn-review-approve" style="margin-top:0;">Approve</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="edit-renter-modal-overlay" style="display:none;">
   <div class="modal-panel">
     <div class="modal-header">
@@ -219,6 +234,7 @@ tbody tr:last-child td { border-bottom: none; }
         <div class="field"><label>Email</label><input type="email" id="edit-f-email"></div>
       </div>
       <div class="field"><label>Organization</label><input type="text" id="edit-f-org"></div>
+      <div class="field"><label>Website</label><input type="url" id="edit-f-website" placeholder="https://"></div>
       <div class="field"><label>Address</label><input type="text" id="edit-f-address"></div>
       <div class="field"><label>Notes</label><textarea id="edit-f-notes"></textarea></div>
       <div class="checkbox-row" style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="edit-f-nonprofit"><label for="edit-f-nonprofit">This renter is a nonprofit</label></div>
@@ -282,8 +298,7 @@ function renderRenters() {
     const status = r.status || 'approved';
     const actions = [];
     if (status === 'pending') {
-      actions.push('<button type="button" class="btn-small btn-approve" onclick="approveRenterAction(\'' + r.renter_id + '\')">Approve</button>');
-      actions.push('<button type="button" class="btn-small btn-reject" onclick="rejectRenterAction(\'' + r.renter_id + '\')">Reject</button>');
+      actions.push('<button type="button" class="btn-small btn-approve" onclick="openRenterReviewModal(\'' + r.renter_id + '\')">Review</button>');
     } else if (status === 'approved') {
       actions.push('<button type="button" class="btn-small btn-reject" onclick="rejectRenterAction(\'' + r.renter_id + '\')">Reject</button>');
     } else if (status === 'rejected') {
@@ -334,6 +349,68 @@ async function rejectRenterAction(renterId) {
   }
 }
 
+// ---- Review modal (pending renters) — full details + linked booking
+// requests, before approving or rejecting. ----
+let reviewingRenterId = null;
+async function openRenterReviewModal(renterId) {
+  const r = RENTERS.find(function (x) { return x.renter_id === renterId; });
+  if (!r) return;
+  reviewingRenterId = renterId;
+  const body = document.getElementById('review-renter-body');
+  body.innerHTML = '<div class="empty-state">Loading…</div>';
+  document.getElementById('review-renter-modal-overlay').style.display = 'flex';
+
+  let html = '<div class="field-row">';
+  html += '<div class="field"><label>Contact name</label><div>' + escHtml(r.contact_name || '\u2014') + '</div></div>';
+  html += '<div class="field"><label>Email</label><div>' + escHtml(r.email || '\u2014') + '</div></div>';
+  html += '</div><div class="field-row">';
+  html += '<div class="field"><label>Phone</label><div>' + escHtml(r.phone || '\u2014') + '</div></div>';
+  html += '<div class="field"><label>Address</label><div>' + escHtml(r.address || '\u2014') + '</div></div>';
+  html += '</div><div class="field-row">';
+  html += '<div class="field"><label>Organization</label><div>' + escHtml(r.organization_name || '\u2014') + '</div></div>';
+  html += '<div class="field"><label>Website</label><div>' + (r.website ? '<a href="' + escHtml(r.website) + '" target="_blank" rel="noopener">' + escHtml(r.website) + '</a>' : '\u2014') + '</div></div>';
+  html += '</div>';
+  html += '<div class="field"><label>Self-reported nonprofit status</label><div>' + (r.is_nonprofit ? 'Yes \u2014 discount will apply automatically once approved' : 'No') + '</div></div>';
+  if (r.notes) html += '<div class="field"><label>Notes</label><div>' + escHtml(r.notes) + '</div></div>';
+
+  html += '<div class="field" style="margin-top:16px;"><label>Booking request(s) submitted</label><div id="review-renter-bookings"></div></div>';
+  body.innerHTML = html;
+
+  try {
+    const res = await authedFetch(API_BASE + '/renters/' + encodeURIComponent(renterId) + '/requests');
+    const requests = await res.json();
+    const bookingsEl = document.getElementById('review-renter-bookings');
+    if (!requests.length) { bookingsEl.innerHTML = '<div class="empty-state" style="padding:12px;">No booking requests on file yet.</div>'; return; }
+    bookingsEl.innerHTML = requests.map(function (req) {
+      var dateStr = new Date(req.eventDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      var timeStr = req.startTime && req.endTime ? new Date(req.startTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + '\u2013' + new Date(req.endTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
+      return '<div style="border:1px solid var(--border,#e5d9c8);border-radius:10px;padding:10px 14px;margin-bottom:8px;">' +
+        '<div style="font-weight:700;">' + escHtml((req.rooms || []).join(', ')) + ' \u2014 ' + dateStr + (timeStr ? ' \u00b7 ' + timeStr : '') + '</div>' +
+        '<div style="font-size:0.85rem;color:var(--muted,#6a5141);">' + escHtml(req.eventName || '') + '</div>' +
+        '<div style="font-size:0.85rem;">$' + Number(req.finalTotal).toFixed(2) + ' \u00b7 status: ' + escHtml(req.paymentStatus) + '</div>' +
+      '</div>';
+    }).join('');
+  } catch (err) {
+    document.getElementById('review-renter-bookings').innerHTML = '<div class="empty-state">Could not load booking requests: ' + escHtml(err.message) + '</div>';
+  }
+}
+document.getElementById('btn-close-review-renter').addEventListener('click', function () {
+  document.getElementById('review-renter-modal-overlay').style.display = 'none';
+});
+document.getElementById('review-renter-modal-overlay').addEventListener('click', function (e) {
+  if (e.target === this) this.style.display = 'none';
+});
+document.getElementById('btn-review-approve').addEventListener('click', async function () {
+  if (!reviewingRenterId) return;
+  document.getElementById('review-renter-modal-overlay').style.display = 'none';
+  await approveRenterAction(reviewingRenterId);
+});
+document.getElementById('btn-review-reject').addEventListener('click', async function () {
+  if (!reviewingRenterId) return;
+  document.getElementById('review-renter-modal-overlay').style.display = 'none';
+  await rejectRenterAction(reviewingRenterId);
+});
+
 let editingRenterId = null;
 function openEditRenterModal(renterId) {
   const r = RENTERS.find(function (x) { return x.renter_id === renterId; });
@@ -343,6 +420,7 @@ function openEditRenterModal(renterId) {
   document.getElementById('edit-f-phone').value = r.phone || '';
   document.getElementById('edit-f-email').value = r.email || '';
   document.getElementById('edit-f-org').value = r.organization_name || '';
+  document.getElementById('edit-f-website').value = r.website || '';
   document.getElementById('edit-f-address').value = r.address || '';
   document.getElementById('edit-f-notes').value = r.notes || '';
   document.getElementById('edit-f-nonprofit').checked = !!r.is_nonprofit;
@@ -362,6 +440,7 @@ document.getElementById('btn-save-edit-renter').addEventListener('click', async 
     phone: document.getElementById('edit-f-phone').value,
     email: document.getElementById('edit-f-email').value,
     organizationName: document.getElementById('edit-f-org').value,
+    website: document.getElementById('edit-f-website').value,
     address: document.getElementById('edit-f-address').value,
     notes: document.getElementById('edit-f-notes').value,
     isNonprofit: document.getElementById('edit-f-nonprofit').checked
@@ -411,6 +490,7 @@ document.getElementById('btn-add-renter').addEventListener('click', async functi
     phone: document.getElementById('f-phone').value,
     email: document.getElementById('f-email').value,
     organizationName: document.getElementById('f-org').value,
+    website: document.getElementById('f-website').value,
     address: addressParts,
     notes: document.getElementById('f-notes').value,
     isNonprofit: document.getElementById('f-nonprofit').checked
@@ -427,7 +507,7 @@ document.getElementById('btn-add-renter').addEventListener('click', async functi
       showResult('error', (data.errors || [data.error || 'Something went wrong.']).join(' '));
     } else {
       showResult('success', payload.contactName + ' saved — selectable on New Booking now.');
-      ['f-name','f-phone','f-email','f-org','f-street','f-suite','f-city','f-state','f-zip','f-notes'].forEach(function (id) { document.getElementById(id).value = ''; });
+      ['f-name','f-phone','f-email','f-org','f-website','f-street','f-suite','f-city','f-state','f-zip','f-notes'].forEach(function (id) { document.getElementById(id).value = ''; });
       document.getElementById('f-nonprofit').checked = false;
       await loadRenters();
     }

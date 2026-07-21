@@ -139,6 +139,10 @@ tr.sub-row td:first-child { padding-left: 28px; }
 .badge-paid { background: var(--green-bg); color: var(--green); }
 .badge-needs-confirm { background: var(--amber-bg); color: var(--amber); }
 .badge-match-found { background: #e6f0ff; color: #2255a4; border: 1.5px solid #a8c8f0; }
+.btn-invoice { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; vertical-align: middle; }
+.btn-invoice.attached { background: #fff3d6; border-color: #d9a83e; }
+.btn-invoice.sent { background: #e8f5ec; border-color: var(--green); cursor: default; }
+.btn-invoice:hover:not(.sent) { filter: brightness(0.96); }
 .badge-draft { background: var(--grey-bg); color: var(--muted); }
 .badge-cancelled { background: var(--red-bg); color: var(--red); }
 .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
@@ -546,6 +550,16 @@ function isPastDue(b) {
   return (b.payment_status === 'invoiced' || b.payment_status === 'pending') && new Date(b.event_date) < new Date();
 }
 
+function invoiceStatusIcon(b) {
+  if (b.is_internal) return '';
+  if (b.invoice_sent_at) {
+    return '<button type="button" class="btn-invoice sent" title="Invoice sent ' + formatDate(b.invoice_sent_at) + '" style="margin-left:6px;">\ud83e\uddfe</button>';
+  }
+  if (b.payment_match_source) {
+    return '<button type="button" class="btn-invoice attached" title="Attached — click to send the invoice" style="margin-left:6px;" data-quick-send-invoice="' + b.booking_id + '">\ud83e\uddfe</button>';
+  }
+  return '';
+}
 function statusBadge(b) {
   if (b.is_internal || b.payment_status === 'n/a') {
     return '<span class="badge badge-draft"><span class="badge-dot"></span>Internal · No charge</span>';
@@ -566,10 +580,10 @@ function statusBadge(b) {
   // paid yet — deliberately not automatic, so this needs to stand out
   // until someone actually clicks Mark Paid to finish it.
   if (b.payment_match_source && (b.payment_status === 'pending' || b.payment_status === 'invoiced')) {
-    return '<span class="badge badge-match-found"><span class="badge-dot"></span>Match found in Finance</span><span class="method-tag" title="' + escHtml(b.payment_match_details || '') + '">Confirm with Mark Paid</span>';
+    return '<span class="badge badge-match-found"><span class="badge-dot"></span>Match found in Finance</span><span class="method-tag" title="' + escHtml(b.payment_match_details || '') + '">Confirm with Mark Paid</span>' + invoiceStatusIcon(b);
   }
   if (b.receipt_sent_at) {
-    return '<span class="badge badge-paid"><span class="badge-dot"></span>Receipt Sent</span><span class="method-tag">' + formatDateTime(b.receipt_sent_at) + '</span>';
+    return '<span class="badge badge-paid"><span class="badge-dot"></span>Receipt Sent</span><span class="method-tag">' + formatDateTime(b.receipt_sent_at) + '</span>' + invoiceStatusIcon(b);
   }
   if (b.payment_status === 'paid') {
     const methodLabel = b.payment_match_source === 'zeffy' ? 'Zeffy · auto-matched' :
@@ -577,13 +591,13 @@ function statusBadge(b) {
       b.payment_method === 'zelle' ? 'Zelle · confirmed' :
       b.payment_method === 'cash' ? 'Cash · confirmed' :
       b.payment_method === 'check' ? 'Check · confirmed' : 'Confirmed';
-    return '<span class="badge badge-paid"><span class="badge-dot"></span>Paid</span><span class="method-tag">' + methodLabel + '</span>';
+    return '<span class="badge badge-paid"><span class="badge-dot"></span>Paid</span><span class="method-tag">' + methodLabel + '</span>' + invoiceStatusIcon(b);
   }
   if (b.invoice_sent_at) {
     const label = isPastDue(b) ? 'Invoice sent · past due' : 'Invoice Sent';
-    return '<span class="badge badge-needs-confirm"><span class="badge-dot"></span>' + label + '</span><span class="method-tag">' + formatDateTime(b.invoice_sent_at) + '</span>';
+    return '<span class="badge badge-needs-confirm"><span class="badge-dot"></span>' + label + '</span><span class="method-tag">' + formatDateTime(b.invoice_sent_at) + '</span>' + invoiceStatusIcon(b);
   }
-  return '<span class="badge badge-draft"><span class="badge-dot"></span>Booked</span>';
+  return '<span class="badge badge-draft"><span class="badge-dot"></span>Booked</span>' + invoiceStatusIcon(b);
 }
 
 function isWholeFacility(b) {
@@ -1120,6 +1134,11 @@ async function sendInvoiceAction(bookingId) {
     alert('Could not reach the booking system: ' + err.message);
   }
 }
+document.addEventListener('click', function (e) {
+  const btn = e.target.closest('[data-quick-send-invoice]');
+  if (!btn) return;
+  sendInvoiceAction(btn.dataset.quickSendInvoice).then(function () { loadBookings(); });
+});
 
 // ---- Payment matching (Zeffy + Zelle) ----
 async function findPaymentAction(bookingId) {

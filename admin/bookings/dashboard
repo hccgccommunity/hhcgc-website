@@ -72,13 +72,13 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .bar-chart-fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, var(--saffron-dark), var(--saffron)); }
 .bar-chart-value { width: 100px; flex-shrink: 0; text-align: right; font-weight: 700; font-size: 0.84rem; }
 
-.trend-chart { display: flex; align-items: flex-end; gap: 10px; height: 200px; padding: 10px 4px 0; overflow-x: auto; }
-.trend-chart-wrap { display: flex; gap: 10px; }
+.trend-chart { display: flex; align-items: flex-end; gap: 10px; height: 200px; padding: 10px 4px 0; width: 100%; }
+.trend-chart-wrap { display: flex; gap: 10px; width: 100%; }
 .trend-yaxis { display: flex; flex-direction: column; justify-content: space-between; flex-shrink: 0; padding-top: 10px; text-align: right; }
 .trend-yaxis-label { font-size: 0.7rem; color: var(--muted); transform: translateY(-50%); white-space: nowrap; }
-.trend-month { display: flex; flex-direction: column; align-items: center; min-width: 50px; flex-shrink: 0; }
-.trend-bars { display: flex; align-items: flex-end; border-left: 1px solid var(--border); }
-.trend-bar { width: 26px; border-radius: 4px 4px 0 0; background: linear-gradient(180deg, var(--saffron-dark), var(--saffron)); position: relative; margin-left: 8px; }
+.trend-month { display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 0; }
+.trend-bars { display: flex; align-items: flex-end; justify-content: center; border-left: 1px solid var(--border); width: 100%; }
+.trend-bar { width: 60%; max-width: 46px; border-radius: 4px 4px 0 0; background: linear-gradient(180deg, var(--saffron-dark), var(--saffron)); position: relative; margin-left: 8px; }
 .trend-month-label { font-size: 0.7rem; color: var(--muted); margin-top: 8px; white-space: nowrap; }
 
 .contributor-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 0.86rem; }
@@ -94,6 +94,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .gate-card h3{font-family:Georgia,serif;font-size:1.3rem;color:var(--maroon);margin-bottom:.5rem;}
 .gate-card p{color:var(--muted);font-size:.88rem;line-height:1.6;}
 .gate-card a{color:var(--saffron-dark);}
+.nav-badge { display: inline-block; background: #b3382c; color: #fff; font-size: 0.68rem; font-weight: 700; padding: 1px 6px; border-radius: 999px; margin-left: 4px; vertical-align: middle; }
 </style>
 </head>
 <body>
@@ -122,9 +123,9 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
     <ul>
       <li><a href="dashboard" class="active">Dashboard</a></li>
       <li><a href="new-booking">New Booking</a></li>
-      <li><a href="all-bookings">All Bookings</a></li>
+      <li><a href="all-bookings" id="nav-all-bookings">All Bookings</a></li>
       <li><a href="rooms-rates">Rooms &amp; Rates</a></li>
-      <li><a href="add-renter">Add A Renter</a></li>
+      <li><a href="add-renter" id="nav-add-renter">Add A Renter</a></li>
     </ul>
   </div>
 </div>
@@ -252,11 +253,7 @@ async function loadMonthlyTrend() {
   }
 }
 function niceMax(value) {
-  if (value <= 0) return 100;
-  var magnitude = Math.pow(10, Math.floor(Math.log10(value)));
-  var normalized = value / magnitude;
-  var niceNormalized = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10;
-  return niceNormalized * magnitude;
+  return value + 500;
 }
 function renderVerticalTrendChart(containerId, months, emptyMessage) {
   var container = document.getElementById(containerId);
@@ -349,7 +346,25 @@ function fixHeaderLinksForSubfolder(headerEl) {
 }
 loadPartial('site-header', '/header.html');
 loadPartial('site-footer', '/footer.html');
+async function loadPendingCounts() {
+  try {
+    var res = await authedFetch(API_BASE + '/pending-counts');
+    var data = await res.json();
+    if (data.pendingRenters > 0) {
+      var renterLink = document.getElementById('nav-add-renter');
+      if (renterLink && !renterLink.querySelector('.nav-badge')) renterLink.insertAdjacentHTML('beforeend', ' <span class="nav-badge">' + data.pendingRenters + '</span>');
+    }
+    if (data.pendingBookings > 0) {
+      var bookingLink = document.getElementById('nav-all-bookings');
+      if (bookingLink && !bookingLink.querySelector('.nav-badge')) bookingLink.insertAdjacentHTML('beforeend', ' <span class="nav-badge">' + data.pendingBookings + '</span>');
+    }
+  } catch (err) {
+    // Silent -- badges are a nice-to-have, not worth surfacing an error for.
+  }
+}
+
 </script>
+
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
@@ -394,6 +409,7 @@ onAuthStateChanged(auth, function(user) {
     }
     document.getElementById('gate').style.display = 'none';
     document.getElementById('app').style.display = 'block';
+    loadPendingCounts();
     loadDashboard();
     loadMonthlyTrend();
   }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });

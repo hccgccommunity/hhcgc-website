@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1136,7 +1137,17 @@
                 </div>
                 <div class="request-field-row">
                   <div class="request-field"><label>Phone number <span class="req-star">*</span></label><input type="tel" id="rf-phone" required></div>
-                  <div class="request-field"><label>Organization name (optional)</label><input type="text" id="rf-org"></div>
+                  <div class="request-field">
+                    <label>Is your organization a nonprofit? <span class="req-star">*</span></label>
+                    <select id="rf-is-nonprofit">
+                      <option value="no" selected>No</option>
+                      <option value="yes">Yes</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="request-field-row">
+                  <div class="request-field"><label id="rf-org-label">Organization name (optional)</label><input type="text" id="rf-org"></div>
+                  <div class="request-field" id="rf-website-field" style="display:none;"><label>Organization website</label><input type="url" id="rf-website" placeholder="https://"></div>
                 </div>
 
                 <div class="request-field" style="position:relative;">
@@ -1356,7 +1367,20 @@
 
     // ── Email-first lookup: auto-fill for a returning renter ──
     let knownRenter = null;
-    const CONTACT_FIELD_IDS = ['rf-first-name', 'rf-last-name', 'rf-phone', 'rf-org', 'rf-street', 'rf-suite', 'rf-city', 'rf-state', 'rf-zip'];
+    document.getElementById('rf-is-nonprofit').addEventListener('change', function () {
+      const isNonprofit = this.value === 'yes';
+      document.getElementById('rf-website-field').style.display = isNonprofit ? 'flex' : 'none';
+      const orgLabel = document.getElementById('rf-org-label');
+      const orgInput = document.getElementById('rf-org');
+      if (isNonprofit) {
+        orgLabel.innerHTML = 'Organization name <span class="req-star">*</span>';
+        orgInput.required = true;
+      } else {
+        orgLabel.textContent = 'Organization name (optional)';
+        orgInput.required = false;
+      }
+    });
+    const CONTACT_FIELD_IDS = ['rf-first-name', 'rf-last-name', 'rf-phone', 'rf-org', 'rf-website', 'rf-street', 'rf-suite', 'rf-city', 'rf-state', 'rf-zip'];
 
     function setContactFieldsLocked(locked) {
       CONTACT_FIELD_IDS.forEach((id) => {
@@ -1398,6 +1422,9 @@
           document.getElementById('rf-last-name').value = nameParts.slice(1).join(' ') || '';
           document.getElementById('rf-phone').value = data.renter.phone || '';
           document.getElementById('rf-org').value = data.renter.organization_name || '';
+          document.getElementById('rf-is-nonprofit').value = data.renter.is_nonprofit ? 'yes' : 'no';
+          document.getElementById('rf-website').value = data.renter.website || '';
+          document.getElementById('rf-is-nonprofit').dispatchEvent(new Event('change'));
           document.getElementById('rf-street').value = data.renter.address || '';
           document.getElementById('rf-suite').value = '';
           document.getElementById('rf-city').value = '';
@@ -1490,6 +1517,9 @@
         endTime: row.querySelector('.rf-end-input').value
       }));
       if (occurrences.some(o => !o.date || !o.startTime || !o.endTime)) { showRequestResult('Please fill in every date row completely.'); return; }
+      if (document.getElementById('rf-is-nonprofit').value === 'yes' && !document.getElementById('rf-org').value.trim()) {
+        showRequestResult('Organization name is required for nonprofits.'); return;
+      }
 
       const addressParts = [document.getElementById('rf-street').value, document.getElementById('rf-suite').value].filter(Boolean).join(', ');
       const fullAddress = addressParts + (addressParts ? ', ' : '') +
@@ -1504,6 +1534,8 @@
         email: document.getElementById('rf-email').value,
         phone: document.getElementById('rf-phone').value,
         organizationName: document.getElementById('rf-org').value,
+        isNonprofit: document.getElementById('rf-is-nonprofit').value === 'yes',
+        website: document.getElementById('rf-website').value,
         billingAddress: fullAddress,
         eventDetails: document.getElementById('rf-event-details').value,
         rooms: rooms,

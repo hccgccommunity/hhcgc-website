@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logs — HCCGC Admin Portal</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F5ZHQ4CDR9');</script>
+<style>
+:root {
+  --bg: #fff9f1; --surface: #ffffff; --surface-soft: #fff6ea; --border: rgba(121,62,17,0.14);
+  --text: #2c1b10; --muted: #6a5141; --saffron: #b55a18; --saffron-dark: #8d3e0d; --maroon: #7f2e16;
+  --green: #2e7d4f; --green-bg: #e8f5ec; --red: #b3382c; --red-bg: #fbe9e7;
+  --radius: 22px; --shadow: 0 18px 45px rgba(93,43,14,0.10);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%), radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%), var(--bg); color: var(--text); min-height: 100vh; }
+.container { width: min(calc(100% - 32px), 1200px); margin: 0 auto; }
+.site-header {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(255, 249, 241, 0.92); backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 92px; padding: 12px 0; }
+.site-header a.brand, .site-header a.brand:link, .site-header a.brand:visited { text-decoration: none; color: inherit; }
+.brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.brand-logo-wrap { background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 8px; box-shadow: var(--shadow); flex-shrink: 0; }
+.brand-logo { width: 88px; height: auto; border-radius: 12px; object-fit: contain; }
+.brand-text h1 { margin: 0; font-size: 1.2rem; line-height: 1.15; color: var(--maroon); }
+.site-header nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 18px; margin: 0; padding: 0; align-items: center; justify-content: flex-end; }
+.site-header nav a, .site-header nav a:link, .site-header nav a:visited { font-weight: 700; color: var(--text); font-size: 0.96rem; text-decoration: none; }
+.site-header nav a:hover { color: var(--saffron-dark); }
+.menu-toggle { display: none; border: 0; background: transparent; padding: 6px 0; cursor: pointer; color: #2c1b10; align-self: flex-end; }
+.menu-toggle .bar { display: block; width: 26px; height: 2px; margin: 5px 0; background: currentColor; }
+@media (max-width: 768px) {
+  .nav { flex-direction: column; align-items: stretch; gap: 8px; } .menu-toggle { display: inline-block; }
+  .site-header nav { display: none; width: 100%; background: rgba(255,249,241,0.95); padding: 10px 0; }
+  .site-header nav.is-open { display: block; } .site-header nav ul { flex-direction: column; gap: 14px; }
+}
+.page-hero { padding: 28px 0 22px; background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%); color: #fff; }
+.page-hero h1 { font-family: Georgia, "Times New Roman", serif; font-size: 1.9rem; color: #fff; margin-bottom: 6px; }
+.page-hero p { color: #ffffff; opacity: 0.9; font-size: 0.92rem; max-width: 620px; }
+.back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.85); text-decoration: none; margin-bottom: 14px; }
+.back-link:hover { color: #fff; text-decoration: underline; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
+.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
+.toolbar select, .toolbar input[type="date"] {
+  font-family: inherit; font-size: 0.88rem; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 10px; background: #fff; color: var(--text);
+}
+.btn-secondary {
+  font-family: inherit; font-size: 0.86rem; font-weight: 700; color: var(--text);
+  background: #fff; border: 1.5px solid var(--border); border-radius: 10px; padding: 9px 14px; cursor: pointer;
+}
+.count { font-size: 0.82rem; color: var(--muted); margin-left: auto; }
+
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+th { text-align: left; padding: 10px 12px; border-bottom: 2px solid var(--border); color: var(--muted); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; }
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:hover td { background: var(--surface-soft); }
+.app-pill { font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.app-pill.facility-rental { background: #e6f0ff; color: #2255a4; }
+.app-pill.finance { background: var(--green-bg); color: var(--green); }
+.app-pill.issue-reporting { background: #fff3d6; color: #b5750a; }
+.app-pill.other { background: var(--surface-soft); color: var(--muted); }
+.details-cell { max-width: 320px; font-size: 0.78rem; color: var(--muted); font-family: ui-monospace, monospace; white-space: pre-wrap; word-break: break-word; }
+.empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+
+#gate{padding:60px 16px;display:flex;justify-content:center;}
+.gate-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow);}
+.gate-card h3{font-family:Georgia,serif;font-size:1.3rem;color:var(--maroon);margin-bottom:.5rem;}
+.gate-card p{color:var(--muted);font-size:.88rem;line-height:1.6;}
+.gate-card a{color:var(--saffron-dark);}
+</style>
+</head>
+<body>
+<div id="site-header"></div>
+
+<div id="gate">
+  <div class="gate-card">
+    <h3>Checking access&hellip;</h3>
+    <p>Please sign in from the <a href="/admin/admin-portal">Admin Portal</a> first.</p>
+  </div>
+</div>
+
+<div id="app" style="display:none;">
+
+<div class="page-hero">
+  <div class="container">
+    <a class="back-link" href="https://hccgc.org/admin/admin-portal">&larr; Back to apps</a>
+    <h1>Logs</h1>
+    <p>Activity across Facility Rental and Finance — who did what, and when.</p>
+  </div>
+</div>
+
+<div class="container" style="padding:24px 0 60px;">
+  <div class="card">
+    <div class="toolbar">
+      <select id="log-range-preset">
+        <option value="last3months" selected>Last 3 months</option>
+        <option value="thismonth">This month</option>
+        <option value="thisquarter">This quarter</option>
+        <option value="lastmonth">Last month</option>
+        <option value="lastquarter">Last quarter</option>
+        <option value="thisyear">This year</option>
+        <option value="custom">Custom</option>
+      </select>
+      <input type="date" id="log-start-date" style="display:none;">
+      <input type="date" id="log-end-date" style="display:none;">
+      <select id="log-app-filter">
+        <option value="">All apps</option>
+        <option value="Facility Rental">Facility Rental</option>
+        <option value="Finance">Finance</option>
+        <option value="Issue Reporting">Issue Reporting</option>
+      </select>
+      <select id="log-subpage-filter">
+        <option value="">All sub-pages</option>
+      </select>
+      <button type="button" class="btn-secondary" id="btn-refresh-logs">Refresh</button>
+      <span class="count" id="log-count"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>When</th><th>App</th><th>Sub-page</th><th>Action</th><th>By</th><th>Details</th></tr></thead>
+        <tbody id="log-tbody"></tbody>
+      </table>
+      <div class="empty-state" id="log-empty" style="display:none;">No activity in this range.</div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div id="site-footer"></div>
+
+<script>
+const API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';
+
+// Sub-pages for each app — kept in sync with the backend's ACTION_APP_MAP.
+// If a new action/sub-page is added on the backend, add it here too so the
+// filter dropdown offers it.
+const SUBPAGES_BY_APP = {
+  'Facility Rental': ['All Bookings', 'New Booking', 'Add A Renter', 'Rooms & Rates', 'Log Transaction'],
+  'Finance': ['Statements', 'Expense Approvals', 'Categories', 'Invoices'],
+  'Issue Reporting': ['Issue Reporting']
+};
+
+async function authedFetch(url, options) {
+  options = options || {};
+  var user = window.__hccgcFirebaseUser;
+  if (!user) throw new Error('Not signed in.');
+  var token = await user.getIdToken();
+  options.headers = Object.assign({}, options.headers, { 'Authorization': 'Bearer ' + token });
+  return fetch(url, options);
+}
+function escHtml(str) { return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function formatDateTime(iso) { if (!iso) return '—'; var d = new Date(iso); return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ', ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); }
+function appPillClass(app) {
+  if (app === 'Facility Rental') return 'facility-rental';
+  if (app === 'Finance') return 'finance';
+  if (app === 'Issue Reporting') return 'issue-reporting';
+  return 'other';
+}
+
+function computePresetRange(preset) {
+  var now = new Date();
+  var fmt = function (d) { return d.toISOString().slice(0, 10); };
+  var y = now.getFullYear(), m = now.getMonth();
+  if (preset === 'thismonth') return { start: fmt(new Date(y, m, 1)), end: fmt(new Date(y, m + 1, 0)) };
+  if (preset === 'lastmonth') return { start: fmt(new Date(y, m - 1, 1)), end: fmt(new Date(y, m, 0)) };
+  if (preset === 'thisquarter') { var qs = Math.floor(m / 3) * 3; return { start: fmt(new Date(y, qs, 1)), end: fmt(new Date(y, qs + 3, 0)) }; }
+  if (preset === 'lastquarter') { var qs2 = Math.floor(m / 3) * 3 - 3; return { start: fmt(new Date(y, qs2, 1)), end: fmt(new Date(y, qs2 + 3, 0)) }; }
+  if (preset === 'thisyear') return { start: fmt(new Date(y, 0, 1)), end: fmt(new Date(y, 11, 31)) };
+  return { start: fmt(new Date(y, m - 2, 1)), end: fmt(new Date(y, m + 1, 0)) };
+}
+(function initDates() {
+  var range = computePresetRange('last3months');
+  document.getElementById('log-start-date').value = range.start;
+  document.getElementById('log-end-date').value = range.end;
+})();
+document.getElementById('log-range-preset').addEventListener('change', function () {
+  var preset = this.value;
+  var inputs = [document.getElementById('log-start-date'), document.getElementById('log-end-date')];
+  if (preset === 'custom') { inputs.forEach(function (el) { el.style.display = 'inline-block'; }); return; }
+  inputs.forEach(function (el) { el.style.display = 'none'; });
+  var range = computePresetRange(preset);
+  document.getElementById('log-start-date').value = range.start;
+  document.getElementById('log-end-date').value = range.end;
+  loadLogs();
+});
+document.getElementById('log-app-filter').addEventListener('change', function () {
+  var app = this.value;
+  var subSelect = document.getElementById('log-subpage-filter');
+  subSelect.innerHTML = '<option value="">All sub-pages</option>' +
+    (SUBPAGES_BY_APP[app] || []).map(function (s) { return '<option value="' + escHtml(s) + '">' + escHtml(s) + '</option>'; }).join('');
+  loadLogs();
+});
+document.getElementById('log-subpage-filter').addEventListener('change', loadLogs);
+document.getElementById('btn-refresh-logs').addEventListener('click', loadLogs);
+
+async function loadLogs() {
+  var start = document.getElementById('log-start-date').value;
+  var end = document.getElementById('log-end-date').value;
+  var app = document.getElementById('log-app-filter').value;
+  var subPage = document.getElementById('log-subpage-filter').value;
+  var tbody = document.getElementById('log-tbody');
+  var emptyState = document.getElementById('log-empty');
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px;">Loading…</td></tr>';
+  try {
+    var params = new URLSearchParams({ startDate: start, endDate: end });
+    if (app) params.set('app', app);
+    if (subPage) params.set('subPage', subPage);
+    var res = await authedFetch(API_BASE + '/logs?' + params.toString());
+    var logs = await res.json();
+    document.getElementById('log-count').textContent = logs.length + ' entries';
+    if (!logs.length) { tbody.innerHTML = ''; emptyState.style.display = 'block'; return; }
+    emptyState.style.display = 'none';
+    tbody.innerHTML = logs.map(function (l) {
+      return '<tr>' +
+        '<td>' + formatDateTime(l.createdAt) + '</td>' +
+        '<td><span class="app-pill ' + appPillClass(l.app) + '">' + escHtml(l.app) + '</span></td>' +
+        '<td>' + escHtml(l.subPage) + '</td>' +
+        '<td>' + escHtml(l.actionLabel) + '</td>' +
+        '<td>' + escHtml(l.actorEmail || '\u2014') + '</td>' +
+        '<td class="details-cell">' + escHtml(l.details || '') + '</td>' +
+      '</tr>';
+    }).join('');
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--red);padding:24px;">Could not load: ' + escHtml(err.message) + '</td></tr>';
+  }
+}
+
+function loadPartial(id, file) {
+  var target = document.getElementById(id);
+  if (!target) return;
+  fetch(file).then(function (r) { return r.text(); }).then(function (html) {
+    target.innerHTML = html;
+    if (id === 'site-header') fixHeaderLinksForSubfolder(target);
+  }).catch(function () {});
+}
+function fixHeaderLinksForSubfolder(headerEl) {
+  var logo = headerEl.querySelector('.brand-logo');
+  if (logo && logo.getAttribute('src') && !logo.getAttribute('src').startsWith('/') && !logo.getAttribute('src').startsWith('http')) {
+    logo.setAttribute('src', '/' + logo.getAttribute('src'));
+  }
+  headerEl.querySelectorAll('a[href]').forEach(function (link) {
+    var href = link.getAttribute('href');
+    if (!href || href.startsWith('http') || href.startsWith('/') || href.startsWith('#')) return;
+    link.setAttribute('href', '/' + href);
+  });
+}
+loadPartial('site-header', '/header.html');
+loadPartial('site-footer', '/footer.html');
+</script>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js';
+import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
+
+var firebaseConfig = {
+  apiKey: 'AIzaSyA6IzLjWTg7Rq04HsTH-iA3eDmSzKI7xME',
+  authDomain: 'hccgc-a7a54.firebaseapp.com',
+  projectId: 'hccgc-a7a54',
+  storageBucket: 'hccgc-a7a54.firebasestorage.app',
+  messagingSenderId: '75757201418',
+  appId: '1:75757201418:web:c31e9361921242145717f3'
+};
+
+var ALLOWED_DOMAIN = 'hccgc.org';
+var REQUIRED_APP_KEY = 'logs-app';
+var PORTAL_URL = '/admin/admin-portal';
+
+var fbApp = initializeApp(firebaseConfig);
+var auth = getAuth(fbApp);
+var db = getFirestore(fbApp);
+
+function showGate(title, msg) {
+  document.getElementById('gate').querySelector('h3').textContent = title;
+  document.getElementById('gate').querySelector('p').innerHTML = msg;
+  document.getElementById('gate').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+onAuthStateChanged(auth, function(user) {
+  if (!user) { showGate('Sign in required', 'Please sign in from the <a href="'+PORTAL_URL+'">Admin Portal</a> first.'); return; }
+  var email = (user.email||'').toLowerCase();
+  window.__hccgcCurrentUser = { email: email };
+  window.__hccgcFirebaseUser = user;
+  if (!email.endsWith('@'+ALLOWED_DOMAIN)) { showGate('Access denied', 'Please use an @'+ALLOWED_DOMAIN+' account.'); return; }
+  getDoc(doc(db, 'portalUsers', email)).then(function(snap) {
+    var data = snap.exists() ? snap.data() : {};
+    if (!data.isAdmin && !(Array.isArray(data.allowedApps) && data.allowedApps.includes(REQUIRED_APP_KEY))) {
+      showGate('Access not granted', "You don't have access to Logs. Ask an admin to grant it.");
+      return;
+    }
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadLogs();
+  }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });
+});
+</script>
+</body>
+</html>

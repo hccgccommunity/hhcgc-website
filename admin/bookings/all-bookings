@@ -181,6 +181,14 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
 .notes-cell { max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.78rem; color: var(--muted); }
 .updated-cell { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
 
+.contact-filter-wrap { position: relative; }
+.contact-filter-panel { position: absolute; top: calc(100% + 4px); left: 0; z-index: 40; background: #fff; border: 1.5px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); padding: 10px; width: 260px; max-height: 320px; overflow-y: auto; }
+.contact-filter-actions { display: flex; gap: 8px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.contact-filter-actions button { font-family: inherit; font-size: 0.76rem; font-weight: 700; color: var(--saffron-dark); background: none; border: none; cursor: pointer; padding: 2px 4px; }
+.contact-filter-row { display: flex; align-items: center; gap: 8px; padding: 5px 4px; font-size: 0.86rem; }
+.contact-filter-row input { flex-shrink: 0; }
+.contact-filter-row label { cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 .btn-kebab {
   width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid var(--border); background: #fff;
   color: var(--text); font-size: 1.1rem; line-height: 1; cursor: pointer; transition: background 0.15s;
@@ -309,6 +317,7 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
       <li><a href="all-bookings" class="active">All Bookings</a></li>
       <li><a href="rooms-rates">Rooms &amp; Rates</a></li>
       <li><a href="add-renter">Add A Renter</a></li>
+      <li><a href="dashboard">Dashboard</a></li>
     </ul>
   </div>
 </div>
@@ -317,7 +326,16 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
   <div class="mock-notice" id="mock-notice" style="display:none;"></div>
 
   <div class="toolbar">
-    <input type="text" id="search-input" placeholder="Search by contact name or email…">
+    <div class="contact-filter-wrap">
+      <button type="button" class="btn-secondary" id="btn-contact-filter-toggle">Contact: All <span id="contact-filter-count"></span> &#9662;</button>
+      <div class="contact-filter-panel" id="contact-filter-panel" style="display:none;">
+        <div class="contact-filter-actions">
+          <button type="button" id="btn-contact-filter-all">Select all</button>
+          <button type="button" id="btn-contact-filter-none">Clear</button>
+        </div>
+        <div id="contact-filter-list"></div>
+      </div>
+    </div>
     <select id="room-filter">
       <option value="">All rooms</option>
       <option value="Surya Hall">Surya Hall</option>
@@ -533,10 +551,11 @@ async function loadBookings() {
     notice.style.display = 'block';
     BOOKINGS = [];
   }
+  populateContactFilter();
   render();
 }
 
-let state = { search: '', room: '', status: '', month: 'default3', sortKey: 'updated_display', sortDir: 'desc', pageSize: 20, page: 1 };
+let state = { contactFilter: null, room: '', status: '', month: 'default3', sortKey: 'updated_display', sortDir: 'desc', pageSize: 20, page: 1 };
 
 // ---- Column configurator ----
 // Contact Name and Actions are always shown — everything else is
@@ -655,9 +674,9 @@ function monthRangeFor(monthValue) {
   return { start: new Date(y, m - 1, 1), end: new Date(y, m, 1) };
 }
 
+function contactNameFor(b) { return b.is_internal ? 'HCCGC' : b.renter_name; }
 function matchesFilters(b) {
-  const q = state.search.trim().toLowerCase();
-  if (q && !(b.renter_name.toLowerCase().includes(q) || (b.renter_email || '').toLowerCase().includes(q))) return false;
+  if (state.contactFilter && !state.contactFilter.has(contactNameFor(b))) return false;
   if (state.room === '__whole_facility__' && !isWholeFacility(b)) return false;
   if (state.room && state.room !== '__whole_facility__' && !b.rooms.includes(state.room)) return false;
   if (state.status === 'needs-attention' && !(b.payment_status === 'invoiced' || b.payment_status === 'pending')) return false;
@@ -1675,8 +1694,63 @@ document.getElementById('btn-save-series-edit').addEventListener('click', async 
   }
 });
 
-document.getElementById('search-input').addEventListener('input', function (e) {
-  state.search = e.target.value;
+// Contact filter dropdown — one entry per distinct renter name across
+// loaded bookings, plus "HCCGC" for internal bookings. Everything starts
+// checked (state.contactFilter stays null, meaning "no filter applied")
+// so nothing — including HCCGC — is excluded by default.
+function populateContactFilter() {
+  const names = new Set();
+  BOOKINGS.forEach(function (b) { names.add(contactNameFor(b)); });
+  const sorted = Array.from(names).sort(function (a, b) { return a.localeCompare(b); });
+  const list = document.getElementById('contact-filter-list');
+  const checkedSet = state.contactFilter; // null = everything checked
+  list.innerHTML = sorted.map(function (name) {
+    const checked = !checkedSet || checkedSet.has(name);
+    return '<div class="contact-filter-row"><input type="checkbox" id="cf-' + btoa(unescape(encodeURIComponent(name))).replace(/[^a-zA-Z0-9]/g, '') + '" data-contact-name="' + escHtml(name) + '"' + (checked ? ' checked' : '') + '><label for="cf-' + btoa(unescape(encodeURIComponent(name))).replace(/[^a-zA-Z0-9]/g, '') + '">' + escHtml(name) + '</label></div>';
+  }).join('');
+  updateContactFilterButtonLabel(sorted.length);
+}
+function updateContactFilterButtonLabel(totalCount) {
+  const btn = document.getElementById('btn-contact-filter-toggle');
+  const countSpan = document.getElementById('contact-filter-count');
+  if (!state.contactFilter) {
+    btn.firstChild.textContent = 'Contact: All ';
+    countSpan.textContent = '';
+  } else {
+    btn.firstChild.textContent = 'Contact: ';
+    countSpan.textContent = state.contactFilter.size + ' of ' + totalCount;
+  }
+}
+document.getElementById('btn-contact-filter-toggle').addEventListener('click', function (e) {
+  e.stopPropagation();
+  const panel = document.getElementById('contact-filter-panel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+});
+document.addEventListener('click', function (e) {
+  const panel = document.getElementById('contact-filter-panel');
+  if (panel.style.display !== 'none' && !e.target.closest('.contact-filter-wrap')) panel.style.display = 'none';
+});
+document.getElementById('contact-filter-list').addEventListener('change', function (e) {
+  const cb = e.target.closest('[data-contact-name]');
+  if (!cb) return;
+  const allNames = Array.from(document.querySelectorAll('[data-contact-name]')).map(function (el) { return el.dataset.contactName; });
+  if (!state.contactFilter) state.contactFilter = new Set(allNames); // first uncheck starts from "everything"
+  if (cb.checked) state.contactFilter.add(cb.dataset.contactName);
+  else state.contactFilter.delete(cb.dataset.contactName);
+  if (state.contactFilter.size === allNames.length) state.contactFilter = null; // back to "no filter" once everything's checked again
+  updateContactFilterButtonLabel(allNames.length);
+  state.page = 1;
+  render();
+});
+document.getElementById('btn-contact-filter-all').addEventListener('click', function () {
+  state.contactFilter = null;
+  populateContactFilter();
+  state.page = 1;
+  render();
+});
+document.getElementById('btn-contact-filter-none').addEventListener('click', function () {
+  state.contactFilter = new Set();
+  populateContactFilter();
   state.page = 1;
   render();
 });

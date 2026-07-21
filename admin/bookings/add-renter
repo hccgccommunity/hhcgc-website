@@ -235,7 +235,7 @@ tbody tr:last-child td { border-bottom: none; }
       </div>
       <div class="field"><label>Organization</label><input type="text" id="edit-f-org"></div>
       <div class="field"><label>Website</label><input type="url" id="edit-f-website" placeholder="https://"></div>
-      <div class="field"><label>Address</label><input type="text" id="edit-f-address"></div>
+      <div class="field"><label>Address</label><textarea id="edit-f-address" rows="2" placeholder="Street, suite, city, state, ZIP"></textarea></div>
       <div class="field"><label>Notes</label><textarea id="edit-f-notes"></textarea></div>
       <div class="checkbox-row" style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="edit-f-nonprofit"><label for="edit-f-nonprofit">This renter is a nonprofit</label></div>
       <div class="result-box" id="edit-result-box" style="display:none;"></div>
@@ -384,10 +384,16 @@ async function openRenterReviewModal(renterId) {
     bookingsEl.innerHTML = requests.map(function (req) {
       var dateStr = new Date(req.eventDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       var timeStr = req.startTime && req.endTime ? new Date(req.startTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + '\u2013' + new Date(req.endTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
+      var notesHtml = '';
+      if (req.notes) {
+        var notesLines = req.notes.split(' | ').map(function (line) { return '<div>' + escHtml(line) + '</div>'; }).join('');
+        notesHtml = '<div style="font-size:0.84rem;margin-top:6px;padding-top:6px;border-top:1px dashed var(--border,#e5d9c8);">' + notesLines + '</div>';
+      }
       return '<div style="border:1px solid var(--border,#e5d9c8);border-radius:10px;padding:10px 14px;margin-bottom:8px;">' +
         '<div style="font-weight:700;">' + escHtml((req.rooms || []).join(', ')) + ' \u2014 ' + dateStr + (timeStr ? ' \u00b7 ' + timeStr : '') + '</div>' +
         '<div style="font-size:0.85rem;color:var(--muted,#6a5141);">' + escHtml(req.eventName || '') + '</div>' +
         '<div style="font-size:0.85rem;">$' + Number(req.finalTotal).toFixed(2) + ' \u00b7 status: ' + escHtml(req.paymentStatus) + '</div>' +
+        notesHtml +
       '</div>';
     }).join('');
   } catch (err) {

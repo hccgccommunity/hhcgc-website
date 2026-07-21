@@ -148,7 +148,6 @@ tbody tr:last-child td { border-bottom: none; }
       <li><a href="new-booking">New Booking</a></li>
       <li><a href="all-bookings">All Bookings</a></li>
       <li><a href="rooms-rates">Rooms &amp; Rates</a></li>
-      <li><a href="change-log">Change Log</a></li>
       <li><a href="add-renter" class="active">Add A Renter</a></li>
     </ul>
   </div>

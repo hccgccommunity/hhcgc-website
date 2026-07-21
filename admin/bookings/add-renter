@@ -119,6 +119,7 @@ tbody tr:last-child td { border-bottom: none; }
 .gate-card h3{font-family:Georgia,serif;font-size:1.3rem;color:var(--maroon);margin-bottom:.5rem;}
 .gate-card p{color:var(--muted);font-size:.88rem;line-height:1.6;}
 .gate-card a{color:var(--saffron-dark);}
+.nav-badge { display: inline-block; background: #b3382c; color: #fff; font-size: 0.68rem; font-weight: 700; padding: 1px 6px; border-radius: 999px; margin-left: 4px; vertical-align: middle; }
 </style>
 </head>
 <body>
@@ -147,9 +148,9 @@ tbody tr:last-child td { border-bottom: none; }
     <ul>
       <li><a href="dashboard">Dashboard</a></li>
       <li><a href="new-booking">New Booking</a></li>
-      <li><a href="all-bookings">All Bookings</a></li>
+      <li><a href="all-bookings" id="nav-all-bookings">All Bookings</a></li>
       <li><a href="rooms-rates">Rooms &amp; Rates</a></li>
-      <li><a href="add-renter" class="active">Add A Renter</a></li>
+      <li><a href="add-renter" class="active" id="nav-add-renter">Add A Renter</a></li>
     </ul>
   </div>
 </div>
@@ -579,7 +580,25 @@ function fixHeaderLinksForSubfolder(headerEl) {
 }
 loadPartial('site-header', '/header.html');
 loadPartial('site-footer', '/footer.html');
+async function loadPendingCounts() {
+  try {
+    var res = await authedFetch(API_BASE + '/pending-counts');
+    var data = await res.json();
+    if (data.pendingRenters > 0) {
+      var renterLink = document.getElementById('nav-add-renter');
+      if (renterLink && !renterLink.querySelector('.nav-badge')) renterLink.insertAdjacentHTML('beforeend', ' <span class="nav-badge">' + data.pendingRenters + '</span>');
+    }
+    if (data.pendingBookings > 0) {
+      var bookingLink = document.getElementById('nav-all-bookings');
+      if (bookingLink && !bookingLink.querySelector('.nav-badge')) bookingLink.insertAdjacentHTML('beforeend', ' <span class="nav-badge">' + data.pendingBookings + '</span>');
+    }
+  } catch (err) {
+    // Silent -- badges are a nice-to-have, not worth surfacing an error for.
+  }
+}
+
 </script>
+
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
@@ -624,6 +643,7 @@ onAuthStateChanged(auth, function(user) {
     }
     document.getElementById('gate').style.display = 'none';
     document.getElementById('app').style.display = 'block';
+    loadPendingCounts();
     loadRenters();
   }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });
 });

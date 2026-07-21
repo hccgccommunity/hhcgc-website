@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -110,11 +111,11 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 <div class="module-nav">
   <div class="container">
     <ul>
+      <li><a href="dashboard" class="active">Dashboard</a></li>
       <li><a href="new-booking">New Booking</a></li>
       <li><a href="all-bookings">All Bookings</a></li>
       <li><a href="rooms-rates">Rooms &amp; Rates</a></li>
       <li><a href="add-renter">Add A Renter</a></li>
-      <li><a href="dashboard" class="active">Dashboard</a></li>
     </ul>
   </div>
 </div>
@@ -133,13 +134,19 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
     <input type="date" id="dash-start-date" style="display:none;">
     <input type="date" id="dash-end-date" style="display:none;">
     <button type="button" class="btn-secondary" id="btn-refresh-dashboard">Refresh</button>
+    <select id="dash-source-filter">
+      <option value="facility-rental" selected>Facility Rental Revenue</option>
+      <option value="fundraising">Fundraising Revenue</option>
+      <option value="all">All (Facility Rental + Fundraising)</option>
+    </select>
+    <span style="font-size:0.78rem;color:var(--muted);">Individual donations aren't included in any of these views.</span>
   </div>
 
   <div class="stat-grid" id="stat-grid"></div>
 
   <div class="grid-2">
     <div class="card">
-      <h2 class="section-title">Revenue by room</h2>
+      <h2 class="section-title" id="revenue-by-room-title">Revenue by room</h2>
       <div id="revenue-by-room"></div>
     </div>
     <div class="card">
@@ -203,21 +210,34 @@ document.getElementById('btn-refresh-dashboard').addEventListener('click', loadD
 async function loadDashboard() {
   var start = document.getElementById('dash-start-date').value;
   var end = document.getElementById('dash-end-date').value;
+  var source = document.getElementById('dash-source-filter').value;
   try {
-    var res = await authedFetch(API_BASE + '/bookings-dashboard?startDate=' + start + '&endDate=' + end);
+    var res = await authedFetch(API_BASE + '/bookings-dashboard?startDate=' + start + '&endDate=' + end + '&source=' + source);
     var data = await res.json();
     if (!res.ok) throw new Error((data.errors || [data.error || ('Server returned ' + res.status)]).join(' '));
     renderStats(data);
-    renderBarChart('revenue-by-room', data.revenueByRoom.map(function (r) { return { name: r.name + ' (' + r.count + ')', total: r.revenue }; }), 'No room activity in this range.');
+    var roomTitle = document.getElementById('revenue-by-room-title');
+    if (source === 'fundraising') {
+      roomTitle.textContent = 'Revenue by campaign';
+      renderBarChart('revenue-by-room', data.revenueByCampaign.map(function (r) { return { name: r.name + ' (' + r.count + ')', total: r.revenue }; }), 'No fundraising activity in this range.');
+    } else if (source === 'all') {
+      roomTitle.textContent = 'Revenue by room + campaign';
+      var combined = data.revenueByRoom.concat(data.revenueByCampaign);
+      renderBarChart('revenue-by-room', combined.map(function (r) { return { name: r.name + ' (' + r.count + ')', total: r.revenue }; }), 'No activity in this range.');
+    } else {
+      roomTitle.textContent = 'Revenue by room';
+      renderBarChart('revenue-by-room', data.revenueByRoom.map(function (r) { return { name: r.name + ' (' + r.count + ')', total: r.revenue }; }), 'No room activity in this range.');
+    }
     renderBarChart('revenue-by-month', data.revenueByMonth.map(function (r) {
       var label = new Date(r.month + '-02').toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
       return { name: label + ' (' + r.count + ')', total: r.revenue };
     }), 'No activity in this range.');
-    renderContributors('top-renters', data.topRenters, 'No renters in this range.');
+    renderContributors('top-renters', data.topRenters, source === 'fundraising' ? 'Top renters not applicable for fundraising-only view.' : 'No renters in this range.');
   } catch (err) {
     document.getElementById('stat-grid').innerHTML = '<div class="empty-state">Could not load dashboard: ' + escHtml(err.message) + '</div>';
   }
 }
+document.getElementById('dash-source-filter').addEventListener('change', loadDashboard);
 function renderStats(data) {
   var stats = [
     { label: 'Total Revenue', value: money(data.totalRevenue) },

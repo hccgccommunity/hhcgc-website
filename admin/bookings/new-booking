@@ -313,14 +313,13 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 <div class="modal-overlay" id="invoice-preview-overlay" style="display:none;">
   <div class="modal-panel">
     <div class="modal-header">
-      <h2>Send invoice?</h2>
+      <h2>Booking created</h2>
       <button class="modal-close" id="btn-skip-invoice">&times;</button>
     </div>
     <div class="modal-body" id="invoice-preview-body"></div>
-    <div class="result-box" id="invoice-send-result" style="display:none;margin:0 26px 16px;"></div>
     <div class="modal-footer">
-      <button type="button" class="btn-secondary" id="btn-skip-invoice-2" onclick="document.getElementById('invoice-preview-overlay').style.display='none';">Not now</button>
-      <button type="button" class="btn-primary" id="btn-send-invoice">Send invoice</button>
+      <button type="button" class="btn-secondary" id="btn-skip-invoice-2" onclick="document.getElementById('invoice-preview-overlay').style.display='none';">Close</button>
+      <a class="btn-primary" href="all-bookings" style="text-decoration:none;text-align:center;display:inline-block;">Review &amp; send invoice in All Bookings</a>
     </div>
   </div>
 </div>
@@ -762,9 +761,7 @@ function openInvoicePreview(bookingId, payload, createResult) {
     '<div class="field"><label>Rooms</label><div style="padding:9px 0;">' + escHtmlLocal(payload.rooms.join(', ')) + '</div></div>' +
     '<div class="field"><label>Date' + (payload.occurrences.length > 1 ? ' (first of ' + payload.occurrences.length + ')' : '') + '</label><div style="padding:9px 0;">' + escHtmlLocal(firstOcc.date) + ', ' + escHtmlLocal(firstOcc.startTime) + '–' + escHtmlLocal(firstOcc.endTime) + '</div></div>' +
     '<div class="field"><label>Amount due</label><div style="padding:9px 0;font-weight:700;font-size:1.1rem;color:var(--maroon);">$' + total.toFixed(2) + '</div></div>' +
-    '<div class="card-sub">Sends from facility-rental@hccgc.org, CC\'d to the same address. Reply-to goes to the renter.</div>';
-  document.getElementById('btn-send-invoice').dataset.bookingId = bookingId;
-  document.getElementById('invoice-send-result').style.display = 'none';
+    '<div class="card-sub">Once created, review and send the invoice from All Bookings.</div>';
   overlay.style.display = 'flex';
 }
 function escHtmlLocal(str) { return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
@@ -774,30 +771,6 @@ document.getElementById('btn-skip-invoice').addEventListener('click', function (
 });
 document.getElementById('invoice-preview-overlay').addEventListener('click', function (e) {
   if (e.target === this) this.style.display = 'none';
-});
-document.getElementById('btn-send-invoice').addEventListener('click', async function () {
-  const btn = this;
-  const bookingId = btn.dataset.bookingId;
-  const resultBox = document.getElementById('invoice-send-result');
-  btn.disabled = true; btn.textContent = 'Sending…';
-  try {
-    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/send-invoice', { method: 'POST' });
-    const data = await res.json();
-    resultBox.style.display = 'block';
-    if (!res.ok) {
-      resultBox.className = 'result-box error';
-      resultBox.textContent = (data.errors || [data.error || 'Something went wrong.']).join(' ');
-    } else {
-      resultBox.className = 'result-box success';
-      resultBox.textContent = 'Invoice sent to ' + data.sentTo + '.';
-      setTimeout(function () { document.getElementById('invoice-preview-overlay').style.display = 'none'; }, 1400);
-    }
-  } catch (err) {
-    resultBox.style.display = 'block'; resultBox.className = 'result-box error';
-    resultBox.textContent = 'Could not reach the booking system: ' + err.message;
-  } finally {
-    btn.disabled = false; btn.textContent = 'Send invoice';
-  }
 });
 
 function resetForm() {

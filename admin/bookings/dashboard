@@ -73,9 +73,12 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .bar-chart-value { width: 100px; flex-shrink: 0; text-align: right; font-weight: 700; font-size: 0.84rem; }
 
 .trend-chart { display: flex; align-items: flex-end; gap: 10px; height: 200px; padding: 10px 4px 0; overflow-x: auto; }
+.trend-chart-wrap { display: flex; gap: 10px; }
+.trend-yaxis { display: flex; flex-direction: column; justify-content: space-between; flex-shrink: 0; padding-top: 10px; text-align: right; }
+.trend-yaxis-label { font-size: 0.7rem; color: var(--muted); transform: translateY(-50%); white-space: nowrap; }
 .trend-month { display: flex; flex-direction: column; align-items: center; min-width: 50px; flex-shrink: 0; }
-.trend-bars { display: flex; align-items: flex-end; height: 150px; }
-.trend-bar { width: 26px; border-radius: 4px 4px 0 0; background: linear-gradient(180deg, var(--saffron-dark), var(--saffron)); position: relative; }
+.trend-bars { display: flex; align-items: flex-end; border-left: 1px solid var(--border); }
+.trend-bar { width: 26px; border-radius: 4px 4px 0 0; background: linear-gradient(180deg, var(--saffron-dark), var(--saffron)); position: relative; margin-left: 8px; }
 .trend-month-label { font-size: 0.7rem; color: var(--muted); margin-top: 8px; white-space: nowrap; }
 
 .contributor-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 0.86rem; }
@@ -129,7 +132,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 <div class="container" style="padding:24px 0 60px;">
   <div class="card" style="margin-bottom:20px;">
     <h2 class="section-title">Revenue by month</h2>
-    <p class="card-sub" style="margin:-8px 0 14px;">Always the trailing 12 months, this month, and the next 6 — paid and unpaid, not affected by the filters below.</p>
+    <p class="card-sub" style="margin:-8px 0 14px;">Always the trailing 6 months, this month, and the next 6 — paid and unpaid, not affected by the filters below.</p>
     <div id="revenue-by-month"></div>
   </div>
 
@@ -248,31 +251,54 @@ async function loadMonthlyTrend() {
     document.getElementById('revenue-by-month').innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
   }
 }
+function niceMax(value) {
+  if (value <= 0) return 100;
+  var magnitude = Math.pow(10, Math.floor(Math.log10(value)));
+  var normalized = value / magnitude;
+  var niceNormalized = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10;
+  return niceNormalized * magnitude;
+}
 function renderVerticalTrendChart(containerId, months, emptyMessage) {
   var container = document.getElementById(containerId);
   if (!months.length) { container.innerHTML = '<div class="empty-state">' + emptyMessage + '</div>'; return; }
-  var max = Math.max.apply(null, months.map(function (m) { return m.revenue; })) || 1;
+  var rawMax = Math.max.apply(null, months.map(function (m) { return m.revenue; })) || 1;
+  var axisMax = niceMax(rawMax);
+  var chartHeight = 150;
+  var gridlineCount = 4;
+  var yAxisHtml = '<div class="trend-yaxis" style="height:' + chartHeight + 'px;">' +
+    Array.from({ length: gridlineCount + 1 }, function (_, i) {
+      var val = axisMax * (gridlineCount - i) / gridlineCount;
+      return '<div class="trend-yaxis-label">' + money(val) + '</div>';
+    }).join('') +
+  '</div>';
   var bars = months.map(function (m) {
-    var h = Math.max(2, (m.revenue / max) * 150);
+    var h = Math.max(2, (m.revenue / axisMax) * chartHeight);
     var label = new Date(m.month + '-02').toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
     return '<div class="trend-month">' +
-      '<div class="trend-bars"><div class="trend-bar" style="height:' + h + 'px;" title="' + label + ': ' + money(m.revenue) + '"></div></div>' +
+      '<div class="trend-bars" style="height:' + chartHeight + 'px;"><div class="trend-bar" style="height:' + h + 'px;" title="' + label + ': ' + money(m.revenue) + '"></div></div>' +
       '<div class="trend-month-label">' + label + '</div>' +
     '</div>';
   }).join('');
-  container.innerHTML = '<div class="trend-chart">' + bars + '</div>';
+  container.innerHTML = '<div class="trend-chart-wrap">' + yAxisHtml + '<div class="trend-chart">' + bars + '</div></div>';
 }
 function renderStats(data, source) {
-  var revenueLabel = source === 'fundraising' ? 'Fundraising Revenue' : source === 'all' ? 'Total Revenue' : 'Facility Rental Revenue';
+  var revenueLabel = source === 'fundraising' ? 'Fundraising Revenue' : source === 'all' ? 'Total Revenue (Facility + Fundraising)' : 'Facility Rental Revenue';
   var countLabel = source === 'fundraising' ? 'Fundraising Payments' : 'Bookings';
   var stats = [
     { label: revenueLabel, value: money(data.totalRevenue) },
     { label: countLabel, value: data.totalCount },
-    { label: 'Hours Booked (facility rental)', value: data.totalHours },
-    { label: 'Avg. Value', value: money(data.avgValue) },
-    { label: 'Paid (facility rental)', value: data.paidCount },
-    { label: 'Not Yet Paid (facility rental)', value: data.unpaidCount }
+    { label: 'Avg. Value', value: money(data.avgValue) }
   ];
+  // Hours/paid/unpaid are facility-rental-only concepts (a Zeffy
+  // fundraising payment has no "hours" or "paid status") — shown only
+  // when facility rental is actually part of what's selected, so picking
+  // "Fundraising Revenue" doesn't show what looks like leftover facility
+  // rental data mixed into the fundraising-only view.
+  if (source !== 'fundraising') {
+    stats.push({ label: 'Hours Booked (facility rental)', value: data.totalHours });
+    stats.push({ label: 'Paid (facility rental)', value: data.paidCount });
+    stats.push({ label: 'Not Yet Paid (facility rental)', value: data.unpaidCount });
+  }
   document.getElementById('stat-grid').innerHTML = stats.map(function (s) {
     return '<div class="stat-card"><div class="value">' + s.value + '</div><div class="label">' + s.label + '</div></div>';
   }).join('');

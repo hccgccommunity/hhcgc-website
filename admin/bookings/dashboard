@@ -72,6 +72,12 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .bar-chart-fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, var(--saffron-dark), var(--saffron)); }
 .bar-chart-value { width: 100px; flex-shrink: 0; text-align: right; font-weight: 700; font-size: 0.84rem; }
 
+.trend-chart { display: flex; align-items: flex-end; gap: 10px; height: 200px; padding: 10px 4px 0; overflow-x: auto; }
+.trend-month { display: flex; flex-direction: column; align-items: center; min-width: 50px; flex-shrink: 0; }
+.trend-bars { display: flex; align-items: flex-end; height: 150px; }
+.trend-bar { width: 26px; border-radius: 4px 4px 0 0; background: linear-gradient(180deg, var(--saffron-dark), var(--saffron)); position: relative; }
+.trend-month-label { font-size: 0.7rem; color: var(--muted); margin-top: 8px; white-space: nowrap; }
+
 .contributor-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 0.86rem; }
 .contributor-row:last-child { border-bottom: none; }
 .contributor-row .rank { width: 22px; color: var(--muted); font-weight: 700; }
@@ -237,13 +243,24 @@ async function loadMonthlyTrend() {
     var res = await authedFetch(API_BASE + '/bookings-monthly-trend');
     var data = await res.json();
     if (!res.ok) throw new Error((data.errors || [data.error || ('Server returned ' + res.status)]).join(' '));
-    renderBarChart('revenue-by-month', data.months.map(function (m) {
-      var label = new Date(m.month + '-02').toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-      return { name: label, total: m.revenue };
-    }), 'No booking activity in this window.');
+    renderVerticalTrendChart('revenue-by-month', data.months, 'No booking activity in this window.');
   } catch (err) {
     document.getElementById('revenue-by-month').innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
   }
+}
+function renderVerticalTrendChart(containerId, months, emptyMessage) {
+  var container = document.getElementById(containerId);
+  if (!months.length) { container.innerHTML = '<div class="empty-state">' + emptyMessage + '</div>'; return; }
+  var max = Math.max.apply(null, months.map(function (m) { return m.revenue; })) || 1;
+  var bars = months.map(function (m) {
+    var h = Math.max(2, (m.revenue / max) * 150);
+    var label = new Date(m.month + '-02').toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+    return '<div class="trend-month">' +
+      '<div class="trend-bars"><div class="trend-bar" style="height:' + h + 'px;" title="' + label + ': ' + money(m.revenue) + '"></div></div>' +
+      '<div class="trend-month-label">' + label + '</div>' +
+    '</div>';
+  }).join('');
+  container.innerHTML = '<div class="trend-chart">' + bars + '</div>';
 }
 function renderStats(data, source) {
   var revenueLabel = source === 'fundraising' ? 'Fundraising Revenue' : source === 'all' ? 'Total Revenue' : 'Facility Rental Revenue';

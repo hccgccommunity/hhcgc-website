@@ -155,6 +155,16 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 .cat-select { font-family: inherit; font-size: 0.82rem; padding: 6px 10px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; }
 .cat-select.uncategorized { border-color: var(--red); background: var(--red-bg); }
 .btn-note { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 26px; height: 26px; cursor: pointer; font-size: 0.8rem; vertical-align: middle; }
+.btn-invoice { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 26px; height: 26px; cursor: pointer; font-size: 0.8rem; vertical-align: middle; }
+.btn-invoice.attached { background: #fff3d6; border-color: #d9a83e; }
+.btn-invoice.sent { background: #e8f5ec; border-color: var(--green); }
+.btn-invoice:hover { filter: brightness(0.96); }
+.btn-receipt { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 26px; height: 26px; cursor: pointer; font-size: 0.8rem; vertical-align: middle; }
+.btn-receipt.sent { background: #e8f5ec; border-color: var(--green); }
+.btn-receipt:disabled { opacity: 0.4; cursor: default; }
+.btn-receipt:hover:not(:disabled) { filter: brightness(0.96); }
+.category-save-flash { display: inline-block; font-size: 0.72rem; font-weight: 700; color: var(--green); margin-left: 6px; opacity: 0; transition: opacity 0.2s ease; }
+.category-save-flash.show { opacity: 1; }
 .btn-note:hover { background: var(--surface-soft); }
 .collapsible-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 12px 0; }
 .collapsible-header .toggle-arrow { transition: transform 0.15s ease; }
@@ -229,7 +239,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
       <li><button class="tab-btn" data-tab="transactions">Transactions</button></li>
       <li><button class="tab-btn" data-tab="statements">Statements</button></li>
       <li><button class="tab-btn" data-tab="reconciliation">Zeffy Reconciliation</button></li>
-      <li><button class="tab-btn" data-tab="matching">Invoice Matching</button></li>
+      <li><button class="tab-btn" data-tab="matching">Invoices</button></li>
       <li><button class="tab-btn" data-tab="expenses">Expense Approvals</button></li>
     </ul>
   </div>
@@ -350,13 +360,54 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
     </div>
 
     <div class="sub-tab-panel active" id="subtab-tx-zeffy">
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Campaign</th><th># Payments</th><th>Gross Amount</th><th>Category</th></tr></thead>
-          <tbody id="tx-zeffy-tbody"></tbody>
-        </table>
-        <div class="empty-state" id="tx-zeffy-empty" style="display:none;">No Zeffy campaign activity in this range.</div>
+      <div class="card">
+        <div class="collapsible-header is-open" id="rental-toggle">
+          <h2 style="font-family:Georgia,serif;color:var(--maroon);font-size:1rem;margin:0;">Facility Rental Income <span id="rental-count" style="color:var(--muted);font-weight:400;font-size:0.86rem;"></span></h2>
+          <span class="toggle-arrow">&#9654;</span>
+        </div>
+        <div class="collapsible-body is-open" id="rental-body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Date</th><th>Donor</th><th>Amount</th><th>Category</th><th>Invoice</th></tr></thead>
+              <tbody id="tx-rental-tbody"></tbody>
+            </table>
+            <div class="empty-state" id="tx-rental-empty" style="display:none;">No Facility Rental activity in this range.</div>
+          </div>
+        </div>
       </div>
+
+      <div class="card" style="margin-top:16px;">
+        <div class="collapsible-header" id="fundraising-toggle">
+          <h2 style="font-family:Georgia,serif;color:var(--maroon);font-size:1rem;margin:0;">Fundraising Revenue <span id="fundraising-count" style="color:var(--muted);font-weight:400;font-size:0.86rem;"></span></h2>
+          <span class="toggle-arrow">&#9654;</span>
+        </div>
+        <div class="collapsible-body" id="fundraising-body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Campaign</th><th># Payments</th><th>Gross Amount</th><th>Category</th></tr></thead>
+              <tbody id="tx-fundraising-tbody"></tbody>
+            </table>
+            <div class="empty-state" id="tx-fundraising-empty" style="display:none;">No Fundraising activity in this range.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <div class="collapsible-header" id="donations-toggle">
+          <h2 style="font-family:Georgia,serif;color:var(--maroon);font-size:1rem;margin:0;">Donations & Contributions <span id="donations-count" style="color:var(--muted);font-weight:400;font-size:0.86rem;"></span></h2>
+          <span class="toggle-arrow">&#9654;</span>
+        </div>
+        <div class="collapsible-body" id="donations-body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Campaign</th><th># Payments</th><th>Gross Amount</th><th>Category</th></tr></thead>
+              <tbody id="tx-donations-tbody"></tbody>
+            </table>
+            <div class="empty-state" id="tx-donations-empty" style="display:none;">No donation activity in this range.</div>
+          </div>
+        </div>
+      </div>
+
       <div class="card" style="margin-top:16px;">
         <div class="collapsible-header" id="zeffy-refunds-toggle">
           <h2 style="font-family:Georgia,serif;color:var(--maroon);font-size:1rem;margin:0;">Zeffy refunds (from bank transactions) <span id="zeffy-refunds-count" style="color:var(--muted);font-weight:400;font-size:0.86rem;"></span></h2>
@@ -377,7 +428,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
     <div class="sub-tab-panel" id="subtab-tx-zelle">
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead>
+          <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Category</th><th>Invoice</th></tr></thead>
           <tbody id="tx-zelle-tbody"></tbody>
         </table>
         <div class="empty-state" id="tx-zelle-empty" style="display:none;">No Zelle transactions in this range.</div>
@@ -387,7 +438,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
     <div class="sub-tab-panel" id="subtab-tx-other">
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead>
+          <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Category</th><th>Invoice</th></tr></thead>
           <tbody id="tx-other-tbody"></tbody>
         </table>
         <div class="empty-state" id="tx-other-empty" style="display:none;">No other transactions in this range.</div>
@@ -512,10 +563,36 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 
   <!-- ── INVOICE MATCHING TAB ── -->
   <div class="tab-panel" id="tab-matching">
-    <div class="card" style="margin-bottom:20px;">
-      <p style="font-size:0.88rem;color:var(--muted);line-height:1.6;">Rental-campaign Zeffy payments that look like they belong to an open, unpaid booking. Confirming a match here links the payment to that booking and highlights it in All Bookings — it does <strong>not</strong> mark the booking paid by itself. That final step is still a manual Mark Paid click in All Bookings, on purpose.</p>
+    <div class="card" style="margin-bottom:16px;">
+      <p style="font-size:0.86rem;color:var(--muted);line-height:1.6;margin:0;">Every invoice actually sent, in one place — attach status, send status, paid status, and receipt status. Notes here are the exact same notes shown on the matched transaction in the Transactions tab — editing from either place updates the one record, not a separate copy.</p>
     </div>
-    <div id="matching-list"></div>
+    <div class="toolbar">
+      <select id="inv-range-preset" class="range-preset-select">
+        <option value="last3months" selected>Last 3 months</option>
+        <option value="thismonth">This month</option>
+        <option value="thisquarter">This quarter</option>
+        <option value="lastmonth">Last month</option>
+        <option value="lastquarter">Last quarter</option>
+        <option value="thisyear">This year</option>
+        <option value="custom">Custom</option>
+      </select>
+      <input type="date" id="inv-start-date" style="display:none;">
+      <input type="date" id="inv-end-date" style="display:none;">
+      <select id="inv-paid-filter">
+        <option value="">All</option>
+        <option value="paid">Paid only</option>
+        <option value="unpaid">Unpaid only</option>
+      </select>
+      <button type="button" class="btn-secondary" id="btn-load-invoices">Refresh</button>
+      <span class="count" id="inv-count"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Renter</th><th>Event</th><th>Invoice Sent</th><th>Amount</th><th>Status</th><th>Attached To</th><th>Notes</th><th>Invoice</th><th>Receipt</th></tr></thead>
+        <tbody id="inv-tbody"></tbody>
+      </table>
+      <div class="empty-state" id="inv-empty" style="display:none;">No invoices in this range.</div>
+    </div>
   </div>
 
   <!-- ── EXPENSE APPROVALS TAB ── -->
@@ -555,6 +632,19 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
     <div class="modal-footer">
       <button type="button" class="btn-secondary" id="btn-reject-expense">Reject selected</button>
       <button type="button" class="btn-primary" id="btn-approve-expense" style="margin-top:0;">Approve selected</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="invoice-picker-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:520px;width:95%;">
+    <div class="modal-header">
+      <h2>Attach to a booking</h2>
+      <button class="modal-close" id="btn-close-invoice-picker">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.86rem;color:var(--muted);margin-bottom:14px;">Bookings with a matching total — click one to attach.</p>
+      <div id="invoice-picker-list"></div>
     </div>
   </div>
 </div>
@@ -628,9 +718,9 @@ document.querySelectorAll('.tab-btn').forEach(function (btn) {
     document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
     btn.classList.add('active');
     document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-    if (btn.dataset.tab === 'dashboard') loadDashboard();
+    if (btn.dataset.tab === 'dashboard' && !window.__dashboardLoaded) loadDashboard();
     if (btn.dataset.tab === 'reconciliation' && !window.__reconLoaded) loadReconciliation();
-    if (btn.dataset.tab === 'matching' && !window.__matchingLoaded) loadUnmatchedRentalPayments();
+    if (btn.dataset.tab === 'matching' && !window.__matchingLoaded) loadInvoices();
     if (btn.dataset.tab === 'statements' && !window.__bsItemsLoaded) loadBalanceSheetItems();
     if (btn.dataset.tab === 'expenses') loadExpenseSubmissions();
   });
@@ -713,8 +803,8 @@ function defaultDateRange() {
 }
 (function initDateFields() {
   const range = computePresetRange('last3months');
-  ['tx-start-date', 'stmt-start-date', 'cf-start-date', 'dash-start-date'].forEach(function (id) { document.getElementById(id).value = range.start; });
-  ['tx-end-date', 'stmt-end-date', 'cf-end-date', 'dash-end-date'].forEach(function (id) { document.getElementById(id).value = range.end; });
+  ['tx-start-date', 'stmt-start-date', 'cf-start-date', 'dash-start-date', 'inv-start-date'].forEach(function (id) { document.getElementById(id).value = range.start; });
+  ['tx-end-date', 'stmt-end-date', 'cf-end-date', 'dash-end-date', 'inv-end-date'].forEach(function (id) { document.getElementById(id).value = range.end; });
 })();
 
 // ── Dashboard ──
@@ -768,6 +858,7 @@ setupRangePreset('stmt-range-preset', 'stmt-start-date', 'stmt-end-date', functi
 setupRangePreset('cf-range-preset', 'cf-start-date', 'cf-end-date', function () { document.getElementById('btn-load-cash-flow').click(); });
 document.getElementById('btn-load-dashboard').addEventListener('click', loadDashboard);
 async function loadDashboard() {
+  window.__dashboardLoaded = true;
   const start = document.getElementById('dash-start-date').value;
   const end = document.getElementById('dash-end-date').value;
   document.getElementById('dash-range-label').textContent = formatDate(start) + ' \u2013 ' + formatDate(end);
@@ -778,6 +869,7 @@ async function loadDashboard() {
   try {
     const res = await authedFetch(API_BASE + '/finance/dashboard?startDate=' + start + '&endDate=' + end);
     const data = await res.json();
+    if (!res.ok) throw new Error((data.errors || [data.error || ('Server returned ' + res.status)]).join(' '));
     renderBalanceGauge(data);
     renderIncomeChart(data.incomeBreakdown);
     renderFutureRevenue(data);
@@ -968,9 +1060,12 @@ async function showFutureBookingsDetail() {
   }
 }
 
-document.getElementById('zeffy-refunds-toggle').addEventListener('click', function () {
-  this.classList.toggle('is-open');
-  document.getElementById('zeffy-refunds-body').classList.toggle('is-open');
+['rental-toggle', 'fundraising-toggle', 'donations-toggle', 'zeffy-refunds-toggle'].forEach(function (toggleId) {
+  const bodyId = toggleId.replace('-toggle', '-body');
+  document.getElementById(toggleId).addEventListener('click', function () {
+    this.classList.toggle('is-open');
+    document.getElementById(bodyId).classList.toggle('is-open');
+  });
 });
 async function loadTransactions() {
   const start = document.getElementById('tx-start-date').value;
@@ -979,27 +1074,40 @@ async function loadTransactions() {
   const params = new URLSearchParams({ startDate: start, endDate: end });
   if (status) params.set('status', status);
 
-  ['tx-zeffy', 'tx-zeffy-refunds', 'tx-zelle', 'tx-other'].forEach(function (id) {
-    document.getElementById(id + '-tbody').innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px;">Loading…</td></tr>';
+  ['tx-rental', 'tx-fundraising', 'tx-donations', 'tx-zeffy-refunds', 'tx-zelle', 'tx-other'].forEach(function (id) {
+    document.getElementById(id + '-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px;">Loading…</td></tr>';
   });
   try {
     const res = await authedFetch(API_BASE + '/finance/transactions?' + params.toString());
     const data = await res.json();
-    TRANSACTIONS = [].concat(data.zeffy, data.zelle, data.zeffyRefunds, data.other);
-    const totalCount = data.zeffy.length + data.zelle.length + data.zeffyRefunds.length + data.other.length;
+    if (!res.ok) throw new Error((data.errors || [data.error || ('Server returned ' + res.status)]).join(' '));
+    TRANSACTIONS = [].concat(data.facilityRental, data.donations, data.fundraising, data.zelle, data.zeffyRefunds, data.other);
+    const totalCount = TRANSACTIONS.length;
     document.getElementById('tx-count').textContent = totalCount + ' entries';
 
-    renderGroup('tx-zeffy', data.zeffy, renderZeffyCampaignRow, 'No Zeffy campaign activity in this range.');
-    renderGroup('tx-zeffy-refunds', data.zeffyRefunds, renderTxRow, 'No Zeffy refunds in this range.');
+    renderGroup('tx-rental', data.facilityRental, renderRentalLineRow, 'No Facility Rental activity in this range.');
+    document.getElementById('rental-count').textContent = data.facilityRental.length ? '(' + data.facilityRental.length + ')' : '(none)';
+    renderGroup('tx-fundraising', data.fundraising, renderZeffyCampaignRow, 'No Fundraising activity in this range.');
+    document.getElementById('fundraising-count').textContent = data.fundraising.length ? '(' + data.fundraising.length + ')' : '(none)';
+    renderGroup('tx-donations', data.donations, renderZeffyCampaignRow, 'No donation activity in this range.');
+    document.getElementById('donations-count').textContent = data.donations.length ? '(' + data.donations.length + ')' : '(none)';
+    renderGroup('tx-zeffy-refunds', data.zeffyRefunds, function (t) { return renderTxRow(t, false); }, 'No Zeffy refunds in this range.');
     document.getElementById('zeffy-refunds-count').textContent = data.zeffyRefunds.length ? '(' + data.zeffyRefunds.length + ')' : '(none)';
     renderGroup('tx-zelle', data.zelle, renderTxRow, 'No Zelle transactions in this range.');
     renderGroup('tx-other', data.other, renderTxRow, 'No other transactions in this range.');
     populateCategorySelects();
   } catch (err) {
-    ['tx-zeffy', 'tx-zeffy-refunds', 'tx-zelle', 'tx-other'].forEach(function (id) {
-      document.getElementById(id + '-tbody').innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--red);padding:24px;">Could not load: ' + escHtml(err.message) + '</td></tr>';
+    ['tx-rental', 'tx-fundraising', 'tx-donations', 'tx-zeffy-refunds', 'tx-zelle', 'tx-other'].forEach(function (id) {
+      document.getElementById(id + '-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--red);padding:24px;">Could not load: ' + escHtml(err.message) + '</td></tr>';
     });
   }
+}
+function invoiceIconHtml(t) {
+  const m = t.matchedBooking;
+  let cls = '', icon = '\u2795', title = 'Attach to an invoice';
+  if (m && m.invoiceSentAt) { cls = 'sent'; icon = '\ud83e\uddfe'; title = 'Invoice sent to ' + escHtml(m.renterName) + ' on ' + formatDate(m.invoiceSentAt) + ' — click for details'; }
+  else if (m) { cls = 'attached'; icon = '\ud83e\uddfe'; title = 'Attached to ' + escHtml(m.renterName) + '\'s booking — click to send the invoice'; }
+  return '<button type="button" class="btn-invoice ' + cls + '" title="' + title + '" data-invoice-source="' + t.source + '" data-invoice-key="' + t.sourceKey + '" data-invoice-amount="' + (t.amount !== undefined ? t.amount : t.total) + '" data-invoice-date="' + (t.date || '') + '">' + icon + '</button>';
 }
 function renderGroup(prefix, items, rowFn, emptyMessage) {
   const tbody = document.getElementById(prefix + '-tbody');
@@ -1008,7 +1116,7 @@ function renderGroup(prefix, items, rowFn, emptyMessage) {
   emptyState.style.display = 'none';
   tbody.innerHTML = items.map(rowFn).join('');
 }
-function renderTxRow(t) {
+function renderTxRow(t, includeInvoiceIcon) {
   const rowId = t.source + '|' + t.sourceKey;
   const noteBtn = '<button type="button" class="btn-note" title="' + (t.notes ? 'Note: ' + escHtml(t.notes) : 'Add a note') + '" data-edit-note-source="' + t.source + '" data-edit-note-key="' + t.sourceKey + '">' + (t.notes ? '📝' : '➕') + '</button>';
   return '<tr>' +
@@ -1016,6 +1124,18 @@ function renderTxRow(t) {
     '<td>' + escHtml(t.description) + '</td>' +
     '<td class="amount">' + money(t.amount) + '</td>' +
     '<td><select class="cat-select' + (t.categoryId ? '' : ' uncategorized') + '" data-row="' + rowId + '" data-assign-category-source="' + t.source + '" data-assign-category-key="' + t.sourceKey + '" data-assign-category-desc="' + escHtml(t.description) + '"><option value="">Uncategorized</option></select> ' + noteBtn + '</td>' +
+    (includeInvoiceIcon === false ? '' : '<td>' + invoiceIconHtml(t) + '</td>') +
+  '</tr>';
+}
+function renderRentalLineRow(t) {
+  const rowId = t.source + '|' + t.sourceKey;
+  const noteBtn = '<button type="button" class="btn-note" title="' + (t.notes ? 'Note: ' + escHtml(t.notes) : 'Add a note') + '" data-edit-note-source="' + t.source + '" data-edit-note-key="' + t.sourceKey + '">' + (t.notes ? '📝' : '➕') + '</button>';
+  return '<tr>' +
+    '<td>' + formatDate(t.date) + '</td>' +
+    '<td>' + escHtml(t.description) + '</td>' +
+    '<td class="amount">' + money(t.amount) + '</td>' +
+    '<td><select class="cat-select' + (t.categoryId ? '' : ' uncategorized') + '" data-row="' + rowId + '" data-assign-category-source="' + t.source + '" data-assign-category-key="' + t.sourceKey + '" data-assign-category-desc="' + escHtml(t.description) + '"><option value="">Uncategorized</option></select> ' + noteBtn + '</td>' +
+    '<td>' + invoiceIconHtml(t) + '</td>' +
   '</tr>';
 }
 function renderZeffyCampaignRow(t) {
@@ -1046,19 +1166,37 @@ function populateCategorySelects() {
     sel.classList.toggle('uncategorized', !resolvedCatId);
   });
 }
-async function assignCategory(source, sourceKey, categoryId, description) {
+async function assignCategory(source, sourceKey, categoryId, description, selectEl) {
   if (!categoryId) return;
+  const flash = getOrCreateSaveFlash(selectEl);
+  if (flash) { flash.className = 'category-save-flash show'; flash.style.color = 'var(--muted)'; flash.textContent = 'Saving…'; }
   try {
     const tx = TRANSACTIONS.find(function (t) { return t.source === source && t.sourceKey === sourceKey; });
-    await authedFetch(API_BASE + '/finance/categorize', {
+    const res = await authedFetch(API_BASE + '/finance/categorize', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ source: source, sourceKey: sourceKey, categoryId: categoryId, description: description, notes: tx ? tx.notes : null })
     });
+    if (!res.ok) throw new Error('Server returned ' + res.status);
     if (tx) tx.categoryId = categoryId;
     populateCategorySelects();
+    if (flash) {
+      flash.style.color = 'var(--green)'; flash.textContent = '\u2713 Saved';
+      setTimeout(function () { flash.classList.remove('show'); }, 1800);
+    }
   } catch (err) {
-    alert('Could not save category: ' + err.message);
+    if (flash) { flash.style.color = 'var(--red)'; flash.textContent = '\u26a0 Not saved — try again'; }
+    else alert('Could not save category: ' + err.message);
   }
+}
+function getOrCreateSaveFlash(selectEl) {
+  if (!selectEl || !selectEl.parentNode) return null;
+  let flash = selectEl.nextElementSibling;
+  if (!flash || !flash.classList || !flash.classList.contains('category-save-flash')) {
+    flash = document.createElement('span');
+    flash.className = 'category-save-flash';
+    selectEl.insertAdjacentElement('afterend', flash);
+  }
+  return flash;
 }
 async function editTransactionNote(source, sourceKey) {
   const tx = TRANSACTIONS.find(function (t) { return t.source === source && t.sourceKey === sourceKey; });
@@ -1082,11 +1220,82 @@ document.addEventListener('click', function (e) {
   if (!btn) return;
   editTransactionNote(btn.dataset.editNoteSource, btn.dataset.editNoteKey);
 });
-['tx-zeffy-tbody', 'tx-zeffy-refunds-tbody', 'tx-zelle-tbody', 'tx-other-tbody'].forEach(function (id) {
+
+// ── Invoice attach / send ──
+let invoicePickerContext = null;
+document.addEventListener('click', function (e) {
+  const btn = e.target.closest('[data-invoice-source]');
+  if (!btn) return;
+  handleInvoiceIconClick(btn.dataset.invoiceSource, btn.dataset.invoiceKey, Number(btn.dataset.invoiceAmount), btn.dataset.invoiceDate);
+});
+async function handleInvoiceIconClick(source, sourceKey, amount, date) {
+  const tx = TRANSACTIONS.find(function (t) { return t.source === source && t.sourceKey === sourceKey; });
+  const matched = tx ? tx.matchedBooking : null;
+  if (!matched) {
+    openInvoicePicker(source, sourceKey, amount, date);
+    return;
+  }
+  if (matched.invoiceSentAt) {
+    alert('Invoice already sent to ' + matched.renterName + ' on ' + formatDate(matched.invoiceSentAt) + (matched.receiptSentAt ? '\nReceipt sent ' + formatDate(matched.receiptSentAt) + '.' : '\nReceipt not yet sent.'));
+    return;
+  }
+  if (!confirm('Send the invoice to ' + matched.renterName + ' now?')) return;
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(matched.bookingId) + '/send-invoice', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) { alert('Could not send invoice: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+    await loadTransactions();
+  } catch (err) {
+    alert('Could not reach the server: ' + err.message);
+  }
+}
+async function openInvoicePicker(source, sourceKey, amount, date) {
+  invoicePickerContext = { source: source, sourceKey: sourceKey, amount: amount, date: date };
+  const list = document.getElementById('invoice-picker-list');
+  list.innerHTML = '<div class="empty-state">Loading…</div>';
+  document.getElementById('invoice-picker-overlay').style.display = 'flex';
+  try {
+    const res = await authedFetch(API_BASE + '/finance/invoice-candidates?amount=' + amount);
+    const candidates = await res.json();
+    if (!candidates.length) { list.innerHTML = '<div class="empty-state">No bookings found with a matching total ($' + amount.toFixed(2) + ').</div>'; return; }
+    list.innerHTML = candidates.map(function (c) {
+      return '<div class="exp-line-item" data-pick-booking="' + c.bookingId + '">' +
+        '<div class="exp-top-row"><span>' + escHtml(c.renterName) + '</span><span>' + money(c.amount) + '</span></div>' +
+        '<div class="exp-date">' + formatDate(c.eventDate) + ' \u00b7 ' + escHtml(c.paymentStatus) + (c.invoiceSentAt ? ' \u00b7 invoice already sent' : '') + '</div>' +
+      '</div>';
+    }).join('');
+  } catch (err) {
+    list.innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
+  }
+}
+document.getElementById('btn-close-invoice-picker').addEventListener('click', function () {
+  document.getElementById('invoice-picker-overlay').style.display = 'none';
+});
+document.getElementById('invoice-picker-overlay').addEventListener('click', function (e) {
+  if (e.target === this) this.style.display = 'none';
+});
+document.getElementById('invoice-picker-list').addEventListener('click', async function (e) {
+  const row = e.target.closest('[data-pick-booking]');
+  if (!row || !invoicePickerContext) return;
+  try {
+    const res = await authedFetch(API_BASE + '/finance/attach-invoice', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source: invoicePickerContext.source, sourceKey: invoicePickerContext.sourceKey, bookingId: row.dataset.pickBooking, amount: invoicePickerContext.amount, date: invoicePickerContext.date })
+    });
+    const data = await res.json();
+    if (!res.ok) { alert('Could not attach: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+    document.getElementById('invoice-picker-overlay').style.display = 'none';
+    await loadTransactions();
+  } catch (err) {
+    alert('Could not reach the server: ' + err.message);
+  }
+});
+
+['tx-rental-tbody', 'tx-fundraising-tbody', 'tx-donations-tbody', 'tx-zeffy-refunds-tbody', 'tx-zelle-tbody', 'tx-other-tbody'].forEach(function (id) {
   document.getElementById(id).addEventListener('change', function (e) {
     const sel = e.target.closest('[data-assign-category-source]');
     if (!sel) return;
-    assignCategory(sel.dataset.assignCategorySource, sel.dataset.assignCategoryKey, sel.value, sel.dataset.assignCategoryDesc);
+    assignCategory(sel.dataset.assignCategorySource, sel.dataset.assignCategoryKey, sel.value, sel.dataset.assignCategoryDesc, sel);
   });
 });
 document.getElementById('btn-load-tx').addEventListener('click', loadTransactions);
@@ -1186,49 +1395,91 @@ async function loadReconciliation() {
 }
 
 // ── Invoice Matching ──
-async function loadUnmatchedRentalPayments() {
+setupRangePreset('inv-range-preset', 'inv-start-date', 'inv-end-date', loadInvoices);
+document.getElementById('inv-paid-filter').addEventListener('change', loadInvoices);
+document.getElementById('btn-load-invoices').addEventListener('click', loadInvoices);
+let INVOICES = [];
+async function loadInvoices() {
   window.__matchingLoaded = true;
-  const list = document.getElementById('matching-list');
-  list.innerHTML = '<div class="empty-state">Loading…</div>';
+  const start = document.getElementById('inv-start-date').value;
+  const end = document.getElementById('inv-end-date').value;
+  const status = document.getElementById('inv-paid-filter').value;
+  const tbody = document.getElementById('inv-tbody');
+  const emptyState = document.getElementById('inv-empty');
+  tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px;">Loading…</td></tr>';
   try {
-    const res = await authedFetch(API_BASE + '/finance/unmatched-rental-payments');
-    const payments = await res.json();
-    if (!payments.length) { list.innerHTML = '<div class="empty-state">No unmatched rental payments with a plausible booking match right now.</div>'; return; }
-    list.innerHTML = payments.map(function (p) {
-      const candidatesHtml = p.candidates.map(function (c) {
-        return '<div class="recon-candidate match" style="cursor:pointer;" data-confirm-match-payment="' + p.paymentId + '" data-confirm-match-booking="' + c.bookingId + '" data-confirm-match-amount="' + p.amount + '" data-confirm-match-date="' + p.date + '">' +
-          '<span>' + escHtml(c.renterName) + ' — ' + formatDate(c.eventDate) + ' (' + escHtml(c.bookingId) + ')</span>' +
-          '<span class="amount">' + money(c.amount) + ' — click to confirm</span>' +
-        '</div>';
-      }).join('');
-      return '<div class="recon-week-card">' +
-        '<div class="recon-week-header"><span class="week-label">' + escHtml(p.donor) + ' — ' + formatDate(p.date) + '</span><span class="expected">' + money(p.amount) + '</span></div>' +
-        candidatesHtml +
-      '</div>';
-    }).join('');
+    const params = new URLSearchParams({ startDate: start, endDate: end });
+    if (status) params.set('status', status);
+    const res = await authedFetch(API_BASE + '/finance/invoices?' + params.toString());
+    INVOICES = await res.json();
+    document.getElementById('inv-count').textContent = INVOICES.length + ' invoice' + (INVOICES.length === 1 ? '' : 's');
+    if (!INVOICES.length) { tbody.innerHTML = ''; emptyState.style.display = 'block'; return; }
+    emptyState.style.display = 'none';
+    tbody.innerHTML = INVOICES.map(renderInvoiceRow).join('');
   } catch (err) {
-    list.innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--red);padding:24px;">Could not load: ' + escHtml(err.message) + '</td></tr>';
   }
 }
-async function confirmFinanceMatch(paymentId, bookingId, amount, date) {
-  if (!confirm('Link this Zeffy payment to booking ' + bookingId + '? This highlights it in All Bookings — you still confirm Mark Paid there.')) return;
-  try {
-    const res = await authedFetch(API_BASE + '/finance/confirm-match', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bookingId: bookingId, paymentId: paymentId, amount: amount, date: date })
-    });
-    const data = await res.json();
-    if (!res.ok) { alert('Could not confirm: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
-    await loadUnmatchedRentalPayments();
-  } catch (err) {
-    alert('Could not reach the server: ' + err.message);
-  }
+function renderInvoiceRow(inv) {
+  const attachedTo = inv.matchSource ? escHtml(inv.matchSource) + ' transaction' : '<span style="color:var(--muted);">Not attached</span>';
+  const noteBtn = '<button type="button" class="btn-note" title="' + (inv.notes ? 'Note: ' + escHtml(inv.notes) : (inv.matchSource ? 'Add a note' : 'Attach a transaction first to add notes')) + '" data-invoice-note-booking="' + inv.bookingId + '"' + (inv.matchSource ? '' : ' disabled') + '>' + (inv.notes ? '📝' : '➕') + '</button>';
+  const invoiceIcon = '<button type="button" class="btn-invoice sent" title="Invoice sent ' + formatDate(inv.invoiceSentAt) + '">\ud83e\uddfe</button>';
+  const receiptIcon = '<button type="button" class="btn-receipt' + (inv.receiptSentAt ? ' sent' : '') + '"' + (inv.paymentStatus === 'paid' ? '' : ' disabled title="Mark the booking paid first (in All Bookings) before sending a receipt"') + ' data-send-receipt-booking="' + inv.bookingId + '">' + (inv.receiptSentAt ? '\ud83e\uddfe' : (inv.paymentStatus === 'paid' ? '\u2795' : '\u2014')) + '</button>';
+  return '<tr>' +
+    '<td>' + escHtml(inv.renterName) + '</td>' +
+    '<td>' + escHtml(inv.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(inv.eventDate) + '</div></td>' +
+    '<td>' + formatDate(inv.invoiceSentAt) + '</td>' +
+    '<td class="amount">' + money(inv.amount) + '</td>' +
+    '<td><span class="source-tag" style="' + (inv.paymentStatus === 'paid' ? 'color:var(--green);' : '') + '">' + escHtml(inv.paymentStatus) + '</span></td>' +
+    '<td style="font-size:0.82rem;">' + attachedTo + '</td>' +
+    '<td>' + noteBtn + '</td>' +
+    '<td>' + invoiceIcon + '</td>' +
+    '<td>' + receiptIcon + '</td>' +
+  '</tr>';
 }
-document.getElementById('matching-list').addEventListener('click', function (e) {
-  const el = e.target.closest('[data-confirm-match-payment]');
-  if (!el) return;
-  confirmFinanceMatch(el.dataset.confirmMatchPayment, el.dataset.confirmMatchBooking, Number(el.dataset.confirmMatchAmount), el.dataset.confirmMatchDate);
+document.getElementById('inv-tbody').addEventListener('click', async function (e) {
+  const noteBtn = e.target.closest('[data-invoice-note-booking]');
+  if (noteBtn && !noteBtn.disabled) {
+    const inv = INVOICES.find(function (i) { return i.bookingId === noteBtn.dataset.invoiceNoteBooking; });
+    if (!inv) return;
+    const note = prompt('Note for this invoice (shared with the attached transaction):', inv.notes || '');
+    if (note === null) return;
+    try {
+      await authedFetch(API_BASE + '/finance/categorize', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source: inv.matchSource, sourceKey: inv.matchKey, categoryId: await getInvoiceMatchedCategoryId(inv), notes: note })
+      });
+      await loadInvoices();
+    } catch (err) {
+      alert('Could not save note: ' + err.message);
+    }
+    return;
+  }
+  const receiptBtn = e.target.closest('[data-send-receipt-booking]');
+  if (receiptBtn && !receiptBtn.disabled) {
+    const inv = INVOICES.find(function (i) { return i.bookingId === receiptBtn.dataset.sendReceiptBooking; });
+    if (!inv || inv.receiptSentAt) return;
+    if (!confirm('Send the receipt to ' + inv.renterName + ' now?')) return;
+    try {
+      const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(inv.bookingId) + '/send-receipt', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) { alert('Could not send receipt: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+      await loadInvoices();
+    } catch (err) {
+      alert('Could not reach the server: ' + err.message);
+    }
+  }
 });
+// Notes are stored on the same categorization record a transaction's own
+// category lives in — updating notes alone still needs that category
+// passed through, so this looks up what it currently is first.
+async function getInvoiceMatchedCategoryId(inv) {
+  const res = await authedFetch(API_BASE + '/finance/transactions?startDate=2000-01-01&endDate=2100-01-01');
+  const data = await res.json();
+  const all = [].concat(data.facilityRental, data.donations, data.fundraising, data.zelle, data.zeffyRefunds, data.other);
+  const tx = all.find(function (t) { return t.source === inv.matchSource && t.sourceKey === inv.matchKey; });
+  return tx ? tx.categoryId : null;
+}
 
 // ── Balance Sheet ──
 document.getElementById('bs-as-of-date').value = new Date().toISOString().slice(0, 10);

@@ -286,6 +286,7 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
 .gate-card a{color:var(--saffron-dark);}
 .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.85); text-decoration: none; margin-bottom: 14px; }
 .back-link:hover { color: #fff; text-decoration: underline; }
+.nav-badge { display: inline-block; background: #b3382c; color: #fff; font-size: 0.68rem; font-weight: 700; padding: 1px 6px; border-radius: 999px; margin-left: 4px; vertical-align: middle; }
 </style>
 </head>
 <body>
@@ -315,9 +316,9 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
     <ul>
       <li><a href="dashboard">Dashboard</a></li>
       <li><a href="new-booking">New Booking</a></li>
-      <li><a href="all-bookings" class="active">All Bookings</a></li>
+      <li><a href="all-bookings" class="active" id="nav-all-bookings">All Bookings</a></li>
       <li><a href="rooms-rates">Rooms &amp; Rates</a></li>
-      <li><a href="add-renter">Add A Renter</a></li>
+      <li><a href="add-renter" id="nav-add-renter">Add A Renter</a></li>
     </ul>
   </div>
 </div>
@@ -495,6 +496,20 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
       <button class="modal-close" id="btn-close-receipt-action">&times;</button>
     </div>
     <div class="modal-body" id="receipt-action-body" style="display:flex;flex-direction:column;gap:10px;"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="booking-review-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:600px;">
+    <div class="modal-header">
+      <h2>Review booking request</h2>
+      <button class="modal-close" id="btn-close-booking-review">&times;</button>
+    </div>
+    <div class="modal-body" id="booking-review-body"></div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-booking-review-reject">Reject</button>
+      <button type="button" class="btn-primary" id="btn-booking-review-approve" style="margin-top:0;">Approve</button>
+    </div>
   </div>
 </div>
 
@@ -831,8 +846,7 @@ function renderBookingRow(b, isSubRow) {
   if (b.payment_status === 'requested' || b.payment_status === 'rejected') {
     const actions = b.payment_status === 'requested'
       ? [
-          { label: 'Approve request', fn: () => approveRequestAction(b.booking_id) },
-          { label: 'Reject request', danger: true, fn: () => rejectRequestAction(b.booking_id) },
+          { label: 'Review request', fn: () => openBookingReviewModal(b.booking_id) },
           { label: 'Download invoice', fn: () => downloadDocument(b.booking_id, 'invoice') }
         ]
       : [];
@@ -876,8 +890,7 @@ function renderSeriesSummaryRow(item) {
   if (item.payment_status === 'requested' || item.payment_status === 'rejected') {
     const actions = item.payment_status === 'requested'
       ? [
-          { label: 'Approve request (all dates)', fn: () => approveRequestAction(item.occurrences[0].booking_id) },
-          { label: 'Reject request (all dates)', danger: true, fn: () => rejectRequestAction(item.occurrences[0].booking_id) },
+          { label: 'Review request (all dates)', fn: () => openBookingReviewModal(item.occurrences[0].booking_id) },
           { label: 'Download invoice', fn: () => downloadDocument(item.occurrences[0].booking_id, 'invoice') }
         ]
       : [];
@@ -1123,15 +1136,19 @@ async function sendReceiptAction(bookingId) {
   }
 }
 
-async function approveRequestAction(bookingId) {
-  if (!confirm('Approve this booking request? This syncs it to the calendar and moves it into the normal booking flow.')) return;
+async function approveRequestAction(bookingId, discount) {
   try {
-    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/approve-request', { method: 'POST' });
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/approve-request', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(discount || {})
+    });
     const data = await res.json();
-    if (!res.ok) { alert('Could not approve: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+    if (!res.ok) { alert('Could not approve: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return false; }
     await loadBookings();
+    return true;
   } catch (err) {
     alert('Could not reach the booking system: ' + err.message);
+    return false;
   }
 }
 
@@ -1150,6 +1167,106 @@ async function rejectRequestAction(bookingId) {
     alert('Could not reach the booking system: ' + err.message);
   }
 }
+
+// ---- Booking request review modal: full details, conflict check,
+// discretionary discount, then Approve/Reject ----
+let reviewingBookingId = null;
+async function openBookingReviewModal(bookingId) {
+  const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
+  if (!b) return;
+  reviewingBookingId = bookingId;
+  const body = document.getElementById('booking-review-body');
+  body.innerHTML = '<div class="empty-state">Loading…</div>';
+  document.getElementById('booking-review-overlay').style.display = 'flex';
+
+  const dateStr = new Date(b.event_date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  const timeStr = formatTimeRange(b.start_time, b.end_time);
+  let html = '<div class="field-row">';
+  html += '<div class="field"><label>Renter</label><div>' + escHtml(b.renter_name) + '</div></div>';
+  html += '<div class="field"><label>Email</label><div>' + escHtml(b.renter_email || '\u2014') + '</div></div>';
+  html += '</div><div class="field-row">';
+  html += '<div class="field"><label>Event</label><div>' + escHtml(b.event_name || '\u2014') + '</div></div>';
+  html += '<div class="field"><label>Organization</label><div>' + escHtml(b.organization_name || '\u2014') + '</div></div>';
+  html += '</div>';
+  html += '<div class="field"><label>Rooms</label><div>' + escHtml((b.rooms || []).join(', ')) + '</div></div>';
+  html += '<div class="field"><label>Date &amp; time</label><div>' + dateStr + ' \u00b7 ' + timeStr + (b.recurrence_summary ? ' (' + escHtml(b.recurrence_summary) + ')' : '') + '</div></div>';
+  html += '<div class="field"><label>Requested total</label><div style="font-weight:700;">$' + Number(b.final_total).toFixed(2) + '</div></div>';
+  if (b.notes) {
+    html += '<div class="field"><label>Notes from request</label><div>' + b.notes.split(' | ').map(function (l) { return '<div>' + escHtml(l) + '</div>'; }).join('') + '</div></div>';
+  }
+  html += '<div class="field" id="review-conflicts-field"><label>Conflicts</label><div id="review-conflicts">Checking…</div></div>';
+  html += '<div class="field" style="margin-top:8px;"><label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="rb-discount-enabled"> Apply a one-time discretionary discount</label></div>';
+  html += '<div class="field-row" id="rb-discount-fields" style="display:none;">';
+  html += '<div class="field"><label>Type</label><select id="rb-discount-type"><option value="percent">Percent off</option><option value="flat">Flat dollar amount off</option></select></div>';
+  html += '<div class="field"><label>Value</label><input type="number" id="rb-discount-value" step="0.01" min="0"></div>';
+  html += '</div><div class="field" id="rb-discount-reason-field" style="display:none;"><label>Reason</label><input type="text" id="rb-discount-reason" placeholder="Required if applying a discount"></div>';
+  html += '<div class="result-box" id="booking-review-result" style="display:none;"></div>';
+  body.innerHTML = html;
+
+  document.getElementById('rb-discount-enabled').addEventListener('change', function () {
+    var show = this.checked;
+    document.getElementById('rb-discount-fields').style.display = show ? 'grid' : 'none';
+    document.getElementById('rb-discount-reason-field').style.display = show ? 'flex' : 'none';
+  });
+
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/conflicts');
+    const conflicts = await res.json();
+    const conflictsEl = document.getElementById('review-conflicts');
+    if (!res.ok) { conflictsEl.textContent = 'Could not check for conflicts.'; return; }
+    if (!conflicts.length) {
+      conflictsEl.innerHTML = '<span style="color:var(--green);font-weight:700;">\u2713 No conflicts with existing bookings.</span>';
+    } else {
+      document.getElementById('review-conflicts-field').style.background = 'var(--red-bg,#fbe9e7)';
+      document.getElementById('review-conflicts-field').style.padding = '10px 12px';
+      document.getElementById('review-conflicts-field').style.borderRadius = '10px';
+      conflictsEl.innerHTML = '<span style="color:var(--red,#b3382c);font-weight:700;">\u26a0 Conflicts with ' + conflicts.length + ' existing booking(s):</span>' +
+        conflicts.map(function (c) {
+          return '<div style="font-size:0.84rem;margin-top:4px;">' + escHtml(c.renterName) + ' \u2014 ' + escHtml((c.rooms || []).join(', ')) + ' \u00b7 ' + escHtml(c.paymentStatus) + '</div>';
+        }).join('');
+    }
+  } catch (err) {
+    document.getElementById('review-conflicts').textContent = 'Could not check for conflicts: ' + err.message;
+  }
+}
+function formatTimeRange(start, end) {
+  var s = new Date(start), e = new Date(end);
+  return s.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + '\u2013' + e.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+document.getElementById('btn-close-booking-review').addEventListener('click', function () {
+  document.getElementById('booking-review-overlay').style.display = 'none';
+});
+document.getElementById('booking-review-overlay').addEventListener('click', function (e) {
+  if (e.target === this) this.style.display = 'none';
+});
+document.getElementById('btn-booking-review-approve').addEventListener('click', async function () {
+  if (!reviewingBookingId) return;
+  const discountEnabled = document.getElementById('rb-discount-enabled').checked;
+  const resultBox = document.getElementById('booking-review-result');
+  let discount = null;
+  if (discountEnabled) {
+    const reason = document.getElementById('rb-discount-reason').value.trim();
+    if (!reason) {
+      resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+      resultBox.textContent = 'A reason is required for the discount.'; return;
+    }
+    discount = {
+      discountType: document.getElementById('rb-discount-type').value,
+      discountValue: parseFloat(document.getElementById('rb-discount-value').value) || 0,
+      discountReason: reason
+    };
+  }
+  const btn = this;
+  btn.disabled = true; btn.textContent = 'Approving…';
+  const ok = await approveRequestAction(reviewingBookingId, discount);
+  btn.disabled = false; btn.textContent = 'Approve';
+  if (ok) document.getElementById('booking-review-overlay').style.display = 'none';
+});
+document.getElementById('btn-booking-review-reject').addEventListener('click', async function () {
+  if (!reviewingBookingId) return;
+  document.getElementById('booking-review-overlay').style.display = 'none';
+  await rejectRequestAction(reviewingBookingId);
+});
 
 async function sendInvoiceAction(bookingId) {
   const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
@@ -1858,7 +1975,25 @@ function fixHeaderLinksForSubfolder(headerEl) {
 }
 loadPartial('site-header', '/header.html');
 loadPartial('site-footer', '/footer.html');
+async function loadPendingCounts() {
+  try {
+    var res = await authedFetch(API_BASE + '/pending-counts');
+    var data = await res.json();
+    if (data.pendingRenters > 0) {
+      var renterLink = document.getElementById('nav-add-renter');
+      if (renterLink && !renterLink.querySelector('.nav-badge')) renterLink.insertAdjacentHTML('beforeend', ' <span class="nav-badge">' + data.pendingRenters + '</span>');
+    }
+    if (data.pendingBookings > 0) {
+      var bookingLink = document.getElementById('nav-all-bookings');
+      if (bookingLink && !bookingLink.querySelector('.nav-badge')) bookingLink.insertAdjacentHTML('beforeend', ' <span class="nav-badge">' + data.pendingBookings + '</span>');
+    }
+  } catch (err) {
+    // Silent -- badges are a nice-to-have, not worth surfacing an error for.
+  }
+}
+
 </script>
+
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
@@ -1903,6 +2038,7 @@ onAuthStateChanged(auth, function(user) {
     }
     document.getElementById('gate').style.display = 'none';
     document.getElementById('app').style.display = 'block';
+    loadPendingCounts();
     var entryDisplay = document.getElementById('f-entered-by-display');
     if (entryDisplay) entryDisplay.textContent = 'Signed in as ' + email;
     loadBookings();

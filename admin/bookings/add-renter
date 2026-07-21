@@ -145,11 +145,11 @@ tbody tr:last-child td { border-bottom: none; }
 <div class="module-nav">
   <div class="container">
     <ul>
+      <li><a href="dashboard">Dashboard</a></li>
       <li><a href="new-booking">New Booking</a></li>
       <li><a href="all-bookings">All Bookings</a></li>
       <li><a href="rooms-rates">Rooms &amp; Rates</a></li>
       <li><a href="add-renter" class="active">Add A Renter</a></li>
-      <li><a href="dashboard">Dashboard</a></li>
     </ul>
   </div>
 </div>

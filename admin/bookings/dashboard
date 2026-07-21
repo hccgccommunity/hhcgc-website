@@ -121,6 +121,12 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 </div>
 
 <div class="container" style="padding:24px 0 60px;">
+  <div class="card" style="margin-bottom:20px;">
+    <h2 class="section-title">Revenue by month</h2>
+    <p class="card-sub" style="margin:-8px 0 14px;">Always the trailing 12 months, this month, and the next 6 — paid and unpaid, not affected by the filters below.</p>
+    <div id="revenue-by-month"></div>
+  </div>
+
   <div class="toolbar">
     <select id="dash-range-preset">
       <option value="last3months" selected>Last 3 months</option>
@@ -146,18 +152,14 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 
   <div class="grid-2">
     <div class="card">
-      <h2 class="section-title" id="revenue-by-room-title">Revenue by room</h2>
+      <h2 class="section-title">Revenue by room</h2>
+      <p class="card-sub" style="margin:-8px 0 14px;">Always facility rental, regardless of the filter above.</p>
       <div id="revenue-by-room"></div>
     </div>
     <div class="card">
-      <h2 class="section-title">Top renters</h2>
-      <div id="top-renters"></div>
+      <h2 class="section-title" id="second-chart-title">Top renters</h2>
+      <div id="second-chart"></div>
     </div>
-  </div>
-
-  <div class="card">
-    <h2 class="section-title">Revenue by month</h2>
-    <div id="revenue-by-month"></div>
   </div>
 </div>
 
@@ -215,37 +217,44 @@ async function loadDashboard() {
     var res = await authedFetch(API_BASE + '/bookings-dashboard?startDate=' + start + '&endDate=' + end + '&source=' + source);
     var data = await res.json();
     if (!res.ok) throw new Error((data.errors || [data.error || ('Server returned ' + res.status)]).join(' '));
-    renderStats(data);
-    var roomTitle = document.getElementById('revenue-by-room-title');
+    renderStats(data, source);
+    renderBarChart('revenue-by-room', data.revenueByRoom.map(function (r) { return { name: r.name + ' (' + r.count + ')', total: r.revenue }; }), 'No room activity in this range.');
+    var secondTitle = document.getElementById('second-chart-title');
     if (source === 'fundraising') {
-      roomTitle.textContent = 'Revenue by campaign';
-      renderBarChart('revenue-by-room', data.revenueByCampaign.map(function (r) { return { name: r.name + ' (' + r.count + ')', total: r.revenue }; }), 'No fundraising activity in this range.');
-    } else if (source === 'all') {
-      roomTitle.textContent = 'Revenue by room + campaign';
-      var combined = data.revenueByRoom.concat(data.revenueByCampaign);
-      renderBarChart('revenue-by-room', combined.map(function (r) { return { name: r.name + ' (' + r.count + ')', total: r.revenue }; }), 'No activity in this range.');
+      secondTitle.textContent = 'Revenue by campaign';
+      renderBarChart('second-chart', data.revenueByCampaign.map(function (r) { return { name: r.name + ' (' + r.count + ')', total: r.revenue }; }), 'No fundraising activity in this range.');
     } else {
-      roomTitle.textContent = 'Revenue by room';
-      renderBarChart('revenue-by-room', data.revenueByRoom.map(function (r) { return { name: r.name + ' (' + r.count + ')', total: r.revenue }; }), 'No room activity in this range.');
+      secondTitle.textContent = 'Top renters';
+      renderContributors('second-chart', data.topRenters, 'No renters in this range.');
     }
-    renderBarChart('revenue-by-month', data.revenueByMonth.map(function (r) {
-      var label = new Date(r.month + '-02').toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-      return { name: label + ' (' + r.count + ')', total: r.revenue };
-    }), 'No activity in this range.');
-    renderContributors('top-renters', data.topRenters, source === 'fundraising' ? 'Top renters not applicable for fundraising-only view.' : 'No renters in this range.');
   } catch (err) {
     document.getElementById('stat-grid').innerHTML = '<div class="empty-state">Could not load dashboard: ' + escHtml(err.message) + '</div>';
   }
 }
 document.getElementById('dash-source-filter').addEventListener('change', loadDashboard);
-function renderStats(data) {
+async function loadMonthlyTrend() {
+  try {
+    var res = await authedFetch(API_BASE + '/bookings-monthly-trend');
+    var data = await res.json();
+    if (!res.ok) throw new Error((data.errors || [data.error || ('Server returned ' + res.status)]).join(' '));
+    renderBarChart('revenue-by-month', data.months.map(function (m) {
+      var label = new Date(m.month + '-02').toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      return { name: label, total: m.revenue };
+    }), 'No booking activity in this window.');
+  } catch (err) {
+    document.getElementById('revenue-by-month').innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
+  }
+}
+function renderStats(data, source) {
+  var revenueLabel = source === 'fundraising' ? 'Fundraising Revenue' : source === 'all' ? 'Total Revenue' : 'Facility Rental Revenue';
+  var countLabel = source === 'fundraising' ? 'Fundraising Payments' : 'Bookings';
   var stats = [
-    { label: 'Total Revenue', value: money(data.totalRevenue) },
-    { label: 'Bookings', value: data.totalBookings },
-    { label: 'Hours Booked', value: data.totalHours },
-    { label: 'Avg. Booking Value', value: money(data.avgBookingValue) },
-    { label: 'Paid', value: data.paidCount },
-    { label: 'Not Yet Paid', value: data.unpaidCount }
+    { label: revenueLabel, value: money(data.totalRevenue) },
+    { label: countLabel, value: data.totalCount },
+    { label: 'Hours Booked (facility rental)', value: data.totalHours },
+    { label: 'Avg. Value', value: money(data.avgValue) },
+    { label: 'Paid (facility rental)', value: data.paidCount },
+    { label: 'Not Yet Paid (facility rental)', value: data.unpaidCount }
   ];
   document.getElementById('stat-grid').innerHTML = stats.map(function (s) {
     return '<div class="stat-card"><div class="value">' + s.value + '</div><div class="label">' + s.label + '</div></div>';
@@ -343,6 +352,7 @@ onAuthStateChanged(auth, function(user) {
     document.getElementById('gate').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     loadDashboard();
+    loadMonthlyTrend();
   }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });
 });
 </script>

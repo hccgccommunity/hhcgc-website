@@ -143,6 +143,17 @@ tr.sub-row td:first-child { padding-left: 28px; }
 .btn-invoice.attached { background: #fff3d6; border-color: #d9a83e; }
 .btn-invoice.sent { background: #e8f5ec; border-color: var(--green); cursor: default; }
 .btn-invoice:hover:not(.sent) { filter: brightness(0.96); }
+.action-icons { display: flex; align-items: center; gap: 4px; }
+.btn-icon-action { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; }
+.btn-icon-action.has-content { background: var(--surface-soft); }
+.btn-icon-action:hover { filter: brightness(0.96); }
+.btn-receipt { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; }
+.btn-receipt.sent { background: #e8f5ec; border-color: var(--green); cursor: default; }
+.btn-receipt:disabled { opacity: 0.4; cursor: default; }
+.btn-receipt:hover:not(:disabled):not(.sent) { filter: brightness(0.96); }
+.invoice-action-btn { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1.5px solid var(--border); background: #fff; font-family: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer; text-align: left; }
+.invoice-action-btn:hover { background: var(--surface-soft); }
+.invoice-action-btn.primary { background: linear-gradient(135deg, var(--saffron-dark), var(--maroon)); color: #fff; border: none; }
 .badge-draft { background: var(--grey-bg); color: var(--muted); }
 .badge-cancelled { background: var(--red-bg); color: var(--red); }
 .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
@@ -453,15 +464,31 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
   </div>
 </div>
 
-<div class="modal-overlay" id="payment-match-modal-overlay" style="display:none;">
-  <div class="modal-panel">
+<div class="modal-overlay" id="invoice-action-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:380px;">
     <div class="modal-header">
-      <h2>Find a matching payment</h2>
-      <button class="modal-close" id="btn-close-payment-match">&times;</button>
+      <h2>Invoice</h2>
+      <button class="modal-close" id="btn-close-invoice-action">&times;</button>
     </div>
-    <div class="modal-body" id="payment-match-body"></div>
+    <div class="modal-body" id="invoice-action-body" style="display:flex;flex-direction:column;gap:10px;"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="edit-invoice-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:460px;">
+    <div class="modal-header">
+      <h2>Edit invoice</h2>
+      <button class="modal-close" id="btn-close-edit-invoice">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="card-sub" style="margin-bottom:16px;">Room, hours, and rate can only be changed by editing the booking itself. This only affects the invoice: notes and a one-time discount.</p>
+      <div class="field"><label>Notes</label><textarea id="ei-notes" rows="3" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></textarea></div>
+      <div class="field"><label>One-time discount ($)</label><input type="number" step="0.01" min="0" id="ei-flat-discount" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></div>
+      <div class="result-box" id="edit-invoice-result" style="display:none;"></div>
+    </div>
     <div class="modal-footer">
-      <button type="button" class="btn-secondary" id="btn-close-payment-match-2" onclick="document.getElementById('payment-match-modal-overlay').style.display='none';">Close</button>
+      <button type="button" class="btn-secondary" id="btn-cancel-edit-invoice">Cancel</button>
+      <button type="button" class="btn-primary" id="btn-save-edit-invoice" style="margin-top:0;">Save</button>
     </div>
   </div>
 </div>
@@ -550,16 +577,6 @@ function isPastDue(b) {
   return (b.payment_status === 'invoiced' || b.payment_status === 'pending') && new Date(b.event_date) < new Date();
 }
 
-function invoiceStatusIcon(b) {
-  if (b.is_internal) return '';
-  if (b.invoice_sent_at) {
-    return '<button type="button" class="btn-invoice sent" title="Invoice sent ' + formatDate(b.invoice_sent_at) + '" style="margin-left:6px;">\ud83e\uddfe</button>';
-  }
-  if (b.payment_match_source) {
-    return '<button type="button" class="btn-invoice attached" title="Attached — click to send the invoice" style="margin-left:6px;" data-quick-send-invoice="' + b.booking_id + '">\ud83e\uddfe</button>';
-  }
-  return '';
-}
 function statusBadge(b) {
   if (b.is_internal || b.payment_status === 'n/a') {
     return '<span class="badge badge-draft"><span class="badge-dot"></span>Internal · No charge</span>';
@@ -576,14 +593,14 @@ function statusBadge(b) {
       ? '<span class="method-tag">Fee: $' + Number(b.cancellation_fee).toFixed(2) + ' · Refund: $' + Number(b.refund_amount).toFixed(2) + '</span>' : '';
     return '<span class="badge badge-cancelled"><span class="badge-dot"></span>Cancelled</span>' + feeTag;
   }
-  // A match was confirmed in Finance but the booking hasn't been marked
-  // paid yet — deliberately not automatic, so this needs to stand out
-  // until someone actually clicks Mark Paid to finish it.
+  // A match was found in Finance but hasn't been confirmed as paid yet —
+  // confirmation now happens in Finance, not here, so this just points
+  // there rather than offering a Mark Paid action in this table.
   if (b.payment_match_source && (b.payment_status === 'pending' || b.payment_status === 'invoiced')) {
-    return '<span class="badge badge-match-found"><span class="badge-dot"></span>Match found in Finance</span><span class="method-tag" title="' + escHtml(b.payment_match_details || '') + '">Confirm with Mark Paid</span>' + invoiceStatusIcon(b);
+    return '<span class="badge badge-match-found"><span class="badge-dot"></span>Match found in Finance</span><span class="method-tag" title="' + escHtml(b.payment_match_details || '') + '">Confirm as paid in Finance</span>';
   }
   if (b.receipt_sent_at) {
-    return '<span class="badge badge-paid"><span class="badge-dot"></span>Receipt Sent</span><span class="method-tag">' + formatDateTime(b.receipt_sent_at) + '</span>' + invoiceStatusIcon(b);
+    return '<span class="badge badge-paid"><span class="badge-dot"></span>Receipt Sent</span><span class="method-tag">' + formatDateTime(b.receipt_sent_at) + '</span>';
   }
   if (b.payment_status === 'paid') {
     const methodLabel = b.payment_match_source === 'zeffy' ? 'Zeffy · auto-matched' :
@@ -591,13 +608,33 @@ function statusBadge(b) {
       b.payment_method === 'zelle' ? 'Zelle · confirmed' :
       b.payment_method === 'cash' ? 'Cash · confirmed' :
       b.payment_method === 'check' ? 'Check · confirmed' : 'Confirmed';
-    return '<span class="badge badge-paid"><span class="badge-dot"></span>Paid</span><span class="method-tag">' + methodLabel + '</span>' + invoiceStatusIcon(b);
+    return '<span class="badge badge-paid"><span class="badge-dot"></span>Paid</span><span class="method-tag">' + methodLabel + '</span>';
   }
   if (b.invoice_sent_at) {
     const label = isPastDue(b) ? 'Invoice sent · past due' : 'Invoice Sent';
-    return '<span class="badge badge-needs-confirm"><span class="badge-dot"></span>' + label + '</span><span class="method-tag">' + formatDateTime(b.invoice_sent_at) + '</span>' + invoiceStatusIcon(b);
+    return '<span class="badge badge-needs-confirm"><span class="badge-dot"></span>' + label + '</span><span class="method-tag">' + formatDateTime(b.invoice_sent_at) + '</span>';
   }
-  return '<span class="badge badge-draft"><span class="badge-dot"></span>Booked</span>' + invoiceStatusIcon(b);
+  return '<span class="badge badge-draft"><span class="badge-dot"></span>Booked</span>';
+}
+
+// The 3 action icons — Notes, Invoice, Receipt. Invoice is "needs sending"
+// (yellow) whenever there's no invoice_sent_at yet, OR the booking's been
+// edited since the last send (updated_at newer than invoice_sent_at) —
+// exactly the same condition send-invoice itself enforces server-side, so
+// the icon never promises an action the backend would actually refuse.
+function needsInvoiceSend(b) {
+  if (!b.invoice_sent_at) return true;
+  if (b.updated_at && new Date(b.updated_at) > new Date(b.invoice_sent_at)) return true;
+  return false;
+}
+function actionIcons(b) {
+  if (b.is_internal) return '';
+  const needsSend = needsInvoiceSend(b);
+  const notesBtn = '<button type="button" class="btn-icon-action' + (b.notes ? ' has-content' : '') + '" title="' + (b.notes ? 'Note: ' + escHtml(b.notes) : 'Add a note') + '" data-notes-booking="' + b.booking_id + '">' + (b.notes ? '📝' : '➕') + '</button>';
+  const invoiceBtn = '<button type="button" class="btn-invoice ' + (needsSend ? 'attached' : 'sent') + '" title="' + (needsSend ? 'Invoice not sent — click to send, edit, or download' : 'Invoice sent ' + formatDate(b.invoice_sent_at) + ' — click to edit or download') + '" data-invoice-booking="' + b.booking_id + '">\ud83e\uddfe</button>';
+  const receiptDisabled = b.payment_status !== 'paid';
+  const receiptBtn = '<button type="button" class="btn-receipt' + (b.receipt_sent_at ? ' sent' : '') + '"' + (receiptDisabled ? ' disabled title="Mark paid in Finance first"' : ' title="' + (b.receipt_sent_at ? 'Receipt sent ' + formatDate(b.receipt_sent_at) : 'Click to send the receipt') + '"') + ' data-receipt-booking="' + b.booking_id + '">' + (b.receipt_sent_at ? '\ud83e\uddfe' : (receiptDisabled ? '\u2014' : '\u2795')) + '</button>';
+  return '<div class="action-icons">' + notesBtn + invoiceBtn + receiptBtn + '</div>';
 }
 
 function isWholeFacility(b) {
@@ -793,34 +830,17 @@ function renderBookingRow(b, isSubRow) {
   const notCancelled = b.payment_status !== 'cancelled';
   const locked = isHistoricallyLocked(b);
   // Editing specifically has the one narrow admin override; every other
-  // locked action (invoice, find-payment, cancel) has no override at all.
+  // locked action has no override at all.
   const canEditThis = notCancelled && (!locked || (isBookingPast(b) && !isPicktimeHistoricalPaid(b) && PAST_BOOKING_EDIT_ALLOWLIST.includes(currentUserEmail())));
-  const canSendInvoice = needsAction && !locked && !b.is_internal && b.renter_email &&
-    (!b.invoice_sent_at || (b.updated_at && new Date(b.updated_at) > new Date(b.invoice_sent_at)));
-  const canFindPayment = needsAction && !locked && !b.is_internal && b.renter_email;
-  const canUnlink = b.payment_status === 'paid';
-  const canDownloadInvoice = !b.is_internal;
-  const canDownloadReceipt = b.payment_status === 'paid';
 
+  // Kebab menu is deliberately down to just Edit and Cancel now — invoice
+  // send/edit/download lives in the invoice icon's popup, and marking
+  // paid/matching payments moved entirely into Finance.
   const actions = [];
-  if (needsAction) {
-    if (b.payment_match_source === 'zeffy') actions.push({ label: 'Mark paid \u2014 Zeffy (matched)', fn: () => markPaid(b.booking_id, 'zeffy') });
-    actions.push({ label: 'Mark paid \u2014 Zelle', fn: () => markPaid(b.booking_id, 'zelle') });
-    actions.push({ label: 'Mark paid \u2014 Cash', fn: () => markPaid(b.booking_id, 'cash') });
-    actions.push({ label: 'Mark paid \u2014 Check', fn: () => markPaid(b.booking_id, 'check') });
-  }
-  if (canFindPayment) actions.push({ label: 'Find payment', fn: () => findPaymentAction(b.booking_id) });
-  if (canSendInvoice) actions.push({ label: 'Send invoice', fn: () => sendInvoiceAction(b.booking_id) });
-  if (canUnlink) actions.push({ label: 'Unlink payment', fn: () => unlinkPaymentAction(b.booking_id) });
-  if (canDownloadInvoice) actions.push({ label: 'Download invoice', fn: () => downloadDocument(b.booking_id, 'invoice') });
-  if (canDownloadReceipt) actions.push({ label: 'Download receipt', fn: () => downloadDocument(b.booking_id, 'receipt') });
   if (canEditThis) actions.push({ label: 'Edit', fn: () => openEditModal(b.booking_id) });
   if (notCancelled && !locked) actions.push({ label: 'Cancel', danger: true, fn: () => cancelBookingFlow(b.booking_id) });
 
-  // Sub-rows (occurrences within an expanded series) are display-only —
-  // paying, editing, and cancelling all happen at the series level, since a
-  // renter pays for the whole series at once, not occurrence by occurrence.
-  const actionsCell = isSubRow ? '<td></td>' : '<td>' + renderActionsKebab(b.booking_id, actions) + '</td>';
+  const actionsCell = isSubRow ? '<td></td>' : '<td><div style="display:flex;align-items:center;gap:8px;">' + actionIcons(b) + renderActionsKebab(b.booking_id, actions) + '</div></td>';
   return (
     '<tr' + (rowClasses ? ' class="' + rowClasses.trim() + '"' : '') + '>' +
       '<td>' + (isSubRow ? '<div class="renter-sub">' + formatDate(b.event_date) + '</div>' : '<div class="renter-name">' + escHtml(b.renter_name) + '</div><div class="renter-sub">' + escHtml(b.renter_email) + '</div>') + '</td>' +
@@ -857,11 +877,6 @@ function renderSeriesSummaryRow(item) {
   const canEditThis = notCancelled && (!allHistoricallyLocked || (allPast && PAST_BOOKING_EDIT_ALLOWLIST.includes(currentUserEmail())));
 
   const actions = [];
-  if (needsAction) {
-    actions.push({ label: 'Mark all paid \u2014 Zelle', fn: () => markSeriesPaidAction(item.seriesId, 'zelle') });
-    actions.push({ label: 'Mark all paid \u2014 Cash', fn: () => markSeriesPaidAction(item.seriesId, 'cash') });
-    actions.push({ label: 'Mark all paid \u2014 Check', fn: () => markSeriesPaidAction(item.seriesId, 'check') });
-  }
   if (canEditThis) actions.push({ label: 'Edit series', fn: () => openSeriesEditModal(item.seriesId) });
   if (!item.is_internal) actions.push({ label: 'Download invoice', fn: () => downloadDocument(item.occurrences[0].booking_id, 'invoice') });
   if (item.payment_status === 'paid') actions.push({ label: 'Download receipt', fn: () => downloadDocument(item.occurrences[0].booking_id, 'receipt') });
@@ -1057,27 +1072,6 @@ async function downloadDocument(bookingId, kind) {
   }
 }
 
-async function markPaid(bookingId, method) {
-  try {
-    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/mark-paid', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ paymentMethod: method })
-    });
-    if (!res.ok) {
-      const data = await res.json().catch(function () { return {}; });
-      alert('Could not mark as paid: ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
-      return;
-    }
-    await loadBookings();
-    if (confirm('Marked paid. Send a payment receipt to the renter now?')) {
-      await sendReceiptAction(bookingId);
-    }
-  } catch (err) {
-    alert('Could not reach the booking system: ' + err.message);
-  }
-}
-
 async function sendReceiptAction(bookingId) {
   try {
     const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/send-receipt', { method: 'POST' });
@@ -1130,99 +1124,136 @@ async function sendInvoiceAction(bookingId) {
       return;
     }
     alert('Invoice sent to ' + data.sentTo + '.');
+    await loadBookings();
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+  }
+}
+
+// ---- Notes icon ----
+async function editNotesAction(bookingId) {
+  const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
+  if (!b) return;
+  const note = prompt('Notes for this booking:', b.notes || '');
+  if (note === null) return;
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/invoice', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notes: note })
+    });
+    const data = await res.json();
+    if (!res.ok) { alert('Could not save note: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+    await loadBookings();
   } catch (err) {
     alert('Could not reach the booking system: ' + err.message);
   }
 }
 document.addEventListener('click', function (e) {
-  const btn = e.target.closest('[data-quick-send-invoice]');
+  const btn = e.target.closest('[data-notes-booking]');
   if (!btn) return;
-  sendInvoiceAction(btn.dataset.quickSendInvoice).then(function () { loadBookings(); });
+  editNotesAction(btn.dataset.notesBooking);
 });
 
-// ---- Payment matching (Zeffy + Zelle) ----
-async function findPaymentAction(bookingId) {
-  const body = document.getElementById('payment-match-body');
-  body.innerHTML = '<div class="card-sub">Searching Zeffy and Zelle for a matching payment…</div>';
-  document.getElementById('payment-match-modal-overlay').style.display = 'flex';
-  try {
-    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/payment-matches');
-    const data = await res.json();
-    if (!res.ok) {
-      body.innerHTML = '<div class="result-box error" style="display:block;">' + escHtml((data.errors || [data.error]).join(' ')) + '</div>';
-      return;
-    }
-    if (!data.candidates.length) {
-      body.innerHTML = '<div class="card-sub" style="margin-bottom:14px;">No matching payments found for the invoice total of $' + data.invoiceTotal.toFixed(2) + '. If you\'ve confirmed payment another way, mark it paid manually:</div>' +
-        '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
-        '<button type="button" class="btn-secondary" onclick="markPaidFromModal(' + JSON.stringify(bookingId) + ', \'zelle\')">Paid via Zelle</button>' +
-        '<button type="button" class="btn-secondary" onclick="markPaidFromModal(' + JSON.stringify(bookingId) + ', \'cash\')">Paid via Cash</button>' +
-        '<button type="button" class="btn-secondary" onclick="markPaidFromModal(' + JSON.stringify(bookingId) + ', \'check\')">Paid via Check</button>' +
-        '</div>';
-      return;
-    }
-    body.innerHTML = '<div class="card-sub" style="margin-bottom:14px;">Invoice total: $' + data.invoiceTotal.toFixed(2) + '. Review before linking — this is a suggestion, not an automatic match.</div>' +
-      data.candidates.map(function (c) {
-        return '<div class="match-candidate' + (c.confidence === 'high' ? ' high-confidence' : '') + '">' +
-          '<div class="match-source-tag">' + c.source + (c.confidence === 'high' ? ' · likely match' : ' · possible') + '</div>' +
-          '<div class="match-label">' + escHtml(c.label) + '</div>' +
-          '<div class="match-reason">' + escHtml(c.date) + ' — ' + escHtml(c.reason) + '</div>' +
-          '<button type="button" class="btn-primary" style="padding:7px 14px;font-size:0.82rem;" onclick=\'linkPaymentAction(' + JSON.stringify(bookingId) + ', ' + JSON.stringify(c) + ')\'>Link this payment</button>' +
-        '</div>';
-      }).join('');
-  } catch (err) {
-    body.innerHTML = '<div class="result-box error" style="display:block;">Could not reach the booking system: ' + escHtml(err.message) + '</div>';
+// ---- Invoice icon: opens Send / Edit / Download, only what applies ----
+function openInvoiceActionMenu(bookingId) {
+  const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
+  if (!b) return;
+  const needsSend = needsInvoiceSend(b);
+  const body = document.getElementById('invoice-action-body');
+  let html = '';
+  if (needsSend) {
+    html += '<button type="button" class="invoice-action-btn primary" data-inv-action="send">Send invoice</button>';
+  } else {
+    html += '<p class="card-sub" style="margin-bottom:2px;">Sent ' + formatDate(b.invoice_sent_at) + '. Edit the invoice to send an update.</p>';
   }
+  html += '<button type="button" class="invoice-action-btn" data-inv-action="edit">Edit invoice</button>';
+  html += '<button type="button" class="invoice-action-btn" data-inv-action="download">Download invoice</button>';
+  body.innerHTML = html;
+  body.dataset.bookingId = bookingId;
+  document.getElementById('invoice-action-overlay').style.display = 'flex';
 }
-document.getElementById('btn-close-payment-match').addEventListener('click', function () {
-  document.getElementById('payment-match-modal-overlay').style.display = 'none';
+document.addEventListener('click', function (e) {
+  const btn = e.target.closest('[data-invoice-booking]');
+  if (!btn) return;
+  openInvoiceActionMenu(btn.dataset.invoiceBooking);
 });
-document.getElementById('payment-match-modal-overlay').addEventListener('click', function (e) {
+document.getElementById('invoice-action-body').addEventListener('click', function (e) {
+  const btn = e.target.closest('[data-inv-action]');
+  if (!btn) return;
+  const bookingId = this.dataset.bookingId;
+  document.getElementById('invoice-action-overlay').style.display = 'none';
+  if (btn.dataset.invAction === 'send') sendInvoiceAction(bookingId);
+  else if (btn.dataset.invAction === 'edit') openEditInvoiceModal(bookingId);
+  else if (btn.dataset.invAction === 'download') downloadDocument(bookingId, 'invoice');
+});
+document.getElementById('btn-close-invoice-action').addEventListener('click', function () {
+  document.getElementById('invoice-action-overlay').style.display = 'none';
+});
+document.getElementById('invoice-action-overlay').addEventListener('click', function (e) {
   if (e.target === this) this.style.display = 'none';
 });
 
-async function markPaidFromModal(bookingId, method) {
-  document.getElementById('payment-match-modal-overlay').style.display = 'none';
-  await markPaid(bookingId, method);
+// ---- Edit invoice modal: notes + one-time flat discount only ----
+function openEditInvoiceModal(bookingId) {
+  const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
+  if (!b) return;
+  document.getElementById('ei-notes').value = b.notes || '';
+  document.getElementById('ei-flat-discount').value = (b.manual_adjustment_type === 'flat' ? b.manual_adjustment_value : 0) || 0;
+  document.getElementById('edit-invoice-result').style.display = 'none';
+  document.getElementById('btn-save-edit-invoice').dataset.bookingId = bookingId;
+  document.getElementById('edit-invoice-overlay').style.display = 'flex';
 }
-
-async function linkPaymentAction(bookingId, candidate) {
-  if (!confirm('Link this ' + candidate.source + ' payment ($' + candidate.amount.toFixed(2) + ') to this booking and mark it paid?')) return;
+document.getElementById('btn-close-edit-invoice').addEventListener('click', function () {
+  document.getElementById('edit-invoice-overlay').style.display = 'none';
+});
+document.getElementById('btn-cancel-edit-invoice').addEventListener('click', function () {
+  document.getElementById('edit-invoice-overlay').style.display = 'none';
+});
+document.getElementById('edit-invoice-overlay').addEventListener('click', function (e) {
+  if (e.target === this) this.style.display = 'none';
+});
+document.getElementById('btn-save-edit-invoice').addEventListener('click', async function () {
+  const btn = this;
+  const bookingId = btn.dataset.bookingId;
+  const notes = document.getElementById('ei-notes').value;
+  const flatDiscount = Number(document.getElementById('ei-flat-discount').value) || 0;
+  const resultBox = document.getElementById('edit-invoice-result');
+  btn.disabled = true; btn.textContent = 'Saving…';
   try {
-    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/link-payment', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ source: candidate.source, id: candidate.id, amount: candidate.amount, date: candidate.date })
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/invoice', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notes: notes, flatDiscountAmount: flatDiscount })
     });
     const data = await res.json();
+    resultBox.style.display = 'block';
     if (!res.ok) {
-      alert('Could not link payment: ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
-      return;
-    }
-    document.getElementById('payment-match-modal-overlay').style.display = 'none';
-    await loadBookings();
-    if (confirm('Payment linked. Send a payment receipt to the renter now?')) {
-      await sendReceiptAction(bookingId);
+      resultBox.className = 'result-box error';
+      resultBox.textContent = (data.errors || [data.error || 'Something went wrong.']).join(' ');
+    } else {
+      resultBox.className = 'result-box success';
+      resultBox.textContent = 'Saved. This invoice now needs to be resent to reflect the change.';
+      await loadBookings();
+      setTimeout(function () { document.getElementById('edit-invoice-overlay').style.display = 'none'; }, 1200);
     }
   } catch (err) {
-    alert('Could not reach the booking system: ' + err.message);
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+    resultBox.textContent = 'Could not reach the booking system: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save';
   }
-}
+});
 
-async function unlinkPaymentAction(bookingId) {
-  if (!confirm('Unlink this payment? The booking will go back to awaiting payment.')) return;
-  try {
-    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/unlink-payment', { method: 'POST' });
-    const data = await res.json();
-    if (!res.ok) {
-      alert('Could not unlink: ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
-      return;
-    }
-    await loadBookings();
-  } catch (err) {
-    alert('Could not reach the booking system: ' + err.message);
-  }
-}
-
+// ---- Receipt icon ----
+document.addEventListener('click', async function (e) {
+  const btn = e.target.closest('[data-receipt-booking]');
+  if (!btn || btn.disabled) return;
+  const bookingId = btn.dataset.receiptBooking;
+  const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
+  if (b && b.receipt_sent_at) return; // already sent — nothing to do on click
+  if (!confirm('Send a payment receipt to the renter now?')) return;
+  await sendReceiptAction(bookingId);
+  await loadBookings();
+});
 // ---- Cancellation ----
 // Client-side preview only, using the same policy the backend enforces
 // authoritatively: 14+ days' notice = no fee. 7-13 days = 50% fee. Under 7

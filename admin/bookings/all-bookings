@@ -104,8 +104,6 @@ tbody td { padding: 10px 10px; border-bottom: 1px solid var(--border); vertical-
 tbody tr:last-child td { border-bottom: none; }
 tbody tr:hover { background: rgba(217,138,30,0.04); }
 tbody tr.cancelled-row { background: var(--red-bg); }
-tbody tr.match-found-row { background: #eef5ff; }
-tbody tr.match-found-row:hover { background: #e0edff; }
 tbody tr.cancelled-row:hover { background: rgba(179,56,44,0.12); }
 tbody tr.cancelled-row td { color: var(--muted); }
 tr.series-summary-row { cursor: pointer; background: var(--surface-soft); }
@@ -138,7 +136,6 @@ tr.sub-row td:first-child { padding-left: 28px; }
 }
 .badge-paid { background: var(--green-bg); color: var(--green); }
 .badge-needs-confirm { background: var(--amber-bg); color: var(--amber); }
-.badge-match-found { background: #e6f0ff; color: #2255a4; border: 1.5px solid #a8c8f0; }
 .btn-invoice { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; vertical-align: middle; }
 .btn-invoice.attached { background: #fff3d6; border-color: #d9a83e; }
 .btn-invoice.sent { background: #e8f5ec; border-color: var(--green); cursor: default; }
@@ -311,7 +308,6 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
       <li><a href="new-booking">New Booking</a></li>
       <li><a href="all-bookings" class="active">All Bookings</a></li>
       <li><a href="rooms-rates">Rooms &amp; Rates</a></li>
-      <li><a href="change-log">Change Log</a></li>
       <li><a href="add-renter">Add A Renter</a></li>
     </ul>
   </div>
@@ -474,6 +470,16 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
   </div>
 </div>
 
+<div class="modal-overlay" id="receipt-action-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:380px;">
+    <div class="modal-header">
+      <h2>Receipt</h2>
+      <button class="modal-close" id="btn-close-receipt-action">&times;</button>
+    </div>
+    <div class="modal-body" id="receipt-action-body" style="display:flex;flex-direction:column;gap:10px;"></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="edit-invoice-overlay" style="display:none;">
   <div class="modal-panel" style="max-width:460px;">
     <div class="modal-header">
@@ -481,14 +487,16 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
       <button class="modal-close" id="btn-close-edit-invoice">&times;</button>
     </div>
     <div class="modal-body">
-      <p class="card-sub" style="margin-bottom:16px;">Room, hours, and rate can only be changed by editing the booking itself. This only affects the invoice: notes and a one-time discount.</p>
+      <p class="card-sub" style="margin-bottom:16px;">Room, hours, and rate can only be changed by editing the booking itself. This only affects the invoice: notes and one adjustment amount.</p>
       <div class="field"><label>Notes</label><textarea id="ei-notes" rows="3" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></textarea></div>
-      <div class="field"><label>One-time discount ($)</label><input type="number" step="0.01" min="0" id="ei-flat-discount" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></div>
+      <div class="field"><label>Adjustment amount ($) — positive to add a charge, negative for a discount</label><input type="number" step="0.01" id="ei-flat-discount" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></div>
+      <div class="field"><label>Reason / description</label><input type="text" id="ei-adjustment-reason" placeholder="e.g. Extra cleaning fee, or Loyal renter discount" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></div>
       <div class="result-box" id="edit-invoice-result" style="display:none;"></div>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn-secondary" id="btn-cancel-edit-invoice">Cancel</button>
-      <button type="button" class="btn-primary" id="btn-save-edit-invoice" style="margin-top:0;">Save</button>
+      <button type="button" class="btn-secondary" id="btn-save-edit-invoice-only" style="margin-top:0;">Save only</button>
+      <button type="button" class="btn-primary" id="btn-save-edit-invoice">Save &amp; send</button>
     </div>
   </div>
 </div>
@@ -592,12 +600,6 @@ function statusBadge(b) {
     const feeTag = (b.cancellation_fee !== null && b.cancellation_fee !== undefined)
       ? '<span class="method-tag">Fee: $' + Number(b.cancellation_fee).toFixed(2) + ' · Refund: $' + Number(b.refund_amount).toFixed(2) + '</span>' : '';
     return '<span class="badge badge-cancelled"><span class="badge-dot"></span>Cancelled</span>' + feeTag;
-  }
-  // A match was found in Finance but hasn't been confirmed as paid yet —
-  // confirmation now happens in Finance, not here, so this just points
-  // there rather than offering a Mark Paid action in this table.
-  if (b.payment_match_source && (b.payment_status === 'pending' || b.payment_status === 'invoiced')) {
-    return '<span class="badge badge-match-found"><span class="badge-dot"></span>Match found in Finance</span><span class="method-tag" title="' + escHtml(b.payment_match_details || '') + '">Confirm as paid in Finance</span>';
   }
   if (b.receipt_sent_at) {
     return '<span class="badge badge-paid"><span class="badge-dot"></span>Receipt Sent</span><span class="method-tag">' + formatDateTime(b.receipt_sent_at) + '</span>';
@@ -802,8 +804,7 @@ function isHistoricallyLocked(b) {
 }
 
 function renderBookingRow(b, isSubRow) {
-  const hasUnconfirmedMatch = b.payment_match_source && (b.payment_status === 'pending' || b.payment_status === 'invoiced');
-  const rowClasses = (b.payment_status === 'cancelled' || b.payment_status === 'rejected' ? 'cancelled-row ' : '') + (hasUnconfirmedMatch ? 'match-found-row ' : '') + (isSubRow ? 'sub-row' : '');
+  const rowClasses = (b.payment_status === 'cancelled' || b.payment_status === 'rejected' ? 'cancelled-row ' : '') + (isSubRow ? 'sub-row' : '');
 
   // A public booking request awaiting review is a totally different case
   // from every other status — nothing else (Mark Paid, Edit, Cancel, etc.)
@@ -1049,6 +1050,23 @@ document.addEventListener('click', function () {
   document.querySelectorAll('.actions-menu.open').forEach(function (el) { el.classList.remove('open'); });
 });
 
+async function viewDocument(bookingId, kind) {
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/' + kind + '-preview');
+    if (!res.ok) {
+      const data = await res.json().catch(function () { return {}; });
+      alert('Could not load ' + kind + ': ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
+      return;
+    }
+    const html = await res.text();
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    setTimeout(function () { URL.revokeObjectURL(url); }, 30000);
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+  }
+}
 async function downloadDocument(bookingId, kind) {
   try {
     const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/' + kind + '-preview');
@@ -1115,7 +1133,9 @@ async function rejectRequestAction(bookingId) {
 }
 
 async function sendInvoiceAction(bookingId) {
-  if (!confirm('Send an invoice email to this renter now?')) return;
+  const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
+  const isResend = b && !needsInvoiceSend(b);
+  if (!confirm((isResend ? 'Resend' : 'Send') + ' an invoice email to this renter now?')) return;
   try {
     const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/send-invoice', { method: 'POST' });
     const data = await res.json();
@@ -1161,13 +1181,11 @@ function openInvoiceActionMenu(bookingId) {
   const needsSend = needsInvoiceSend(b);
   const body = document.getElementById('invoice-action-body');
   let html = '';
-  if (needsSend) {
-    html += '<button type="button" class="invoice-action-btn primary" data-inv-action="send">Send invoice</button>';
-  } else {
-    html += '<p class="card-sub" style="margin-bottom:2px;">Sent ' + formatDate(b.invoice_sent_at) + '. Edit the invoice to send an update.</p>';
-  }
+  html += '<button type="button" class="invoice-action-btn" data-inv-action="view">View invoice</button>';
   html += '<button type="button" class="invoice-action-btn" data-inv-action="edit">Edit invoice</button>';
+  html += '<button type="button" class="invoice-action-btn primary" data-inv-action="send">' + (needsSend ? 'Send invoice' : 'Resend invoice') + '</button>';
   html += '<button type="button" class="invoice-action-btn" data-inv-action="download">Download invoice</button>';
+  if (!needsSend) html += '<p class="card-sub" style="margin:6px 0 0;">Last sent ' + formatDate(b.invoice_sent_at) + '.</p>';
   body.innerHTML = html;
   body.dataset.bookingId = bookingId;
   document.getElementById('invoice-action-overlay').style.display = 'flex';
@@ -1182,7 +1200,8 @@ document.getElementById('invoice-action-body').addEventListener('click', functio
   if (!btn) return;
   const bookingId = this.dataset.bookingId;
   document.getElementById('invoice-action-overlay').style.display = 'none';
-  if (btn.dataset.invAction === 'send') sendInvoiceAction(bookingId);
+  if (btn.dataset.invAction === 'view') viewDocument(bookingId, 'invoice');
+  else if (btn.dataset.invAction === 'send') sendInvoiceAction(bookingId);
   else if (btn.dataset.invAction === 'edit') openEditInvoiceModal(bookingId);
   else if (btn.dataset.invAction === 'download') downloadDocument(bookingId, 'invoice');
 });
@@ -1193,14 +1212,61 @@ document.getElementById('invoice-action-overlay').addEventListener('click', func
   if (e.target === this) this.style.display = 'none';
 });
 
+// ---- Receipt icon popup: View / Send-or-Resend / Download ----
+function openReceiptActionMenu(bookingId) {
+  const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
+  if (!b) return;
+  const alreadySent = !!b.receipt_sent_at;
+  const body = document.getElementById('receipt-action-body');
+  let html = '';
+  html += '<button type="button" class="invoice-action-btn" data-rcpt-action="view">View receipt</button>';
+  html += '<button type="button" class="invoice-action-btn primary" data-rcpt-action="send">' + (alreadySent ? 'Resend receipt' : 'Send receipt') + '</button>';
+  html += '<button type="button" class="invoice-action-btn" data-rcpt-action="download">Download receipt</button>';
+  if (alreadySent) html += '<p class="card-sub" style="margin:6px 0 0;">Last sent ' + formatDate(b.receipt_sent_at) + '.</p>';
+  body.innerHTML = html;
+  body.dataset.bookingId = bookingId;
+  document.getElementById('receipt-action-overlay').style.display = 'flex';
+}
+document.addEventListener('click', function (e) {
+  const btn = e.target.closest('[data-receipt-booking]');
+  if (!btn || btn.disabled) return;
+  openReceiptActionMenu(btn.dataset.receiptBooking);
+});
+document.getElementById('receipt-action-body').addEventListener('click', async function (e) {
+  const btn = e.target.closest('[data-rcpt-action]');
+  if (!btn) return;
+  const bookingId = this.dataset.bookingId;
+  document.getElementById('receipt-action-overlay').style.display = 'none';
+  if (btn.dataset.rcptAction === 'view') viewDocument(bookingId, 'receipt');
+  else if (btn.dataset.rcptAction === 'download') downloadDocument(bookingId, 'receipt');
+  else if (btn.dataset.rcptAction === 'send') {
+    const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
+    const isResend = b && b.receipt_sent_at;
+    if (!confirm((isResend ? 'Resend' : 'Send') + ' a payment receipt to the renter now?')) return;
+    await sendReceiptAction(bookingId);
+    await loadBookings();
+  }
+});
+document.getElementById('btn-close-receipt-action').addEventListener('click', function () {
+  document.getElementById('receipt-action-overlay').style.display = 'none';
+});
+document.getElementById('receipt-action-overlay').addEventListener('click', function (e) {
+  if (e.target === this) this.style.display = 'none';
+});
+
 // ---- Edit invoice modal: notes + one-time flat discount only ----
 function openEditInvoiceModal(bookingId) {
   const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
   if (!b) return;
+  let signedAmount = 0;
+  if (b.manual_adjustment_type === 'flat') signedAmount = -(Number(b.manual_adjustment_value) || 0);
+  else if (b.manual_adjustment_type === 'additional_charge') signedAmount = Number(b.manual_adjustment_value) || 0;
   document.getElementById('ei-notes').value = b.notes || '';
-  document.getElementById('ei-flat-discount').value = (b.manual_adjustment_type === 'flat' ? b.manual_adjustment_value : 0) || 0;
+  document.getElementById('ei-flat-discount').value = signedAmount;
+  document.getElementById('ei-adjustment-reason').value = b.manual_adjustment_reason || '';
   document.getElementById('edit-invoice-result').style.display = 'none';
   document.getElementById('btn-save-edit-invoice').dataset.bookingId = bookingId;
+  document.getElementById('btn-save-edit-invoice-only').dataset.bookingId = bookingId;
   document.getElementById('edit-invoice-overlay').style.display = 'flex';
 }
 document.getElementById('btn-close-edit-invoice').addEventListener('click', function () {
@@ -1212,48 +1278,52 @@ document.getElementById('btn-cancel-edit-invoice').addEventListener('click', fun
 document.getElementById('edit-invoice-overlay').addEventListener('click', function (e) {
   if (e.target === this) this.style.display = 'none';
 });
-document.getElementById('btn-save-edit-invoice').addEventListener('click', async function () {
-  const btn = this;
-  const bookingId = btn.dataset.bookingId;
+async function saveInvoiceEdit(bookingId, andSend) {
   const notes = document.getElementById('ei-notes').value;
-  const flatDiscount = Number(document.getElementById('ei-flat-discount').value) || 0;
+  const adjustmentAmount = Number(document.getElementById('ei-flat-discount').value) || 0;
+  const discountReason = document.getElementById('ei-adjustment-reason').value;
   const resultBox = document.getElementById('edit-invoice-result');
-  btn.disabled = true; btn.textContent = 'Saving…';
   try {
     const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/invoice', {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ notes: notes, flatDiscountAmount: flatDiscount })
+      body: JSON.stringify({ notes: notes, adjustmentAmount: adjustmentAmount, discountReason: discountReason })
     });
     const data = await res.json();
     resultBox.style.display = 'block';
     if (!res.ok) {
       resultBox.className = 'result-box error';
       resultBox.textContent = (data.errors || [data.error || 'Something went wrong.']).join(' ');
-    } else {
-      resultBox.className = 'result-box success';
-      resultBox.textContent = 'Saved. This invoice now needs to be resent to reflect the change.';
-      await loadBookings();
-      setTimeout(function () { document.getElementById('edit-invoice-overlay').style.display = 'none'; }, 1200);
+      return false;
     }
+    resultBox.className = 'result-box success';
+    resultBox.textContent = andSend ? 'Saved — sending invoice…' : 'Saved.';
+    await loadBookings();
+    return true;
   } catch (err) {
     resultBox.style.display = 'block'; resultBox.className = 'result-box error';
     resultBox.textContent = 'Could not reach the booking system: ' + err.message;
-  } finally {
-    btn.disabled = false; btn.textContent = 'Save';
+    return false;
   }
+}
+document.getElementById('btn-save-edit-invoice-only').addEventListener('click', async function () {
+  const btn = this;
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const ok = await saveInvoiceEdit(btn.dataset.bookingId, false);
+  btn.disabled = false; btn.textContent = 'Save only';
+  if (ok) setTimeout(function () { document.getElementById('edit-invoice-overlay').style.display = 'none'; }, 900);
+});
+document.getElementById('btn-save-edit-invoice').addEventListener('click', async function () {
+  const btn = this;
+  const bookingId = btn.dataset.bookingId;
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const ok = await saveInvoiceEdit(bookingId, true);
+  if (ok) {
+    document.getElementById('edit-invoice-overlay').style.display = 'none';
+    await sendInvoiceAction(bookingId);
+  }
+  btn.disabled = false; btn.textContent = 'Save & send';
 });
 
-// ---- Receipt icon ----
-document.addEventListener('click', async function (e) {
-  const btn = e.target.closest('[data-receipt-booking]');
-  if (!btn || btn.disabled) return;
-  const bookingId = btn.dataset.receiptBooking;
-  const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
-  if (b && b.receipt_sent_at) return; // already sent — nothing to do on click
-  if (!confirm('Send a payment receipt to the renter now?')) return;
-  await sendReceiptAction(bookingId);
-  await loadBookings();
-});
 // ---- Cancellation ----
 // Client-side preview only, using the same policy the backend enforces
 // authoritatively: 14+ days' notice = no fee. 7-13 days = 50% fee. Under 7

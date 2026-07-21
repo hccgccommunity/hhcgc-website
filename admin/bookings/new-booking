@@ -176,11 +176,11 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 <div class="module-nav">
   <div class="container">
     <ul>
+      <li><a href="dashboard">Dashboard</a></li>
       <li><a href="new-booking" class="active">New Booking</a></li>
       <li><a href="all-bookings">All Bookings</a></li>
       <li><a href="rooms-rates">Rooms &amp; Rates</a></li>
       <li><a href="add-renter">Add A Renter</a></li>
-      <li><a href="dashboard">Dashboard</a></li>
     </ul>
   </div>
 </div>
@@ -261,7 +261,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
         <div class="field"><label>Date</label><input type="date" id="f-date"></div>
         <div class="field-row">
           <div class="field"><label>Start time</label><input type="time" id="f-start" value="14:00" list="common-times"></div>
-          <div class="field"><label>End time</label><input type="time" id="f-end" value="18:00" list="common-times"></div>
+          <div class="field"><label>End time</label><input type="time" id="f-end" value="16:00" list="common-times"></div>
         </div>
 
         <div class="checkbox-row"><input type="checkbox" id="f-recurring-enabled"><label for="f-recurring-enabled">This repeats</label></div>

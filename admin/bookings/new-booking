@@ -180,6 +180,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
       <li><a href="all-bookings">All Bookings</a></li>
       <li><a href="rooms-rates">Rooms &amp; Rates</a></li>
       <li><a href="add-renter">Add A Renter</a></li>
+      <li><a href="dashboard">Dashboard</a></li>
     </ul>
   </div>
 </div>
@@ -233,7 +234,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
         <div class="card-sub">Select all four for whole-facility. Kitchen requires Surya Hall or Patanjali Hall.</div>
         <button type="button" class="btn-whole-facility" id="btn-whole-facility">Select all rooms (whole facility)</button>
         <div class="room-picker" id="room-picker" style="margin-top:12px;"></div>
-        <div class="checkbox-row" id="nonprofit-row"><input type="checkbox" id="f-nonprofit"><label for="f-nonprofit">Renter is a nonprofit</label></div>
+        <div class="checkbox-row" id="nonprofit-row" style="display:none;"><span style="color:var(--green);font-weight:700;">&#10003; Nonprofit discount applied</span> <span class="card-sub" style="margin:0;">(based on this renter's saved status — change it in Add A Renter)</span></div>
 
         <div class="section-divider"></div>
 
@@ -496,7 +497,7 @@ document.getElementById('f-internal-enabled').addEventListener('change', functio
   document.getElementById('f-notes').placeholder = isInternal ? 'What is this program/event about?' : 'Anything worth remembering about this booking';
   if (isInternal) {
     document.getElementById('f-renter-select').value = '';
-    document.getElementById('f-nonprofit').checked = false;
+    document.getElementById('nonprofit-row').style.display = 'none';
     document.getElementById('f-adjustment-enabled').checked = false;
     document.getElementById('adjustment-fields').classList.remove('open');
   } else {
@@ -513,7 +514,7 @@ document.getElementById('f-adjustment-enabled').addEventListener('change', funct
   document.getElementById('adjustment-fields').classList.toggle('open', this.checked);
   recalc();
 });
-['f-nonprofit','f-adj-type','f-adj-value'].forEach(function (id) {
+['f-renter-select','f-adj-type','f-adj-value'].forEach(function (id) {
   document.getElementById(id).addEventListener('input', recalc);
   document.getElementById(id).addEventListener('change', recalc);
 });
@@ -536,7 +537,9 @@ function recalc() {
     const r = ROOMS.find(function (x) { return x.name === name; });
     return sum + (r ? r.rate : 0);
   }, 0);
-  const isNonprofit = document.getElementById('f-nonprofit').checked;
+  const selectedRenter = RENTERS.find(function (r) { return r.renter_id === document.getElementById('f-renter-select').value; });
+  const isNonprofit = !document.getElementById('f-internal-enabled').checked && !!(selectedRenter && selectedRenter.is_nonprofit);
+  document.getElementById('nonprofit-row').style.display = isNonprofit ? 'flex' : 'none';
   const occList = occurrences.length ? occurrences : [{
     date: document.getElementById('f-date').value,
     startTime: document.getElementById('f-start').value,
@@ -698,7 +701,7 @@ document.getElementById('btn-generate').addEventListener('click', async function
     eventName: !isInternal ? document.getElementById('f-event-name').value : null,
     hccgcRepresentativeName: isInternal ? document.getElementById('f-hccg-rep').value : null,
     publishAsEvent: isInternal ? document.getElementById('f-publish-event').checked : false,
-    isNonprofit: document.getElementById('f-nonprofit').checked,
+    isNonprofit: !isInternal && !!(RENTERS.find(function (r) { return r.renter_id === document.getElementById('f-renter-select').value; }) || {}).is_nonprofit,
     notes: document.getElementById('f-notes').value,
     manualAdjustmentType: (!isInternal && document.getElementById('f-adjustment-enabled').checked) ? document.getElementById('f-adj-type').value : null,
     manualAdjustmentValue: (!isInternal && document.getElementById('f-adjustment-enabled').checked) ? parseFloat(document.getElementById('f-adj-value').value) || null : null,
@@ -774,7 +777,7 @@ document.getElementById('invoice-preview-overlay').addEventListener('click', fun
 
 function resetForm() {
   ['f-name','f-event-name','f-notes','f-adj-value','f-adj-reason','f-hccg-rep'].forEach(function (id) { document.getElementById(id).value = ''; });
-  document.getElementById('f-nonprofit').checked = false;
+  document.getElementById('nonprofit-row').style.display = 'none';
   document.getElementById('f-adjustment-enabled').checked = false;
   document.getElementById('adjustment-fields').classList.remove('open');
   document.getElementById('f-recurring-enabled').checked = false;

@@ -313,11 +313,11 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
 <div class="module-nav">
   <div class="container">
     <ul>
+      <li><a href="dashboard">Dashboard</a></li>
       <li><a href="new-booking">New Booking</a></li>
       <li><a href="all-bookings" class="active">All Bookings</a></li>
       <li><a href="rooms-rates">Rooms &amp; Rates</a></li>
       <li><a href="add-renter">Add A Renter</a></li>
-      <li><a href="dashboard">Dashboard</a></li>
     </ul>
   </div>
 </div>
@@ -555,7 +555,7 @@ async function loadBookings() {
   render();
 }
 
-let state = { contactFilter: null, room: '', status: '', month: 'default3', sortKey: 'updated_display', sortDir: 'desc', pageSize: 20, page: 1 };
+let state = { contactFilter: undefined, room: '', status: '', month: 'default3', sortKey: 'updated_display', sortDir: 'desc', pageSize: 20, page: 1 };
 
 // ---- Column configurator ----
 // Contact Name and Actions are always shown — everything else is
@@ -1702,6 +1702,11 @@ function populateContactFilter() {
   const names = new Set();
   BOOKINGS.forEach(function (b) { names.add(contactNameFor(b)); });
   const sorted = Array.from(names).sort(function (a, b) { return a.localeCompare(b); });
+  // First time this runs (state.contactFilter is still undefined, not yet
+  // touched by the user), default to everything except HCCGC checked.
+  if (state.contactFilter === undefined) {
+    state.contactFilter = new Set(sorted.filter(function (n) { return n !== 'HCCGC'; }));
+  }
   const list = document.getElementById('contact-filter-list');
   const checkedSet = state.contactFilter; // null = everything checked
   list.innerHTML = sorted.map(function (name) {

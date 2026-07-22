@@ -384,7 +384,7 @@ async function openRenterReviewModal(renterId) {
     if (!requests.length) { bookingsEl.innerHTML = '<div class="empty-state" style="padding:12px;">No booking requests on file yet.</div>'; return; }
     bookingsEl.innerHTML = requests.map(function (req) {
       var dateStr = new Date(req.eventDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      var timeStr = req.startTime && req.endTime ? new Date(req.startTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + '\u2013' + new Date(req.endTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
+      var timeStr = req.startTime && req.endTime ? new Date(req.startTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' }) + '\u2013' + new Date(req.endTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' }) : '';
       var notesHtml = '';
       if (req.notes) {
         var notesLines = req.notes.split(' | ').map(function (line) { return '<div>' + escHtml(line) + '</div>'; }).join('');

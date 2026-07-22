@@ -253,7 +253,8 @@ async function loadMonthlyTrend() {
   }
 }
 function niceMax(value) {
-  return value + 500;
+  if (value % 100 === 0) return value + 100;
+  return Math.ceil(value / 100) * 100;
 }
 function renderVerticalTrendChart(containerId, months, emptyMessage) {
   var container = document.getElementById(containerId);

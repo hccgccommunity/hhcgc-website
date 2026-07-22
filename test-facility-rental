@@ -1121,6 +1121,22 @@
             </div>
             <button type="button" class="request-submit-btn" id="rf-continue-btn" style="max-width:220px;">Continue</button>
 
+            <div id="rf-hccgc-gate" style="display:none;margin-top:20px;">
+              <div class="request-section-title">Is this for an HCCGC event or a non-HCCGC event?</div>
+              <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                <button type="button" class="request-submit-btn" id="rf-hccgc-yes-btn" style="max-width:220px;">HCCGC event</button>
+                <button type="button" class="request-submit-btn" id="rf-hccgc-no-btn" style="max-width:220px;background:#fff;color:var(--saffron-dark);border:1.5px solid var(--saffron-dark);">Non-HCCGC event</button>
+              </div>
+            </div>
+
+            <div id="rf-hccgc-fields" style="display:none;">
+              <div class="request-section-title" style="margin-top:20px;">HCCGC program / event details</div>
+              <div class="request-field"><label>Program / event name <span class="req-star">*</span></label><input type="text" id="rf-hccgc-event-name" required></div>
+              <div class="request-field"><label>HCCGC representative organizing this <span class="req-star">*</span></label><input type="text" id="rf-hccgc-organizer" placeholder="Who at HCCGC is organizing this?" required></div>
+              <div class="request-field"><label>Tell us more about the event (optional)</label><textarea id="rf-hccgc-event-details" placeholder="What's the occasion? Approximate number of attendees, any special requirements, etc."></textarea></div>
+              <div class="request-field" style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="rf-hccgc-publish" checked style="width:auto;"><label for="rf-hccgc-publish" style="margin:0;">Also list this on the public Upcoming Events page</label></div>
+            </div>
+
             <div id="rf-after-email" style="display:none;">
               <div id="rf-known-renter-banner" style="display:none; background:#e8f5ec; border:1px solid rgba(46,125,79,0.25); border-radius:12px; padding:12px 16px; margin: 20px 0 4px;">
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:0.9rem; color:#2e7d4f;">
@@ -1129,44 +1145,46 @@
                 </div>
               </div>
 
-              <div class="request-section-title" style="margin-top:20px;">Your contact info</div>
-              <div id="rf-contact-fields">
-                <div class="request-field-row">
-                  <div class="request-field"><label>First name <span class="req-star">*</span></label><input type="text" id="rf-first-name" required></div>
-                  <div class="request-field"><label>Last name <span class="req-star">*</span></label><input type="text" id="rf-last-name" required></div>
-                </div>
-                <div class="request-field-row">
-                  <div class="request-field"><label>Phone number <span class="req-star">*</span></label><input type="tel" id="rf-phone" required></div>
-                  <div class="request-field">
-                    <label>Is your organization a nonprofit? <span class="req-star">*</span></label>
-                    <select id="rf-is-nonprofit">
-                      <option value="no" selected>No</option>
-                      <option value="yes">Yes</option>
-                    </select>
+              <div id="rf-standard-only-section">
+                <div class="request-section-title" style="margin-top:20px;">Your contact info</div>
+                <div id="rf-contact-fields">
+                  <div class="request-field-row">
+                    <div class="request-field"><label>First name <span class="req-star">*</span></label><input type="text" id="rf-first-name" required></div>
+                    <div class="request-field"><label>Last name <span class="req-star">*</span></label><input type="text" id="rf-last-name" required></div>
+                  </div>
+                  <div class="request-field-row">
+                    <div class="request-field"><label>Phone number <span class="req-star">*</span></label><input type="tel" id="rf-phone" required></div>
+                    <div class="request-field">
+                      <label>Is your organization a nonprofit? <span class="req-star">*</span></label>
+                      <select id="rf-is-nonprofit">
+                        <option value="no" selected>No</option>
+                        <option value="yes">Yes</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="request-field-row">
+                    <div class="request-field"><label id="rf-org-label">Organization name (optional)</label><input type="text" id="rf-org"></div>
+                    <div class="request-field" id="rf-website-field" style="display:none;"><label>Organization website</label><input type="url" id="rf-website" placeholder="https://"></div>
+                  </div>
+
+                  <div class="request-field" style="position:relative;">
+                    <label>Billing address — street <span class="req-star">*</span></label>
+                    <input type="text" id="rf-street" placeholder="Start typing an address…" autocomplete="off" required>
+                    <div class="request-autocomplete-list" id="rf-street-autocomplete" style="display:none;"></div>
+                  </div>
+                  <div class="request-field-row">
+                    <div class="request-field"><label>Suite / Apartment # (optional)</label><input type="text" id="rf-suite"></div>
+                    <div class="request-field"><label>City <span class="req-star">*</span></label><input type="text" id="rf-city" required></div>
+                  </div>
+                  <div class="request-field-row">
+                    <div class="request-field"><label>State <span class="req-star">*</span></label><input type="text" id="rf-state" required></div>
+                    <div class="request-field"><label>ZIP <span class="req-star">*</span></label><input type="text" id="rf-zip" required></div>
                   </div>
                 </div>
-                <div class="request-field-row">
-                  <div class="request-field"><label id="rf-org-label">Organization name (optional)</label><input type="text" id="rf-org"></div>
-                  <div class="request-field" id="rf-website-field" style="display:none;"><label>Organization website</label><input type="url" id="rf-website" placeholder="https://"></div>
-                </div>
 
-                <div class="request-field" style="position:relative;">
-                  <label>Billing address — street <span class="req-star">*</span></label>
-                  <input type="text" id="rf-street" placeholder="Start typing an address…" autocomplete="off" required>
-                  <div class="request-autocomplete-list" id="rf-street-autocomplete" style="display:none;"></div>
-                </div>
-                <div class="request-field-row">
-                  <div class="request-field"><label>Suite / Apartment # (optional)</label><input type="text" id="rf-suite"></div>
-                  <div class="request-field"><label>City <span class="req-star">*</span></label><input type="text" id="rf-city" required></div>
-                </div>
-                <div class="request-field-row">
-                  <div class="request-field"><label>State <span class="req-star">*</span></label><input type="text" id="rf-state" required></div>
-                  <div class="request-field"><label>ZIP <span class="req-star">*</span></label><input type="text" id="rf-zip" required></div>
-                </div>
+                <div class="request-section-title">Your event</div>
+                <div class="request-field"><label>Tell us more about your event <span class="req-star">*</span></label><textarea id="rf-event-details" placeholder="What's the occasion? Approximate number of guests, any special requirements, etc." required></textarea></div>
               </div>
-
-              <div class="request-section-title">Your event</div>
-              <div class="request-field"><label>Tell us more about your event <span class="req-star">*</span></label><textarea id="rf-event-details" placeholder="What's the occasion? Approximate number of guests, any special requirements, etc." required></textarea></div>
 
               <div class="request-field" style="position:relative;">
                 <label>Which room(s) would you like? <span class="req-star">*</span></label>
@@ -1188,21 +1206,29 @@
               <button type="button" class="request-add-date-btn" id="rf-add-date-btn">+ Add another date</button>
             </div>
 
-            <div class="request-section-title">A few more details</div>
-            <div class="request-field">
-              <label>Are you working with any HCCGC representative?</label>
-              <select id="rf-hccg-rep">
-                <option value="">Choose…</option>
-                <option>Rajendra Kelkar</option>
-                <option>Raj Loni</option>
-                <option>Raghvendra Tadpatri</option>
-                <option>Nilaj Rukadikar</option>
-                <option>Other</option>
-                <option>No</option>
-              </select>
+            <div class="request-field" id="rf-live-estimate" style="display:none;background:var(--surface-soft,#fff6ea);border-radius:14px;padding:16px 20px;">
+              <div style="font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;">Estimated total</div>
+              <div id="rf-live-estimate-amount" style="font-size:1.5rem;font-weight:800;color:var(--maroon);"></div>
+              <div id="rf-live-estimate-breakdown" style="font-size:0.8rem;color:var(--muted);margin-top:4px;"></div>
             </div>
-            <div class="request-field" id="rf-hccg-rep-other-field" style="display:none;"><label>Please specify name</label><input type="text" id="rf-hccg-rep-other"></div>
-            <div class="request-field"><label>Personal or business references (optional)</label><textarea id="rf-references"></textarea></div>
+
+            <div id="rf-standard-only-section-2">
+              <div class="request-section-title">A few more details</div>
+              <div class="request-field">
+                <label>Are you working with any HCCGC representative?</label>
+                <select id="rf-hccg-rep">
+                  <option value="">Choose…</option>
+                  <option>Rajendra Kelkar</option>
+                  <option>Raj Loni</option>
+                  <option>Raghvendra Tadpatri</option>
+                  <option>Nilaj Rukadikar</option>
+                  <option>Other</option>
+                  <option>No</option>
+                </select>
+              </div>
+              <div class="request-field" id="rf-hccg-rep-other-field" style="display:none;"><label>Please specify name</label><input type="text" id="rf-hccg-rep-other"></div>
+              <div class="request-field"><label>Personal or business references (optional)</label><textarea id="rf-references"></textarea></div>
+            </div>
             <div class="request-field"><label>Additional requests or notes (optional)</label><textarea id="rf-notes" placeholder="Anything else we should know?"></textarea></div>
 
             <button type="submit" class="request-submit-btn" id="rf-submit-btn">Submit request</button>
@@ -1214,6 +1240,11 @@
             <div class="icon">🎉</div>
             <h3>Request received!</h3>
             <p>Thank you for your interest in renting space at HCCGC. We've sent a confirmation to your email, and our team will follow up within 2–3 business days.</p>
+            <div id="rf-success-estimate" style="display:none;background:var(--surface-soft,#fff6ea);border-radius:14px;padding:16px 20px;margin-top:16px;">
+              <div style="font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;">Estimated total</div>
+              <div id="rf-success-estimate-amount" style="font-size:1.6rem;font-weight:800;color:var(--maroon);"></div>
+              <div style="font-size:0.78rem;color:var(--muted);margin-top:4px;">Based on standard rates and applicable discounts — your final invoice may differ if adjusted during review.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1411,6 +1442,14 @@
         const res = await fetch(API_BASE + '/public/renter-lookup?email=' + encodeURIComponent(email));
         const data = await res.json();
         statusEl.textContent = '';
+
+        if (email.toLowerCase().endsWith('@hccgc.org')) {
+          document.getElementById('rf-hccgc-gate').style.display = 'block';
+          document.getElementById('rf-after-email').style.display = 'none';
+          document.getElementById('rf-hccgc-fields').style.display = 'none';
+          continueBtn.disabled = false;
+          return;
+        }
         document.getElementById('rf-after-email').style.display = 'block';
 
         if (data.found) {
@@ -1449,6 +1488,29 @@
     }
 
     document.getElementById('rf-continue-btn').addEventListener('click', checkEmailAndProceed);
+
+    let isHccgcEventPath = false;
+    // Fields only meaningful for the standard renter path — their
+    // `required` attribute has to move with them, or the browser's native
+    // validation blocks submission on fields that are hidden and would
+    // never get filled in on the HCCGC-event path.
+    const STANDARD_REQUIRED_IDS = ['rf-first-name', 'rf-last-name', 'rf-phone', 'rf-street', 'rf-city', 'rf-state', 'rf-zip', 'rf-event-details'];
+    const HCCGC_REQUIRED_IDS = ['rf-hccgc-event-name', 'rf-hccgc-organizer'];
+    function setHccgcPath(isHccgc) {
+      isHccgcEventPath = isHccgc;
+      document.getElementById('rf-hccgc-gate').style.display = 'none';
+      document.getElementById('rf-hccgc-fields').style.display = isHccgc ? 'block' : 'none';
+      document.getElementById('rf-standard-only-section').style.display = isHccgc ? 'none' : 'block';
+      document.getElementById('rf-standard-only-section-2').style.display = isHccgc ? 'none' : 'block';
+      document.getElementById('rf-after-email').style.display = 'block';
+      STANDARD_REQUIRED_IDS.forEach(function (id) { document.getElementById(id).required = !isHccgc; });
+      HCCGC_REQUIRED_IDS.forEach(function (id) { document.getElementById(id).required = isHccgc; });
+      if (isHccgc) document.getElementById('rf-hccgc-event-name').focus();
+      else document.getElementById('rf-first-name').focus();
+      updateLiveEstimate();
+    }
+    document.getElementById('rf-hccgc-yes-btn').addEventListener('click', function () { setHccgcPath(true); });
+    document.getElementById('rf-hccgc-no-btn').addEventListener('click', function () { setHccgcPath(false); });
     document.getElementById('rf-email').addEventListener('keydown', (e) => {
       if (e.key === 'Enter') { e.preventDefault(); checkEmailAndProceed(); }
     });
@@ -1498,11 +1560,65 @@
       row.querySelector('.rf-remove-date').addEventListener('click', () => {
         if (document.querySelectorAll('.rf-date-row').length === 1) return; // keep at least one row
         row.remove();
+        updateLiveEstimate();
       });
       document.getElementById('rf-dates-list').appendChild(row);
     }
     document.getElementById('rf-add-date-btn').addEventListener('click', addDateRow);
     addDateRow(); // start with one row
+
+    // ── Live estimate for the actual request being submitted — same
+    // rates and discount rules as the standalone estimator above, but
+    // applied per-occurrence (each date checked individually for the
+    // weekday/extended-hours discounts) and summed across the whole
+    // series, since a multi-date request can span a real mix of both. ──
+    function updateLiveEstimate() {
+      const box = document.getElementById('rf-live-estimate');
+      if (isHccgcEventPath) { box.style.display = 'none'; return; }
+      const roomValues = selectedRoomValues();
+      const rows = Array.from(document.querySelectorAll('.rf-date-row'));
+      const isNonprofit = document.getElementById('rf-is-nonprofit').value === 'yes';
+      if (!roomValues.length || !rows.length) { box.style.display = 'none'; return; }
+
+      const rateByName = { 'Surya Hall': 45, 'Patanjali Hall': 40, 'Nataraj Room': 30, 'Ganesh Room': 15, 'Kitchen': 0, 'Entire Facility': 130 };
+      const normalizedRooms = roomValues.includes('Entire Facility') ? ['Surya Hall', 'Patanjali Hall', 'Nataraj Room', 'Ganesh Room'] : roomValues;
+      const baseRate = normalizedRooms.reduce((sum, r) => sum + (rateByName[r] || 0), 0);
+
+      let grandTotal = 0, grandBase = 0, validRows = 0;
+      rows.forEach(function (row) {
+        const dateVal = row.querySelector('.rf-date-input').value;
+        const startVal = row.querySelector('.rf-start-input').value;
+        const endVal = row.querySelector('.rf-end-input').value;
+        if (!dateVal || !startVal || !endVal) return;
+        const start = new Date(dateVal + 'T' + startVal + ':00');
+        const end = new Date(dateVal + 'T' + endVal + ':00');
+        const hours = Math.max(0, (end - start) / 3600000);
+        if (hours <= 0) return;
+        validRows++;
+        const day = new Date(dateVal + 'T00:00:00').getDay();
+        const isWeekday = day >= 1 && day <= 5;
+        const isExtended = hours >= 4;
+        const baseTotal = baseRate * hours;
+        let mult = 1;
+        if (isWeekday) mult *= 0.80;
+        if (isExtended) mult *= 0.80;
+        if (isNonprofit) mult *= 0.75;
+        grandTotal += baseTotal * mult;
+        grandBase += baseTotal;
+      });
+
+      if (!validRows) { box.style.display = 'none'; return; }
+      box.style.display = 'block';
+      document.getElementById('rf-live-estimate-amount').textContent = '$' + grandTotal.toFixed(2);
+      const savings = grandBase - grandTotal;
+      const roomLabel = roomValues.includes('Entire Facility') ? 'Entire Facility' : roomValues.join(' + ');
+      document.getElementById('rf-live-estimate-breakdown').textContent = roomLabel + ' · ' + validRows + ' date' + (validRows !== 1 ? 's' : '') +
+        (savings > 0.01 ? ' · Base: $' + grandBase.toFixed(2) + ' · You save: $' + savings.toFixed(2) : '');
+    }
+    document.getElementById('rf-dates-list').addEventListener('input', updateLiveEstimate);
+    roomPanel.addEventListener('change', updateLiveEstimate);
+    document.getElementById('rf-is-nonprofit').addEventListener('change', updateLiveEstimate);
+    document.getElementById('rf-add-date-btn').addEventListener('click', updateLiveEstimate);
 
     document.getElementById('requestForm').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -1510,6 +1626,9 @@
 
       const rooms = selectedRoomValues();
       if (!rooms.length) { showRequestResult('Please select at least one room.'); return; }
+      if (rooms.includes('Kitchen') && !rooms.includes('Surya Hall') && !rooms.includes('Patanjali Hall')) {
+        showRequestResult('Kitchen can only be booked together with Surya Hall or Patanjali Hall.'); return;
+      }
 
       const occurrences = Array.from(document.querySelectorAll('.rf-date-row')).map(row => ({
         date: row.querySelector('.rf-date-input').value,
@@ -1517,33 +1636,49 @@
         endTime: row.querySelector('.rf-end-input').value
       }));
       if (occurrences.some(o => !o.date || !o.startTime || !o.endTime)) { showRequestResult('Please fill in every date row completely.'); return; }
-      if (document.getElementById('rf-is-nonprofit').value === 'yes' && !document.getElementById('rf-org').value.trim()) {
-        showRequestResult('Organization name is required for nonprofits.'); return;
+
+      let payload;
+      if (isHccgcEventPath) {
+        if (!document.getElementById('rf-hccgc-event-name').value.trim()) { showRequestResult('Program/event name is required.'); return; }
+        if (!document.getElementById('rf-hccgc-organizer').value.trim()) { showRequestResult('HCCGC representative name is required.'); return; }
+        payload = {
+          isHccgcEvent: true,
+          email: document.getElementById('rf-email').value,
+          eventName: document.getElementById('rf-hccgc-event-name').value,
+          hccgcRepresentative: document.getElementById('rf-hccgc-organizer').value,
+          eventDetails: document.getElementById('rf-hccgc-event-details').value,
+          publishAsEvent: document.getElementById('rf-hccgc-publish').checked,
+          rooms: rooms,
+          occurrences: occurrences,
+          notes: document.getElementById('rf-notes').value
+        };
+      } else {
+        if (document.getElementById('rf-is-nonprofit').value === 'yes' && !document.getElementById('rf-org').value.trim()) {
+          showRequestResult('Organization name is required for nonprofits.'); return;
+        }
+        const addressParts = [document.getElementById('rf-street').value, document.getElementById('rf-suite').value].filter(Boolean).join(', ');
+        const fullAddress = addressParts + (addressParts ? ', ' : '') +
+          document.getElementById('rf-city').value + ', ' + document.getElementById('rf-state').value + ' ' + document.getElementById('rf-zip').value;
+        const repValue = document.getElementById('rf-hccg-rep').value;
+        const hccgcRepresentative = repValue === 'Other' ? document.getElementById('rf-hccg-rep-other').value : repValue;
+        payload = {
+          isHccgcEvent: false,
+          firstName: document.getElementById('rf-first-name').value,
+          lastName: document.getElementById('rf-last-name').value,
+          email: document.getElementById('rf-email').value,
+          phone: document.getElementById('rf-phone').value,
+          organizationName: document.getElementById('rf-org').value,
+          isNonprofit: document.getElementById('rf-is-nonprofit').value === 'yes',
+          website: document.getElementById('rf-website').value,
+          billingAddress: fullAddress,
+          eventDetails: document.getElementById('rf-event-details').value,
+          rooms: rooms,
+          occurrences: occurrences,
+          hccgcRepresentative: hccgcRepresentative,
+          references: document.getElementById('rf-references').value,
+          notes: document.getElementById('rf-notes').value
+        };
       }
-
-      const addressParts = [document.getElementById('rf-street').value, document.getElementById('rf-suite').value].filter(Boolean).join(', ');
-      const fullAddress = addressParts + (addressParts ? ', ' : '') +
-        document.getElementById('rf-city').value + ', ' + document.getElementById('rf-state').value + ' ' + document.getElementById('rf-zip').value;
-
-      const repValue = document.getElementById('rf-hccg-rep').value;
-      const hccgcRepresentative = repValue === 'Other' ? document.getElementById('rf-hccg-rep-other').value : repValue;
-
-      const payload = {
-        firstName: document.getElementById('rf-first-name').value,
-        lastName: document.getElementById('rf-last-name').value,
-        email: document.getElementById('rf-email').value,
-        phone: document.getElementById('rf-phone').value,
-        organizationName: document.getElementById('rf-org').value,
-        isNonprofit: document.getElementById('rf-is-nonprofit').value === 'yes',
-        website: document.getElementById('rf-website').value,
-        billingAddress: fullAddress,
-        eventDetails: document.getElementById('rf-event-details').value,
-        rooms: rooms,
-        occurrences: occurrences,
-        hccgcRepresentative: hccgcRepresentative,
-        references: document.getElementById('rf-references').value,
-        notes: document.getElementById('rf-notes').value
-      };
 
       btn.disabled = true; btn.textContent = 'Submitting…';
       try {
@@ -1557,6 +1692,10 @@
         } else {
           document.getElementById('requestForm').style.display = 'none';
           document.getElementById('rf-success-panel').style.display = 'block';
+          if (!isHccgcEventPath && data.estimatedTotal !== undefined) {
+            document.getElementById('rf-success-estimate').style.display = 'block';
+            document.getElementById('rf-success-estimate-amount').textContent = '$' + Number(data.estimatedTotal).toFixed(2);
+          }
         }
       } catch (err) {
         showRequestResult('Could not reach the server: ' + err.message);

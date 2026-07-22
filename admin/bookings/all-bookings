@@ -142,7 +142,7 @@ tr.sub-row td:first-child { padding-left: 28px; }
 .btn-invoice:hover:not(.sent) { filter: brightness(0.96); }
 .action-icons { display: flex; align-items: center; gap: 4px; }
 .btn-icon-action { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; }
-.btn-icon-action.has-content { background: var(--surface-soft); }
+.btn-icon-action.has-content { background: #bdedcf; border: 2px solid #1f6b3f; }
 .btn-icon-action:hover { filter: brightness(0.96); }
 .btn-receipt { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; }
 .btn-receipt.sent { background: #bdedcf; border: 2px solid #1f6b3f; box-shadow: 0 0 0 1px rgba(31,107,63,0.25); cursor: default; }

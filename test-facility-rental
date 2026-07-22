@@ -1504,6 +1504,13 @@
       });
 
       gridEl.innerHTML = html;
+
+      // Default the visible window to 9 AM–9 PM even though the full 24
+      // hours are there to scroll through — most bookings fall in this
+      // range, so it's the more useful starting point than midnight.
+      const scrollContainer = document.getElementById('avail-week-container');
+      const nineAmFraction = (9 - AVAIL_DAY_START_HOUR) / totalHours;
+      scrollContainer.scrollTop = nineAmFraction * bodyHeight;
     }
 
     async function loadMonthView() {
@@ -1538,7 +1545,7 @@
       const byDate = {};
       bookings.forEach(function (b) {
         if (!byDate[b.eventDate]) byDate[b.eventDate] = [];
-        (b.rooms || []).forEach(function (room) { byDate[b.eventDate].push(room); });
+        (b.rooms || []).forEach(function (room) { byDate[b.eventDate].push({ room: room, startTime: b.startTime, endTime: b.endTime }); });
       });
 
       const startWeekday = firstOfMonth.getDay();
@@ -1554,7 +1561,11 @@
         const extra = dayRooms.length - shown.length;
         html += '<div class="avail-month-day' + (dateStr === todayStr ? ' is-today' : '') + '">' +
           '<div class="avail-month-day-num">' + d + '</div>' +
-          shown.map(function (room) { return '<span class="avail-month-chip" style="background:' + (AVAIL_ROOM_COLORS[room] || '#8d6e63') + ';">' + room.replace(' Hall', '').replace(' Room', '') + '</span>'; }).join('') +
+          shown.map(function (bk) {
+            var timeLabel = new Date(bk.startTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: bk.startTime.slice(14,16) === '00' ? undefined : '2-digit' }).replace(' ', '').toLowerCase();
+            var roomShort = bk.room.replace(' Hall', '').replace(' Room', '');
+            return '<span class="avail-month-chip" style="background:' + (AVAIL_ROOM_COLORS[bk.room] || '#8d6e63') + ';" title="' + bk.room + ' — ' + timeLabel + '">' + timeLabel + ' ' + roomShort + '</span>';
+          }).join('') +
           (extra > 0 ? '<div class="avail-month-more">+' + extra + ' more</div>' : '') +
         '</div>';
       }

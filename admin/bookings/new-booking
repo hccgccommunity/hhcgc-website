@@ -665,6 +665,11 @@ function getEasternHourMinute(date) {
   return { hour: parts.hour, minute: parts.minute };
 }
 
+function formatTimeRangeEastern(startIso, endIso) {
+  var opts = { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' };
+  return new Date(startIso).toLocaleTimeString('en-US', opts) + '\u2013' + new Date(endIso).toLocaleTimeString('en-US', opts);
+}
+
 function layoutDayEvents(events) {
   const sorted = events.slice().sort(function (a, b) { return a.start - b.start; });
   const laneEnds = [];
@@ -743,7 +748,12 @@ async function loadAvailabilityCalendar() {
   const totalHours = AVAIL_DAY_END_HOUR - AVAIL_DAY_START_HOUR;
   const todayEasternParts = getEasternDateParts(new Date());
   const todayStr = todayEasternParts.year + '-' + String(todayEasternParts.month).padStart(2, '0') + '-' + String(todayEasternParts.day).padStart(2, '0');
-  const rowHeightPx = 18;
+  // Use whatever height the flex layout has actually given this
+  // container (it fills the remaining space in the card via flex:1),
+  // rather than guessing a fixed row height that leaves the rest of
+  // that space blank. Falls back to a sane minimum if measured too early.
+  const containerHeight = document.getElementById('avail-week-container').clientHeight;
+  const rowHeightPx = Math.max(14, containerHeight / totalHours);
   const bodyHeight = totalHours * rowHeightPx;
 
   let html = '<div class="avail-week-corner"></div>';
@@ -825,7 +835,7 @@ async function loadMonthView() {
   bookings.forEach(function (b) {
     if (!byDate[b.eventDate]) byDate[b.eventDate] = [];
     (b.rooms || []).forEach(function (room) {
-      byDate[b.eventDate].push({ room: room, who: b.isInternal ? (b.eventName || 'HCCGC program') : (b.renterName || 'Renter'), status: b.paymentStatus });
+      byDate[b.eventDate].push({ room: room, who: b.isInternal ? (b.eventName || 'HCCGC program') : (b.renterName || 'Renter'), status: b.paymentStatus, startTime: b.startTime, endTime: b.endTime });
     });
   });
 
@@ -842,7 +852,11 @@ async function loadMonthView() {
     const extra = dayBookings.length - shown.length;
     html += '<div class="avail-month-day' + (dateStr === todayStr ? ' is-today' : '') + '">' +
       '<div class="avail-month-day-num">' + d + '</div>' +
-      shown.map(function (bk) { return '<span class="avail-month-chip" style="background:' + (AVAIL_ROOM_COLORS[bk.room] || '#8d6e63') + ';" title="' + bk.room + ' — ' + bk.who + ' — ' + bk.status + '">' + bk.who + '</span>'; }).join('') +
+      shown.map(function (bk) {
+        var timeLabel = new Date(bk.startTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: bk.startTime.slice(14,16) === '00' ? undefined : '2-digit', timeZone: 'America/New_York' }).replace(' ', '').toLowerCase();
+        var fullRange = formatTimeRangeEastern(bk.startTime, bk.endTime);
+        return '<span class="avail-month-chip" style="background:' + (AVAIL_ROOM_COLORS[bk.room] || '#8d6e63') + ';" title="' + bk.room + ' — ' + bk.who + ' — ' + fullRange + ' — ' + bk.status + '">' + timeLabel + ' ' + bk.who + '</span>';
+      }).join('') +
       (extra > 0 ? '<div class="avail-month-more">+' + extra + '</div>' : '') +
     '</div>';
   }
@@ -884,6 +898,11 @@ document.getElementById('f-date').addEventListener('change', function () {
   if (availViewMode !== 'week') setAvailViewMode('week'); else loadAvailabilityCalendar();
 });
 renderAvailLegend();
+let availResizeTimer = null;
+window.addEventListener('resize', function () {
+  clearTimeout(availResizeTimer);
+  availResizeTimer = setTimeout(function () { if (availViewMode === 'week') loadAvailabilityCalendar(); }, 200);
+});
 
 // ---- Submit ----
 const API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';

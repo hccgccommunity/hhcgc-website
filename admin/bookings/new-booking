@@ -50,8 +50,26 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .card { min-width: 0; }
 .calendar-col { display: flex; height: 100%; }
 .calendar-card { display: flex; flex-direction: column; width: 100%; }
-#calendar-embed-wrap { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
-#calendar-embed-wrap iframe { width: 100%; flex: 1 1 auto; min-height: 300px; border: 1px solid var(--border); border-radius: 14px; }
+
+.avail-cal-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 0 12px; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+.avail-cal-nav { display: flex; align-items: center; gap: 8px; }
+.avail-cal-nav button { font-family: inherit; font-size: 1rem; font-weight: 700; color: var(--saffron-dark); background: var(--surface-soft); border: 1px solid var(--border); border-radius: 8px; width: 28px; height: 28px; cursor: pointer; }
+.avail-cal-nav button:hover { background: #fff; }
+.avail-cal-month-label { font-size: 0.9rem; font-weight: 700; color: var(--maroon); min-width: 120px; text-align: center; }
+.avail-cal-legend { display: flex; gap: 8px; flex-wrap: wrap; font-size: 0.7rem; color: var(--muted); }
+.avail-cal-legend-item { display: flex; align-items: center; gap: 4px; }
+.avail-cal-legend-dot { width: 9px; height: 9px; border-radius: 3px; display: inline-block; flex-shrink: 0; }
+.avail-week-scroll { overflow-x: auto; flex: 1 1 auto; min-height: 0; }
+.avail-week-grid { display: grid; grid-template-columns: 42px repeat(7, minmax(64px, 1fr)); min-width: 500px; }
+.avail-week-daylabel { text-align: center; font-size: 0.66rem; font-weight: 700; color: var(--text); padding: 6px 2px; border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); }
+.avail-week-daylabel .dow { display: block; font-size: 0.6rem; color: var(--muted); text-transform: uppercase; font-weight: 700; }
+.avail-week-daylabel.is-today { color: var(--saffron-dark); }
+.avail-week-corner { border-bottom: 1px solid var(--border); }
+.avail-week-timecol { position: relative; }
+.avail-week-timelabel { position: absolute; right: 6px; font-size: 0.58rem; color: var(--muted); transform: translateY(-50%); white-space: nowrap; }
+.avail-week-daycol { border-left: 1px solid var(--border); position: relative; background-image: repeating-linear-gradient(to bottom, var(--border) 0, var(--border) 1px, transparent 1px, transparent var(--hour-px, 34px)); }
+.avail-week-chip { position: absolute; border-radius: 4px; padding: 1px 4px; color: #fff; font-size: 0.6rem; font-weight: 700; line-height: 1.25; overflow: hidden; box-sizing: border-box; cursor: default; }
+.avail-week-chip .detail { display: block; font-weight: 400; opacity: 0.92; font-size: 0.56rem; }
 @media (max-width: 1000px) {
   .layout { grid-template-columns: 1fr; }
   .form-col { grid-template-columns: 1fr; }
@@ -131,8 +149,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .occ-table input[type="date"], .occ-table input[type="time"] { font-family: Arial, Helvetica, sans-serif; font-size: 0.8rem; padding: 6px 8px; border: 1.5px solid var(--border); border-radius: 8px; width: 100%; }
 .occ-remove { background: none; border: none; color: #b3382c; cursor: pointer; font-size: 0.9rem; padding: 4px 6px; }
 
-.calendar-card select { width: 100%; font-family: Arial, Helvetica, sans-serif; font-size: 0.84rem; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 10px; margin-bottom: 12px; }
-.calendar-note { font-size: 0.74rem; color: var(--muted); margin-top: 10px; }
+
 #gate{padding:60px 16px;display:flex;justify-content:center;}
 .gate-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow);}
 .gate-card h3{font-family:Georgia,serif;font-size:1.3rem;color:var(--maroon);margin-bottom:.5rem;}
@@ -191,15 +208,18 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
     <div class="calendar-col">
       <div class="card calendar-card">
         <h2>Room availability</h2>
-        <div class="card-sub">Live from Google Calendar, so you can check before you book.</div>
-        <select id="calendar-room-select">
-          <option value="all">All rooms (overlaid)</option>
-          <option value="Surya Hall">Surya Hall</option>
-          <option value="Patanjali Hall">Patanjali Hall</option>
-          <option value="Nataraj Room">Nataraj Room</option>
-          <option value="Ganesh Room">Ganesh Room</option>
-        </select>
-        <div id="calendar-embed-wrap"></div>
+        <div class="card-sub">Live from actual bookings — same source of truth as the public availability calendar.</div>
+        <div class="avail-cal-header">
+          <div class="avail-cal-nav">
+            <button type="button" id="avail-cal-prev" aria-label="Previous week">&larr;</button>
+            <div class="avail-cal-month-label" id="avail-cal-week-label"></div>
+            <button type="button" id="avail-cal-next" aria-label="Next week">&rarr;</button>
+          </div>
+          <div class="avail-cal-legend" id="avail-cal-legend"></div>
+        </div>
+        <div class="avail-week-scroll">
+          <div class="avail-week-grid" id="avail-week-grid"></div>
+        </div>
       </div>
     </div>
 
@@ -600,51 +620,150 @@ function recalc() {
 }
 
 // ---- Calendar sidebar ----
-// Real resource calendar IDs, pulled from the same embed hccgc.org/facility-calendar
-// already uses — so this sidebar shows exactly the same live data as that public page.
-const ROOM_CALENDAR_IDS = {
-  'Surya Hall': 'c_1888mp0b3kdtij7qk891pqsv9jll2@resource.calendar.google.com',
-  'Patanjali Hall': 'c_188428oa7oengjr3mrhsse0n4uu5e@resource.calendar.google.com',
-  'Nataraj Room': 'c_188433th1pkq6i1tlm4hmkguds17a@resource.calendar.google.com',
-  'Ganesh Room': 'c_188c0ce7torcmhnnlk4omolk4n9b6@resource.calendar.google.com'
-};
-// Matches the public page's colors, except Ganesh Room — the public embed
-// reuses the same indigo for both Patanjali and Ganesh, which is confusing
-// when overlaid here, so Ganesh gets its own green.
-const ROOM_COLORS = { 'Surya Hall': 'e67c73', 'Patanjali Hall': '3f51b5', 'Nataraj Room': '795548', 'Ganesh Room': '0b8043' };
-function renderCalendarEmbed() {
-  const selected = document.getElementById('calendar-room-select').value;
-  const wrap = document.getElementById('calendar-embed-wrap');
-  const rooms = selected === 'all' ? Object.keys(ROOM_CALENDAR_IDS) : [selected];
-  const params = new URLSearchParams();
-  rooms.forEach(function (room) {
-    params.append('src', ROOM_CALENDAR_IDS[room]);
-    params.append('color', '%23' + (ROOM_COLORS[room] || '1'));
-  });
-  params.set('ctz', 'America/New_York');
-  params.set('wkst', '1');
-  params.set('height', '490');
-  params.set('showTitle', '0'); params.set('showPrint', '0'); params.set('showTabs', '0');
+// Same underlying source of truth as the public availability calendar
+// (the bookings table itself) — just the authenticated, full-detail
+// endpoint instead of the stripped-down public one, since this is
+// internal-only. Previously this embedded the actual Google Calendar
+// resource calendars directly, which depended on the viewer having "See
+// all event details" access to those specific calendars in Google
+// Calendar — a permission that isn't guaranteed for everyone using this
+// page, which is why it could appear blank. Querying the same data this
+// portal already writes to sidesteps that entirely.
+const AVAIL_ROOM_COLORS = { 'Surya Hall': '#d9720c', 'Patanjali Hall': '#6b3fa0', 'Nataraj Room': '#2e7d4f', 'Ganesh Room': '#2255a4', 'Kitchen': '#c2185b' };
+const AVAIL_DAY_START_HOUR = 7;
+const AVAIL_DAY_END_HOUR = 21;
+let availWeekOffset = 0;
 
-  // Once a date is picked, jump the embed to the week containing that date.
-  // Note: Google's embed only supports WEEK/AGENDA/MONTH as valid mode
-  // values — DAY isn't one of them, which is why an earlier version of this
-  // silently fell back to month view. WEEK + a `dates` range pointed at the
-  // chosen date reliably jumps to the right week instead.
-  const chosenDate = document.getElementById('f-date').value;
-  params.set('mode', 'WEEK');
-  if (chosenDate) {
-    const compact = chosenDate.replace(/-/g, '');
-    params.set('dates', compact + '/' + compact);
+function layoutDayEvents(events) {
+  const sorted = events.slice().sort(function (a, b) { return a.start - b.start; });
+  const laneEnds = [];
+  sorted.forEach(function (ev) {
+    let placed = false;
+    for (let i = 0; i < laneEnds.length; i++) {
+      if (laneEnds[i] <= ev.start) { ev.lane = i; laneEnds[i] = ev.end; placed = true; break; }
+    }
+    if (!placed) { ev.lane = laneEnds.length; laneEnds.push(ev.end); }
+  });
+  sorted.forEach(function (ev) {
+    let maxLane = ev.lane;
+    sorted.forEach(function (other) {
+      if (other === ev) return;
+      if (other.start < ev.end && other.end > ev.start) maxLane = Math.max(maxLane, other.lane);
+    });
+    ev.totalLanes = maxLane + 1;
+  });
+  return sorted;
+}
+function renderAvailLegend() {
+  document.getElementById('avail-cal-legend').innerHTML = Object.keys(AVAIL_ROOM_COLORS).map(function (room) {
+    return '<span class="avail-cal-legend-item"><span class="avail-cal-legend-dot" style="background:' + AVAIL_ROOM_COLORS[room] + ';"></span>' + room + '</span>';
+  }).join('');
+}
+function getAvailWeekDates(offset) {
+  const today = new Date();
+  const sunday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay() + (offset * 7));
+  const dates = [];
+  for (let i = 0; i < 7; i++) dates.push(new Date(sunday.getFullYear(), sunday.getMonth(), sunday.getDate() + i));
+  return dates;
+}
+function toAvailDateStr(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+
+async function loadAvailabilityCalendar() {
+  const weekDates = getAvailWeekDates(availWeekOffset);
+  const startDate = toAvailDateStr(weekDates[0]);
+  const endDate = toAvailDateStr(weekDates[6]);
+  document.getElementById('avail-cal-week-label').textContent =
+    weekDates[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' – ' + weekDates[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+  const gridEl = document.getElementById('avail-week-grid');
+  gridEl.innerHTML = '<div style="grid-column:1/-1;padding:20px;text-align:center;color:var(--muted);">Loading…</div>';
+
+  let bookings = [];
+  let loadError = null;
+  try {
+    const res = await authedFetch(API_BASE + '/bookings-availability?startDate=' + startDate + '&endDate=' + endDate);
+    if (res.ok) bookings = await res.json();
+    else {
+      const errData = await res.json().catch(function () { return {}; });
+      loadError = (errData.errors || [errData.error || ('Server returned ' + res.status)]).join(' ');
+    }
+  } catch (err) { loadError = err.message; }
+
+  if (loadError) {
+    gridEl.innerHTML = '<div style="grid-column:1/-1;padding:20px;text-align:center;color:#b3382c;font-size:0.8rem;">Could not load: ' + loadError + '</div>';
+    return;
   }
 
-  const url = 'https://calendar.google.com/calendar/embed?' + params.toString();
-  wrap.innerHTML = '<iframe src="' + url + '" frameborder="0" scrolling="no"></iframe>' +
-    '<div class="calendar-note">Same live calendar as hccgc.org/facility-calendar' + (chosenDate ? ', showing the week of your selected date' : '') + '. If it appears blank for you, you may need "See all event details" access to these resource calendars in Google Calendar.</div>';
+  const byDate = {};
+  bookings.forEach(function (b) {
+    if (!byDate[b.eventDate]) byDate[b.eventDate] = [];
+    (b.rooms || []).forEach(function (room) {
+      byDate[b.eventDate].push({ room: room, start: b.startTime, end: b.endTime, renterName: b.renterName, eventName: b.eventName, paymentStatus: b.paymentStatus, isInternal: b.isInternal });
+    });
+  });
+
+  const totalHours = AVAIL_DAY_END_HOUR - AVAIL_DAY_START_HOUR;
+  const todayStr = toAvailDateStr(new Date());
+  const rowHeightPx = 34;
+  const bodyHeight = totalHours * rowHeightPx;
+
+  let html = '<div class="avail-week-corner"></div>';
+  weekDates.forEach(function (d) {
+    const dStr = toAvailDateStr(d);
+    html += '<div class="avail-week-daylabel' + (dStr === todayStr ? ' is-today' : '') + '"><span class="dow">' + d.toLocaleDateString('en-US', { weekday: 'short' }) + '</span>' + d.getDate() + '</div>';
+  });
+
+  html += '<div class="avail-week-timecol" style="height:' + bodyHeight + 'px;">';
+  for (let h = AVAIL_DAY_START_HOUR; h <= AVAIL_DAY_END_HOUR; h++) {
+    const pct = ((h - AVAIL_DAY_START_HOUR) / totalHours) * 100;
+    const label = h === 12 ? '12p' : h < 12 ? h + 'a' : (h - 12) + 'p';
+    html += '<div class="avail-week-timelabel" style="top:' + pct + '%;">' + label + '</div>';
+  }
+  html += '</div>';
+
+  weekDates.forEach(function (d) {
+    const dStr = toAvailDateStr(d);
+    const dayBookingsRaw = (byDate[dStr] || []).map(function (bk) { return Object.assign({}, bk, { start: new Date(bk.start), end: new Date(bk.end) }); });
+    const dayBookings = layoutDayEvents(dayBookingsRaw);
+    let colHtml = '<div class="avail-week-daycol" style="height:' + bodyHeight + 'px;--hour-px:' + rowHeightPx + 'px;">';
+    dayBookings.forEach(function (bk) {
+      const startFrac = (bk.start.getHours() + bk.start.getMinutes() / 60 - AVAIL_DAY_START_HOUR) / totalHours;
+      const endFrac = (bk.end.getHours() + bk.end.getMinutes() / 60 - AVAIL_DAY_START_HOUR) / totalHours;
+      const clampedStart = Math.max(0, Math.min(1, startFrac));
+      const clampedEnd = Math.max(0, Math.min(1, endFrac));
+      if (clampedEnd <= clampedStart) return;
+      const topPx = clampedStart * bodyHeight;
+      const heightPx = Math.max(15, (clampedEnd - clampedStart) * bodyHeight);
+      const widthPct = 100 / bk.totalLanes;
+      const leftPct = bk.lane * widthPct;
+      const timeLabel = bk.start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + '–' + bk.end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      const who = bk.isInternal ? (bk.eventName || 'HCCGC program') : (bk.renterName || 'Renter');
+      const titleAttr = bk.room + ' — ' + who + (bk.eventName && !bk.isInternal ? ' (' + bk.eventName + ')' : '') + ' — ' + timeLabel + ' — ' + bk.paymentStatus;
+      colHtml += '<div class="avail-week-chip" style="top:' + topPx + 'px;height:' + heightPx + 'px;left:' + leftPct + '%;width:calc(' + widthPct + '% - 2px);background:' + (AVAIL_ROOM_COLORS[bk.room] || '#8d6e63') + ';" title="' + titleAttr.replace(/"/g, '&quot;') + '">' +
+        bk.room.replace(' Hall', '').replace(' Room', '') +
+        (heightPx > 26 && bk.totalLanes === 1 ? '<span class="detail">' + who + '</span>' : '') +
+      '</div>';
+    });
+    colHtml += '</div>';
+    html += colHtml;
+  });
+
+  gridEl.innerHTML = html;
 }
-document.getElementById('calendar-room-select').addEventListener('change', renderCalendarEmbed);
-document.getElementById('f-date').addEventListener('change', renderCalendarEmbed);
-renderCalendarEmbed();
+document.getElementById('avail-cal-prev').addEventListener('click', function () { availWeekOffset--; loadAvailabilityCalendar(); });
+document.getElementById('avail-cal-next').addEventListener('click', function () { availWeekOffset++; loadAvailabilityCalendar(); });
+// Jump to the week containing the chosen date, same behavior the old embed had.
+document.getElementById('f-date').addEventListener('change', function () {
+  const chosen = this.value;
+  if (!chosen) return;
+  const chosenDate = new Date(chosen + 'T00:00:00');
+  const today = new Date(new Date().toDateString());
+  const todaySunday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay());
+  const chosenSunday = new Date(chosenDate.getFullYear(), chosenDate.getMonth(), chosenDate.getDate() - chosenDate.getDay());
+  availWeekOffset = Math.round((chosenSunday - todaySunday) / (7 * 86400000));
+  loadAvailabilityCalendar();
+});
+renderAvailLegend();
 
 // ---- Submit ----
 const API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';
@@ -906,6 +1025,7 @@ onAuthStateChanged(auth, function(user) {
       if (untilField) untilField.min = todayStr;
     }
     loadRenters();
+    loadAvailabilityCalendar();
   }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });
 });
 </script>

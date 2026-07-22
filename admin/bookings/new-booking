@@ -647,8 +647,14 @@ function recalc() {
 // page, which is why it could appear blank. Querying the same data this
 // portal already writes to sidesteps that entirely.
 const AVAIL_ROOM_COLORS = { 'Surya Hall': '#d9720c', 'Patanjali Hall': '#6b3fa0', 'Nataraj Room': '#2e7d4f', 'Ganesh Room': '#2255a4', 'Kitchen': '#c2185b' };
-const AVAIL_DAY_START_HOUR = 0;
-const AVAIL_DAY_END_HOUR = 24;
+// The visible window runs 9 AM today through 8 AM the next day, not
+// midnight-to-midnight — a booking that runs into the evening (e.g. 9pm-1am)
+// stays entirely within its own day's column instead of splitting across
+// the midnight boundary into a different column. Hours before 9 AM are
+// still real bookings, just displayed in the lower portion of the SAME
+// calendar day's column, treated as hour+24 for positioning purposes.
+const AVAIL_DAY_START_HOUR = 9;
+const AVAIL_DAY_END_HOUR = 33; // 9 + 24 = wraps to 8 AM the next day
 let availWeekOffset = 0;
 let availMonthOffset = 0;
 let availViewMode = 'week';
@@ -765,7 +771,8 @@ async function loadAvailabilityCalendar() {
   html += '<div class="avail-week-timecol" style="height:' + bodyHeight + 'px;">';
   for (let h = AVAIL_DAY_START_HOUR; h < AVAIL_DAY_END_HOUR; h++) {
     const pct = ((h - AVAIL_DAY_START_HOUR) / totalHours) * 100;
-    const label = h === 0 ? '12a' : h === 12 ? '12p' : h < 12 ? h + 'a' : (h - 12) + 'p';
+    const clockHour = h % 24;
+    const label = clockHour === 0 ? '12a' : clockHour === 12 ? '12p' : clockHour < 12 ? clockHour + 'a' : (clockHour - 12) + 'p';
     html += '<div class="avail-week-timelabel" style="top:' + pct + '%;">' + label + '</div>';
   }
   html += '</div>';
@@ -778,8 +785,10 @@ async function loadAvailabilityCalendar() {
     dayBookings.forEach(function (bk) {
       const startHM = getEasternHourMinute(bk.start);
       const endHM = getEasternHourMinute(bk.end);
-      const startFrac = (startHM.hour + startHM.minute / 60 - AVAIL_DAY_START_HOUR) / totalHours;
-      const endFrac = (endHM.hour + endHM.minute / 60 - AVAIL_DAY_START_HOUR) / totalHours;
+      const startHour24 = startHM.hour < AVAIL_DAY_START_HOUR ? startHM.hour + 24 : startHM.hour;
+      const endHour24 = endHM.hour < AVAIL_DAY_START_HOUR ? endHM.hour + 24 : endHM.hour;
+      const startFrac = (startHour24 + startHM.minute / 60 - AVAIL_DAY_START_HOUR) / totalHours;
+      const endFrac = (endHour24 + endHM.minute / 60 - AVAIL_DAY_START_HOUR) / totalHours;
       const clampedStart = Math.max(0, Math.min(1, startFrac));
       const clampedEnd = Math.max(0, Math.min(1, endFrac));
       if (clampedEnd <= clampedStart) return;

@@ -680,10 +680,13 @@ function needsInvoiceSend(b) {
   if (b.invoice_content_updated_at && new Date(b.invoice_content_updated_at) > new Date(b.invoice_sent_at)) return true;
   return false;
 }
+function notesButtonHtml(b) {
+  return '<button type="button" class="btn-icon-action' + (b.notes ? ' has-content' : '') + '" title="' + (b.notes ? 'Note: ' + escHtml(b.notes) : 'Add a note') + '" data-notes-booking="' + b.booking_id + '">\ud83d\udcdd</button>';
+}
 function actionIcons(b) {
   if (b.is_internal) return '';
   const needsSend = needsInvoiceSend(b);
-  const notesBtn = '<button type="button" class="btn-icon-action' + (b.notes ? ' has-content' : '') + '" title="' + (b.notes ? 'Note: ' + escHtml(b.notes) : 'Add a note') + '" data-notes-booking="' + b.booking_id + '">\ud83d\udcdd</button>';
+  const notesBtn = notesButtonHtml(b);
   const invoiceBtn = '<button type="button" class="btn-invoice ' + (needsSend ? 'attached' : 'sent') + '" title="' + (needsSend ? 'Invoice not sent — click to send, edit, or download' : 'Invoice sent ' + formatDate(b.invoice_sent_at) + ' — click to edit or download') + '" data-invoice-booking="' + b.booking_id + '">\ud83e\uddfe</button>';
   const receiptDisabled = b.payment_status !== 'paid';
   const receiptBtn = '<button type="button" class="btn-receipt' + (b.receipt_sent_at ? ' sent' : '') + '"' + (receiptDisabled ? ' disabled title="Mark paid in Finance first"' : ' title="' + (b.receipt_sent_at ? 'Receipt sent ' + formatDate(b.receipt_sent_at) : 'Click to send the receipt') + '"') + ' data-receipt-booking="' + b.booking_id + '">' + (b.receipt_sent_at ? '\ud83e\uddfe' : (receiptDisabled ? '\u2014' : '\u2795')) + '</button>';
@@ -864,6 +867,13 @@ function isHistoricallyLocked(b) {
 
 function renderBookingRow(b, isSubRow) {
   const rowClasses = (b.payment_status === 'cancelled' || b.payment_status === 'rejected' ? 'cancelled-row ' : '') + (isSubRow ? 'sub-row' : '');
+  // Per-occurrence invoicing means each occurrence really is its own
+  // independent billing unit — same as a standalone booking — so it gets
+  // full status and actions even though it's a sub-row. Combined
+  // invoicing (the default) is the only case where sub-rows stay
+  // info-only, since the group above is the actual billing unit there.
+  const actsIndependently = isSubRow && b.invoice_mode === 'per_occurrence';
+  const treatAsSubRow = isSubRow && !actsIndependently;
 
   // A public booking request awaiting review is a totally different case
   // from every other status — nothing else (Mark Paid, Edit, Cancel, etc.)
@@ -875,11 +885,11 @@ function renderBookingRow(b, isSubRow) {
           { label: 'Download invoice', fn: () => downloadDocument(b.booking_id, 'invoice') }
         ]
       : [];
-    const actionsCell = isSubRow ? '<td></td>' : '<td>' + renderActionsKebab(b.booking_id, actions) + '</td>';
+    const actionsCell = treatAsSubRow ? '<td></td>' : '<td>' + renderActionsKebab(b.booking_id, actions) + '</td>';
     return (
       '<tr' + (rowClasses ? ' class="' + rowClasses.trim() + '"' : '') + '>' +
         '<td>' + (isSubRow ? '<div class="renter-sub">' + formatDate(b.event_date) + '</div>' : '<div class="renter-name">' + escHtml(b.renter_name) + '</div><div class="renter-sub">' + escHtml(b.renter_email) + '</div>') + '</td>' +
-        visibleColumnCells(b, isSubRow) +
+        visibleColumnCells(b, treatAsSubRow) +
         actionsCell +
       '</tr>'
     );
@@ -899,11 +909,11 @@ function renderBookingRow(b, isSubRow) {
   if (canEditThis) actions.push({ label: 'Edit', fn: () => openEditModal(b.booking_id) });
   if (notCancelled && !locked) actions.push({ label: 'Cancel', danger: true, fn: () => cancelBookingFlow(b.booking_id) });
 
-  const actionsCell = isSubRow ? '<td></td>' : '<td><div style="display:flex;align-items:center;gap:8px;">' + actionIcons(b) + renderActionsKebab(b.booking_id, actions) + '</div></td>';
+  const actionsCell = treatAsSubRow ? '<td></td>' : '<td><div style="display:flex;align-items:center;gap:8px;">' + actionIcons(b) + renderActionsKebab(b.booking_id, actions) + '</div></td>';
   return (
     '<tr' + (rowClasses ? ' class="' + rowClasses.trim() + '"' : '') + '>' +
       '<td>' + (isSubRow ? '<div class="renter-sub">' + formatDate(b.event_date) + '</div>' : '<div class="renter-name">' + escHtml(b.renter_name) + '</div><div class="renter-sub">' + escHtml(b.renter_email) + '</div>') + '</td>' +
-      visibleColumnCells(b, isSubRow) +
+      visibleColumnCells(b, treatAsSubRow) +
       actionsCell +
     '</tr>'
   );
@@ -911,12 +921,14 @@ function renderBookingRow(b, isSubRow) {
 
 function renderSeriesSummaryRow(item) {
   const isExpanded = expandedSeries.has(item.seriesId);
+  const repOcc = item.occurrences[0];
+  const perOccurrenceMode = repOcc && repOcc.invoice_mode === 'per_occurrence';
 
   if (item.payment_status === 'requested' || item.payment_status === 'rejected') {
     const actions = item.payment_status === 'requested'
       ? [
-          { label: 'Review request (all dates)', fn: () => openBookingReviewModal(item.occurrences[0].booking_id) },
-          { label: 'Download invoice', fn: () => downloadDocument(item.occurrences[0].booking_id, 'invoice') }
+          { label: 'Review request (all dates)', fn: () => openBookingReviewModal(repOcc.booking_id) },
+          { label: 'Download invoice', fn: () => downloadDocument(repOcc.booking_id, 'invoice') }
         ]
       : [];
     return (
@@ -928,7 +940,6 @@ function renderSeriesSummaryRow(item) {
     );
   }
 
-  const needsAction = item.payment_status === 'pending' || item.payment_status === 'invoiced' || item.payment_status === 'mixed';
   const notCancelled = item.payment_status !== 'cancelled';
   const allPast = item.occurrences.every(isBookingPast);
   const allHistoricallyLocked = item.occurrences.every(isHistoricallyLocked);
@@ -936,15 +947,23 @@ function renderSeriesSummaryRow(item) {
 
   const actions = [];
   if (canEditThis) actions.push({ label: 'Edit series', fn: () => openSeriesEditModal(item.seriesId) });
-  if (!item.is_internal) actions.push({ label: 'Download invoice', fn: () => downloadDocument(item.occurrences[0].booking_id, 'invoice') });
-  if (item.payment_status === 'paid') actions.push({ label: 'Download receipt', fn: () => downloadDocument(item.occurrences[0].booking_id, 'receipt') });
   if (notCancelled && !allHistoricallyLocked) actions.push({ label: 'Cancel all', danger: true, fn: () => cancelSeriesFlow(item.seriesId) });
+
+  // Combined invoicing (default): the group IS the billing unit, so it
+  // gets the exact same Notes/Invoice/Receipt icon treatment as a single
+  // booking, using the first occurrence as the representative record (the
+  // same one Edit Series and Download Invoice already treat as canonical).
+  // Per-occurrence invoicing: invoice/receipt belong to each occurrence
+  // individually now, so the group only gets a notes icon — there's still
+  // a group-level note worth having even when billing is split up.
+  const groupIcons = item.is_internal ? '' :
+    (perOccurrenceMode ? '<div class="action-icons">' + notesButtonHtml(repOcc) + '</div>' : actionIcons(repOcc));
 
   return (
     '<tr class="series-summary-row">' +
       '<td onclick="toggleSeries(\'' + item.seriesId + '\')" style="cursor:pointer;"><div class="renter-name">' + (isExpanded ? '&#9660; ' : '&#9654; ') + escHtml(item.renter_name) + ' <span class="discount-chip" style="margin-left:4px;">' + item.occurrences.length + ' occurrences</span></div><div class="renter-sub">' + escHtml(item.renter_email) + '</div></td>' +
       visibleColumnCells(item) +
-      '<td>' + renderActionsKebab(item.seriesId, actions) + '</td>' +
+      '<td><div style="display:flex;align-items:center;gap:8px;">' + groupIcons + renderActionsKebab(item.seriesId, actions) + '</div></td>' +
     '</tr>'
   );
 }

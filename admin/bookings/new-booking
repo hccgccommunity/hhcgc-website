@@ -634,6 +634,18 @@ const AVAIL_DAY_START_HOUR = 7;
 const AVAIL_DAY_END_HOUR = 21;
 let availWeekOffset = 0;
 
+// getHours()/getMinutes() return the BROWSER's own local time, not
+// necessarily Eastern — for an admin viewing this from outside the
+// Eastern timezone, that would silently misposition every chip
+// vertically in the calendar, not just mislabel it. This extracts the
+// actual Eastern hour/minute regardless of where the viewer is.
+function getEasternHourMinute(date) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York', hourCycle: 'h23', hour: '2-digit', minute: '2-digit'
+  }).formatToParts(date).reduce(function (acc, p) { if (p.type !== 'literal') acc[p.type] = Number(p.value); return acc; }, {});
+  return { hour: parts.hour, minute: parts.minute };
+}
+
 function layoutDayEvents(events) {
   const sorted = events.slice().sort(function (a, b) { return a.start - b.start; });
   const laneEnds = [];
@@ -659,8 +671,15 @@ function renderAvailLegend() {
     return '<span class="avail-cal-legend-item"><span class="avail-cal-legend-dot" style="background:' + AVAIL_ROOM_COLORS[room] + ';"></span>' + room + '</span>';
   }).join('');
 }
+function getEasternDateParts(date) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit'
+  }).formatToParts(date).reduce(function (acc, p) { if (p.type !== 'literal') acc[p.type] = Number(p.value); return acc; }, {});
+  return parts;
+}
 function getAvailWeekDates(offset) {
-  const today = new Date();
+  const todayEastern = getEasternDateParts(new Date());
+  const today = new Date(todayEastern.year, todayEastern.month - 1, todayEastern.day);
   const sunday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay() + (offset * 7));
   const dates = [];
   for (let i = 0; i < 7; i++) dates.push(new Date(sunday.getFullYear(), sunday.getMonth(), sunday.getDate() + i));
@@ -703,7 +722,8 @@ async function loadAvailabilityCalendar() {
   });
 
   const totalHours = AVAIL_DAY_END_HOUR - AVAIL_DAY_START_HOUR;
-  const todayStr = toAvailDateStr(new Date());
+  const todayEasternParts = getEasternDateParts(new Date());
+  const todayStr = todayEasternParts.year + '-' + String(todayEasternParts.month).padStart(2, '0') + '-' + String(todayEasternParts.day).padStart(2, '0');
   const rowHeightPx = 34;
   const bodyHeight = totalHours * rowHeightPx;
 
@@ -727,8 +747,10 @@ async function loadAvailabilityCalendar() {
     const dayBookings = layoutDayEvents(dayBookingsRaw);
     let colHtml = '<div class="avail-week-daycol" style="height:' + bodyHeight + 'px;--hour-px:' + rowHeightPx + 'px;">';
     dayBookings.forEach(function (bk) {
-      const startFrac = (bk.start.getHours() + bk.start.getMinutes() / 60 - AVAIL_DAY_START_HOUR) / totalHours;
-      const endFrac = (bk.end.getHours() + bk.end.getMinutes() / 60 - AVAIL_DAY_START_HOUR) / totalHours;
+      const startHM = getEasternHourMinute(bk.start);
+      const endHM = getEasternHourMinute(bk.end);
+      const startFrac = (startHM.hour + startHM.minute / 60 - AVAIL_DAY_START_HOUR) / totalHours;
+      const endFrac = (endHM.hour + endHM.minute / 60 - AVAIL_DAY_START_HOUR) / totalHours;
       const clampedStart = Math.max(0, Math.min(1, startFrac));
       const clampedEnd = Math.max(0, Math.min(1, endFrac));
       if (clampedEnd <= clampedStart) return;
@@ -736,7 +758,7 @@ async function loadAvailabilityCalendar() {
       const heightPx = Math.max(15, (clampedEnd - clampedStart) * bodyHeight);
       const widthPct = 100 / bk.totalLanes;
       const leftPct = bk.lane * widthPct;
-      const timeLabel = bk.start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + '–' + bk.end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      const timeLabel = bk.start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' }) + '–' + bk.end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' });
       const who = bk.isInternal ? (bk.eventName || 'HCCGC program') : (bk.renterName || 'Renter');
       const titleAttr = bk.room + ' — ' + who + (bk.eventName && !bk.isInternal ? ' (' + bk.eventName + ')' : '') + ' — ' + timeLabel + ' — ' + bk.paymentStatus;
       colHtml += '<div class="avail-week-chip" style="top:' + topPx + 'px;height:' + heightPx + 'px;left:' + leftPct + '%;width:calc(' + widthPct + '% - 2px);background:' + (AVAIL_ROOM_COLORS[bk.room] || '#8d6e63') + ';" title="' + titleAttr.replace(/"/g, '&quot;') + '">' +

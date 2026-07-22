@@ -931,10 +931,12 @@ function renderBookingRow(b, isSubRow, seriesIsMixed) {
 
   const needsAction = (b.payment_status === 'pending' || b.payment_status === 'invoiced');
   const notCancelled = b.payment_status !== 'cancelled';
+  const notPaid = b.payment_status !== 'paid';
   const locked = isHistoricallyLocked(b);
   // Editing specifically has the one narrow admin override; every other
-  // locked action has no override at all.
-  const canEditThis = notCancelled && (!locked || (isBookingPast(b) && !isPicktimeHistoricalPaid(b) && PAST_BOOKING_EDIT_ALLOWLIST.includes(currentUserEmail())));
+  // locked action has no override at all. Paid bookings have no override
+  // at all — confirmed payment locks the invoice regardless of who's asking.
+  const canEditThis = notCancelled && notPaid && (!locked || (isBookingPast(b) && !isPicktimeHistoricalPaid(b) && PAST_BOOKING_EDIT_ALLOWLIST.includes(currentUserEmail())));
 
   // Kebab menu is deliberately down to just Edit and Cancel now — invoice
   // send/edit/download lives in the invoice icon's popup, and marking
@@ -972,9 +974,14 @@ function renderSeriesSummaryRow(item) {
   }
 
   const notCancelled = item.payment_status !== 'cancelled';
+  const allPaid = item.payment_status === 'paid';
   const allPast = item.occurrences.every(isBookingPast);
   const allHistoricallyLocked = item.occurrences.every(isHistoricallyLocked);
-  const canEditThis = notCancelled && (!allHistoricallyLocked || (allPast && PAST_BOOKING_EDIT_ALLOWLIST.includes(currentUserEmail())));
+  // A fully-paid series has nothing left to edit. A "mixed" series (some
+  // occurrences paid, some not) still allows editing — the backend
+  // already excludes the paid occurrences from whatever gets changed,
+  // same as the individual-booking lock above.
+  const canEditThis = notCancelled && !allPaid && (!allHistoricallyLocked || (allPast && PAST_BOOKING_EDIT_ALLOWLIST.includes(currentUserEmail())));
 
   const actions = [];
   if (canEditThis) actions.push({ label: 'Edit series', fn: () => openSeriesEditModal(item.seriesId) });
@@ -1468,13 +1475,15 @@ function openInvoiceActionMenu(bookingId) {
   const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
   if (!b) return;
   const needsSend = needsInvoiceSend(b);
+  const isPaid = b.payment_status === 'paid';
   const body = document.getElementById('invoice-action-body');
   let html = '';
   html += '<button type="button" class="invoice-action-btn" data-inv-action="view">View invoice</button>';
-  html += '<button type="button" class="invoice-action-btn" data-inv-action="edit">Edit invoice</button>';
+  if (!isPaid) html += '<button type="button" class="invoice-action-btn" data-inv-action="edit">Edit invoice</button>';
   html += '<button type="button" class="invoice-action-btn primary" data-inv-action="send">' + (needsSend ? 'Send invoice' : 'Resend invoice') + '</button>';
   html += '<button type="button" class="invoice-action-btn" data-inv-action="download">Download invoice</button>';
   if (!needsSend) html += '<p class="card-sub" style="margin:6px 0 0;">Last sent ' + formatTimestampDate(b.invoice_sent_at) + '.</p>';
+  if (isPaid) html += '<p class="card-sub" style="margin:6px 0 0;color:var(--green,#2e7d4f);">\u2713 Paid — invoice is locked.</p>';
   body.innerHTML = html;
   body.dataset.bookingId = bookingId;
   document.getElementById('invoice-action-overlay').style.display = 'flex';

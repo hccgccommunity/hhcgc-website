@@ -155,16 +155,19 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 .cat-select { font-family: inherit; font-size: 0.82rem; padding: 6px 10px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; }
 .confirm-paid-select { font-family: inherit; font-size: 0.8rem; padding: 6px 8px; border: 1.5px solid var(--saffron-dark); border-radius: 8px; background: #fff; color: var(--saffron-dark); font-weight: 700; }
 .cat-select.uncategorized { border-color: var(--red); background: var(--red-bg); }
-.btn-note { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 26px; height: 26px; cursor: pointer; font-size: 0.8rem; vertical-align: middle; }
+.btn-note { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; vertical-align: middle; }
 .btn-note.has-content { background: #bdedcf; border: 2px solid #1f6b3f; }
-.btn-invoice { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 26px; height: 26px; cursor: pointer; font-size: 0.8rem; vertical-align: middle; }
-.btn-invoice.attached { background: #fff3d6; border-color: #d9a83e; }
-.btn-invoice.sent { background: #e8f5ec; border-color: var(--green); }
-.btn-invoice:hover { filter: brightness(0.96); }
-.btn-receipt { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 26px; height: 26px; cursor: pointer; font-size: 0.8rem; vertical-align: middle; }
-.btn-receipt.sent { background: #e8f5ec; border-color: var(--green); }
+.invoice-action-btn { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1.5px solid var(--border); background: #fff; font-family: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer; text-align: left; }
+.invoice-action-btn:hover { background: var(--surface-soft); }
+.invoice-action-btn.primary { background: linear-gradient(135deg, var(--saffron-dark), var(--maroon)); color: #fff; border: none; }
+.btn-invoice { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; vertical-align: middle; }
+.btn-invoice.attached { background: #ffe4a3; border: 2px solid #c8890a; box-shadow: 0 0 0 1px rgba(200,137,10,0.25); }
+.btn-invoice.sent { background: #bdedcf; border: 2px solid #1f6b3f; box-shadow: 0 0 0 1px rgba(31,107,63,0.25); }
+.btn-invoice:hover:not(.sent) { filter: brightness(0.96); }
+.btn-receipt { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; vertical-align: middle; }
+.btn-receipt.sent { background: #bdedcf; border: 2px solid #1f6b3f; box-shadow: 0 0 0 1px rgba(31,107,63,0.25); }
 .btn-receipt:disabled { opacity: 0.4; cursor: default; }
-.btn-receipt:hover:not(:disabled) { filter: brightness(0.96); }
+.btn-receipt:hover:not(:disabled):not(.sent) { filter: brightness(0.96); }
 .category-save-flash { display: inline-block; font-size: 0.72rem; font-weight: 700; color: var(--green); margin-left: 6px; opacity: 0; transition: opacity 0.2s ease; }
 .category-save-flash.show { opacity: 1; }
 .btn-note:hover { background: var(--surface-soft); }
@@ -613,6 +616,26 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
   </div>
 
 </div>
+</div>
+
+<div class="modal-overlay" id="invoice-action-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:380px;">
+    <div class="modal-header">
+      <h2>Invoice</h2>
+      <button class="modal-close" id="btn-close-invoice-action">&times;</button>
+    </div>
+    <div class="modal-body" id="invoice-action-body" style="display:flex;flex-direction:column;gap:10px;"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="receipt-action-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:380px;">
+    <div class="modal-header">
+      <h2>Receipt</h2>
+      <button class="modal-close" id="btn-close-receipt-action">&times;</button>
+    </div>
+    <div class="modal-body" id="receipt-action-body" style="display:flex;flex-direction:column;gap:10px;"></div>
+  </div>
 </div>
 
 <div class="modal-overlay" id="invoice-notes-overlay" style="display:none;">
@@ -1443,8 +1466,8 @@ async function loadInvoices() {
 function renderInvoiceRow(inv) {
   const attachedTo = inv.matchSource ? escHtml(inv.matchSource) + ' transaction' : '<span style="color:var(--muted);">Not attached</span>';
   const noteBtn = '<button type="button" class="btn-note' + (inv.notes ? ' has-content' : '') + '" title="' + (inv.notes ? 'Note: ' + escHtml(inv.notes) : 'Add a note') + '" data-invoice-note-booking="' + inv.bookingId + '">\ud83d\udcdd</button>';
-  const invoiceIcon = '<button type="button" class="btn-invoice sent" title="Invoice sent ' + formatDate(inv.invoiceSentAt) + '">\ud83e\uddfe</button>';
-  const receiptIcon = '<button type="button" class="btn-receipt' + (inv.receiptSentAt ? ' sent' : '') + '"' + (inv.paymentStatus === 'paid' ? '' : ' disabled title="Confirm as paid first"') + ' data-send-receipt-booking="' + inv.bookingId + '">' + (inv.receiptSentAt ? '\ud83e\uddfe' : (inv.paymentStatus === 'paid' ? '\u2795' : '\u2014')) + '</button>';
+  const invoiceIcon = '<button type="button" class="btn-invoice sent" title="Invoice sent ' + formatDate(inv.invoiceSentAt) + ' — click to view or download" data-invoice-popup-booking="' + inv.bookingId + '">\ud83e\uddfe</button>';
+  const receiptIcon = '<button type="button" class="btn-receipt' + (inv.receiptSentAt ? ' sent' : '') + '"' + (inv.paymentStatus === 'paid' ? '' : ' disabled title="Confirm as paid first"') + (inv.paymentStatus === 'paid' ? ' data-receipt-popup-booking="' + inv.bookingId + '"' : '') + '>' + (inv.receiptSentAt ? '\ud83e\uddfe' : (inv.paymentStatus === 'paid' ? '\u2795' : '\u2014')) + '</button>';
   // Confirm Paid — the actual point where a matched transaction becomes a
   // confirmed payment. Attaching in Transactions is only a suggestion;
   // this is the deliberate human step that used to be Mark Paid in All
@@ -1493,13 +1516,74 @@ document.getElementById('inv-tbody').addEventListener('click', async function (e
     openInvoiceNotesModal(noteBtn.dataset.invoiceNoteBooking);
     return;
   }
-  const receiptBtn = e.target.closest('[data-send-receipt-booking]');
-  if (receiptBtn && !receiptBtn.disabled) {
-    const inv = INVOICES.find(function (i) { return i.bookingId === receiptBtn.dataset.sendReceiptBooking; });
-    if (!inv || inv.receiptSentAt) return;
-    if (!confirm('Send the receipt to ' + inv.renterName + ' now?')) return;
+  const invoicePopupBtn = e.target.closest('[data-invoice-popup-booking]');
+  if (invoicePopupBtn) {
+    openFinanceInvoicePopup(invoicePopupBtn.dataset.invoicePopupBooking);
+    return;
+  }
+  const receiptPopupBtn = e.target.closest('[data-receipt-popup-booking]');
+  if (receiptPopupBtn) {
+    openFinanceReceiptPopup(receiptPopupBtn.dataset.receiptPopupBooking);
+    return;
+  }
+});
+// View/Download only — facility-rental invoices are only ever generated
+// and sent from the Facility Rental Portal (never here), so there's
+// deliberately no Edit or Send option in this popup.
+function openFinanceInvoicePopup(bookingId) {
+  const inv = INVOICES.find(function (i) { return i.bookingId === bookingId; });
+  if (!inv) return;
+  const body = document.getElementById('invoice-action-body');
+  body.innerHTML =
+    '<button type="button" class="invoice-action-btn" data-fin-inv-action="view">View invoice</button>' +
+    '<button type="button" class="invoice-action-btn" data-fin-inv-action="download">Download invoice</button>' +
+    '<p class="card-sub" style="margin:6px 0 0;">Sent ' + formatDate(inv.invoiceSentAt) + '. Invoices can only be edited or sent from the Facility Rental Portal.</p>';
+  body.dataset.bookingId = bookingId;
+  document.getElementById('invoice-action-overlay').style.display = 'flex';
+}
+document.getElementById('invoice-action-body').addEventListener('click', function (e) {
+  const btn = e.target.closest('[data-fin-inv-action]');
+  if (!btn) return;
+  const bookingId = this.dataset.bookingId;
+  document.getElementById('invoice-action-overlay').style.display = 'none';
+  if (btn.dataset.finInvAction === 'view') viewDocument(bookingId, 'invoice');
+  else if (btn.dataset.finInvAction === 'download') downloadDocument(bookingId, 'invoice');
+});
+document.getElementById('btn-close-invoice-action').addEventListener('click', function () {
+  document.getElementById('invoice-action-overlay').style.display = 'none';
+});
+document.getElementById('invoice-action-overlay').addEventListener('click', function (e) {
+  if (e.target === this) this.style.display = 'none';
+});
+
+// View/Send-or-Resend/Download — receipts, unlike invoices, may be sent
+// from either portal.
+function openFinanceReceiptPopup(bookingId) {
+  const inv = INVOICES.find(function (i) { return i.bookingId === bookingId; });
+  if (!inv) return;
+  const alreadySent = !!inv.receiptSentAt;
+  const body = document.getElementById('receipt-action-body');
+  let html = '<button type="button" class="invoice-action-btn" data-fin-rcpt-action="view">View receipt</button>';
+  html += '<button type="button" class="invoice-action-btn primary" data-fin-rcpt-action="send">' + (alreadySent ? 'Resend receipt' : 'Send receipt') + '</button>';
+  html += '<button type="button" class="invoice-action-btn" data-fin-rcpt-action="download">Download receipt</button>';
+  if (alreadySent) html += '<p class="card-sub" style="margin:6px 0 0;">Last sent ' + formatDate(inv.receiptSentAt) + '.</p>';
+  body.innerHTML = html;
+  body.dataset.bookingId = bookingId;
+  document.getElementById('receipt-action-overlay').style.display = 'flex';
+}
+document.getElementById('receipt-action-body').addEventListener('click', async function (e) {
+  const btn = e.target.closest('[data-fin-rcpt-action]');
+  if (!btn) return;
+  const bookingId = this.dataset.bookingId;
+  document.getElementById('receipt-action-overlay').style.display = 'none';
+  if (btn.dataset.finRcptAction === 'view') viewDocument(bookingId, 'receipt');
+  else if (btn.dataset.finRcptAction === 'download') downloadDocument(bookingId, 'receipt');
+  else if (btn.dataset.finRcptAction === 'send') {
+    const inv = INVOICES.find(function (i) { return i.bookingId === bookingId; });
+    const isResend = inv && inv.receiptSentAt;
+    if (!confirm((isResend ? 'Resend' : 'Send') + ' the receipt to ' + (inv ? inv.renterName : 'the renter') + ' now?')) return;
     try {
-      const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(inv.bookingId) + '/send-receipt', { method: 'POST' });
+      const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/send-receipt', { method: 'POST' });
       const data = await res.json();
       if (!res.ok) { alert('Could not send receipt: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
       await loadInvoices();
@@ -1508,9 +1592,56 @@ document.getElementById('inv-tbody').addEventListener('click', async function (e
     }
   }
 });
-// Notes are stored on the same categorization record a transaction's own
-// category lives in — updating notes alone still needs that category
-// passed through, so this looks up what it currently is first.
+document.getElementById('btn-close-receipt-action').addEventListener('click', function () {
+  document.getElementById('receipt-action-overlay').style.display = 'none';
+});
+document.getElementById('receipt-action-overlay').addEventListener('click', function (e) {
+  if (e.target === this) this.style.display = 'none';
+});
+
+// Same implementation as All Bookings — invoices/receipts are only ever
+// generated in the Facility Rental Portal, but Finance can still view and
+// download them read-only.
+async function viewDocument(bookingId, kind) {
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/' + kind + '-preview');
+    if (!res.ok) {
+      const data = await res.json().catch(function () { return {}; });
+      alert('Could not load ' + kind + ': ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
+      return;
+    }
+    const html = await res.text();
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    setTimeout(function () { URL.revokeObjectURL(url); }, 30000);
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+  }
+}
+async function downloadDocument(bookingId, kind) {
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/' + kind + '-preview');
+    if (!res.ok) {
+      const data = await res.json().catch(function () { return {}; });
+      alert('Could not generate ' + kind + ': ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
+      return;
+    }
+    const html = await res.text();
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = kind + '-' + bookingId + '.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+  }
+}
+
 let notesModalBookingId = null;
 function openInvoiceNotesModal(bookingId) {
   const inv = INVOICES.find(function (i) { return i.bookingId === bookingId; });

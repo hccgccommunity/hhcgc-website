@@ -644,10 +644,18 @@ function formatDate(iso) {
   const d = new Date(iso + 'T00:00:00');
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
+// For real timestamps (invoice_sent_at, receipt_sent_at, etc.) — unlike
+// formatDate above, these carry an actual time-of-day and must always
+// display in Eastern regardless of the viewer's own browser location,
+// since HCCGC staff anywhere need to see facility-local time consistently.
+function formatTimestampDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
+}
 function formatDateTime(iso) {
   if (!iso) return '—';
   const d = new Date(iso);
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/New_York' }) + ', ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' });
 }
 
 function isPastDue(b) {
@@ -705,9 +713,9 @@ function actionIcons(b) {
   if (b.is_internal) return '';
   const needsSend = needsInvoiceSend(b);
   const notesBtn = notesButtonHtml(b);
-  const invoiceBtn = '<button type="button" class="btn-invoice ' + (needsSend ? 'attached' : 'sent') + '" title="' + (needsSend ? 'Invoice not sent — click to send, edit, or download' : 'Invoice sent ' + formatDate(b.invoice_sent_at) + ' — click to edit or download') + '" data-invoice-booking="' + b.booking_id + '">\ud83e\uddfe</button>';
+  const invoiceBtn = '<button type="button" class="btn-invoice ' + (needsSend ? 'attached' : 'sent') + '" title="' + (needsSend ? 'Invoice not sent — click to send, edit, or download' : 'Invoice sent ' + formatTimestampDate(b.invoice_sent_at) + ' — click to edit or download') + '" data-invoice-booking="' + b.booking_id + '">\ud83e\uddfe</button>';
   const receiptDisabled = b.payment_status !== 'paid';
-  const receiptBtn = '<button type="button" class="btn-receipt' + (b.receipt_sent_at ? ' sent' : '') + '"' + (receiptDisabled ? ' disabled title="Mark paid in Finance first"' : ' title="' + (b.receipt_sent_at ? 'Receipt sent ' + formatDate(b.receipt_sent_at) : 'Click to send the receipt') + '"') + ' data-receipt-booking="' + b.booking_id + '">' + (b.receipt_sent_at ? '\ud83e\uddfe' : (receiptDisabled ? '\u2014' : '\u2795')) + '</button>';
+  const receiptBtn = '<button type="button" class="btn-receipt' + (b.receipt_sent_at ? ' sent' : '') + '"' + (receiptDisabled ? ' disabled title="Mark paid in Finance first"' : ' title="' + (b.receipt_sent_at ? 'Receipt sent ' + formatTimestampDate(b.receipt_sent_at) : 'Click to send the receipt') + '"') + ' data-receipt-booking="' + b.booking_id + '">' + (b.receipt_sent_at ? '\ud83e\uddfe' : (receiptDisabled ? '\u2014' : '\u2795')) + '</button>';
   return '<div class="action-icons">' + notesBtn + invoiceBtn + receiptBtn + '</div>';
 }
 
@@ -1349,7 +1357,7 @@ async function openBookingReviewModal(bookingId) {
 }
 function formatTimeRange(start, end) {
   var s = new Date(start), e = new Date(end);
-  return s.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + '\u2013' + e.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  return s.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' }) + '\u2013' + e.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' });
 }
 document.getElementById('btn-close-booking-review').addEventListener('click', function () {
   document.getElementById('booking-review-overlay').style.display = 'none';
@@ -1466,7 +1474,7 @@ function openInvoiceActionMenu(bookingId) {
   html += '<button type="button" class="invoice-action-btn" data-inv-action="edit">Edit invoice</button>';
   html += '<button type="button" class="invoice-action-btn primary" data-inv-action="send">' + (needsSend ? 'Send invoice' : 'Resend invoice') + '</button>';
   html += '<button type="button" class="invoice-action-btn" data-inv-action="download">Download invoice</button>';
-  if (!needsSend) html += '<p class="card-sub" style="margin:6px 0 0;">Last sent ' + formatDate(b.invoice_sent_at) + '.</p>';
+  if (!needsSend) html += '<p class="card-sub" style="margin:6px 0 0;">Last sent ' + formatTimestampDate(b.invoice_sent_at) + '.</p>';
   body.innerHTML = html;
   body.dataset.bookingId = bookingId;
   document.getElementById('invoice-action-overlay').style.display = 'flex';
@@ -1503,7 +1511,7 @@ function openReceiptActionMenu(bookingId) {
   html += '<button type="button" class="invoice-action-btn" data-rcpt-action="view">View receipt</button>';
   html += '<button type="button" class="invoice-action-btn primary" data-rcpt-action="send">' + (alreadySent ? 'Resend receipt' : 'Send receipt') + '</button>';
   html += '<button type="button" class="invoice-action-btn" data-rcpt-action="download">Download receipt</button>';
-  if (alreadySent) html += '<p class="card-sub" style="margin:6px 0 0;">Last sent ' + formatDate(b.receipt_sent_at) + '.</p>';
+  if (alreadySent) html += '<p class="card-sub" style="margin:6px 0 0;">Last sent ' + formatTimestampDate(b.receipt_sent_at) + '.</p>';
   body.innerHTML = html;
   body.dataset.bookingId = bookingId;
   document.getElementById('receipt-action-overlay').style.display = 'flex';

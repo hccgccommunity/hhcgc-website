@@ -518,6 +518,22 @@
       pointer-events: none;
     }
 
+    .stepper-input {
+      flex: 1;
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: 800;
+      font-family: inherit;
+      color: var(--text);
+      padding: 0 8px;
+      border: none;
+      background: transparent;
+      min-width: 0;
+      -moz-appearance: textfield;
+    }
+    .stepper-input::-webkit-outer-spin-button, .stepper-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .stepper-input:focus { outline: none; background: rgba(255,246,234,0.6); border-radius: 6px; }
+
     /* Toggle checkboxes — big tap targets */
     .toggles-row {
       display: flex;
@@ -1008,12 +1024,20 @@
             <p class="card-sub" style="margin-top:8px;font-size:0.8rem;color:var(--muted);">Tap to select more than one room — the estimate adds them together. Entire Facility selects all four at once.</p>
           </div>
 
-          <!-- Hours stepper -->
+          <!-- Hours & Days steppers -->
           <div class="select-group">
-            <label>Number of Hours</label>
+            <label>Number of Days</label>
+            <div class="hours-stepper">
+              <button class="stepper-btn" id="stepDaysDown" aria-label="Decrease days">−</button>
+              <input type="number" class="stepper-input" id="daysInput" value="1" min="1" step="1" inputmode="numeric">
+              <button class="stepper-btn" id="stepDaysUp" aria-label="Increase days">+</button>
+            </div>
+          </div>
+          <div class="select-group">
+            <label>Number of Hours (per day)</label>
             <div class="hours-stepper">
               <button class="stepper-btn" id="stepDown" aria-label="Decrease hours">−</button>
-              <div class="stepper-display" id="hoursDisplay">2 hrs</div>
+              <input type="number" class="stepper-input" id="hoursInput" value="2" min="0.5" step="0.5" inputmode="decimal">
               <button class="stepper-btn" id="stepUp" aria-label="Increase hours">+</button>
             </div>
           </div>
@@ -1239,7 +1263,7 @@
                 <label><input type="checkbox" value="Patanjali Hall"> Patanjali Hall</label>
                 <label><input type="checkbox" value="Nataraj Room"> Nataraj Room</label>
                 <label><input type="checkbox" value="Ganesh Room"> Ganesh Room</label>
-                <label><input type="checkbox" value="Kitchen"> Kitchen (only with Surya or Patanjali)</label>
+                <label id="rf-kitchen-label"><input type="checkbox" value="Kitchen" id="rf-kitchen-checkbox"> Kitchen (only with Surya or Patanjali)</label>
                 <label><input type="checkbox" value="Entire Facility"> Entire Facility</label>
               </div>
             </div>
@@ -1336,6 +1360,32 @@
       }).join('');
     }
 
+    // Assigns each event a lane + total-lane-count so overlapping events
+    // (same day, overlapping times — e.g. two different rooms booked at
+    // once) render side by side as narrower columns instead of stacking
+    // on top of each other. Greedy lane assignment, then each event's
+    // width is sized to the max concurrency of anything it overlaps with.
+    function layoutDayEvents(events) {
+      const sorted = events.slice().sort(function (a, b) { return a.start - b.start; });
+      const laneEnds = [];
+      sorted.forEach(function (ev) {
+        let placed = false;
+        for (let i = 0; i < laneEnds.length; i++) {
+          if (laneEnds[i] <= ev.start) { ev.lane = i; laneEnds[i] = ev.end; placed = true; break; }
+        }
+        if (!placed) { ev.lane = laneEnds.length; laneEnds.push(ev.end); }
+      });
+      sorted.forEach(function (ev) {
+        let maxLane = ev.lane;
+        sorted.forEach(function (other) {
+          if (other === ev) return;
+          if (other.start < ev.end && other.end > ev.start) maxLane = Math.max(maxLane, other.lane);
+        });
+        ev.totalLanes = maxLane + 1;
+      });
+      return sorted;
+    }
+
     function getWeekDates(offset) {
       const today = new Date();
       const sunday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay() + (offset * 7));
@@ -1404,11 +1454,12 @@
       // Day columns with absolutely-positioned chips
       weekDates.forEach(function (d) {
         const dStr = toDateStr(d);
-        const dayBookings = byDate[dStr] || [];
+        const dayBookingsRaw = (byDate[dStr] || []).map(function (bk) { return { room: bk.room, start: new Date(bk.start), end: new Date(bk.end) }; });
+        const dayBookings = layoutDayEvents(dayBookingsRaw);
         let colHtml = '<div class="avail-week-daycol" style="height:' + bodyHeight + 'px;--hour-px:' + rowHeightPx + 'px;">';
         dayBookings.forEach(function (bk) {
-          const start = new Date(bk.start);
-          const end = new Date(bk.end);
+          const start = bk.start;
+          const end = bk.end;
           const startFrac = (start.getHours() + start.getMinutes() / 60 - AVAIL_DAY_START_HOUR) / totalHours;
           const endFrac = (end.getHours() + end.getMinutes() / 60 - AVAIL_DAY_START_HOUR) / totalHours;
           const clampedStart = Math.max(0, Math.min(1, startFrac));
@@ -1416,10 +1467,12 @@
           if (clampedEnd <= clampedStart) return; // entirely outside the displayed window
           const topPx = clampedStart * bodyHeight;
           const heightPx = Math.max(16, (clampedEnd - clampedStart) * bodyHeight);
+          const widthPct = 100 / bk.totalLanes;
+          const leftPct = bk.lane * widthPct;
           const timeLabel = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + '–' + end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-          colHtml += '<div class="avail-week-chip" style="top:' + topPx + 'px;height:' + heightPx + 'px;background:' + (AVAIL_ROOM_COLORS[bk.room] || '#8d6e63') + ';" title="' + bk.room + ' — ' + timeLabel + '">' +
+          colHtml += '<div class="avail-week-chip" style="top:' + topPx + 'px;height:' + heightPx + 'px;left:' + leftPct + '%;width:calc(' + widthPct + '% - 3px);right:auto;background:' + (AVAIL_ROOM_COLORS[bk.room] || '#8d6e63') + ';" title="' + bk.room + ' — ' + timeLabel + '">' +
             bk.room.replace(' Hall', '').replace(' Room', '') +
-            (heightPx > 28 ? '<span class="time">' + timeLabel + '</span>' : '') +
+            (heightPx > 28 && bk.totalLanes === 1 ? '<span class="time">' + timeLabel + '</span>' : '') +
           '</div>';
         });
         colHtml += '</div>';
@@ -1446,6 +1499,7 @@
 
     let selectedRooms = new Set(['surya']);
     let hours = 2;
+    let days = 1;
 
     function syncEntireFacilityButton() {
       const allSelected = ALL_ROOMS.every(r => selectedRooms.has(r));
@@ -1486,18 +1540,37 @@
       calculate();
     });
 
-    // Hours stepper
-    function updateHoursDisplay() {
-      document.getElementById('hoursDisplay').textContent = hours + (hours === 1 ? ' hr' : ' hrs');
+    // Hours & Days steppers — both the +/- buttons and typing directly
+    // into the field keep everything in sync either way.
+    const hoursInput = document.getElementById('hoursInput');
+    const daysInput = document.getElementById('daysInput');
+
+    function setHours(v) {
+      hours = Math.max(0.5, Math.round(v * 2) / 2); // snap to the nearest half-hour
+      hoursInput.value = hours;
+      calculate();
+    }
+    function setDays(v) {
+      days = Math.max(1, Math.round(v));
+      daysInput.value = days;
+      calculate();
     }
 
-    document.getElementById('stepDown').addEventListener('click', () => {
-      if (hours > 1) { hours--; updateHoursDisplay(); calculate(); }
+    document.getElementById('stepDown').addEventListener('click', () => setHours(hours - 0.5));
+    document.getElementById('stepUp').addEventListener('click', () => setHours(hours + 0.5));
+    hoursInput.addEventListener('input', () => {
+      const v = parseFloat(hoursInput.value);
+      if (!isNaN(v) && v > 0) { hours = Math.round(v * 2) / 2; calculate(); }
     });
+    hoursInput.addEventListener('blur', () => setHours(parseFloat(hoursInput.value) || hours));
 
-    document.getElementById('stepUp').addEventListener('click', () => {
-      if (hours < 24) { hours++; updateHoursDisplay(); calculate(); }
+    document.getElementById('stepDaysDown').addEventListener('click', () => setDays(days - 1));
+    document.getElementById('stepDaysUp').addEventListener('click', () => setDays(days + 1));
+    daysInput.addEventListener('input', () => {
+      const v = parseInt(daysInput.value, 10);
+      if (!isNaN(v) && v > 0) { days = v; calculate(); }
     });
+    daysInput.addEventListener('blur', () => setDays(parseInt(daysInput.value, 10) || days));
 
     // Discount toggles
     ['weekdayCheck', 'nonprofitCheck'].forEach(id => {
@@ -1511,7 +1584,7 @@
 
       const roomsList = ALL_ROOMS.filter(r => selectedRooms.has(r));
       const baseRate  = roomsList.reduce((sum, r) => sum + rates[r], 0);
-      const baseTotal = baseRate * hours;
+      const baseTotal = baseRate * hours * days;
 
       let mult = 1;
       const pills = [];
@@ -1527,7 +1600,8 @@
 
       const isEntire = ALL_ROOMS.every(r => selectedRooms.has(r));
       const roomLabel = isEntire ? 'Entire Facility' : roomsList.map(r => roomNames[r]).join(' + ');
-      let text = `${roomLabel} · ${hours} hr${hours !== 1 ? 's' : ''} · $${baseRate}/hr combined`;
+      const daysLabel = days > 1 ? `${days} days × ` : '';
+      let text = `${roomLabel} · ${daysLabel}${hours} hr${hours !== 1 ? 's' : ''} · $${baseRate}/hr combined`;
       text += savings > 0.01
         ? ` · Base: $${baseTotal.toFixed(2)} · You save: $${savings.toFixed(2)}`
         : ` = $${baseTotal.toFixed(2)}`;
@@ -1720,10 +1794,28 @@
     function selectedRoomValues() {
       return Array.from(roomPanel.querySelectorAll('input:checked')).map(cb => cb.value);
     }
+    function enforceKitchenConstraint() {
+      const kitchenCb = document.getElementById('rf-kitchen-checkbox');
+      const kitchenLabel = document.getElementById('rf-kitchen-label');
+      const selected = selectedRoomValues();
+      const eligible = selected.includes('Surya Hall') || selected.includes('Patanjali Hall') || selected.includes('Entire Facility');
+      if (!eligible) {
+        if (kitchenCb.checked) kitchenCb.checked = false; // no longer a valid combination — uncheck rather than leave it silently invalid
+        kitchenCb.disabled = true;
+        kitchenLabel.style.opacity = '0.5';
+        kitchenLabel.style.cursor = 'not-allowed';
+      } else {
+        kitchenCb.disabled = false;
+        kitchenLabel.style.opacity = '1';
+        kitchenLabel.style.cursor = 'pointer';
+      }
+    }
     roomPanel.addEventListener('change', () => {
+      enforceKitchenConstraint();
       const selected = selectedRoomValues();
       roomBtn.textContent = selected.length ? selected.join(', ') : 'Choose room(s)…';
     });
+    enforceKitchenConstraint();
 
     // ── Repeatable date/time rows ──
     let dateRowCount = 0;

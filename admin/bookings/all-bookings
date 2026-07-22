@@ -137,15 +137,15 @@ tr.sub-row td:first-child { padding-left: 28px; }
 .badge-paid { background: var(--green-bg); color: var(--green); }
 .badge-needs-confirm { background: var(--amber-bg); color: var(--amber); }
 .btn-invoice { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; vertical-align: middle; }
-.btn-invoice.attached { background: #fff3d6; border-color: #d9a83e; }
-.btn-invoice.sent { background: #e8f5ec; border-color: var(--green); cursor: default; }
+.btn-invoice.attached { background: #ffe4a3; border: 2px solid #c8890a; box-shadow: 0 0 0 1px rgba(200,137,10,0.25); }
+.btn-invoice.sent { background: #bdedcf; border: 2px solid #1f6b3f; box-shadow: 0 0 0 1px rgba(31,107,63,0.25); cursor: default; }
 .btn-invoice:hover:not(.sent) { filter: brightness(0.96); }
 .action-icons { display: flex; align-items: center; gap: 4px; }
 .btn-icon-action { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; }
 .btn-icon-action.has-content { background: var(--surface-soft); }
 .btn-icon-action:hover { filter: brightness(0.96); }
 .btn-receipt { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; }
-.btn-receipt.sent { background: #e8f5ec; border-color: var(--green); cursor: default; }
+.btn-receipt.sent { background: #bdedcf; border: 2px solid #1f6b3f; box-shadow: 0 0 0 1px rgba(31,107,63,0.25); cursor: default; }
 .btn-receipt:disabled { opacity: 0.4; cursor: default; }
 .btn-receipt:hover:not(:disabled):not(.sent) { filter: brightness(0.96); }
 .invoice-action-btn { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1.5px solid var(--border); background: #fff; font-family: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer; text-align: left; }
@@ -345,16 +345,16 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
       <option value="Ganesh Room">Ganesh Room</option>
       <option value="__whole_facility__">Whole Facility</option>
     </select>
-    <select id="status-filter">
-      <option value="">All statuses</option>
-      <option value="requested">Requested — awaiting review</option>
-      <option value="needs-attention">Needs attention</option>
-      <option value="paid">Paid</option>
-      <option value="pending">Pending (not yet invoiced)</option>
-      <option value="cancelled">Cancelled</option>
-      <option value="rejected">Rejected</option>
-      <option value="internal">Internal / No charge</option>
-    </select>
+    <div class="contact-filter-wrap">
+      <button type="button" class="btn-secondary" id="btn-status-filter-toggle">Status <span id="status-filter-count"></span> &#9662;</button>
+      <div class="contact-filter-panel" id="status-filter-panel" style="display:none;">
+        <div class="contact-filter-actions">
+          <button type="button" id="btn-status-filter-all">Select all</button>
+          <button type="button" id="btn-status-filter-none">Clear</button>
+        </div>
+        <div id="status-filter-list"></div>
+      </div>
+    </div>
     <div style="position:relative;">
       <button type="button" class="btn-secondary" id="btn-month-filter" style="padding:9px 14px;font-size:0.86rem;"></button>
       <div class="month-calendar-panel" id="month-calendar-panel" style="display:none;"></div>
@@ -499,6 +499,24 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
   </div>
 </div>
 
+<div class="modal-overlay" id="reject-reason-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:520px;">
+    <div class="modal-header">
+      <h2>Reject this request</h2>
+      <button class="modal-close" id="btn-close-reject-reason">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="card-sub" style="margin-bottom:10px;">This reason will be emailed to the renter — take the space you need to explain it properly.</p>
+      <textarea id="reject-reason-textarea" rows="10" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></textarea>
+      <div class="result-box" id="reject-reason-result" style="display:none;margin-top:10px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-cancel-reject-reason">Cancel</button>
+      <button type="button" class="btn-primary" id="btn-confirm-reject-reason" style="margin-top:0;">Reject &amp; send</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="notes-edit-overlay" style="display:none;">
   <div class="modal-panel" style="max-width:460px;">
     <div class="modal-header">
@@ -587,7 +605,7 @@ async function loadBookings() {
   render();
 }
 
-let state = { contactFilter: undefined, room: '', status: '', month: 'default3', sortKey: 'updated_display', sortDir: 'desc', pageSize: 20, page: 1 };
+let state = { contactFilter: undefined, statusFilter: undefined, room: '', month: 'default3', sortKey: 'updated_display', sortDir: 'desc', pageSize: 20, page: 1 };
 
 // ---- Column configurator ----
 // Contact Name and Actions are always shown — everything else is
@@ -709,18 +727,24 @@ function monthRangeFor(monthValue) {
   return { start: new Date(y, m - 1, 1), end: new Date(y, m, 1) };
 }
 
+const STATUS_CATEGORIES = ['requested', 'needs-attention', 'pending', 'paid', 'internal', 'cancelled', 'rejected'];
+function matchesStatusCategory(b, category) {
+  if (category === 'needs-attention') return b.payment_status === 'invoiced' || b.payment_status === 'pending';
+  if (category === 'paid') return b.payment_status === 'paid';
+  if (category === 'pending') return b.payment_status === 'pending';
+  if (category === 'cancelled') return b.payment_status === 'cancelled';
+  if (category === 'internal') return b.is_internal || b.payment_status === 'n/a';
+  if (category === 'requested') return b.payment_status === 'requested';
+  if (category === 'rejected') return b.payment_status === 'rejected';
+  return false;
+}
+
 function contactNameFor(b) { return b.is_internal ? 'HCCGC' : b.renter_name; }
 function matchesFilters(b) {
   if (state.contactFilter && !state.contactFilter.has(contactNameFor(b))) return false;
   if (state.room === '__whole_facility__' && !isWholeFacility(b)) return false;
   if (state.room && state.room !== '__whole_facility__' && !b.rooms.includes(state.room)) return false;
-  if (state.status === 'needs-attention' && !(b.payment_status === 'invoiced' || b.payment_status === 'pending')) return false;
-  if (state.status === 'paid' && b.payment_status !== 'paid') return false;
-  if (state.status === 'pending' && b.payment_status !== 'pending') return false;
-  if (state.status === 'cancelled' && b.payment_status !== 'cancelled') return false;
-  if (state.status === 'internal' && !(b.is_internal || b.payment_status === 'n/a')) return false;
-  if (state.status === 'requested' && b.payment_status !== 'requested') return false;
-  if (state.status === 'rejected' && b.payment_status !== 'rejected') return false;
+  if (state.statusFilter && !STATUS_CATEGORIES.some(function (cat) { return state.statusFilter.has(cat) && matchesStatusCategory(b, cat); })) return false;
   const range = monthRangeFor(state.month);
   if (range) {
     const d = new Date(b.event_date + 'T00:00:00');
@@ -1202,21 +1226,51 @@ async function approveRequestAction(bookingId, discount) {
   }
 }
 
-async function rejectRequestAction(bookingId) {
-  const reason = prompt('Reason for rejecting this request? This will be emailed to the renter.');
-  if (reason === null) return;
-  if (!reason.trim()) { alert('A reason is required.'); return; }
+let rejectingBookingId = null;
+function rejectRequestAction(bookingId) {
+  rejectingBookingId = bookingId;
+  document.getElementById('reject-reason-textarea').value = '';
+  document.getElementById('reject-reason-result').style.display = 'none';
+  document.getElementById('reject-reason-overlay').style.display = 'flex';
+}
+document.getElementById('btn-close-reject-reason').addEventListener('click', function () {
+  document.getElementById('reject-reason-overlay').style.display = 'none';
+});
+document.getElementById('btn-cancel-reject-reason').addEventListener('click', function () {
+  document.getElementById('reject-reason-overlay').style.display = 'none';
+});
+document.getElementById('reject-reason-overlay').addEventListener('click', function (e) {
+  if (e.target === this) this.style.display = 'none';
+});
+document.getElementById('btn-confirm-reject-reason').addEventListener('click', async function () {
+  if (!rejectingBookingId) return;
+  const reason = document.getElementById('reject-reason-textarea').value.trim();
+  const resultBox = document.getElementById('reject-reason-result');
+  if (!reason) {
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+    resultBox.textContent = 'A reason is required.'; return;
+  }
+  const btn = this;
+  btn.disabled = true; btn.textContent = 'Rejecting…';
   try {
-    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/reject-request', {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(rejectingBookingId) + '/reject-request', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason })
     });
     const data = await res.json();
-    if (!res.ok) { alert('Could not reject: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+    if (!res.ok) {
+      resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+      resultBox.textContent = (data.errors || [data.error]).join(' ') || 'unknown error';
+      return;
+    }
+    document.getElementById('reject-reason-overlay').style.display = 'none';
     await loadBookings();
   } catch (err) {
-    alert('Could not reach the booking system: ' + err.message);
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+    resultBox.textContent = 'Could not reach the booking system: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Reject & send';
   }
-}
+});
 
 // ---- Booking request review modal: full details, conflict check,
 // discretionary discount, then Approve/Reject ----
@@ -1786,6 +1840,16 @@ function enforceSeriesEditKitchenRule() {
 function renderSeriesEditOccTable(occurrences) {
   const tbody = document.getElementById('series-edit-occ-tbody');
   tbody.innerHTML = occurrences.map(function (occ) {
+    const past = isBookingPast(occ);
+    if (past) {
+      const rangeStr = formatTimeRange(occ.start_time, occ.end_time).split('\u2013');
+      return '<tr data-booking-id="' + occ.booking_id + '" class="past-occ-row" style="opacity:0.6;">' +
+        '<td>' + formatDate(occ.event_date) + ' <span class="method-tag">past</span></td>' +
+        '<td>' + (rangeStr[0] || '') + '</td>' +
+        '<td>' + (rangeStr[1] || '') + '</td>' +
+        '<td style="text-align:center;color:var(--muted);font-size:0.78rem;">read-only</td>' +
+      '</tr>';
+    }
     return '<tr data-booking-id="' + occ.booking_id + '">' +
       '<td><input type="date" class="series-occ-date" value="' + occ.event_date + '"></td>' +
       '<td><input type="time" class="series-occ-start" value="' + (occ.start_time || '').slice(11, 16) + '" list="common-times"></td>' +
@@ -1856,8 +1920,16 @@ document.getElementById('btn-save-series-edit').addEventListener('click', async 
   const resultBox = document.getElementById('series-edit-result-box');
 
   const occInputs = Array.from(document.querySelectorAll('#series-edit-occ-tbody tr')).map(function (tr) {
+    const bookingId = tr.dataset.bookingId;
+    if (tr.classList.contains('past-occ-row')) {
+      // Past occurrences are read-only here — submit their existing values
+      // unchanged rather than trying to read inputs that don't exist on
+      // this row, and they can never be marked for removal.
+      const existing = occurrences.find(function (o) { return o.booking_id === bookingId; });
+      return { bookingId: bookingId, eventDate: existing.event_date, startTime: (existing.start_time || '').slice(11, 16), endTime: (existing.end_time || '').slice(11, 16), remove: false };
+    }
     return {
-      bookingId: tr.dataset.bookingId,
+      bookingId: bookingId,
       eventDate: tr.querySelector('.series-occ-date').value,
       startTime: tr.querySelector('.series-occ-start').value,
       endTime: tr.querySelector('.series-occ-end').value,
@@ -1972,11 +2044,73 @@ document.getElementById('room-filter').addEventListener('change', function (e) {
   state.page = 1;
   render();
 });
-document.getElementById('status-filter').addEventListener('change', function (e) {
-  state.status = e.target.value;
+const STATUS_LABELS = {
+  requested: 'Requested — awaiting review',
+  'needs-attention': 'Needs attention',
+  pending: 'Pending (not yet invoiced)',
+  paid: 'Paid',
+  internal: 'Internal / No charge',
+  cancelled: 'Cancelled',
+  rejected: 'Rejected'
+};
+function populateStatusFilter() {
+  // Default: everything checked except Rejected — rejected bookings are
+  // usually noise once you're past reviewing them, so they stay hidden
+  // until someone deliberately asks to see them.
+  if (state.statusFilter === undefined) {
+    state.statusFilter = new Set(STATUS_CATEGORIES.filter(function (c) { return c !== 'rejected'; }));
+  }
+  const list = document.getElementById('status-filter-list');
+  const checkedSet = state.statusFilter;
+  list.innerHTML = STATUS_CATEGORIES.map(function (cat) {
+    const checked = !checkedSet || checkedSet.has(cat);
+    return '<div class="contact-filter-row"><input type="checkbox" id="sf-' + cat + '" data-status-cat="' + cat + '"' + (checked ? ' checked' : '') + '><label for="sf-' + cat + '">' + escHtml(STATUS_LABELS[cat]) + '</label></div>';
+  }).join('');
+  updateStatusFilterButtonLabel();
+}
+function updateStatusFilterButtonLabel() {
+  const btn = document.getElementById('btn-status-filter-toggle');
+  const countSpan = document.getElementById('status-filter-count');
+  if (!state.statusFilter || state.statusFilter.size === STATUS_CATEGORIES.length) {
+    btn.firstChild.textContent = 'Status: All ';
+    countSpan.textContent = '';
+  } else {
+    btn.firstChild.textContent = 'Status: ';
+    countSpan.textContent = state.statusFilter.size + ' of ' + STATUS_CATEGORIES.length;
+  }
+}
+document.getElementById('btn-status-filter-toggle').addEventListener('click', function (e) {
+  e.stopPropagation();
+  const panel = document.getElementById('status-filter-panel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+});
+document.addEventListener('click', function (e) {
+  const panel = document.getElementById('status-filter-panel');
+  if (panel.style.display !== 'none' && !e.target.closest('.contact-filter-wrap')) panel.style.display = 'none';
+});
+document.getElementById('status-filter-list').addEventListener('change', function (e) {
+  const cb = e.target.closest('[data-status-cat]');
+  if (!cb) return;
+  if (!state.statusFilter) state.statusFilter = new Set(STATUS_CATEGORIES);
+  if (cb.checked) state.statusFilter.add(cb.dataset.statusCat);
+  else state.statusFilter.delete(cb.dataset.statusCat);
+  updateStatusFilterButtonLabel();
   state.page = 1;
   render();
 });
+document.getElementById('btn-status-filter-all').addEventListener('click', function () {
+  state.statusFilter = new Set(STATUS_CATEGORIES);
+  populateStatusFilter();
+  state.page = 1;
+  render();
+});
+document.getElementById('btn-status-filter-none').addEventListener('click', function () {
+  state.statusFilter = new Set();
+  populateStatusFilter();
+  state.page = 1;
+  render();
+});
+populateStatusFilter();
 document.getElementById('page-size-filter').addEventListener('change', function (e) {
   state.pageSize = Number(e.target.value);
   state.page = 1;

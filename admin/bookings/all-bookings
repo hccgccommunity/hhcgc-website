@@ -865,14 +865,19 @@ function isHistoricallyLocked(b) {
   return isBookingPast(b) || isPicktimeHistoricalPaid(b);
 }
 
-function renderBookingRow(b, isSubRow) {
+function renderBookingRow(b, isSubRow, seriesIsMixed) {
   const rowClasses = (b.payment_status === 'cancelled' || b.payment_status === 'rejected' ? 'cancelled-row ' : '') + (isSubRow ? 'sub-row' : '');
   // Per-occurrence invoicing means each occurrence really is its own
   // independent billing unit — same as a standalone booking — so it gets
   // full status and actions even though it's a sub-row. Combined
   // invoicing (the default) is the only case where sub-rows stay
   // info-only, since the group above is the actual billing unit there.
-  const actsIndependently = isSubRow && b.invoice_mode === 'per_occurrence';
+  // A series showing mixed payment status (some occurrences paid,
+  // others not) gets the same independent treatment regardless of
+  // invoice_mode — that mix could only happen if occurrences were
+  // actually operated on individually, most often historical series
+  // that predate this setting existing at all.
+  const actsIndependently = isSubRow && (b.invoice_mode === 'per_occurrence' || seriesIsMixed);
   const treatAsSubRow = isSubRow && !actsIndependently;
 
   // A public booking request awaiting review is a totally different case
@@ -880,10 +885,7 @@ function renderBookingRow(b, isSubRow) {
   // applies until an admin has actually approved or rejected it.
   if (b.payment_status === 'requested' || b.payment_status === 'rejected') {
     const actions = b.payment_status === 'requested'
-      ? [
-          { label: 'Review request', fn: () => openBookingReviewModal(b.booking_id) },
-          { label: 'Download invoice', fn: () => downloadDocument(b.booking_id, 'invoice') }
-        ]
+      ? [{ label: 'Review request', fn: () => openBookingReviewModal(b.booking_id) }]
       : [];
     const actionsCell = treatAsSubRow ? '<td></td>' : '<td>' + renderActionsKebab(b.booking_id, actions) + '</td>';
     return (
@@ -922,14 +924,11 @@ function renderBookingRow(b, isSubRow) {
 function renderSeriesSummaryRow(item) {
   const isExpanded = expandedSeries.has(item.seriesId);
   const repOcc = item.occurrences[0];
-  const perOccurrenceMode = repOcc && repOcc.invoice_mode === 'per_occurrence';
+  const perOccurrenceMode = repOcc && (repOcc.invoice_mode === 'per_occurrence' || item.payment_status === 'mixed');
 
   if (item.payment_status === 'requested' || item.payment_status === 'rejected') {
     const actions = item.payment_status === 'requested'
-      ? [
-          { label: 'Review request (all dates)', fn: () => openBookingReviewModal(repOcc.booking_id) },
-          { label: 'Download invoice', fn: () => downloadDocument(repOcc.booking_id, 'invoice') }
-        ]
+      ? [{ label: 'Review request (all dates)', fn: () => openBookingReviewModal(repOcc.booking_id) }]
       : [];
     return (
       '<tr class="series-summary-row">' +
@@ -1053,7 +1052,7 @@ function render() {
     if (item.type === 'single') return renderBookingRow(item.booking, false);
     const summary = renderSeriesSummaryRow(item);
     if (!expandedSeries.has(item.seriesId)) return summary;
-    return summary + item.occurrences.map(function (occ) { return renderBookingRow(occ, true); }).join('');
+    return summary + item.occurrences.map(function (occ) { return renderBookingRow(occ, true, item.payment_status === 'mixed'); }).join('');
   }).join('');
 }
 
@@ -1097,6 +1096,13 @@ function toggleActionsMenu(evt, rowId) {
     menu.innerHTML = actions.map(function (a, i) {
       return '<button class="' + (a.danger ? 'danger' : '') + '" onclick="runRowAction(\'' + rowId + '\', ' + i + ')">' + a.label + '</button>';
     }).join('');
+    // Reparent to <body> directly — a position:fixed element only escapes
+    // an ancestor's stacking context if NO ancestor between it and body
+    // has a transform/filter/perspective/will-change set. Moving it to be
+    // a direct child of body sidesteps that entirely, guaranteeing it
+    // renders above any modal overlay regardless of which ancestor was
+    // trapping it before.
+    document.body.appendChild(menu);
     const rect = evt.target.getBoundingClientRect();
     menu.style.left = Math.max(8, rect.right - 190) + 'px';
     // Render first (off-screen positioning doesn't matter yet) so we can
@@ -1238,6 +1244,14 @@ async function openBookingReviewModal(bookingId) {
   if (b.notes) {
     html += '<div class="field"><label>Notes from request</label><div>' + b.notes.split(' | ').map(function (l) { return '<div>' + escHtml(l) + '</div>'; }).join('') + '</div></div>';
   }
+  const seriesOccurrenceCount = b.recurring_series_id ? BOOKINGS.filter(function (x) { return x.recurring_series_id === b.recurring_series_id; }).length : 1;
+  if (seriesOccurrenceCount > 1) {
+    html += '<div class="field" style="margin-top:8px;"><label>This request covers ' + seriesOccurrenceCount + ' occurrences — how should invoicing work?</label>' +
+      '<div class="request-field-row" style="gap:16px;">' +
+      '<label style="display:flex;align-items:center;gap:6px;font-weight:400;"><input type="radio" name="rb-invoice-mode" value="combined" checked> One invoice for the whole series</label>' +
+      '<label style="display:flex;align-items:center;gap:6px;font-weight:400;"><input type="radio" name="rb-invoice-mode" value="per_occurrence"> One invoice per occurrence</label>' +
+      '</div></div>';
+  }
   html += '<div class="field" id="review-conflicts-field"><label>Conflicts</label><div id="review-conflicts">Checking…</div></div>';
   html += '<div class="field" style="margin-top:8px;"><label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="rb-discount-enabled"> Apply a one-time discretionary discount</label></div>';
   html += '<div class="field-row" id="rb-discount-fields" style="display:none;">';
@@ -1293,22 +1307,22 @@ document.getElementById('btn-booking-review-approve').addEventListener('click', 
   if (!reviewingBookingId) return;
   const discountEnabled = document.getElementById('rb-discount-enabled').checked;
   const resultBox = document.getElementById('booking-review-result');
-  let discount = null;
+  let payload = {};
   if (discountEnabled) {
     const reason = document.getElementById('rb-discount-reason').value.trim();
     if (!reason) {
       resultBox.style.display = 'block'; resultBox.className = 'result-box error';
       resultBox.textContent = 'A reason is required for the discount.'; return;
     }
-    discount = {
-      discountType: document.getElementById('rb-discount-type').value,
-      discountValue: parseFloat(document.getElementById('rb-discount-value').value) || 0,
-      discountReason: reason
-    };
+    payload.discountType = document.getElementById('rb-discount-type').value;
+    payload.discountValue = parseFloat(document.getElementById('rb-discount-value').value) || 0;
+    payload.discountReason = reason;
   }
+  const invoiceModeInput = document.querySelector('input[name="rb-invoice-mode"]:checked');
+  if (invoiceModeInput) payload.invoiceMode = invoiceModeInput.value;
   const btn = this;
   btn.disabled = true; btn.textContent = 'Approving…';
-  const ok = await approveRequestAction(reviewingBookingId, discount);
+  const ok = await approveRequestAction(reviewingBookingId, payload);
   btn.disabled = false; btn.textContent = 'Approve';
   if (ok) document.getElementById('booking-review-overlay').style.display = 'none';
 });

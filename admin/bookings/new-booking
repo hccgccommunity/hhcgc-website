@@ -288,6 +288,15 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
             <tbody id="occ-tbody"></tbody>
           </table>
           <div class="card-sub" style="margin-bottom:0;">Each date's time defaults to the start/end above — edit any row individually, or remove a date (e.g. to skip a holiday).</div>
+
+          <div class="field" id="invoice-mode-field" style="display:none;margin-top:16px;">
+            <label>How should invoicing work for this series?</label>
+            <div class="request-field-row" style="gap:16px;">
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;"><input type="radio" name="f-invoice-mode" value="combined" checked> One invoice for the whole series</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;"><input type="radio" name="f-invoice-mode" value="per_occurrence"> One invoice per occurrence</label>
+            </div>
+            <div class="card-sub" style="margin:6px 0 0;">Combined: one invoice, one receipt, tracked at the series level — matches paying the whole series at once. Per occurrence: each date gets its own invoice and receipt, tracked independently — matches paying before each individual date.</div>
+          </div>
         </div>
 
         <div class="conflict-note">Availability is checked automatically for every date when you click Create booking — nothing gets created if even one date conflicts.</div>
@@ -441,10 +450,12 @@ function regenerateOccurrences() {
 function renderOccTable() {
   const table = document.getElementById('occ-table');
   const tbody = document.getElementById('occ-tbody');
+  const invoiceModeField = document.getElementById('invoice-mode-field');
   const isRecurring = document.getElementById('f-recurring-enabled').checked;
-  if (!isRecurring || occurrences.length <= 1) { table.style.display = 'none'; recalc(); return; }
+  if (!isRecurring || occurrences.length <= 1) { table.style.display = 'none'; invoiceModeField.style.display = 'none'; recalc(); return; }
 
   table.style.display = 'table';
+  invoiceModeField.style.display = 'block';
   tbody.innerHTML = occurrences.map(function (occ, i) {
     return '<tr>' +
       '<td><input type="date" value="' + occ.date + '" data-i="' + i + '" data-f="date"' + (window.__hccgcCurrentUser && window.__hccgcCurrentUser.email !== 'tech-admin@hccgc.org' ? ' min="' + new Date().toISOString().slice(0, 10) + '"' : '') + '></td>' +
@@ -708,6 +719,7 @@ document.getElementById('btn-generate').addEventListener('click', async function
     manualAdjustmentValue: (!isInternal && document.getElementById('f-adjustment-enabled').checked) ? parseFloat(document.getElementById('f-adj-value').value) || null : null,
     manualAdjustmentReason: (!isInternal && document.getElementById('f-adjustment-enabled').checked) ? document.getElementById('f-adj-reason').value : null,
     occurrences: occurrences,
+    invoiceMode: (document.querySelector('input[name="f-invoice-mode"]:checked') || {}).value || 'combined',
     enteredBy: (window.__hccgcCurrentUser && window.__hccgcCurrentUser.email) || 'Unknown'
   };
 
@@ -783,6 +795,8 @@ function resetForm() {
   document.getElementById('adjustment-fields').classList.remove('open');
   document.getElementById('f-recurring-enabled').checked = false;
   document.getElementById('recurring-fields').classList.remove('open');
+  document.getElementById('invoice-mode-field').style.display = 'none';
+  document.querySelector('input[name="f-invoice-mode"][value="combined"]').checked = true;
   document.getElementById('f-internal-enabled').checked = false;
   document.getElementById('f-publish-event').checked = true;
   document.getElementById('f-renter-select').value = '';

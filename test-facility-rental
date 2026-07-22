@@ -642,6 +642,9 @@
     .avail-cal-nav button { font-family: inherit; font-size: 1.1rem; font-weight: 700; color: var(--saffron-dark); background: var(--surface-soft, #fff6ea); border: 1px solid var(--border); border-radius: 8px; width: 34px; height: 34px; cursor: pointer; }
     .avail-cal-nav button:hover { background: #fff; }
     .avail-cal-month-label { font-family: Georgia, 'Times New Roman', serif; font-size: 1.15rem; color: var(--maroon); min-width: 150px; text-align: center; }
+    .avail-view-toggle { display: flex; border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .avail-view-btn { font-family: inherit; font-size: 0.8rem; font-weight: 700; padding: 7px 14px; border: none; background: #fff; color: var(--muted); cursor: pointer; }
+    .avail-view-btn.active { background: var(--saffron-dark); color: #fff; }
     .avail-cal-legend { display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.78rem; color: var(--muted); }
     .avail-cal-legend-item { display: flex; align-items: center; gap: 5px; }
     .avail-cal-legend-dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex-shrink: 0; }
@@ -649,18 +652,32 @@
     /* Week grid — a fixed-height timeline per day column, with booking
        chips absolutely positioned by percentage of the displayed hour
        range (top = start time, height = duration). Simpler and more
-       precise than trying to align everything to CSS grid row lines. */
-    .avail-week-scroll { overflow-x: auto; }
+       precise than trying to align everything to CSS grid row lines.
+       Now spans the full 24 hours, so the container scrolls vertically
+       with the day-label header pinned in place. */
+    .avail-week-scroll { overflow-x: auto; overflow-y: auto; max-height: 640px; }
     .avail-week-grid { display: grid; grid-template-columns: 56px repeat(7, minmax(96px, 1fr)); min-width: 720px; }
-    .avail-week-daylabel { text-align: center; font-size: 0.74rem; font-weight: 700; color: var(--text); padding: 10px 4px; border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); }
+    .avail-week-daylabel { text-align: center; font-size: 0.74rem; font-weight: 700; color: var(--text); padding: 10px 4px; border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); position: sticky; top: 0; background: #fff; z-index: 2; }
     .avail-week-daylabel .dow { display: block; font-size: 0.66rem; color: var(--muted); text-transform: uppercase; font-weight: 700; }
     .avail-week-daylabel.is-today { color: var(--saffron-dark); }
-    .avail-week-corner { border-bottom: 1px solid var(--border); }
+    .avail-week-corner { border-bottom: 1px solid var(--border); position: sticky; top: 0; left: 0; background: #fff; z-index: 3; }
     .avail-week-timecol { position: relative; }
     .avail-week-timelabel { position: absolute; right: 8px; font-size: 0.64rem; color: var(--muted); transform: translateY(-50%); white-space: nowrap; }
     .avail-week-daycol { border-left: 1px solid var(--border); position: relative; background-image: repeating-linear-gradient(to bottom, var(--border) 0, var(--border) 1px, transparent 1px, transparent var(--hour-px, 44px)); }
     .avail-week-chip { position: absolute; left: 2px; right: 2px; border-radius: 5px; padding: 2px 6px; color: #fff; font-size: 0.68rem; font-weight: 700; line-height: 1.3; overflow: hidden; box-sizing: border-box; }
     .avail-week-chip .time { display: block; font-weight: 400; opacity: 0.92; font-size: 0.62rem; }
+
+    /* Month grid — standard calendar layout, day cells hold small chips
+       (no hour precision needed at this zoom level). */
+    .avail-month-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+    .avail-month-weekday { text-align: center; font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; padding: 10px 4px; border-bottom: 1px solid var(--border); }
+    .avail-month-day { min-height: 84px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 6px; font-size: 0.72rem; }
+    .avail-month-day:nth-child(7n) { border-right: none; }
+    .avail-month-day.empty { background: var(--surface-soft, #fff6ea); }
+    .avail-month-day-num { font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .avail-month-day.is-today .avail-month-day-num { color: var(--saffron-dark); }
+    .avail-month-chip { display: block; border-radius: 4px; padding: 1px 5px; margin-bottom: 2px; color: #fff; font-size: 0.64rem; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .avail-month-more { font-size: 0.66rem; color: var(--muted); }
     @media (max-width: 640px) {
       .avail-week-grid { grid-template-columns: 44px repeat(7, minmax(80px, 1fr)); }
       .avail-week-chip { font-size: 0.6rem; }
@@ -1092,15 +1109,20 @@
         <div class="calendar-wrap">
           <div class="avail-cal-header">
             <div class="avail-cal-nav">
-              <button type="button" id="avail-cal-prev" aria-label="Previous month">&larr;</button>
+              <button type="button" id="avail-cal-prev" aria-label="Previous">&larr;</button>
               <div class="avail-cal-month-label" id="avail-cal-month-label"></div>
-              <button type="button" id="avail-cal-next" aria-label="Next month">&rarr;</button>
+              <button type="button" id="avail-cal-next" aria-label="Next">&rarr;</button>
+            </div>
+            <div class="avail-view-toggle">
+              <button type="button" class="avail-view-btn active" id="avail-view-week-btn">Week</button>
+              <button type="button" class="avail-view-btn" id="avail-view-month-btn">Month</button>
             </div>
             <div class="avail-cal-legend" id="avail-cal-legend"></div>
           </div>
-          <div class="avail-week-scroll">
+          <div class="avail-week-scroll" id="avail-week-container">
             <div class="avail-week-grid" id="avail-week-grid"></div>
           </div>
+          <div class="avail-month-grid" id="avail-month-grid" style="display:none;"></div>
         </div>
       </div>
     </section>
@@ -1349,9 +1371,11 @@
 
     // ── Availability Calendar — real booking data, week view, day-by-hour ──
     const AVAIL_ROOM_COLORS = { 'Surya Hall': '#d9720c', 'Patanjali Hall': '#6b3fa0', 'Nataraj Room': '#2e7d4f', 'Ganesh Room': '#2255a4', 'Kitchen': '#c2185b' };
-    const AVAIL_DAY_START_HOUR = 7;  // 7 AM
-    const AVAIL_DAY_END_HOUR = 21;   // 9 PM
+    const AVAIL_DAY_START_HOUR = 0;   // midnight
+    const AVAIL_DAY_END_HOUR = 24;    // full 24 hours
     let availWeekOffset = 0; // 0 = current week, -1 = previous, +1 = next
+    let availMonthOffset = 0; // 0 = current month
+    let availViewMode = 'week'; // 'week' | 'month'
 
     function renderAvailLegend() {
       const legend = document.getElementById('avail-cal-legend');
@@ -1444,9 +1468,9 @@
 
       // Time-label column
       html += '<div class="avail-week-timecol" style="height:' + bodyHeight + 'px;">';
-      for (let h = AVAIL_DAY_START_HOUR; h <= AVAIL_DAY_END_HOUR; h++) {
+      for (let h = AVAIL_DAY_START_HOUR; h < AVAIL_DAY_END_HOUR; h++) {
         const pct = ((h - AVAIL_DAY_START_HOUR) / totalHours) * 100;
-        const label = h === 12 ? '12 PM' : h < 12 ? h + ' AM' : (h - 12) + ' PM';
+        const label = h === 0 ? '12 AM' : h === 12 ? '12 PM' : h < 12 ? h + ' AM' : (h - 12) + ' PM';
         html += '<div class="avail-week-timelabel" style="top:' + pct + '%;">' + label + '</div>';
       }
       html += '</div>';
@@ -1482,13 +1506,83 @@
       gridEl.innerHTML = html;
     }
 
+    async function loadMonthView() {
+      const today = new Date();
+      const viewMonth = new Date(today.getFullYear(), today.getMonth() + availMonthOffset, 1);
+      document.getElementById('avail-cal-month-label').textContent = viewMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+      const gridEl = document.getElementById('avail-month-grid');
+      gridEl.innerHTML = '<div style="grid-column:1/-1;padding:30px;text-align:center;color:var(--muted);">Loading…</div>';
+
+      const firstOfMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth(), 1);
+      const lastOfMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 0);
+      const startDate = toDateStr(firstOfMonth);
+      const endDate = toDateStr(lastOfMonth);
+
+      let bookings = [];
+      let loadError = null;
+      try {
+        const res = await fetch(API_BASE + '/public/room-availability?startDate=' + startDate + '&endDate=' + endDate);
+        if (res.ok) bookings = await res.json();
+        else {
+          const errData = await res.json().catch(function () { return {}; });
+          loadError = (errData.errors || [errData.error || ('Server returned ' + res.status)]).join(' ');
+        }
+      } catch (err) { loadError = err.message; }
+
+      if (loadError) {
+        gridEl.innerHTML = '<div style="grid-column:1/-1;padding:30px;text-align:center;color:#b3382c;">Could not load availability: ' + loadError + '</div>';
+        return;
+      }
+
+      const byDate = {};
+      bookings.forEach(function (b) {
+        if (!byDate[b.eventDate]) byDate[b.eventDate] = [];
+        (b.rooms || []).forEach(function (room) { byDate[b.eventDate].push(room); });
+      });
+
+      const startWeekday = firstOfMonth.getDay();
+      const daysInMonth = lastOfMonth.getDate();
+      const todayStr = toDateStr(today);
+
+      let html = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(function (d) { return '<div class="avail-month-weekday">' + d + '</div>'; }).join('');
+      for (let i = 0; i < startWeekday; i++) html += '<div class="avail-month-day empty"></div>';
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = toDateStr(new Date(viewMonth.getFullYear(), viewMonth.getMonth(), d));
+        const dayRooms = byDate[dateStr] || [];
+        const shown = dayRooms.slice(0, 3);
+        const extra = dayRooms.length - shown.length;
+        html += '<div class="avail-month-day' + (dateStr === todayStr ? ' is-today' : '') + '">' +
+          '<div class="avail-month-day-num">' + d + '</div>' +
+          shown.map(function (room) { return '<span class="avail-month-chip" style="background:' + (AVAIL_ROOM_COLORS[room] || '#8d6e63') + ';">' + room.replace(' Hall', '').replace(' Room', '') + '</span>'; }).join('') +
+          (extra > 0 ? '<div class="avail-month-more">+' + extra + ' more</div>' : '') +
+        '</div>';
+      }
+      gridEl.innerHTML = html;
+    }
+
+    function refreshAvailCalendar() {
+      if (availViewMode === 'week') loadAvailabilityCalendar();
+      else loadMonthView();
+    }
+    function setAvailViewMode(mode) {
+      availViewMode = mode;
+      document.getElementById('avail-view-week-btn').classList.toggle('active', mode === 'week');
+      document.getElementById('avail-view-month-btn').classList.toggle('active', mode === 'month');
+      document.getElementById('avail-week-container').style.display = mode === 'week' ? 'block' : 'none';
+      document.getElementById('avail-month-grid').style.display = mode === 'month' ? 'grid' : 'none';
+      refreshAvailCalendar();
+    }
+    document.getElementById('avail-view-week-btn').addEventListener('click', function () { setAvailViewMode('week'); });
+    document.getElementById('avail-view-month-btn').addEventListener('click', function () { setAvailViewMode('month'); });
+
     document.getElementById('avail-cal-prev').addEventListener('click', function () {
-      availWeekOffset--;
-      loadAvailabilityCalendar();
+      if (availViewMode === 'week') availWeekOffset--; else availMonthOffset--;
+      refreshAvailCalendar();
     });
     document.getElementById('avail-cal-next').addEventListener('click', function () {
-      availWeekOffset++;
-      loadAvailabilityCalendar();
+      if (availViewMode === 'week') availWeekOffset++; else availMonthOffset++;
+      refreshAvailCalendar();
     });
     renderAvailLegend();
 

@@ -156,6 +156,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 .confirm-paid-select { font-family: inherit; font-size: 0.8rem; padding: 6px 8px; border: 1.5px solid var(--saffron-dark); border-radius: 8px; background: #fff; color: var(--saffron-dark); font-weight: 700; }
 .cat-select.uncategorized { border-color: var(--red); background: var(--red-bg); }
 .btn-note { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 26px; height: 26px; cursor: pointer; font-size: 0.8rem; vertical-align: middle; }
+.btn-note.has-content { background: #bdedcf; border: 2px solid #1f6b3f; }
 .btn-invoice { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 26px; height: 26px; cursor: pointer; font-size: 0.8rem; vertical-align: middle; }
 .btn-invoice.attached { background: #fff3d6; border-color: #d9a83e; }
 .btn-invoice.sent { background: #e8f5ec; border-color: var(--green); }
@@ -612,6 +613,24 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
   </div>
 
 </div>
+</div>
+
+<div class="modal-overlay" id="invoice-notes-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:460px;">
+    <div class="modal-header">
+      <h2>Invoice notes</h2>
+      <button class="modal-close" id="btn-close-invoice-notes">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="card-sub" style="margin-bottom:10px;">Shared with the Facility Rental Portal — a change here shows up there too, and vice versa.</p>
+      <textarea id="invoice-notes-textarea" rows="6" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></textarea>
+      <div class="result-box" id="invoice-notes-result" style="display:none;margin-top:10px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-cancel-invoice-notes">Cancel</button>
+      <button type="button" class="btn-primary" id="btn-save-invoice-notes" style="margin-top:0;">Save</button>
+    </div>
+  </div>
 </div>
 
 <div class="modal-overlay" id="expense-review-overlay" style="display:none;">
@@ -1423,7 +1442,7 @@ async function loadInvoices() {
 }
 function renderInvoiceRow(inv) {
   const attachedTo = inv.matchSource ? escHtml(inv.matchSource) + ' transaction' : '<span style="color:var(--muted);">Not attached</span>';
-  const noteBtn = '<button type="button" class="btn-note" title="' + (inv.notes ? 'Note: ' + escHtml(inv.notes) : (inv.matchSource ? 'Add a note' : 'Attach a transaction first to add notes')) + '" data-invoice-note-booking="' + inv.bookingId + '"' + (inv.matchSource ? '' : ' disabled') + '>' + (inv.notes ? '📝' : '➕') + '</button>';
+  const noteBtn = '<button type="button" class="btn-note' + (inv.notes ? ' has-content' : '') + '" title="' + (inv.notes ? 'Note: ' + escHtml(inv.notes) : 'Add a note') + '" data-invoice-note-booking="' + inv.bookingId + '">\ud83d\udcdd</button>';
   const invoiceIcon = '<button type="button" class="btn-invoice sent" title="Invoice sent ' + formatDate(inv.invoiceSentAt) + '">\ud83e\uddfe</button>';
   const receiptIcon = '<button type="button" class="btn-receipt' + (inv.receiptSentAt ? ' sent' : '') + '"' + (inv.paymentStatus === 'paid' ? '' : ' disabled title="Confirm as paid first"') + ' data-send-receipt-booking="' + inv.bookingId + '">' + (inv.receiptSentAt ? '\ud83e\uddfe' : (inv.paymentStatus === 'paid' ? '\u2795' : '\u2014')) + '</button>';
   // Confirm Paid — the actual point where a matched transaction becomes a
@@ -1470,20 +1489,8 @@ document.getElementById('inv-tbody').addEventListener('change', async function (
 });
 document.getElementById('inv-tbody').addEventListener('click', async function (e) {
   const noteBtn = e.target.closest('[data-invoice-note-booking]');
-  if (noteBtn && !noteBtn.disabled) {
-    const inv = INVOICES.find(function (i) { return i.bookingId === noteBtn.dataset.invoiceNoteBooking; });
-    if (!inv) return;
-    const note = prompt('Note for this invoice (shared with the attached transaction):', inv.notes || '');
-    if (note === null) return;
-    try {
-      await authedFetch(API_BASE + '/finance/categorize', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ source: inv.matchSource, sourceKey: inv.matchKey, categoryId: await getInvoiceMatchedCategoryId(inv), notes: note })
-      });
-      await loadInvoices();
-    } catch (err) {
-      alert('Could not save note: ' + err.message);
-    }
+  if (noteBtn) {
+    openInvoiceNotesModal(noteBtn.dataset.invoiceNoteBooking);
     return;
   }
   const receiptBtn = e.target.closest('[data-send-receipt-booking]');
@@ -1504,6 +1511,54 @@ document.getElementById('inv-tbody').addEventListener('click', async function (e
 // Notes are stored on the same categorization record a transaction's own
 // category lives in — updating notes alone still needs that category
 // passed through, so this looks up what it currently is first.
+let notesModalBookingId = null;
+function openInvoiceNotesModal(bookingId) {
+  const inv = INVOICES.find(function (i) { return i.bookingId === bookingId; });
+  if (!inv) return;
+  notesModalBookingId = bookingId;
+  document.getElementById('invoice-notes-textarea').value = inv.notes || '';
+  document.getElementById('invoice-notes-result').style.display = 'none';
+  document.getElementById('invoice-notes-overlay').style.display = 'flex';
+}
+document.getElementById('btn-close-invoice-notes').addEventListener('click', function () {
+  document.getElementById('invoice-notes-overlay').style.display = 'none';
+});
+document.getElementById('btn-cancel-invoice-notes').addEventListener('click', function () {
+  document.getElementById('invoice-notes-overlay').style.display = 'none';
+});
+document.getElementById('invoice-notes-overlay').addEventListener('click', function (e) {
+  if (e.target === this) this.style.display = 'none';
+});
+document.getElementById('btn-save-invoice-notes').addEventListener('click', async function () {
+  if (!notesModalBookingId) return;
+  const btn = this;
+  const note = document.getElementById('invoice-notes-textarea').value;
+  const resultBox = document.getElementById('invoice-notes-result');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    // Same endpoint All Bookings' notes icon uses — this is the shared
+    // bookings.notes field, not a Finance-only note, so either portal
+    // sees the same value immediately.
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(notesModalBookingId) + '/invoice', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notes: note })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+      resultBox.textContent = (data.errors || [data.error]).join(' ') || 'unknown error';
+      return;
+    }
+    document.getElementById('invoice-notes-overlay').style.display = 'none';
+    await loadInvoices();
+  } catch (err) {
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+    resultBox.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save';
+  }
+});
+
 async function getInvoiceMatchedCategoryId(inv) {
   const res = await authedFetch(API_BASE + '/finance/transactions?startDate=2000-01-01&endDate=2100-01-01');
   const data = await res.json();

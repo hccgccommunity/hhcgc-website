@@ -414,17 +414,17 @@
       background: linear-gradient(180deg, rgba(255,255,255,.86), rgba(255,246,234,.94));
       border: 1px solid var(--border);
       box-shadow: var(--shadow);
-      padding: 34px;
+      padding: 22px 26px;
     }
 
-    .estimator-card .section-head { margin-bottom: 24px; }
+    .estimator-card .section-head { margin-bottom: 14px; }
 
     /* Mobile-first select styling */
     .select-group {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      margin-bottom: 20px;
+      gap: 6px;
+      margin-bottom: 12px;
     }
 
     .select-group label {
@@ -441,30 +441,30 @@
     .room-selector {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-bottom: 24px;
+      gap: 8px;
+      margin-bottom: 14px;
     }
 
     .room-btn {
-      padding: 14px 12px;
-      border-radius: 14px;
+      padding: 9px 10px;
+      border-radius: 12px;
       border: 2px solid var(--border);
       background: rgba(255,255,255,0.82);
       color: var(--text);
-      font-size: 0.92rem;
+      font-size: 0.88rem;
       font-weight: 700;
       cursor: pointer;
       text-align: center;
       transition: all 0.18s ease;
-      line-height: 1.3;
+      line-height: 1.25;
     }
 
     .room-btn .room-btn-rate {
       display: block;
-      font-size: 0.78rem;
+      font-size: 0.74rem;
       font-weight: 900;
       color: var(--saffron-dark);
-      margin-top: 4px;
+      margin-top: 2px;
     }
 
     .room-btn:hover {
@@ -492,12 +492,12 @@
     }
 
     .stepper-btn {
-      width: 56px;
-      min-height: 52px;
+      width: 48px;
+      min-height: 42px;
       border: none;
       background: rgba(255,246,234,0.9);
       color: var(--maroon);
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       font-weight: 900;
       cursor: pointer;
       flex-shrink: 0;
@@ -522,16 +522,16 @@
     .toggles-row {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      margin-bottom: 24px;
+      gap: 8px;
+      margin-bottom: 14px;
     }
 
     .toggle-item {
       display: flex;
       align-items: center;
-      gap: 14px;
-      padding: 14px 16px;
-      border-radius: 14px;
+      gap: 12px;
+      padding: 9px 14px;
+      border-radius: 12px;
       border: 2px solid var(--border);
       background: rgba(255,255,255,0.82);
       cursor: pointer;
@@ -571,34 +571,34 @@
 
     /* Result box */
     .result-box {
-      border-radius: 20px;
+      border-radius: 18px;
       background: linear-gradient(135deg, rgba(127,46,22,0.07), rgba(181,90,24,0.09));
       border: 1px solid rgba(121,62,17,0.18);
-      padding: 28px;
+      padding: 16px 20px;
       text-align: center;
     }
 
     .result-label {
-      font-size: 0.76rem;
+      font-size: 0.72rem;
       font-weight: 900;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--saffron-dark);
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
 
     .result-amount {
       font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(2.6rem, 5vw, 3.8rem);
+      font-size: clamp(2rem, 3.6vw, 2.8rem);
       font-weight: 700;
       color: var(--maroon);
       line-height: 1;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
     }
 
-    .result-breakdown { color: var(--muted); font-size: 0.88rem; line-height: 1.7; }
+    .result-breakdown { color: var(--muted); font-size: 0.84rem; line-height: 1.5; }
 
-    .discount-pills { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 14px; }
+    .discount-pills { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 10px; }
 
     .disc-pill {
       padding: 4px 14px;
@@ -620,6 +620,28 @@
     }
 
     .calendar-wrap iframe { display: block; width: 100%; border: none; }
+
+    .avail-cal-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 12px; }
+    .avail-cal-nav { display: flex; align-items: center; gap: 12px; }
+    .avail-cal-nav button { font-family: inherit; font-size: 1.1rem; font-weight: 700; color: var(--saffron-dark); background: var(--surface-soft, #fff6ea); border: 1px solid var(--border); border-radius: 8px; width: 34px; height: 34px; cursor: pointer; }
+    .avail-cal-nav button:hover { background: #fff; }
+    .avail-cal-month-label { font-family: Georgia, 'Times New Roman', serif; font-size: 1.15rem; color: var(--maroon); min-width: 150px; text-align: center; }
+    .avail-cal-legend { display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.78rem; color: var(--muted); }
+    .avail-cal-legend-item { display: flex; align-items: center; gap: 5px; }
+    .avail-cal-legend-dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+    .avail-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+    .avail-cal-weekday { text-align: center; font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; padding: 10px 4px; border-bottom: 1px solid var(--border); }
+    .avail-cal-day { min-height: 84px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 6px; font-size: 0.72rem; }
+    .avail-cal-day:nth-child(7n) { border-right: none; }
+    .avail-cal-day.empty { background: var(--surface-soft, #fff6ea); }
+    .avail-cal-day-num { font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .avail-cal-day.is-today .avail-cal-day-num { color: var(--saffron-dark); }
+    .avail-cal-chip { display: block; border-radius: 4px; padding: 1px 5px; margin-bottom: 2px; color: #fff; font-size: 0.66rem; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .avail-cal-more { font-size: 0.68rem; color: var(--muted); }
+    @media (max-width: 640px) {
+      .avail-cal-day { min-height: 56px; font-size: 0.64rem; }
+      .avail-cal-chip { font-size: 0.6rem; }
+    }
 
     /* ── TWO COL ── */
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
@@ -875,8 +897,16 @@
           </div>
         </div>
 
+
+      </div>
+    </section>
+
+    <!-- PRICING / COST ESTIMATOR + FLOOR PLAN (side by side) -->
+    <section class="section" id="estimator">
+      <div class="container">
+        <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:stretch;">
         <!-- FLOOR PLAN -->
-        <div style="margin-top:36px;border-radius:24px;background:rgba(255,255,255,0.74);border:1px solid var(--border);box-shadow:0 12px 30px rgba(93,43,14,.08);padding:28px 32px;">
+        <div style="flex:1;min-width:320px;border-radius:24px;background:rgba(255,255,255,0.74);border:1px solid var(--border);box-shadow:0 12px 30px rgba(93,43,14,.08);padding:28px 32px;display:flex;flex-direction:column;justify-content:center;">
           <div style="margin-bottom:16px;text-align:center;">
             <span class="section-kicker">Floor Plan</span>
             <h3 style="margin:8px 0 4px;color:var(--maroon);font-family:Georgia,'Times New Roman',serif;font-size:clamp(1.4rem,2.4vw,2rem);">Facility Layout</h3>
@@ -935,13 +965,7 @@
           </svg>
         </div>
 
-      </div>
-    </section>
-
-    <!-- PRICING / COST ESTIMATOR -->
-    <section class="section" id="estimator">
-      <div class="container">
-        <div class="estimator-card">
+        <div class="estimator-card" style="flex:1;min-width:320px;">
           <div class="section-head content-width">
             <span class="section-kicker">Pricing</span>
             <h2>Rental Cost Estimator</h2>
@@ -1021,6 +1045,7 @@
             <div class="discount-pills" id="discountPills"></div>
           </div>
         </div>
+        </div>
       </div>
     </section>
 
@@ -1033,12 +1058,16 @@
           <p class="section-copy">Browse our community calendar to find open dates and times before submitting your booking request.</p>
         </div>
         <div class="calendar-wrap">
-          <iframe
-            src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FNew_York&showPrint=0&src=aGNjZ2Njb21tdW5pdHlAZ21haWwuY29t&src=ZW4udXNhI2hvbGlkYXlAZ3JvdXAudi5jYWxlbmRhci5nb29nbGUuY29t&color=%23f4511e&color=%230b8043"
-            style="border:solid 1px #777"
-            width="100%" height="620" frameborder="0" scrolling="no"
-            title="HCCGC Room Availability Calendar">
-          </iframe>
+          <div class="avail-cal-header">
+            <div class="avail-cal-nav">
+              <button type="button" id="avail-cal-prev" aria-label="Previous month">&larr;</button>
+              <div class="avail-cal-month-label" id="avail-cal-month-label"></div>
+              <button type="button" id="avail-cal-next" aria-label="Next month">&rarr;</button>
+            </div>
+            <div class="avail-cal-legend" id="avail-cal-legend"></div>
+          </div>
+          <div class="avail-cal-grid" id="avail-cal-weekdays"></div>
+          <div class="avail-cal-grid" id="avail-cal-days"></div>
         </div>
       </div>
     </section>
@@ -1120,6 +1149,13 @@
               <div class="card-sub" id="rf-email-status" style="font-size:0.82rem;color:var(--muted);min-height:1.2em;"></div>
             </div>
             <button type="button" class="request-submit-btn" id="rf-continue-btn" style="max-width:220px;">Continue</button>
+
+            <div id="rf-hccgc-access-gate" style="display:none;margin-top:20px;">
+              <div class="request-section-title">HCCGC email detected — access code required</div>
+              <div class="request-field"><label>Access code <span class="req-star">*</span></label><input type="password" id="rf-hccgc-access-code" autocomplete="off"></div>
+              <div class="request-result-box" id="rf-hccgc-access-result" style="display:none;"></div>
+              <button type="button" class="request-submit-btn" id="rf-hccgc-access-submit" style="max-width:220px;">Continue</button>
+            </div>
 
             <div id="rf-hccgc-gate" style="display:none;margin-top:20px;">
               <div class="request-section-title">Is this for an HCCGC event or a non-HCCGC event?</div>
@@ -1278,6 +1314,89 @@
 
     initializePage();
 
+    // ── Availability Calendar — real booking data, not a generic embed ──
+    const AVAIL_ROOM_COLORS = { 'Surya Hall': '#b55a18', 'Patanjali Hall': '#8d3e0d', 'Nataraj Room': '#2e7d4f', 'Ganesh Room': '#2255a4', 'Kitchen': '#a15c00' };
+    let availCalYear = new Date().getFullYear();
+    let availCalMonth = new Date().getMonth(); // 0-indexed
+
+    function renderAvailLegend() {
+      const legend = document.getElementById('avail-cal-legend');
+      legend.innerHTML = Object.keys(AVAIL_ROOM_COLORS).map(function (room) {
+        return '<span class="avail-cal-legend-item"><span class="avail-cal-legend-dot" style="background:' + AVAIL_ROOM_COLORS[room] + ';"></span>' + room + '</span>';
+      }).join('');
+    }
+
+    async function loadAvailabilityCalendar() {
+      const monthStr = availCalYear + '-' + String(availCalMonth + 1).padStart(2, '0');
+      document.getElementById('avail-cal-month-label').textContent = new Date(availCalYear, availCalMonth, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+      const weekdaysEl = document.getElementById('avail-cal-weekdays');
+      weekdaysEl.innerHTML = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(function (d) { return '<div class="avail-cal-weekday">' + d + '</div>'; }).join('');
+
+      const daysEl = document.getElementById('avail-cal-days');
+      daysEl.innerHTML = '<div style="grid-column:1/-1;padding:30px;text-align:center;color:var(--muted);">Loading…</div>';
+
+      let bookings = [];
+      let loadError = null;
+      try {
+        const res = await fetch(API_BASE + '/public/room-availability?month=' + monthStr);
+        if (res.ok) {
+          bookings = await res.json();
+        } else {
+          const errData = await res.json().catch(function () { return {}; });
+          loadError = (errData.errors || [errData.error || ('Server returned ' + res.status)]).join(' ');
+        }
+      } catch (err) { loadError = err.message; }
+
+      if (loadError) {
+        daysEl.innerHTML = '<div style="grid-column:1/-1;padding:30px;text-align:center;color:#b3382c;">Could not load availability: ' + loadError + '</div>';
+        return;
+      }
+      const byDate = {};
+      bookings.forEach(function (b) {
+        if (!byDate[b.eventDate]) byDate[b.eventDate] = [];
+        (b.rooms || []).forEach(function (room) {
+          byDate[b.eventDate].push({ room: room, start: b.startTime, end: b.endTime });
+        });
+      });
+
+      const firstOfMonth = new Date(availCalYear, availCalMonth, 1);
+      const startWeekday = firstOfMonth.getDay();
+      const daysInMonth = new Date(availCalYear, availCalMonth + 1, 0).getDate();
+      const todayStr = new Date().toISOString().slice(0, 10);
+
+      let html = '';
+      for (let i = 0; i < startWeekday; i++) html += '<div class="avail-cal-day empty"></div>';
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = availCalYear + '-' + String(availCalMonth + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+        const dayBookings = byDate[dateStr] || [];
+        const isToday = dateStr === todayStr;
+        const shown = dayBookings.slice(0, 3);
+        const extra = dayBookings.length - shown.length;
+        html += '<div class="avail-cal-day' + (isToday ? ' is-today' : '') + '">' +
+          '<div class="avail-cal-day-num">' + d + '</div>' +
+          shown.map(function (bk) {
+            const startLabel = new Date(bk.start).toLocaleTimeString('en-US', { hour: 'numeric', minute: bk.start.includes(':00:00') ? undefined : '2-digit' });
+            return '<span class="avail-cal-chip" style="background:' + (AVAIL_ROOM_COLORS[bk.room] || '#8d6e63') + ';" title="' + bk.room + ' — ' + startLabel + '">' + bk.room.replace(' Hall', '').replace(' Room', '') + '</span>';
+          }).join('') +
+          (extra > 0 ? '<div class="avail-cal-more">+' + extra + ' more</div>' : '') +
+        '</div>';
+      }
+      daysEl.innerHTML = html;
+    }
+
+    document.getElementById('avail-cal-prev').addEventListener('click', function () {
+      availCalMonth--;
+      if (availCalMonth < 0) { availCalMonth = 11; availCalYear--; }
+      loadAvailabilityCalendar();
+    });
+    document.getElementById('avail-cal-next').addEventListener('click', function () {
+      availCalMonth++;
+      if (availCalMonth > 11) { availCalMonth = 0; availCalYear++; }
+      loadAvailabilityCalendar();
+    });
+    renderAvailLegend();
+
     // ── Cost Estimator ──
     const rates      = { surya: 45, patanjali: 40, nataraj: 30, ganesh: 15 };
     const roomNames  = { surya: 'Surya Hall', patanjali: 'Patanjali Hall', nataraj: 'Nataraj Room', ganesh: 'Ganesh Room' };
@@ -1391,6 +1510,7 @@
 
     // ── Facility Request Form ──
     const API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';
+    loadAvailabilityCalendar();
 
     document.getElementById('rf-hccg-rep').addEventListener('change', (e) => {
       document.getElementById('rf-hccg-rep-other-field').style.display = e.target.value === 'Other' ? 'flex' : 'none';
@@ -1444,7 +1564,8 @@
         statusEl.textContent = '';
 
         if (email.toLowerCase().endsWith('@hccgc.org')) {
-          document.getElementById('rf-hccgc-gate').style.display = 'block';
+          document.getElementById('rf-hccgc-access-gate').style.display = 'block';
+          document.getElementById('rf-hccgc-gate').style.display = 'none';
           document.getElementById('rf-after-email').style.display = 'none';
           document.getElementById('rf-hccgc-fields').style.display = 'none';
           continueBtn.disabled = false;
@@ -1509,6 +1630,24 @@
       else document.getElementById('rf-first-name').focus();
       updateLiveEstimate();
     }
+    const HCCGC_ACCESS_CODE = '03012@6';
+    function submitHccgcAccessCode() {
+      const input = document.getElementById('rf-hccgc-access-code');
+      const resultBox = document.getElementById('rf-hccgc-access-result');
+      if (input.value !== HCCGC_ACCESS_CODE) {
+        resultBox.style.display = 'block';
+        resultBox.className = 'request-result-box error';
+        resultBox.textContent = 'Incorrect access code.';
+        return;
+      }
+      resultBox.style.display = 'none';
+      document.getElementById('rf-hccgc-access-gate').style.display = 'none';
+      document.getElementById('rf-hccgc-gate').style.display = 'block';
+    }
+    document.getElementById('rf-hccgc-access-submit').addEventListener('click', submitHccgcAccessCode);
+    document.getElementById('rf-hccgc-access-code').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); submitHccgcAccessCode(); }
+    });
     document.getElementById('rf-hccgc-yes-btn').addEventListener('click', function () { setHccgcPath(true); });
     document.getElementById('rf-hccgc-no-btn').addEventListener('click', function () { setHccgcPath(false); });
     document.getElementById('rf-email').addEventListener('keydown', (e) => {

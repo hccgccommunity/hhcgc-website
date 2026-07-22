@@ -628,19 +628,27 @@
     .avail-cal-month-label { font-family: Georgia, 'Times New Roman', serif; font-size: 1.15rem; color: var(--maroon); min-width: 150px; text-align: center; }
     .avail-cal-legend { display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.78rem; color: var(--muted); }
     .avail-cal-legend-item { display: flex; align-items: center; gap: 5px; }
-    .avail-cal-legend-dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
-    .avail-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
-    .avail-cal-weekday { text-align: center; font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; padding: 10px 4px; border-bottom: 1px solid var(--border); }
-    .avail-cal-day { min-height: 84px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 6px; font-size: 0.72rem; }
-    .avail-cal-day:nth-child(7n) { border-right: none; }
-    .avail-cal-day.empty { background: var(--surface-soft, #fff6ea); }
-    .avail-cal-day-num { font-weight: 700; color: var(--text); margin-bottom: 4px; }
-    .avail-cal-day.is-today .avail-cal-day-num { color: var(--saffron-dark); }
-    .avail-cal-chip { display: block; border-radius: 4px; padding: 1px 5px; margin-bottom: 2px; color: #fff; font-size: 0.66rem; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .avail-cal-more { font-size: 0.68rem; color: var(--muted); }
+    .avail-cal-legend-dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex-shrink: 0; }
+
+    /* Week grid — a fixed-height timeline per day column, with booking
+       chips absolutely positioned by percentage of the displayed hour
+       range (top = start time, height = duration). Simpler and more
+       precise than trying to align everything to CSS grid row lines. */
+    .avail-week-scroll { overflow-x: auto; }
+    .avail-week-grid { display: grid; grid-template-columns: 56px repeat(7, minmax(96px, 1fr)); min-width: 720px; }
+    .avail-week-daylabel { text-align: center; font-size: 0.74rem; font-weight: 700; color: var(--text); padding: 10px 4px; border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); }
+    .avail-week-daylabel .dow { display: block; font-size: 0.66rem; color: var(--muted); text-transform: uppercase; font-weight: 700; }
+    .avail-week-daylabel.is-today { color: var(--saffron-dark); }
+    .avail-week-corner { border-bottom: 1px solid var(--border); }
+    .avail-week-timecol { position: relative; }
+    .avail-week-timelabel { position: absolute; right: 8px; font-size: 0.64rem; color: var(--muted); transform: translateY(-50%); white-space: nowrap; }
+    .avail-week-daycol { border-left: 1px solid var(--border); position: relative; background-image: repeating-linear-gradient(to bottom, var(--border) 0, var(--border) 1px, transparent 1px, transparent var(--hour-px, 44px)); }
+    .avail-week-chip { position: absolute; left: 2px; right: 2px; border-radius: 5px; padding: 2px 6px; color: #fff; font-size: 0.68rem; font-weight: 700; line-height: 1.3; overflow: hidden; box-sizing: border-box; }
+    .avail-week-chip .time { display: block; font-weight: 400; opacity: 0.92; font-size: 0.62rem; }
     @media (max-width: 640px) {
-      .avail-cal-day { min-height: 56px; font-size: 0.64rem; }
-      .avail-cal-chip { font-size: 0.6rem; }
+      .avail-week-grid { grid-template-columns: 44px repeat(7, minmax(80px, 1fr)); }
+      .avail-week-chip { font-size: 0.6rem; }
+      .avail-week-chip .time { font-size: 0.56rem; }
     }
 
     /* ── TWO COL ── */
@@ -1066,8 +1074,9 @@
             </div>
             <div class="avail-cal-legend" id="avail-cal-legend"></div>
           </div>
-          <div class="avail-cal-grid" id="avail-cal-weekdays"></div>
-          <div class="avail-cal-grid" id="avail-cal-days"></div>
+          <div class="avail-week-scroll">
+            <div class="avail-week-grid" id="avail-week-grid"></div>
+          </div>
         </div>
       </div>
     </section>
@@ -1314,10 +1323,11 @@
 
     initializePage();
 
-    // ── Availability Calendar — real booking data, not a generic embed ──
-    const AVAIL_ROOM_COLORS = { 'Surya Hall': '#b55a18', 'Patanjali Hall': '#8d3e0d', 'Nataraj Room': '#2e7d4f', 'Ganesh Room': '#2255a4', 'Kitchen': '#a15c00' };
-    let availCalYear = new Date().getFullYear();
-    let availCalMonth = new Date().getMonth(); // 0-indexed
+    // ── Availability Calendar — real booking data, week view, day-by-hour ──
+    const AVAIL_ROOM_COLORS = { 'Surya Hall': '#d9720c', 'Patanjali Hall': '#6b3fa0', 'Nataraj Room': '#2e7d4f', 'Ganesh Room': '#2255a4', 'Kitchen': '#c2185b' };
+    const AVAIL_DAY_START_HOUR = 7;  // 7 AM
+    const AVAIL_DAY_END_HOUR = 21;   // 9 PM
+    let availWeekOffset = 0; // 0 = current week, -1 = previous, +1 = next
 
     function renderAvailLegend() {
       const legend = document.getElementById('avail-cal-legend');
@@ -1326,20 +1336,29 @@
       }).join('');
     }
 
+    function getWeekDates(offset) {
+      const today = new Date();
+      const sunday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay() + (offset * 7));
+      const dates = [];
+      for (let i = 0; i < 7; i++) dates.push(new Date(sunday.getFullYear(), sunday.getMonth(), sunday.getDate() + i));
+      return dates;
+    }
+    function toDateStr(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+
     async function loadAvailabilityCalendar() {
-      const monthStr = availCalYear + '-' + String(availCalMonth + 1).padStart(2, '0');
-      document.getElementById('avail-cal-month-label').textContent = new Date(availCalYear, availCalMonth, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      const weekDates = getWeekDates(availWeekOffset);
+      const startDate = toDateStr(weekDates[0]);
+      const endDate = toDateStr(weekDates[6]);
+      document.getElementById('avail-cal-month-label').textContent =
+        weekDates[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' – ' + weekDates[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-      const weekdaysEl = document.getElementById('avail-cal-weekdays');
-      weekdaysEl.innerHTML = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(function (d) { return '<div class="avail-cal-weekday">' + d + '</div>'; }).join('');
-
-      const daysEl = document.getElementById('avail-cal-days');
-      daysEl.innerHTML = '<div style="grid-column:1/-1;padding:30px;text-align:center;color:var(--muted);">Loading…</div>';
+      const gridEl = document.getElementById('avail-week-grid');
+      gridEl.innerHTML = '<div style="grid-column:1/-1;padding:30px;text-align:center;color:var(--muted);">Loading…</div>';
 
       let bookings = [];
       let loadError = null;
       try {
-        const res = await fetch(API_BASE + '/public/room-availability?month=' + monthStr);
+        const res = await fetch(API_BASE + '/public/room-availability?startDate=' + startDate + '&endDate=' + endDate);
         if (res.ok) {
           bookings = await res.json();
         } else {
@@ -1349,9 +1368,10 @@
       } catch (err) { loadError = err.message; }
 
       if (loadError) {
-        daysEl.innerHTML = '<div style="grid-column:1/-1;padding:30px;text-align:center;color:#b3382c;">Could not load availability: ' + loadError + '</div>';
+        gridEl.innerHTML = '<div style="grid-column:1/-1;padding:30px;text-align:center;color:#b3382c;">Could not load availability: ' + loadError + '</div>';
         return;
       }
+
       const byDate = {};
       bookings.forEach(function (b) {
         if (!byDate[b.eventDate]) byDate[b.eventDate] = [];
@@ -1360,39 +1380,61 @@
         });
       });
 
-      const firstOfMonth = new Date(availCalYear, availCalMonth, 1);
-      const startWeekday = firstOfMonth.getDay();
-      const daysInMonth = new Date(availCalYear, availCalMonth + 1, 0).getDate();
-      const todayStr = new Date().toISOString().slice(0, 10);
+      const totalHours = AVAIL_DAY_END_HOUR - AVAIL_DAY_START_HOUR;
+      const todayStr = toDateStr(new Date());
+      const rowHeightPx = 44; // matches --hour-px in CSS
+      const bodyHeight = totalHours * rowHeightPx;
 
-      let html = '';
-      for (let i = 0; i < startWeekday; i++) html += '<div class="avail-cal-day empty"></div>';
-      for (let d = 1; d <= daysInMonth; d++) {
-        const dateStr = availCalYear + '-' + String(availCalMonth + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
-        const dayBookings = byDate[dateStr] || [];
-        const isToday = dateStr === todayStr;
-        const shown = dayBookings.slice(0, 3);
-        const extra = dayBookings.length - shown.length;
-        html += '<div class="avail-cal-day' + (isToday ? ' is-today' : '') + '">' +
-          '<div class="avail-cal-day-num">' + d + '</div>' +
-          shown.map(function (bk) {
-            const startLabel = new Date(bk.start).toLocaleTimeString('en-US', { hour: 'numeric', minute: bk.start.includes(':00:00') ? undefined : '2-digit' });
-            return '<span class="avail-cal-chip" style="background:' + (AVAIL_ROOM_COLORS[bk.room] || '#8d6e63') + ';" title="' + bk.room + ' — ' + startLabel + '">' + bk.room.replace(' Hall', '').replace(' Room', '') + '</span>';
-          }).join('') +
-          (extra > 0 ? '<div class="avail-cal-more">+' + extra + ' more</div>' : '') +
-        '</div>';
+      // Header row: corner + 7 day labels
+      let html = '<div class="avail-week-corner"></div>';
+      weekDates.forEach(function (d) {
+        const dStr = toDateStr(d);
+        html += '<div class="avail-week-daylabel' + (dStr === todayStr ? ' is-today' : '') + '"><span class="dow">' + d.toLocaleDateString('en-US', { weekday: 'short' }) + '</span>' + d.getDate() + '</div>';
+      });
+
+      // Time-label column
+      html += '<div class="avail-week-timecol" style="height:' + bodyHeight + 'px;">';
+      for (let h = AVAIL_DAY_START_HOUR; h <= AVAIL_DAY_END_HOUR; h++) {
+        const pct = ((h - AVAIL_DAY_START_HOUR) / totalHours) * 100;
+        const label = h === 12 ? '12 PM' : h < 12 ? h + ' AM' : (h - 12) + ' PM';
+        html += '<div class="avail-week-timelabel" style="top:' + pct + '%;">' + label + '</div>';
       }
-      daysEl.innerHTML = html;
+      html += '</div>';
+
+      // Day columns with absolutely-positioned chips
+      weekDates.forEach(function (d) {
+        const dStr = toDateStr(d);
+        const dayBookings = byDate[dStr] || [];
+        let colHtml = '<div class="avail-week-daycol" style="height:' + bodyHeight + 'px;--hour-px:' + rowHeightPx + 'px;">';
+        dayBookings.forEach(function (bk) {
+          const start = new Date(bk.start);
+          const end = new Date(bk.end);
+          const startFrac = (start.getHours() + start.getMinutes() / 60 - AVAIL_DAY_START_HOUR) / totalHours;
+          const endFrac = (end.getHours() + end.getMinutes() / 60 - AVAIL_DAY_START_HOUR) / totalHours;
+          const clampedStart = Math.max(0, Math.min(1, startFrac));
+          const clampedEnd = Math.max(0, Math.min(1, endFrac));
+          if (clampedEnd <= clampedStart) return; // entirely outside the displayed window
+          const topPx = clampedStart * bodyHeight;
+          const heightPx = Math.max(16, (clampedEnd - clampedStart) * bodyHeight);
+          const timeLabel = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + '–' + end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+          colHtml += '<div class="avail-week-chip" style="top:' + topPx + 'px;height:' + heightPx + 'px;background:' + (AVAIL_ROOM_COLORS[bk.room] || '#8d6e63') + ';" title="' + bk.room + ' — ' + timeLabel + '">' +
+            bk.room.replace(' Hall', '').replace(' Room', '') +
+            (heightPx > 28 ? '<span class="time">' + timeLabel + '</span>' : '') +
+          '</div>';
+        });
+        colHtml += '</div>';
+        html += colHtml;
+      });
+
+      gridEl.innerHTML = html;
     }
 
     document.getElementById('avail-cal-prev').addEventListener('click', function () {
-      availCalMonth--;
-      if (availCalMonth < 0) { availCalMonth = 11; availCalYear--; }
+      availWeekOffset--;
       loadAvailabilityCalendar();
     });
     document.getElementById('avail-cal-next').addEventListener('click', function () {
-      availCalMonth++;
-      if (availCalMonth > 11) { availCalMonth = 0; availCalYear++; }
+      availWeekOffset++;
       loadAvailabilityCalendar();
     });
     renderAvailLegend();
@@ -1630,7 +1672,7 @@
       else document.getElementById('rf-first-name').focus();
       updateLiveEstimate();
     }
-    const HCCGC_ACCESS_CODE = '03012@6';
+    const HCCGC_ACCESS_CODE = '0301@2026';
     function submitHccgcAccessCode() {
       const input = document.getElementById('rf-hccgc-access-code');
       const resultBox = document.getElementById('rf-hccgc-access-result');

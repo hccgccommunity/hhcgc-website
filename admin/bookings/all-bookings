@@ -499,6 +499,23 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
   </div>
 </div>
 
+<div class="modal-overlay" id="notes-edit-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:460px;">
+    <div class="modal-header">
+      <h2>Notes</h2>
+      <button class="modal-close" id="btn-close-notes-edit">&times;</button>
+    </div>
+    <div class="modal-body">
+      <textarea id="notes-edit-textarea" rows="6" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></textarea>
+      <div class="result-box" id="notes-edit-result" style="display:none;margin-top:10px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-cancel-notes-edit">Cancel</button>
+      <button type="button" class="btn-primary" id="btn-save-notes-edit" style="margin-top:0;">Save</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="booking-review-overlay" style="display:none;">
   <div class="modal-panel" style="max-width:600px;">
     <div class="modal-header">
@@ -660,13 +677,13 @@ function statusBadge(b) {
 // the icon never promises an action the backend would actually refuse.
 function needsInvoiceSend(b) {
   if (!b.invoice_sent_at) return true;
-  if (b.updated_at && new Date(b.updated_at) > new Date(b.invoice_sent_at)) return true;
+  if (b.invoice_content_updated_at && new Date(b.invoice_content_updated_at) > new Date(b.invoice_sent_at)) return true;
   return false;
 }
 function actionIcons(b) {
   if (b.is_internal) return '';
   const needsSend = needsInvoiceSend(b);
-  const notesBtn = '<button type="button" class="btn-icon-action' + (b.notes ? ' has-content' : '') + '" title="' + (b.notes ? 'Note: ' + escHtml(b.notes) : 'Add a note') + '" data-notes-booking="' + b.booking_id + '">' + (b.notes ? '📝' : '➕') + '</button>';
+  const notesBtn = '<button type="button" class="btn-icon-action' + (b.notes ? ' has-content' : '') + '" title="' + (b.notes ? 'Note: ' + escHtml(b.notes) : 'Add a note') + '" data-notes-booking="' + b.booking_id + '">\ud83d\udcdd</button>';
   const invoiceBtn = '<button type="button" class="btn-invoice ' + (needsSend ? 'attached' : 'sent') + '" title="' + (needsSend ? 'Invoice not sent — click to send, edit, or download' : 'Invoice sent ' + formatDate(b.invoice_sent_at) + ' — click to edit or download') + '" data-invoice-booking="' + b.booking_id + '">\ud83e\uddfe</button>';
   const receiptDisabled = b.payment_status !== 'paid';
   const receiptBtn = '<button type="button" class="btn-receipt' + (b.receipt_sent_at ? ' sent' : '') + '"' + (receiptDisabled ? ' disabled title="Mark paid in Finance first"' : ' title="' + (b.receipt_sent_at ? 'Receipt sent ' + formatDate(b.receipt_sent_at) : 'Click to send the receipt') + '"') + ' data-receipt-booking="' + b.booking_id + '">' + (b.receipt_sent_at ? '\ud83e\uddfe' : (receiptDisabled ? '\u2014' : '\u2795')) + '</button>';
@@ -776,7 +793,7 @@ function toggleSeries(seriesId) {
   render();
 }
 
-function getColumnCellHtml(columnKey, data) {
+function getColumnCellHtml(columnKey, data, isSubRow) {
   const isSeries = !!data.occurrences;
   switch (columnKey) {
     case 'event_name':
@@ -791,11 +808,19 @@ function getColumnCellHtml(columnKey, data) {
       return '<td>' + data.hours + '</td>';
     case 'final_total': {
       let amt = '$' + Number(data.final_total).toFixed(2);
-      if (!isSeries && data.manual_adjustment_type) amt += '<span class="adjusted-tag" title="' + escHtml(data.manual_adjustment_reason || '') + '">Adjusted</span>';
+      if (!isSeries && !isSubRow && data.manual_adjustment_type) amt += '<span class="adjusted-tag" title="' + escHtml(data.manual_adjustment_reason || '') + '">Adjusted</span>';
       if (isSeries) amt += ' <span class="method-tag">total</span>';
       return '<td class="amount">' + amt + '</td>';
     }
     case 'payment_status': {
+      // Occurrences are info-only — invoice/receipt only ever apply at the
+      // series level (one invoice per booking group, not per date), so an
+      // individual occurrence showing its own independent status badge is
+      // exactly what caused a sub-row to disagree with its own series
+      // summary. Plain text here, no badge, no icon, nothing actionable.
+      if (isSubRow) {
+        return '<td style="color:var(--muted);font-size:0.86rem;">' + escHtml(data.payment_status) + '</td>';
+      }
       let html;
       if (data.payment_status === 'mixed') {
         html = '<span class="badge badge-needs-confirm"><span class="badge-dot"></span>' + data.paidCount + ' of ' + data.occurrences.length + ' paid</span>';
@@ -819,9 +844,9 @@ function getColumnCellHtml(columnKey, data) {
   }
 }
 
-function visibleColumnCells(data) {
+function visibleColumnCells(data, isSubRow) {
   return COLUMN_DEFS.filter(function (c) { return visibleColumns.has(c.key); })
-    .map(function (c) { return getColumnCellHtml(c.key, data); }).join('');
+    .map(function (c) { return getColumnCellHtml(c.key, data, isSubRow); }).join('');
 }
 
 const PAST_BOOKING_EDIT_ALLOWLIST = ['nilaj@hccgc.org', 'admin@hccgc.org'];
@@ -854,7 +879,7 @@ function renderBookingRow(b, isSubRow) {
     return (
       '<tr' + (rowClasses ? ' class="' + rowClasses.trim() + '"' : '') + '>' +
         '<td>' + (isSubRow ? '<div class="renter-sub">' + formatDate(b.event_date) + '</div>' : '<div class="renter-name">' + escHtml(b.renter_name) + '</div><div class="renter-sub">' + escHtml(b.renter_email) + '</div>') + '</td>' +
-        visibleColumnCells(b) +
+        visibleColumnCells(b, isSubRow) +
         actionsCell +
       '</tr>'
     );
@@ -878,7 +903,7 @@ function renderBookingRow(b, isSubRow) {
   return (
     '<tr' + (rowClasses ? ' class="' + rowClasses.trim() + '"' : '') + '>' +
       '<td>' + (isSubRow ? '<div class="renter-sub">' + formatDate(b.event_date) + '</div>' : '<div class="renter-name">' + escHtml(b.renter_name) + '</div><div class="renter-sub">' + escHtml(b.renter_email) + '</div>') + '</td>' +
-      visibleColumnCells(b) +
+      visibleColumnCells(b, isSubRow) +
       actionsCell +
     '</tr>'
   );
@@ -1222,7 +1247,13 @@ async function openBookingReviewModal(bookingId) {
       document.getElementById('review-conflicts-field').style.borderRadius = '10px';
       conflictsEl.innerHTML = '<span style="color:var(--red,#b3382c);font-weight:700;">\u26a0 Conflicts with ' + conflicts.length + ' existing booking(s):</span>' +
         conflicts.map(function (c) {
-          return '<div style="font-size:0.84rem;margin-top:4px;">' + escHtml(c.renterName) + ' \u2014 ' + escHtml((c.rooms || []).join(', ')) + ' \u00b7 ' + escHtml(c.paymentStatus) + '</div>';
+          var cTimeStr = formatTimeRange(c.startTime, c.endTime);
+          var cDateStr = new Date(c.eventDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          return '<div style="font-size:0.84rem;margin-top:6px;padding-top:6px;border-top:1px dashed var(--border,#e5d9c8);">' +
+            '<div style="font-weight:700;">' + escHtml(c.renterName) + (c.eventName ? ' \u2014 ' + escHtml(c.eventName) : '') + '</div>' +
+            '<div>' + cDateStr + ' \u00b7 ' + cTimeStr + ' \u00b7 ' + escHtml((c.rooms || []).join(', ')) + '</div>' +
+            '<div style="color:var(--muted,#6a5141);">' + escHtml(c.renterEmail || '') + ' \u00b7 status: ' + escHtml(c.paymentStatus) + '</div>' +
+          '</div>';
         }).join('');
     }
   } catch (err) {
@@ -1287,23 +1318,50 @@ async function sendInvoiceAction(bookingId) {
 }
 
 // ---- Notes icon ----
-async function editNotesAction(bookingId) {
+let editingNotesBookingId = null;
+function editNotesAction(bookingId) {
   const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
   if (!b) return;
-  const note = prompt('Notes for this booking:', b.notes || '');
-  if (note === null) return;
+  editingNotesBookingId = bookingId;
+  document.getElementById('notes-edit-textarea').value = b.notes || '';
+  document.getElementById('notes-edit-result').style.display = 'none';
+  document.getElementById('notes-edit-overlay').style.display = 'flex';
+}
+document.getElementById('btn-close-notes-edit').addEventListener('click', function () {
+  document.getElementById('notes-edit-overlay').style.display = 'none';
+});
+document.getElementById('btn-cancel-notes-edit').addEventListener('click', function () {
+  document.getElementById('notes-edit-overlay').style.display = 'none';
+});
+document.getElementById('notes-edit-overlay').addEventListener('click', function (e) {
+  if (e.target === this) this.style.display = 'none';
+});
+document.getElementById('btn-save-notes-edit').addEventListener('click', async function () {
+  if (!editingNotesBookingId) return;
+  const btn = this;
+  const note = document.getElementById('notes-edit-textarea').value;
+  const resultBox = document.getElementById('notes-edit-result');
+  btn.disabled = true; btn.textContent = 'Saving…';
   try {
-    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/invoice', {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(editingNotesBookingId) + '/invoice', {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ notes: note })
     });
     const data = await res.json();
-    if (!res.ok) { alert('Could not save note: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+    if (!res.ok) {
+      resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+      resultBox.textContent = (data.errors || [data.error]).join(' ') || 'unknown error';
+      return;
+    }
+    document.getElementById('notes-edit-overlay').style.display = 'none';
     await loadBookings();
   } catch (err) {
-    alert('Could not reach the booking system: ' + err.message);
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+    resultBox.textContent = 'Could not reach the booking system: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save';
   }
-}
+});
 document.addEventListener('click', function (e) {
   const btn = e.target.closest('[data-notes-booking]');
   if (!btn) return;

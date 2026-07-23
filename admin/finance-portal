@@ -1579,8 +1579,8 @@ document.getElementById('btn-load-tx').addEventListener('click', loadTransaction
 });
 
 // ── Checkbox select-all + bulk mark-reviewed ──
-[['tx-rental', 'tx-rental-tbody'], ['tx-fundraising', 'tx-fundraising-tbody'], ['tx-donations', 'tx-donations-tbody'],
- ['tx-zeffy-refunds', 'tx-zeffy-refunds-tbody'], ['tx-zelle', 'tx-zelle-tbody'], ['tx-other', 'tx-other-tbody']].forEach(function (pair) {
+[['rental', 'tx-rental-tbody'], ['fundraising', 'tx-fundraising-tbody'], ['donations', 'tx-donations-tbody'],
+ ['zeffy-refunds', 'tx-zeffy-refunds-tbody'], ['zelle', 'tx-zelle-tbody'], ['other', 'tx-other-tbody']].forEach(function (pair) {
   var prefix = pair[0], tbodyId = pair[1];
   function updateBulkBar() {
     var checked = document.querySelectorAll('#' + tbodyId + ' [data-row-checkbox]:checked');
@@ -1592,7 +1592,7 @@ document.getElementById('btn-load-tx').addEventListener('click', loadTransaction
       bar.style.display = 'none';
     }
   }
-  var selectAll = document.getElementById(prefix + '-select-all');
+  var selectAll = document.getElementById('tx-' + prefix + '-select-all');
   if (selectAll) {
     selectAll.addEventListener('change', function () {
       document.querySelectorAll('#' + tbodyId + ' [data-row-checkbox]').forEach(function (cb) { cb.checked = selectAll.checked; });

@@ -589,6 +589,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
         <option value="unpaid">Unpaid only</option>
       </select>
       <button type="button" class="btn-secondary" id="btn-load-invoices">Refresh</button>
+      <button type="button" class="btn-primary" id="btn-create-invoice" style="margin-top:0;">+ Create invoice</button>
       <span class="count" id="inv-count"></span>
     </div>
     <div class="table-wrap">
@@ -671,6 +672,27 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
     <div class="modal-footer">
       <button type="button" class="btn-secondary" id="btn-cancel-refund-invoice">Cancel</button>
       <button type="button" class="btn-primary" id="btn-confirm-refund-invoice" style="margin-top:0;">Record refund</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="create-invoice-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:460px;">
+    <div class="modal-header">
+      <h2>Create invoice</h2>
+      <button class="modal-close" id="btn-close-create-invoice">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="card-sub" style="margin-bottom:10px;">For anything outside a facility room booking — a vendor charge, a misc bill, anything Finance needs to invoice directly.</p>
+      <div class="field"><label>Recipient name</label><input type="text" id="create-inv-name"></div>
+      <div class="field"><label>Recipient email</label><input type="email" id="create-inv-email"></div>
+      <div class="field"><label>Description</label><textarea id="create-inv-description" rows="3" placeholder="What this invoice is for"></textarea></div>
+      <div class="field"><label>Amount ($)</label><input type="number" step="0.01" min="0.01" id="create-inv-amount"></div>
+      <div class="result-box" id="create-invoice-result" style="display:none;margin-top:6px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-cancel-create-invoice">Cancel</button>
+      <button type="button" class="btn-primary" id="btn-confirm-create-invoice" style="margin-top:0;">Create &amp; send</button>
     </div>
   </div>
 </div>
@@ -1591,6 +1613,61 @@ async function loadReconciliation() {
 setupRangePreset('inv-range-preset', 'inv-start-date', 'inv-end-date', loadInvoices);
 document.getElementById('inv-paid-filter').addEventListener('change', loadInvoices);
 document.getElementById('btn-load-invoices').addEventListener('click', loadInvoices);
+document.getElementById('btn-create-invoice').addEventListener('click', function () {
+  document.getElementById('create-inv-name').value = '';
+  document.getElementById('create-inv-email').value = '';
+  document.getElementById('create-inv-description').value = '';
+  document.getElementById('create-inv-amount').value = '';
+  document.getElementById('create-invoice-result').style.display = 'none';
+  document.getElementById('create-invoice-overlay').style.display = 'flex';
+});
+document.getElementById('btn-close-create-invoice').addEventListener('click', function () { document.getElementById('create-invoice-overlay').style.display = 'none'; });
+document.getElementById('btn-cancel-create-invoice').addEventListener('click', function () { document.getElementById('create-invoice-overlay').style.display = 'none'; });
+document.getElementById('create-invoice-overlay').addEventListener('click', function (e) { if (e.target === this) this.style.display = 'none'; });
+document.getElementById('btn-confirm-create-invoice').addEventListener('click', async function () {
+  const name = document.getElementById('create-inv-name').value.trim();
+  const email = document.getElementById('create-inv-email').value.trim();
+  const description = document.getElementById('create-inv-description').value.trim();
+  const amount = parseFloat(document.getElementById('create-inv-amount').value);
+  const resultBox = document.getElementById('create-invoice-result');
+  if (!name || !email || !description || !amount || amount <= 0) {
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+    resultBox.textContent = 'Fill in every field with a valid amount.'; return;
+  }
+  const btn = this;
+  btn.disabled = true; btn.textContent = 'Creating…';
+  try {
+    const createRes = await authedFetch(API_BASE + '/finance/create-invoice', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ recipientName: name, recipientEmail: email, description, amount })
+    });
+    const createData = await createRes.json();
+    if (!createRes.ok) {
+      resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+      resultBox.textContent = (createData.errors || [createData.error]).join(' ') || 'unknown error';
+      return;
+    }
+    // Doesn't show up in the Invoices list until it's actually sent
+    // (same invoice_sent_at gate every invoice here goes through), so
+    // send is part of this same action rather than a separate step the
+    // admin has to remember to come back and do.
+    btn.textContent = 'Sending…';
+    const sendRes = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(createData.bookingId) + '/send-invoice', { method: 'POST' });
+    const sendData = await sendRes.json();
+    if (!sendRes.ok) {
+      resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+      resultBox.textContent = 'Invoice created but could not be sent: ' + ((sendData.errors || [sendData.error]).join(' ') || 'unknown error') + '. Reference: ' + createData.bookingId;
+      return;
+    }
+    document.getElementById('create-invoice-overlay').style.display = 'none';
+    await loadInvoices();
+  } catch (err) {
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+    resultBox.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Create & send';
+  }
+});
 let INVOICES = [];
 async function loadInvoices() {
   window.__matchingLoaded = true;

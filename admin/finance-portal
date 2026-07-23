@@ -638,6 +638,43 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
   </div>
 </div>
 
+<div class="modal-overlay" id="reverse-payment-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:460px;">
+    <div class="modal-header">
+      <h2>Reverse payment confirmation</h2>
+      <button class="modal-close" id="btn-close-reverse-payment">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="card-sub" style="margin-bottom:10px;">This undoes the "confirmed as paid" status only — the linked transaction(s) stay in place. Use this when the confirmation itself was a mistake (wrong booking, wrong method), not when the payment actually bounced.</p>
+      <textarea id="reverse-payment-reason" rows="4" placeholder="Reason for reversing" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></textarea>
+      <div class="result-box" id="reverse-payment-result" style="display:none;margin-top:10px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-cancel-reverse-payment">Cancel</button>
+      <button type="button" class="btn-primary" id="btn-confirm-reverse-payment" style="margin-top:0;">Reverse</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="refund-invoice-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:460px;">
+    <div class="modal-header">
+      <h2>Refund</h2>
+      <button class="modal-close" id="btn-close-refund-invoice">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="card-sub" style="margin-bottom:10px;">Money actually going back to the renter — full or partial. This reduces what's linked to this invoice and, if it's no longer fully covered, reverts it from Paid.</p>
+      <div class="field"><label>Amount to refund ($)</label><input type="number" step="0.01" min="0.01" id="refund-amount-input"></div>
+      <textarea id="refund-reason" rows="3" placeholder="Reason for the refund" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;margin-top:8px;"></textarea>
+      <div class="result-box" id="refund-invoice-result" style="display:none;margin-top:10px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-cancel-refund-invoice">Cancel</button>
+      <button type="button" class="btn-primary" id="btn-confirm-refund-invoice" style="margin-top:0;">Record refund</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="invoice-notes-overlay" style="display:none;">
   <div class="modal-panel" style="max-width:460px;">
     <div class="modal-header">
@@ -680,14 +717,22 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 </div>
 
 <div class="modal-overlay" id="invoice-picker-overlay" style="display:none;">
-  <div class="modal-panel" style="max-width:520px;width:95%;">
+  <div class="modal-panel" style="max-width:560px;width:95%;">
     <div class="modal-header">
-      <h2>Attach to a booking</h2>
+      <h2>Link to invoice(s)</h2>
       <button class="modal-close" id="btn-close-invoice-picker">&times;</button>
     </div>
     <div class="modal-body">
-      <p style="font-size:0.86rem;color:var(--muted);margin-bottom:14px;">Bookings with a matching total — click one to attach.</p>
+      <div id="alloc-txn-summary" style="background:var(--surface-soft);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:0.86rem;"></div>
+      <div id="alloc-existing-section" style="margin-bottom:16px;">
+        <div style="font-size:0.8rem;font-weight:700;color:var(--muted);margin-bottom:8px;">Currently linked to</div>
+        <div id="alloc-existing-list"></div>
+      </div>
+      <div style="font-size:0.8rem;font-weight:700;color:var(--muted);margin-bottom:8px;">Link to another invoice</div>
+      <div id="alloc-suggested-match" style="display:none;margin-bottom:14px;"></div>
+      <input type="text" id="alloc-search-input" placeholder="Search by renter or event name…" style="width:100%;font-family:inherit;font-size:0.86rem;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:10px;">
       <div id="invoice-picker-list"></div>
+      <div class="result-box" id="alloc-result" style="display:none;margin-top:12px;"></div>
     </div>
   </div>
 </div>
@@ -1147,9 +1192,9 @@ async function loadTransactions() {
 }
 function invoiceIconHtml(t) {
   const m = t.matchedBooking;
-  let cls = '', icon = '\u2795', title = 'Attach to an invoice';
-  if (m && m.invoiceSentAt) { cls = 'sent'; icon = '\ud83e\uddfe'; title = 'Invoice sent to ' + escHtml(m.renterName) + ' on ' + formatDate(m.invoiceSentAt) + ' — click for details'; }
-  else if (m) { cls = 'attached'; icon = '\ud83e\uddfe'; title = 'Attached to ' + escHtml(m.renterName) + '\'s booking — click to send the invoice'; }
+  let cls = '', icon = '\u2795', title = 'Link to an invoice';
+  if (m && m.invoiceSentAt) { cls = 'sent'; icon = '\ud83e\uddfe'; title = 'Linked to ' + escHtml(m.renterName) + '\'s invoice, sent ' + formatDate(m.invoiceSentAt) + ' — click to view or manage links'; }
+  else if (m) { cls = 'attached'; icon = '\ud83e\uddfe'; title = 'Linked to ' + escHtml(m.renterName) + '\'s booking — click to view or manage links'; }
   return '<button type="button" class="btn-invoice ' + cls + '" title="' + title + '" data-invoice-source="' + t.source + '" data-invoice-key="' + t.sourceKey + '" data-invoice-amount="' + (t.amount !== undefined ? t.amount : t.total) + '" data-invoice-date="' + (t.date || '') + '">' + icon + '</button>';
 }
 function renderGroup(prefix, items, rowFn, emptyMessage) {
@@ -1264,52 +1309,99 @@ document.addEventListener('click', function (e) {
   editTransactionNote(btn.dataset.editNoteSource, btn.dataset.editNoteKey);
 });
 
-// ── Invoice attach / send ──
+// ── Invoice allocation (many-to-many) ──
 let invoicePickerContext = null;
 document.addEventListener('click', function (e) {
   const btn = e.target.closest('[data-invoice-source]');
   if (!btn) return;
-  handleInvoiceIconClick(btn.dataset.invoiceSource, btn.dataset.invoiceKey, Number(btn.dataset.invoiceAmount), btn.dataset.invoiceDate);
+  openInvoicePicker(btn.dataset.invoiceSource, btn.dataset.invoiceKey, Number(btn.dataset.invoiceAmount), btn.dataset.invoiceDate);
 });
-async function handleInvoiceIconClick(source, sourceKey, amount, date) {
-  const tx = TRANSACTIONS.find(function (t) { return t.source === source && t.sourceKey === sourceKey; });
-  const matched = tx ? tx.matchedBooking : null;
-  if (!matched) {
-    openInvoicePicker(source, sourceKey, amount, date);
-    return;
-  }
-  if (matched.invoiceSentAt) {
-    alert('Invoice already sent to ' + matched.renterName + ' on ' + formatDate(matched.invoiceSentAt) + (matched.receiptSentAt ? '\nReceipt sent ' + formatDate(matched.receiptSentAt) + '.' : '\nReceipt not yet sent.'));
-    return;
-  }
-  if (!confirm('Send the invoice to ' + matched.renterName + ' now?')) return;
-  try {
-    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(matched.bookingId) + '/send-invoice', { method: 'POST' });
-    const data = await res.json();
-    if (!res.ok) { alert('Could not send invoice: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
-    await loadTransactions();
-  } catch (err) {
-    alert('Could not reach the server: ' + err.message);
-  }
-}
 async function openInvoicePicker(source, sourceKey, amount, date) {
   invoicePickerContext = { source: source, sourceKey: sourceKey, amount: amount, date: date };
-  const list = document.getElementById('invoice-picker-list');
-  list.innerHTML = '<div class="empty-state">Loading…</div>';
+  document.getElementById('alloc-result').style.display = 'none';
+  document.getElementById('alloc-search-input').value = '';
   document.getElementById('invoice-picker-overlay').style.display = 'flex';
+  await refreshAllocationModal();
+}
+async function refreshAllocationModal() {
+  if (!invoicePickerContext) return;
+  const { source, sourceKey, amount } = invoicePickerContext;
+  const summaryEl = document.getElementById('alloc-txn-summary');
+  const existingEl = document.getElementById('alloc-existing-list');
+  summaryEl.innerHTML = 'Loading…';
+  existingEl.innerHTML = '';
+  let txnSummary;
   try {
-    const res = await authedFetch(API_BASE + '/finance/invoice-candidates?amount=' + amount);
-    const candidates = await res.json();
-    if (!candidates.length) { list.innerHTML = '<div class="empty-state">No bookings found with a matching total ($' + amount.toFixed(2) + ').</div>'; return; }
-    list.innerHTML = candidates.map(function (c) {
-      return '<div class="exp-line-item" data-pick-booking="' + c.bookingId + '">' +
-        '<div class="exp-top-row"><span>' + escHtml(c.renterName) + '</span><span>' + money(c.amount) + '</span></div>' +
-        '<div class="exp-date">' + formatDate(c.eventDate) + ' \u00b7 ' + escHtml(c.paymentStatus) + (c.invoiceSentAt ? ' \u00b7 invoice already sent' : '') + '</div>' +
+    const res = await authedFetch(API_BASE + '/finance/transaction-allocations?source=' + encodeURIComponent(source) + '&sourceKey=' + encodeURIComponent(sourceKey) + '&transactionTotal=' + amount);
+    txnSummary = await res.json();
+    if (!res.ok) throw new Error((txnSummary.errors || [txnSummary.error]).join(' ') || 'unknown error');
+  } catch (err) {
+    summaryEl.innerHTML = '<span style="color:#b3382c;">Could not load: ' + escHtml(err.message) + '</span>';
+    return;
+  }
+  invoicePickerContext.remaining = txnSummary.remaining;
+  summaryEl.innerHTML = 'Transaction total <strong>' + money(amount) + '</strong> &middot; Linked so far <strong>' + money(txnSummary.allocated) + '</strong> &middot; Unallocated <strong style="color:' + (txnSummary.remaining > 0.009 ? 'var(--saffron-dark)' : 'var(--green,#2e7d4f)') + ';">' + money(txnSummary.remaining) + '</strong>' +
+    (txnSummary.allocations.length ? ' <button type="button" class="btn-secondary" style="padding:2px 8px;font-size:0.72rem;margin-left:8px;" id="btn-reverse-this-transaction">Reverse this transaction</button>' : '');
+
+  if (!txnSummary.allocations.length) {
+    existingEl.innerHTML = '<div class="empty-state" style="padding:10px;">Not linked to anything yet.</div>';
+  } else {
+    existingEl.innerHTML = txnSummary.allocations.map(function (a) {
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px;font-size:0.86rem;">' +
+        '<span>' + escHtml(a.renterName) + (a.eventName ? ' — ' + escHtml(a.eventName) : '') + '</span>' +
+        '<span style="display:flex;align-items:center;gap:10px;"><strong>' + money(a.amount) + '</strong>' +
+        '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-unlink-allocation="' + a.allocationId + '">Unlink</button></span>' +
       '</div>';
     }).join('');
+  }
+  await loadAllocationCandidates('');
+}
+let allocSearchTimer = null;
+document.getElementById('alloc-search-input').addEventListener('input', function () {
+  clearTimeout(allocSearchTimer);
+  const val = this.value;
+  allocSearchTimer = setTimeout(function () { loadAllocationCandidates(val); }, 250);
+});
+async function loadAllocationCandidates(search) {
+  if (!invoicePickerContext) return;
+  const list = document.getElementById('invoice-picker-list');
+  const suggestedEl = document.getElementById('alloc-suggested-match');
+  list.innerHTML = '<div class="empty-state">Loading…</div>';
+  suggestedEl.innerHTML = '';
+  suggestedEl.style.display = 'none';
+  try {
+    const res = await authedFetch(API_BASE + '/finance/invoice-candidates?amount=' + invoicePickerContext.remaining + '&search=' + encodeURIComponent(search || ''));
+    const candidates = await res.json();
+    if (!candidates.length) { list.innerHTML = '<div class="empty-state">No open invoices found.</div>'; return; }
+
+    // A clear best match — the top candidate's remaining balance equals
+    // what's left of the transaction almost exactly. Surfaced prominently
+    // so the obvious case doesn't require scrolling through a search list,
+    // but it's still just a suggestion: nothing links until "Link this
+    // amount" is actually clicked, same review step as any other candidate.
+    var top = candidates[0];
+    var isStrongMatch = !search && invoicePickerContext.remaining > 0 && Math.abs(top.remaining - invoicePickerContext.remaining) < 0.01;
+    var rest = isStrongMatch ? candidates.slice(1) : candidates;
+
+    if (isStrongMatch) {
+      suggestedEl.style.display = 'block';
+      suggestedEl.innerHTML = '<div style="font-size:0.78rem;font-weight:700;color:var(--saffron-dark);margin-bottom:6px;">\u2728 Suggested match \u2014 remaining balance matches exactly</div>' + renderCandidateCard(top, true);
+    }
+    list.innerHTML = rest.length ? rest.map(function (c) { return renderCandidateCard(c, false); }).join('') : (isStrongMatch ? '' : '<div class="empty-state">No open invoices found.</div>');
   } catch (err) {
     list.innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
   }
+}
+function renderCandidateCard(c, isSuggested) {
+  const suggested = Math.min(c.remaining, invoicePickerContext.remaining || c.remaining);
+  return '<div class="exp-line-item" data-candidate-booking="' + c.bookingId + '" data-candidate-remaining="' + c.remaining + '"' + (isSuggested ? ' style="border-color:var(--saffron-dark);border-width:2px;background:var(--surface-soft);"' : '') + '>' +
+    '<div class="exp-top-row"><span>' + escHtml(c.renterName) + (c.eventName ? ' — ' + escHtml(c.eventName) : '') + '</span><span>' + money(c.remaining) + ' owed</span></div>' +
+    '<div class="exp-date">' + formatDate(c.eventDate) + ' \u00b7 ' + escHtml(c.paymentStatus) + (c.allocated > 0 ? ' \u00b7 ' + money(c.allocated) + ' already linked' : '') + '</div>' +
+    '<div style="display:flex;gap:8px;align-items:center;margin-top:6px;">' +
+    '<input type="number" step="0.01" min="0.01" max="' + c.remaining + '" value="' + suggested.toFixed(2) + '" class="alloc-amount-input" style="width:100px;font-family:inherit;font-size:0.84rem;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;">' +
+    '<button type="button" class="btn-primary" style="padding:6px 14px;margin-top:0;font-size:0.82rem;" data-allocate-booking="' + c.bookingId + '">Link this amount</button>' +
+    '</div>' +
+  '</div>';
 }
 document.getElementById('btn-close-invoice-picker').addEventListener('click', function () {
   document.getElementById('invoice-picker-overlay').style.display = 'none';
@@ -1317,20 +1409,75 @@ document.getElementById('btn-close-invoice-picker').addEventListener('click', fu
 document.getElementById('invoice-picker-overlay').addEventListener('click', function (e) {
   if (e.target === this) this.style.display = 'none';
 });
-document.getElementById('invoice-picker-list').addEventListener('click', async function (e) {
-  const row = e.target.closest('[data-pick-booking]');
-  if (!row || !invoicePickerContext) return;
+document.getElementById('alloc-txn-summary').addEventListener('click', async function (e) {
+  if (!e.target.closest('#btn-reverse-this-transaction') || !invoicePickerContext) return;
+  const reason = prompt('Reason this transaction is being reversed (bounced, chargeback, etc.)? This unwinds every invoice it\'s linked to.');
+  if (reason === null) return;
+  if (!reason.trim()) { alert('A reason is required.'); return; }
+  if (!confirm('Reverse this transaction? Every invoice it\'s linked to will lose that allocation, and any that were marked Paid because of it will revert to unpaid.')) return;
   try {
-    const res = await authedFetch(API_BASE + '/finance/attach-invoice', {
+    const res = await authedFetch(API_BASE + '/finance/reverse-transaction', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ source: invoicePickerContext.source, sourceKey: invoicePickerContext.sourceKey, bookingId: row.dataset.pickBooking, amount: invoicePickerContext.amount, date: invoicePickerContext.date })
+      body: JSON.stringify({ source: invoicePickerContext.source, sourceKey: invoicePickerContext.sourceKey, reason })
     });
     const data = await res.json();
-    if (!res.ok) { alert('Could not attach: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+    if (!res.ok) { alert('Could not reverse: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+    alert('Reversed. ' + data.revertedToUnpaid + ' invoice(s) reverted from Paid.');
     document.getElementById('invoice-picker-overlay').style.display = 'none';
     await loadTransactions();
   } catch (err) {
     alert('Could not reach the server: ' + err.message);
+  }
+});
+document.getElementById('alloc-existing-list').addEventListener('click', async function (e) {
+  const btn = e.target.closest('[data-unlink-allocation]');
+  if (!btn) return;
+  if (!confirm('Unlink this allocation?')) return;
+  try {
+    const res = await authedFetch(API_BASE + '/finance/deallocate-transaction', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ allocationId: btn.dataset.unlinkAllocation })
+    });
+    const data = await res.json();
+    if (!res.ok) { alert('Could not unlink: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+    await refreshAllocationModal();
+    await loadTransactions();
+  } catch (err) {
+    alert('Could not reach the server: ' + err.message);
+  }
+});
+document.getElementById('invoice-picker-list').addEventListener('click', async function (e) {
+  const btn = e.target.closest('[data-allocate-booking]');
+  if (!btn || !invoicePickerContext) return;
+  const row = btn.closest('[data-candidate-booking]');
+  const amountInput = row.querySelector('.alloc-amount-input');
+  const amount = parseFloat(amountInput.value);
+  const resultBox = document.getElementById('alloc-result');
+  if (!amount || amount <= 0) {
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+    resultBox.textContent = 'Enter an amount greater than zero.'; return;
+  }
+  btn.disabled = true; btn.textContent = 'Linking…';
+  try {
+    const res = await authedFetch(API_BASE + '/finance/allocate-transaction', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bookingId: btn.dataset.allocateBooking, source: invoicePickerContext.source, sourceKey: invoicePickerContext.sourceKey, amount: amount, transactionTotal: invoicePickerContext.amount, date: invoicePickerContext.date })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+      resultBox.textContent = (data.errors || [data.error]).join(' ') || 'unknown error';
+      btn.disabled = false; btn.textContent = 'Link this amount';
+      return;
+    }
+    resultBox.style.display = 'block'; resultBox.className = 'result-box success';
+    resultBox.textContent = 'Linked.';
+    await refreshAllocationModal();
+    await loadTransactions();
+  } catch (err) {
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+    resultBox.textContent = 'Could not reach the server: ' + err.message;
+    btn.disabled = false; btn.textContent = 'Link this amount';
   }
 });
 
@@ -1464,20 +1611,24 @@ async function loadInvoices() {
   }
 }
 function renderInvoiceRow(inv) {
-  const attachedTo = inv.matchSource ? escHtml(inv.matchSource) + ' transaction' : '<span style="color:var(--muted);">Not attached</span>';
+  const attachedTo = inv.matchSource
+    ? (inv.remaining > 0.01 ? escHtml(inv.matchSource) + ' \u2014 ' + money(inv.remaining) + ' still owed' : escHtml(inv.matchSource) + ' \u2014 fully covered')
+    : '<span style="color:var(--muted);">Not attached</span>';
   const noteBtn = '<button type="button" class="btn-note' + (inv.notes ? ' has-content' : '') + '" title="' + (inv.notes ? 'Note: ' + escHtml(inv.notes) : 'Add a note') + '" data-invoice-note-booking="' + inv.bookingId + '">\ud83d\udcdd</button>';
   const invoiceIcon = '<button type="button" class="btn-invoice sent" title="Invoice sent ' + formatDate(inv.invoiceSentAt) + ' — click to view or download" data-invoice-popup-booking="' + inv.bookingId + '">\ud83e\uddfe</button>';
   const receiptIcon = '<button type="button" class="btn-receipt' + (inv.receiptSentAt ? ' sent' : '') + '"' + (inv.paymentStatus === 'paid' ? '' : ' disabled title="Confirm as paid first"') + (inv.paymentStatus === 'paid' ? ' data-receipt-popup-booking="' + inv.bookingId + '"' : '') + '>' + (inv.receiptSentAt ? '\ud83e\uddfe' : (inv.paymentStatus === 'paid' ? '\u2795' : '\u2014')) + '</button>';
-  // Confirm Paid — the actual point where a matched transaction becomes a
-  // confirmed payment. Attaching in Transactions is only a suggestion;
-  // this is the deliberate human step that used to be Mark Paid in All
-  // Bookings and now lives here instead, since a match is exactly the
-  // context needed to pick the right payment method.
+  // Confirm Paid — the actual point where linked transactions become a
+  // confirmed payment. Only offered once the invoice is FULLY covered
+  // (remaining <= 0), not just "something" linked — a partial allocation
+  // shows how much is still owed instead, matching what the backend
+  // itself now enforces rather than just hiding the option client-side.
   const confirmPaidBtn = inv.paymentStatus === 'paid'
-    ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid</span>'
-    : (inv.matchSource
+    ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid</span> <button type="button" class="btn-secondary" style="padding:2px 8px;font-size:0.72rem;margin-left:4px;" data-reverse-payment-booking="' + inv.bookingId + '">Reverse</button> <button type="button" class="btn-secondary" style="padding:2px 8px;font-size:0.72rem;" data-refund-booking="' + inv.bookingId + '" data-refund-max="' + inv.allocated + '">Refund</button>'
+    : (inv.matchSource && inv.remaining <= 0.01
         ? '<select class="confirm-paid-select" data-confirm-paid-booking="' + inv.bookingId + '"><option value="">Confirm as paid \u2014</option><option value="zeffy">Zeffy</option><option value="zelle">Zelle</option><option value="cash">Cash</option><option value="check">Check</option></select>'
-        : '<span style="color:var(--muted);font-size:0.78rem;">Attach a transaction first</span>');
+        : (inv.matchSource
+            ? '<span style="color:var(--saffron-dark);font-size:0.78rem;font-weight:700;">' + money(inv.remaining) + ' still owed</span>'
+            : '<span style="color:var(--muted);font-size:0.78rem;">Link a transaction first</span>'));
   return '<tr>' +
     '<td>' + escHtml(inv.renterName) + '</td>' +
     '<td>' + escHtml(inv.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(inv.eventDate) + '</div></td>' +
@@ -1641,6 +1792,85 @@ async function downloadDocument(bookingId, kind) {
     alert('Could not reach the booking system: ' + err.message);
   }
 }
+
+// ── Reverse payment confirmation ──
+let reversePaymentBookingId = null;
+document.getElementById('inv-tbody').addEventListener('click', function (e) {
+  const btn = e.target.closest('[data-reverse-payment-booking]');
+  if (btn) {
+    reversePaymentBookingId = btn.dataset.reversePaymentBooking;
+    document.getElementById('reverse-payment-reason').value = '';
+    document.getElementById('reverse-payment-result').style.display = 'none';
+    document.getElementById('reverse-payment-overlay').style.display = 'flex';
+    return;
+  }
+  const refundBtn = e.target.closest('[data-refund-booking]');
+  if (refundBtn) {
+    refundInvoiceBookingId = refundBtn.dataset.refundBooking;
+    document.getElementById('refund-amount-input').value = refundBtn.dataset.refundMax;
+    document.getElementById('refund-amount-input').max = refundBtn.dataset.refundMax;
+    document.getElementById('refund-reason').value = '';
+    document.getElementById('refund-invoice-result').style.display = 'none';
+    document.getElementById('refund-invoice-overlay').style.display = 'flex';
+  }
+});
+document.getElementById('btn-close-reverse-payment').addEventListener('click', function () { document.getElementById('reverse-payment-overlay').style.display = 'none'; });
+document.getElementById('btn-cancel-reverse-payment').addEventListener('click', function () { document.getElementById('reverse-payment-overlay').style.display = 'none'; });
+document.getElementById('reverse-payment-overlay').addEventListener('click', function (e) { if (e.target === this) this.style.display = 'none'; });
+document.getElementById('btn-confirm-reverse-payment').addEventListener('click', async function () {
+  if (!reversePaymentBookingId) return;
+  const reason = document.getElementById('reverse-payment-reason').value.trim();
+  const resultBox = document.getElementById('reverse-payment-result');
+  if (!reason) { resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = 'A reason is required.'; return; }
+  const btn = this;
+  btn.disabled = true; btn.textContent = 'Reversing…';
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(reversePaymentBookingId) + '/reverse-payment-confirmation', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason })
+    });
+    const data = await res.json();
+    if (!res.ok) { resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = (data.errors || [data.error]).join(' ') || 'unknown error'; return; }
+    document.getElementById('reverse-payment-overlay').style.display = 'none';
+    await loadInvoices();
+  } catch (err) {
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Reverse';
+  }
+});
+
+// ── Refund (full or partial) ──
+let refundInvoiceBookingId = null;
+document.getElementById('btn-close-refund-invoice').addEventListener('click', function () { document.getElementById('refund-invoice-overlay').style.display = 'none'; });
+document.getElementById('btn-cancel-refund-invoice').addEventListener('click', function () { document.getElementById('refund-invoice-overlay').style.display = 'none'; });
+document.getElementById('refund-invoice-overlay').addEventListener('click', function (e) { if (e.target === this) this.style.display = 'none'; });
+document.getElementById('btn-confirm-refund-invoice').addEventListener('click', async function () {
+  if (!refundInvoiceBookingId) return;
+  const amount = parseFloat(document.getElementById('refund-amount-input').value);
+  const reason = document.getElementById('refund-reason').value.trim();
+  const resultBox = document.getElementById('refund-invoice-result');
+  if (!amount || amount <= 0) { resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = 'Enter an amount greater than zero.'; return; }
+  if (!reason) { resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = 'A reason is required.'; return; }
+  if (!confirm('Record a $' + amount.toFixed(2) + ' refund for this invoice? This cannot be undone from here.')) return;
+  const btn = this;
+  btn.disabled = true; btn.textContent = 'Recording…';
+  try {
+    const res = await authedFetch(API_BASE + '/finance/refund-invoice', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bookingId: refundInvoiceBookingId, amount, reason })
+    });
+    const data = await res.json();
+    if (!res.ok) { resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = (data.errors || [data.error]).join(' ') || 'unknown error'; return; }
+    resultBox.style.display = 'block'; resultBox.className = 'result-box success';
+    resultBox.textContent = data.statusReverted ? 'Refund recorded — invoice reverted from Paid since it\'s no longer fully covered.' : 'Refund recorded.';
+    await loadInvoices();
+    setTimeout(function () { document.getElementById('refund-invoice-overlay').style.display = 'none'; }, 1400);
+  } catch (err) {
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Record refund';
+  }
+});
 
 let notesModalBookingId = null;
 function openInvoiceNotesModal(bookingId) {

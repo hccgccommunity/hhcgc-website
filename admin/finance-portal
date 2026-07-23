@@ -153,8 +153,18 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 .amount.expense { color: var(--red); }
 .source-tag { display: inline-block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--surface-soft); color: var(--saffron-dark); }
 .cat-select { font-family: inherit; font-size: 0.82rem; padding: 6px 10px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; }
+.cat-select:disabled { background: var(--surface-soft); color: var(--muted); cursor: not-allowed; opacity: 0.85; }
 .confirm-paid-select { font-family: inherit; font-size: 0.8rem; padding: 6px 8px; border: 1.5px solid var(--saffron-dark); border-radius: 8px; background: #fff; color: var(--saffron-dark); font-weight: 700; }
 .cat-select.uncategorized { border-color: var(--red); background: var(--red-bg); }
+.tx-row-checkbox { width: 16px; height: 16px; cursor: pointer; }
+.tx-reviewed-circle { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border); background: #fff; cursor: pointer; font-size: 0.72rem; font-weight: 900; color: #fff; vertical-align: middle; line-height: 1; padding: 0; }
+.tx-reviewed-circle.is-reviewed { background: #1f6b3f; border-color: #1f6b3f; }
+.tx-reviewed-circle:hover:not(.is-reviewed) { border-color: var(--saffron-dark); }
+.tx-bulk-bar { display: flex; align-items: center; gap: 10px; font-size: 0.82rem; color: var(--muted); padding: 8px 4px; }
+.tx-loading-overlay { position: relative; }
+.tx-loading-overlay.is-loading::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0.6); backdrop-filter: blur(1px); z-index: 5; }
+.tx-spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--saffron-dark); border-radius: 50%; animation: tx-spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+@keyframes tx-spin { to { transform: rotate(360deg); } }
 .btn-note { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; vertical-align: middle; }
 .btn-note.has-content { background: #bdedcf; border: 2px solid #1f6b3f; }
 .invoice-action-btn { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1.5px solid var(--border); background: #fff; font-family: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer; text-align: left; }
@@ -168,8 +178,6 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 .btn-receipt.sent { background: #bdedcf; border: 2px solid #1f6b3f; box-shadow: 0 0 0 1px rgba(31,107,63,0.25); }
 .btn-receipt:disabled { opacity: 0.4; cursor: default; }
 .btn-receipt:hover:not(:disabled):not(.sent) { filter: brightness(0.96); }
-.category-save-flash { display: inline-block; font-size: 0.72rem; font-weight: 700; color: var(--green); margin-left: 6px; opacity: 0; transition: opacity 0.2s ease; }
-.category-save-flash.show { opacity: 1; }
 .btn-note:hover { background: var(--surface-soft); }
 .collapsible-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 12px 0; }
 .collapsible-header .toggle-arrow { transition: transform 0.15s ease; }
@@ -371,9 +379,10 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
           <span class="toggle-arrow">&#9654;</span>
         </div>
         <div class="collapsible-body is-open" id="rental-body">
+          <div class="tx-bulk-bar" id="rental-bulk-bar" style="display:none;"><span id="rental-selected-count"></span> selected <button type="button" class="btn-primary" style="margin-top:0;padding:6px 14px;font-size:0.8rem;" data-bulk-review-prefix="rental">Mark selected as reviewed</button></div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Date</th><th>Renter</th><th>Amount</th><th>Category</th><th>Invoice</th></tr></thead>
+              <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-rental-select-all" title="Select all"></th><th>Date</th><th>Renter</th><th>Amount</th><th>Category</th></tr></thead>
               <tbody id="tx-rental-tbody"></tbody>
             </table>
             <div class="empty-state" id="tx-rental-empty" style="display:none;">No Facility Rental activity in this range.</div>
@@ -387,9 +396,10 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
           <span class="toggle-arrow">&#9654;</span>
         </div>
         <div class="collapsible-body" id="fundraising-body">
+          <div class="tx-bulk-bar" id="fundraising-bulk-bar" style="display:none;"><span id="fundraising-selected-count"></span> selected <button type="button" class="btn-primary" style="margin-top:0;padding:6px 14px;font-size:0.8rem;" data-bulk-review-prefix="fundraising">Mark selected as reviewed</button></div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Campaign</th><th># Payments</th><th>Gross Amount</th><th>Category</th></tr></thead>
+              <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-fundraising-select-all" title="Select all"></th><th>Campaign</th><th># Payments</th><th>Gross Amount</th><th>Category</th></tr></thead>
               <tbody id="tx-fundraising-tbody"></tbody>
             </table>
             <div class="empty-state" id="tx-fundraising-empty" style="display:none;">No Fundraising activity in this range.</div>
@@ -403,9 +413,10 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
           <span class="toggle-arrow">&#9654;</span>
         </div>
         <div class="collapsible-body" id="donations-body">
+          <div class="tx-bulk-bar" id="donations-bulk-bar" style="display:none;"><span id="donations-selected-count"></span> selected <button type="button" class="btn-primary" style="margin-top:0;padding:6px 14px;font-size:0.8rem;" data-bulk-review-prefix="donations">Mark selected as reviewed</button></div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Campaign</th><th># Payments</th><th>Gross Amount</th><th>Category</th></tr></thead>
+              <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-donations-select-all" title="Select all"></th><th>Campaign</th><th># Payments</th><th>Gross Amount</th><th>Category</th></tr></thead>
               <tbody id="tx-donations-tbody"></tbody>
             </table>
             <div class="empty-state" id="tx-donations-empty" style="display:none;">No donation activity in this range.</div>
@@ -419,9 +430,10 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
           <span class="toggle-arrow">&#9654;</span>
         </div>
         <div class="collapsible-body" id="zeffy-refunds-body">
+          <div class="tx-bulk-bar" id="zeffy-refunds-bulk-bar" style="display:none;"><span id="zeffy-refunds-selected-count"></span> selected <button type="button" class="btn-primary" style="margin-top:0;padding:6px 14px;font-size:0.8rem;" data-bulk-review-prefix="zeffy-refunds">Mark selected as reviewed</button></div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead>
+              <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-zeffy-refunds-select-all" title="Select all"></th><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead>
               <tbody id="tx-zeffy-refunds-tbody"></tbody>
             </table>
             <div class="empty-state" id="tx-zeffy-refunds-empty" style="display:none;">No Zeffy refunds in this range.</div>
@@ -431,9 +443,10 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
     </div>
 
     <div class="sub-tab-panel" id="subtab-tx-zelle">
+          <div class="tx-bulk-bar" id="zelle-bulk-bar" style="display:none;"><span id="zelle-selected-count"></span> selected <button type="button" class="btn-primary" style="margin-top:0;padding:6px 14px;font-size:0.8rem;" data-bulk-review-prefix="zelle">Mark selected as reviewed</button></div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Category</th><th>Invoice</th></tr></thead>
+          <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-zelle-select-all" title="Select all"></th><th>Date</th><th>Description</th><th>Amount</th><th>Category</th><th>Invoice</th></tr></thead>
           <tbody id="tx-zelle-tbody"></tbody>
         </table>
         <div class="empty-state" id="tx-zelle-empty" style="display:none;">No Zelle transactions in this range.</div>
@@ -441,9 +454,10 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
     </div>
 
     <div class="sub-tab-panel" id="subtab-tx-other">
+          <div class="tx-bulk-bar" id="other-bulk-bar" style="display:none;"><span id="other-selected-count"></span> selected <button type="button" class="btn-primary" style="margin-top:0;padding:6px 14px;font-size:0.8rem;" data-bulk-review-prefix="other">Mark selected as reviewed</button></div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Category</th><th>Invoice</th></tr></thead>
+          <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-other-select-all" title="Select all"></th><th>Date</th><th>Description</th><th>Amount</th><th>Category</th><th>Invoice</th></tr></thead>
           <tbody id="tx-other-tbody"></tbody>
         </table>
         <div class="empty-state" id="tx-other-empty" style="display:none;">No other transactions in this range.</div>
@@ -946,6 +960,17 @@ function setupRangePreset(presetId, startId, endId, onApply) {
 }
 setupRangePreset('tx-range-preset', 'tx-start-date', 'tx-end-date', loadTransactions);
 setupRangePreset('stmt-range-preset', 'stmt-start-date', 'stmt-end-date', function () { document.getElementById('btn-load-statement').click(); });
+// Generic loading indicator — applies the greyed-out/blurred overlay
+// (defined in CSS) to whichever tab container is currently fetching or
+// saving, so there's always a visible "something is happening" cue
+// instead of a silent pause. Used the same way across every tab.
+function setTabLoading(containerId, isLoading) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.classList.add('tx-loading-overlay');
+  el.classList.toggle('is-loading', isLoading);
+}
+
 setupRangePreset('cf-range-preset', 'cf-start-date', 'cf-end-date', function () { document.getElementById('btn-load-cash-flow').click(); });
 document.getElementById('btn-load-dashboard').addEventListener('click', loadDashboard);
 async function loadDashboard() {
@@ -1168,6 +1193,7 @@ async function loadTransactions() {
   ['tx-rental', 'tx-fundraising', 'tx-donations', 'tx-zeffy-refunds', 'tx-zelle', 'tx-other'].forEach(function (id) {
     document.getElementById(id + '-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px;">Loading…</td></tr>';
   });
+  setTabLoading('tab-transactions', true);
   try {
     const res = await authedFetch(API_BASE + '/finance/transactions?' + params.toString());
     const data = await res.json();
@@ -1191,7 +1217,28 @@ async function loadTransactions() {
     ['tx-rental', 'tx-fundraising', 'tx-donations', 'tx-zeffy-refunds', 'tx-zelle', 'tx-other'].forEach(function (id) {
       document.getElementById(id + '-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--red);padding:24px;">Could not load: ' + escHtml(err.message) + '</td></tr>';
     });
+  } finally {
+    setTabLoading('tab-transactions', false);
   }
+}
+function txCheckboxHtml(rowId) {
+  return '<input type="checkbox" class="tx-row-checkbox" data-row-checkbox="' + rowId + '">';
+}
+function txNoteBtnHtml(t) {
+  return '<button type="button" class="btn-note' + (t.notes ? ' has-content' : '') + '" title="' + (t.notes ? 'Note: ' + escHtml(t.notes) : 'Add a note') + '" data-edit-note-source="' + t.source + '" data-edit-note-key="' + t.sourceKey + '">\ud83d\udcdd</button>';
+}
+// The reviewed circle is the actual save point — selecting a category
+// alone doesn't write anything to the database. Clicking this while a
+// category is chosen saves {categoryId, reviewed:true} together and
+// locks the select; clicking it again while reviewed unmarks it
+// (reviewed:false, category kept) and unlocks the select for editing.
+// Clicking with no category chosen is blocked — uncategorized can't be
+// marked reviewed.
+function txReviewedCircleHtml(t, rowId) {
+  return '<button type="button" class="tx-reviewed-circle' + (t.reviewed ? ' is-reviewed' : '') + '" title="' + (t.reviewed ? 'Reviewed — click to unmark and edit category' : 'Mark as reviewed') + '" data-reviewed-toggle="' + rowId + '">' + (t.reviewed ? '\u2713' : '') + '</button>';
+}
+function txCategorySelectHtml(t, rowId) {
+  return '<select class="cat-select' + (t.categoryId ? '' : ' uncategorized') + '" data-row="' + rowId + '" data-assign-category-source="' + t.source + '" data-assign-category-key="' + t.sourceKey + '" data-assign-category-desc="' + escHtml(t.description || t.name || '') + '"' + (t.reviewed ? ' disabled' : '') + '><option value="">Uncategorized</option></select>';
 }
 function invoiceIconHtml(t) {
   const m = t.matchedBooking;
@@ -1209,37 +1256,36 @@ function renderGroup(prefix, items, rowFn, emptyMessage) {
 }
 function renderTxRow(t, includeInvoiceIcon) {
   const rowId = t.source + '|' + t.sourceKey;
-  const noteBtn = '<button type="button" class="btn-note" title="' + (t.notes ? 'Note: ' + escHtml(t.notes) : 'Add a note') + '" data-edit-note-source="' + t.source + '" data-edit-note-key="' + t.sourceKey + '">' + (t.notes ? '📝' : '➕') + '</button>';
   return '<tr>' +
+    '<td>' + txCheckboxHtml(rowId) + '</td>' +
     '<td>' + formatDate(t.date) + '</td>' +
     '<td>' + escHtml(t.description) + '</td>' +
     '<td class="amount">' + money(t.amount) + '</td>' +
-    '<td><select class="cat-select' + (t.categoryId ? '' : ' uncategorized') + '" data-row="' + rowId + '" data-assign-category-source="' + t.source + '" data-assign-category-key="' + t.sourceKey + '" data-assign-category-desc="' + escHtml(t.description) + '"><option value="">Uncategorized</option></select> ' + noteBtn + '</td>' +
+    '<td>' + txCategorySelectHtml(t, rowId) + ' ' + txNoteBtnHtml(t) + ' ' + txReviewedCircleHtml(t, rowId) + '</td>' +
     (includeInvoiceIcon === false ? '' : '<td>' + invoiceIconHtml(t) + '</td>') +
   '</tr>';
 }
 function renderRentalLineRow(t) {
   const rowId = t.source + '|' + t.sourceKey;
-  const noteBtn = '<button type="button" class="btn-note" title="' + (t.notes ? 'Note: ' + escHtml(t.notes) : 'Add a note') + '" data-edit-note-source="' + t.source + '" data-edit-note-key="' + t.sourceKey + '">' + (t.notes ? '📝' : '➕') + '</button>';
   const renterCell = t.renterName || t.renterEmail
     ? escHtml(t.renterName || '\u2014') + (t.renterEmail ? '<div style="font-size:0.76rem;color:var(--muted);">' + escHtml(t.renterEmail) + '</div>' : '')
     : '<span style="color:var(--muted);">Unknown</span>';
   return '<tr>' +
+    '<td>' + txCheckboxHtml(rowId) + '</td>' +
     '<td>' + formatDate(t.date) + '</td>' +
     '<td>' + renterCell + '</td>' +
     '<td class="amount">' + money(t.amount) + '</td>' +
-    '<td><select class="cat-select' + (t.categoryId ? '' : ' uncategorized') + '" data-row="' + rowId + '" data-assign-category-source="' + t.source + '" data-assign-category-key="' + t.sourceKey + '" data-assign-category-desc="' + escHtml(t.description) + '"><option value="">Uncategorized</option></select> ' + noteBtn + '</td>' +
-    '<td>' + invoiceIconHtml(t) + '</td>' +
+    '<td>' + txCategorySelectHtml(t, rowId) + ' ' + txNoteBtnHtml(t) + ' ' + txReviewedCircleHtml(t, rowId) + '</td>' +
   '</tr>';
 }
 function renderZeffyCampaignRow(t) {
   const rowId = t.source + '|' + t.sourceKey;
-  const noteBtn = '<button type="button" class="btn-note" title="' + (t.notes ? 'Note: ' + escHtml(t.notes) : 'Add a note') + '" data-edit-note-source="' + t.source + '" data-edit-note-key="' + t.sourceKey + '">' + (t.notes ? '📝' : '➕') + '</button>';
   return '<tr>' +
+    '<td>' + txCheckboxHtml(rowId) + '</td>' +
     '<td>' + escHtml(t.name) + '</td>' +
     '<td>' + t.count + '</td>' +
     '<td class="amount">' + money(t.total) + '</td>' +
-    '<td><select class="cat-select' + (t.categoryId ? '' : ' uncategorized') + '" data-row="' + rowId + '" data-assign-category-source="' + t.source + '" data-assign-category-key="' + t.sourceKey + '"><option value="">Uncategorized</option></select> ' + noteBtn + '</td>' +
+    '<td>' + txCategorySelectHtml(t, rowId) + ' ' + txNoteBtnHtml(t) + ' ' + txReviewedCircleHtml(t, rowId) + '</td>' +
   '</tr>';
 }
 function categoryOptionsHtml(currentCatId) {
@@ -1259,38 +1305,6 @@ function populateCategorySelects() {
     sel.innerHTML = categoryOptionsHtml(resolvedCatId);
     sel.classList.toggle('uncategorized', !resolvedCatId);
   });
-}
-async function assignCategory(source, sourceKey, categoryId, description, selectEl) {
-  if (!categoryId) return;
-  const flash = getOrCreateSaveFlash(selectEl);
-  if (flash) { flash.className = 'category-save-flash show'; flash.style.color = 'var(--muted)'; flash.textContent = 'Saving…'; }
-  try {
-    const tx = TRANSACTIONS.find(function (t) { return t.source === source && t.sourceKey === sourceKey; });
-    const res = await authedFetch(API_BASE + '/finance/categorize', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ source: source, sourceKey: sourceKey, categoryId: categoryId, description: description, notes: tx ? tx.notes : null })
-    });
-    if (!res.ok) throw new Error('Server returned ' + res.status);
-    if (tx) tx.categoryId = categoryId;
-    populateCategorySelects();
-    if (flash) {
-      flash.style.color = 'var(--green)'; flash.textContent = '\u2713 Saved';
-      setTimeout(function () { flash.classList.remove('show'); }, 1800);
-    }
-  } catch (err) {
-    if (flash) { flash.style.color = 'var(--red)'; flash.textContent = '\u26a0 Not saved — try again'; }
-    else alert('Could not save category: ' + err.message);
-  }
-}
-function getOrCreateSaveFlash(selectEl) {
-  if (!selectEl || !selectEl.parentNode) return null;
-  let flash = selectEl.nextElementSibling;
-  if (!flash || !flash.classList || !flash.classList.contains('category-save-flash')) {
-    flash = document.createElement('span');
-    flash.className = 'category-save-flash';
-    selectEl.insertAdjacentElement('afterend', flash);
-  }
-  return flash;
 }
 async function editTransactionNote(source, sourceKey) {
   const tx = TRANSACTIONS.find(function (t) { return t.source === source && t.sourceKey === sourceKey; });
@@ -1470,10 +1484,107 @@ document.getElementById('invoice-picker-list').addEventListener('click', async f
   document.getElementById(id).addEventListener('change', function (e) {
     const sel = e.target.closest('[data-assign-category-source]');
     if (!sel) return;
-    assignCategory(sel.dataset.assignCategorySource, sel.dataset.assignCategoryKey, sel.value, sel.dataset.assignCategoryDesc, sel);
+    // Selecting a category no longer saves anything by itself — it's just
+    // a pending choice until "Mark as reviewed" is clicked, which is the
+    // actual save point. Only updates the visual uncategorized/red state.
+    sel.classList.toggle('uncategorized', !sel.value);
   });
 });
 document.getElementById('btn-load-tx').addEventListener('click', loadTransactions);
+
+// ── Reviewed circle: the actual save point for category + review state ──
+['tx-rental-tbody', 'tx-fundraising-tbody', 'tx-donations-tbody', 'tx-zeffy-refunds-tbody', 'tx-zelle-tbody', 'tx-other-tbody'].forEach(function (id) {
+  document.getElementById(id).addEventListener('click', async function (e) {
+    const circle = e.target.closest('[data-reviewed-toggle]');
+    if (!circle) return;
+    const rowId = circle.dataset.reviewedToggle;
+    const row = circle.closest('tr');
+    const sel = row.querySelector('[data-assign-category-source]');
+    const tx = TRANSACTIONS.find(function (t) { return (t.source + '|' + t.sourceKey) === rowId; });
+    if (!tx) return;
+
+    const nowReviewing = !tx.reviewed;
+    if (nowReviewing && !sel.value) {
+      alert('This transaction is uncategorized — choose a category before marking it reviewed.');
+      return;
+    }
+    circle.disabled = true;
+    const originalContent = circle.innerHTML;
+    circle.innerHTML = '<span class="tx-spinner" style="margin:0;width:12px;height:12px;border-width:2px;"></span>';
+    try {
+      const res = await authedFetch(API_BASE + '/finance/categorize', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source: tx.source, sourceKey: tx.sourceKey, categoryId: sel.value || tx.categoryId, description: sel.dataset.assignCategoryDesc, notes: tx.notes, reviewed: nowReviewing })
+      });
+      const data = await res.json();
+      if (!res.ok) { alert('Could not update: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); circle.innerHTML = originalContent; return; }
+      tx.categoryId = sel.value || tx.categoryId;
+      tx.reviewed = nowReviewing;
+      sel.disabled = nowReviewing;
+      sel.classList.toggle('uncategorized', !tx.categoryId);
+      circle.classList.toggle('is-reviewed', nowReviewing);
+      circle.title = nowReviewing ? 'Reviewed — click to unmark and edit category' : 'Mark as reviewed';
+      circle.innerHTML = nowReviewing ? '\u2713' : '';
+      populateCategorySelects();
+    } catch (err) {
+      alert('Could not reach the server: ' + err.message);
+      circle.innerHTML = originalContent;
+    } finally {
+      circle.disabled = false;
+    }
+  });
+});
+
+// ── Checkbox select-all + bulk mark-reviewed ──
+[['tx-rental', 'tx-rental-tbody'], ['tx-fundraising', 'tx-fundraising-tbody'], ['tx-donations', 'tx-donations-tbody'],
+ ['tx-zeffy-refunds', 'tx-zeffy-refunds-tbody'], ['tx-zelle', 'tx-zelle-tbody'], ['tx-other', 'tx-other-tbody']].forEach(function (pair) {
+  var prefix = pair[0], tbodyId = pair[1];
+  function updateBulkBar() {
+    var checked = document.querySelectorAll('#' + tbodyId + ' [data-row-checkbox]:checked');
+    var bar = document.getElementById(prefix + '-bulk-bar');
+    if (checked.length) {
+      bar.style.display = 'flex';
+      document.getElementById(prefix + '-selected-count').textContent = checked.length;
+    } else {
+      bar.style.display = 'none';
+    }
+  }
+  var selectAll = document.getElementById(prefix + '-select-all');
+  if (selectAll) {
+    selectAll.addEventListener('change', function () {
+      document.querySelectorAll('#' + tbodyId + ' [data-row-checkbox]').forEach(function (cb) { cb.checked = selectAll.checked; });
+      updateBulkBar();
+    });
+  }
+  document.getElementById(tbodyId).addEventListener('change', function (e) {
+    if (e.target.matches('[data-row-checkbox]')) updateBulkBar();
+  });
+  var bulkBtn = document.querySelector('[data-bulk-review-prefix="' + prefix + '"]');
+  if (bulkBtn) {
+    bulkBtn.addEventListener('click', async function () {
+      var checked = Array.from(document.querySelectorAll('#' + tbodyId + ' [data-row-checkbox]:checked'));
+      var items = checked.map(function (cb) {
+        var parts = cb.dataset.rowCheckbox.split('|');
+        return { source: parts[0], sourceKey: parts.slice(1).join('|') };
+      });
+      if (!items.length) return;
+      bulkBtn.disabled = true; var originalText = bulkBtn.textContent; bulkBtn.textContent = 'Marking…';
+      try {
+        var res = await authedFetch(API_BASE + '/finance/bulk-mark-reviewed', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: items })
+        });
+        var data = await res.json();
+        if (!res.ok) { alert('Could not mark reviewed: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+        if (data.skipped && data.skipped.length) alert(data.markedCount + ' marked reviewed. ' + data.skipped.length + ' skipped (uncategorized).');
+        await loadTransactions();
+      } catch (err) {
+        alert('Could not reach the server: ' + err.message);
+      } finally {
+        bulkBtn.disabled = false; bulkBtn.textContent = originalText;
+      }
+    });
+  }
+});
 
 // ── Statement of Activities ──
 document.getElementById('btn-load-statement').addEventListener('click', async function () {
@@ -1482,6 +1593,7 @@ document.getElementById('btn-load-statement').addEventListener('click', async fu
   const card = document.getElementById('statement-card');
   card.innerHTML = '<div class="empty-state">Generating…</div>';
   document.getElementById('btn-download-statement').style.display = 'none';
+  setTabLoading('tab-statements', true);
   try {
     const res = await authedFetch(API_BASE + '/finance/statement-of-activities?startDate=' + start + '&endDate=' + end);
     const data = await res.json();
@@ -1498,6 +1610,8 @@ document.getElementById('btn-load-statement').addEventListener('click', async fu
     document.getElementById('btn-download-statement').style.display = 'inline-block';
   } catch (err) {
     card.innerHTML = '<div class="empty-state">Could not generate: ' + escHtml(err.message) + '</div>';
+  } finally {
+    setTabLoading('tab-statements', false);
   }
 });
 document.getElementById('btn-download-statement').addEventListener('click', function () {
@@ -1523,6 +1637,7 @@ async function loadReconciliation() {
   window.__reconLoaded = true;
   const list = document.getElementById('reconciliation-list');
   list.innerHTML = '<div class="empty-state">Loading…</div>';
+  setTabLoading('tab-reconciliation', true);
   try {
     const res = await authedFetch(API_BASE + '/finance/reconciliation');
     const data = await res.json();
@@ -1566,6 +1681,8 @@ async function loadReconciliation() {
     list.innerHTML = html;
   } catch (err) {
     list.innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
+  } finally {
+    setTabLoading('tab-reconciliation', false);
   }
 }
 
@@ -1637,6 +1754,7 @@ async function loadInvoices() {
   const tbody = document.getElementById('inv-tbody');
   const emptyState = document.getElementById('inv-empty');
   tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px;">Loading…</td></tr>';
+  setTabLoading('tab-matching', true);
   try {
     const params = new URLSearchParams({ startDate: start, endDate: end });
     if (status) params.set('status', status);
@@ -1648,6 +1766,8 @@ async function loadInvoices() {
     tbody.innerHTML = INVOICES.map(renderInvoiceRow).join('');
   } catch (err) {
     tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--red);padding:24px;">Could not load: ' + escHtml(err.message) + '</td></tr>';
+  } finally {
+    setTabLoading('tab-matching', false);
   }
 }
 function renderInvoiceRow(inv) {
@@ -2082,6 +2202,7 @@ async function loadExpenseSubmissions() {
   const status = document.getElementById('exp-status-filter').value;
   const list = document.getElementById('expenses-submission-list');
   list.innerHTML = '<div class="empty-state">Loading…</div>';
+  setTabLoading('tab-expenses', true);
   try {
     const res = await authedFetch(API_BASE + '/finance/expense-submissions' + (status ? '?status=' + status : ''));
     EXPENSE_SUBMISSIONS = await res.json();
@@ -2097,6 +2218,8 @@ async function loadExpenseSubmissions() {
     }).join('');
   } catch (err) {
     list.innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
+  } finally {
+    setTabLoading('tab-expenses', false);
   }
 }
 document.getElementById('expenses-submission-list').addEventListener('click', function (e) {

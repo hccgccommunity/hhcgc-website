@@ -373,7 +373,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
         <div class="collapsible-body is-open" id="rental-body">
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Date</th><th>Donor</th><th>Amount</th><th>Category</th><th>Invoice</th></tr></thead>
+              <thead><tr><th>Date</th><th>Renter</th><th>Amount</th><th>Category</th><th>Invoice</th></tr></thead>
               <tbody id="tx-rental-tbody"></tbody>
             </table>
             <div class="empty-state" id="tx-rental-empty" style="display:none;">No Facility Rental activity in this range.</div>
@@ -1218,9 +1218,12 @@ function renderTxRow(t, includeInvoiceIcon) {
 function renderRentalLineRow(t) {
   const rowId = t.source + '|' + t.sourceKey;
   const noteBtn = '<button type="button" class="btn-note" title="' + (t.notes ? 'Note: ' + escHtml(t.notes) : 'Add a note') + '" data-edit-note-source="' + t.source + '" data-edit-note-key="' + t.sourceKey + '">' + (t.notes ? '📝' : '➕') + '</button>';
+  const renterCell = t.renterName || t.renterEmail
+    ? escHtml(t.renterName || '\u2014') + (t.renterEmail ? '<div style="font-size:0.76rem;color:var(--muted);">' + escHtml(t.renterEmail) + '</div>' : '')
+    : '<span style="color:var(--muted);">Unknown</span>';
   return '<tr>' +
     '<td>' + formatDate(t.date) + '</td>' +
-    '<td>' + escHtml(t.description) + '</td>' +
+    '<td>' + renterCell + '</td>' +
     '<td class="amount">' + money(t.amount) + '</td>' +
     '<td><select class="cat-select' + (t.categoryId ? '' : ' uncategorized') + '" data-row="' + rowId + '" data-assign-category-source="' + t.source + '" data-assign-category-key="' + t.sourceKey + '" data-assign-category-desc="' + escHtml(t.description) + '"><option value="">Uncategorized</option></select> ' + noteBtn + '</td>' +
     '<td>' + invoiceIconHtml(t) + '</td>' +

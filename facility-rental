@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -566,8 +565,6 @@
       color: var(--saffron-dark);
       margin-top: 2px;
     }
-    #extendedHoursRow.discount-applied { border-color: var(--saffron); background: rgba(255,246,234,0.9); }
-    #extendedHoursRow:not(.discount-applied) .toggle-discount { color: var(--muted); opacity: 0.6; }
 
     /* Result box */
     .result-box {
@@ -681,73 +678,6 @@
       border: 0;
       background: transparent;
       display: block;
-    }
-
-    .request-form-card {
-      border-radius: 28px;
-      background: linear-gradient(180deg, rgba(255,255,255,.86), rgba(255,246,234,.94));
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      padding: 34px;
-      max-width: 780px;
-      margin: 0 auto;
-    }
-    .request-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
-    .request-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; position: relative; }
-    .request-field label { font-size: 0.86rem; font-weight: 700; color: var(--text); }
-    .request-field label .req-star { color: var(--saffron-dark); }
-    .request-field input, .request-field select, .request-field textarea {
-      font-family: inherit; font-size: 0.95rem; padding: 11px 14px; border: 1.5px solid var(--border);
-      border-radius: 12px; background: #fff; color: var(--text); width: 100%;
-    }
-    .request-field textarea { resize: vertical; min-height: 84px; }
-    .request-section-title { font-family: Georgia, "Times New Roman", serif; font-size: 1.15rem; color: var(--maroon); margin: 26px 0 6px; }
-    .request-section-title:first-child { margin-top: 0; }
-    .request-autocomplete-list {
-      position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1.5px solid var(--border);
-      border-top: none; border-radius: 0 0 12px 12px; z-index: 20; max-height: 220px; overflow-y: auto; box-shadow: var(--shadow);
-    }
-    .request-autocomplete-list div { padding: 10px 14px; font-size: 0.9rem; cursor: pointer; }
-    .request-autocomplete-list div:hover { background: var(--surface-soft, #fff6ea); }
-    .request-submit-btn {
-      font-family: inherit; font-size: 1rem; font-weight: 800; color: #fff;
-      background: linear-gradient(135deg, var(--saffron-dark), var(--maroon)); border: none; border-radius: 14px;
-      padding: 15px 22px; cursor: pointer; margin-top: 10px; width: 100%;
-    }
-    .request-submit-btn:hover { opacity: 0.92; }
-    .request-submit-btn:disabled { opacity: 0.6; cursor: default; }
-    .request-result-box { margin-top: 16px; border-radius: 12px; padding: 14px 16px; font-size: 0.9rem; line-height: 1.55; }
-    .request-result-box.error { background: #fbe9e7; color: #b3382c; border: 1px solid rgba(179,56,44,0.25); }
-    .request-success-panel { text-align: center; padding: 30px 10px; }
-    .request-success-panel .icon { font-size: 2.6rem; margin-bottom: 12px; }
-    .request-success-panel h3 { font-family: Georgia, "Times New Roman", serif; color: var(--maroon); margin-bottom: 10px; font-size: 1.3rem; }
-    .request-success-panel p { color: var(--muted); font-size: 0.94rem; line-height: 1.6; }
-
-    .request-multiselect-btn {
-      font-family: inherit; font-size: 0.95rem; text-align: left; padding: 11px 14px; border: 1.5px solid var(--border);
-      border-radius: 12px; background: #fff; color: var(--text); cursor: pointer; width: 100%;
-    }
-    .request-multiselect-panel {
-      position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1.5px solid var(--border);
-      border-radius: 12px; z-index: 20; box-shadow: var(--shadow); padding: 8px; margin-top: 4px;
-    }
-    .request-multiselect-panel label { display: flex; align-items: center; gap: 10px; padding: 9px 10px; font-size: 0.9rem; cursor: pointer; border-radius: 8px; }
-    .request-multiselect-panel label:hover { background: var(--surface-soft, #fff6ea); }
-    .request-multiselect-panel input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--saffron); }
-
-    .rf-date-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; align-items: end; margin-bottom: 10px; }
-    .rf-date-row .request-field { margin-bottom: 0; }
-    .rf-date-row button.rf-remove-date {
-      border: 1.5px solid var(--border); background: #fff; border-radius: 10px; width: 42px; height: 42px;
-      cursor: pointer; color: var(--saffron-dark); font-size: 1.1rem; line-height: 1;
-    }
-    .request-add-date-btn {
-      font-family: inherit; font-size: 0.86rem; font-weight: 700; padding: 9px 14px; border-radius: 10px;
-      border: 1.5px solid var(--saffron-dark); background: #fff; color: var(--saffron-dark); cursor: pointer; margin-top: 4px;
-    }
-    @media (max-width: 640px) {
-      .rf-date-row { grid-template-columns: 1fr 1fr; }
-      .rf-date-row .rf-remove-date-wrap { grid-column: span 2; }
     }
 
     /* ── RESPONSIVE ── */
@@ -948,9 +878,9 @@
             <p class="section-copy">Tap your room, set the hours, and toggle any discounts — your estimate updates instantly.</p>
           </div>
 
-          <!-- Room selector — multi-select tap targets, plus Entire Facility -->
+          <!-- Room selector — big tap targets -->
           <div class="select-group">
-            <label>Select Room(s)</label>
+            <label>Select Room</label>
             <div class="room-selector">
               <button class="room-btn active" data-room="surya">
                 Surya Hall
@@ -968,12 +898,7 @@
                 Ganesh Room
                 <span class="room-btn-rate">$15 / hr</span>
               </button>
-              <button class="room-btn" id="entireFacilityBtn" data-room="entire" style="grid-column: 1 / -1;">
-                &#9733; Entire Facility
-                <span class="room-btn-rate">$130 / hr</span>
-              </button>
             </div>
-            <p class="card-sub" style="margin-top:8px;font-size:0.8rem;color:var(--muted);">Tap to select more than one room — the estimate adds them together. Entire Facility selects all four at once.</p>
           </div>
 
           <!-- Hours stepper -->
@@ -1004,14 +929,7 @@
                   <span class="toggle-discount">25% off</span>
                 </div>
               </label>
-              <div class="toggle-item" id="extendedHoursRow" style="cursor:default;">
-                <div>
-                  <span class="toggle-label">Extended booking (4+ hours)</span>
-                  <span class="toggle-discount" id="extendedHoursTag">20% off</span>
-                </div>
-              </div>
             </div>
-            <p class="card-sub" style="margin-top:6px;font-size:0.78rem;color:var(--muted);" id="extendedHoursNote">Applies automatically once you select 4 or more hours below.</p>
           </div>
 
           <div class="result-box">
@@ -1108,112 +1026,19 @@
 
         <div class="notice-box" style="max-width:980px;margin:0 auto 28px;">
           <h4>📋 Before You Submit</h4>
-          <p>Please check the <a href="#availability">availability calendar</a> above to confirm your preferred date and time are open. This form is a screening request — your booking is only confirmed after you receive an email confirmation. For questions, email us at <a href="mailto:facility-rental@hccgc.org">facility-rental@hccgc.org</a>.</p>
+          <p>Please check the <a href="#availability">availability calendar</a> above to confirm your preferred date and time are open. This form is a screening request — your booking is only confirmed after you receive an email confirmation. For questions, email us at <a href="mailto:hccgccommunity@gmail.com">hccgccommunity@gmail.com</a>.</p>
         </div>
 
-        <div class="request-form-card" id="requestFormCard">
-          <form id="requestForm">
-            <div class="request-section-title">Let's get started</div>
-            <div class="request-field">
-              <label>Email <span class="req-star">*</span></label>
-              <input type="email" id="rf-email" required>
-              <div class="card-sub" id="rf-email-status" style="font-size:0.82rem;color:var(--muted);min-height:1.2em;"></div>
-            </div>
-            <button type="button" class="request-submit-btn" id="rf-continue-btn" style="max-width:220px;">Continue</button>
-
-            <div id="rf-after-email" style="display:none;">
-              <div id="rf-known-renter-banner" style="display:none; background:#e8f5ec; border:1px solid rgba(46,125,79,0.25); border-radius:12px; padding:12px 16px; margin: 20px 0 4px;">
-                <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:0.9rem; color:#2e7d4f;">
-                  <span>Welcome back, <strong id="rf-known-renter-name"></strong>! We've filled in the info we have on file below.</span>
-                  <button type="button" id="rf-edit-contact-btn" style="flex-shrink:0; font-family:inherit; font-size:0.8rem; font-weight:700; padding:6px 12px; border-radius:8px; border:1.5px solid #2e7d4f; background:#fff; color:#2e7d4f; cursor:pointer;">Edit</button>
-                </div>
-              </div>
-
-              <div class="request-section-title" style="margin-top:20px;">Your contact info</div>
-              <div id="rf-contact-fields">
-                <div class="request-field-row">
-                  <div class="request-field"><label>First name <span class="req-star">*</span></label><input type="text" id="rf-first-name" required></div>
-                  <div class="request-field"><label>Last name <span class="req-star">*</span></label><input type="text" id="rf-last-name" required></div>
-                </div>
-                <div class="request-field-row">
-                  <div class="request-field"><label>Phone number <span class="req-star">*</span></label><input type="tel" id="rf-phone" required></div>
-                  <div class="request-field">
-                    <label>Is your organization a nonprofit? <span class="req-star">*</span></label>
-                    <select id="rf-is-nonprofit">
-                      <option value="no" selected>No</option>
-                      <option value="yes">Yes</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="request-field-row">
-                  <div class="request-field"><label id="rf-org-label">Organization name (optional)</label><input type="text" id="rf-org"></div>
-                  <div class="request-field" id="rf-website-field" style="display:none;"><label>Organization website</label><input type="url" id="rf-website" placeholder="https://"></div>
-                </div>
-
-                <div class="request-field" style="position:relative;">
-                  <label>Billing address — street <span class="req-star">*</span></label>
-                  <input type="text" id="rf-street" placeholder="Start typing an address…" autocomplete="off" required>
-                  <div class="request-autocomplete-list" id="rf-street-autocomplete" style="display:none;"></div>
-                </div>
-                <div class="request-field-row">
-                  <div class="request-field"><label>Suite / Apartment # (optional)</label><input type="text" id="rf-suite"></div>
-                  <div class="request-field"><label>City <span class="req-star">*</span></label><input type="text" id="rf-city" required></div>
-                </div>
-                <div class="request-field-row">
-                  <div class="request-field"><label>State <span class="req-star">*</span></label><input type="text" id="rf-state" required></div>
-                  <div class="request-field"><label>ZIP <span class="req-star">*</span></label><input type="text" id="rf-zip" required></div>
-                </div>
-              </div>
-
-              <div class="request-section-title">Your event</div>
-              <div class="request-field"><label>Tell us more about your event <span class="req-star">*</span></label><textarea id="rf-event-details" placeholder="What's the occasion? Approximate number of guests, any special requirements, etc." required></textarea></div>
-
-              <div class="request-field" style="position:relative;">
-                <label>Which room(s) would you like? <span class="req-star">*</span></label>
-              <button type="button" class="request-multiselect-btn" id="rf-room-btn">Choose room(s)…</button>
-              <div class="request-multiselect-panel" id="rf-room-panel" style="display:none;">
-                <label><input type="checkbox" value="Surya Hall"> Surya Hall</label>
-                <label><input type="checkbox" value="Patanjali Hall"> Patanjali Hall</label>
-                <label><input type="checkbox" value="Nataraj Room"> Nataraj Room</label>
-                <label><input type="checkbox" value="Ganesh Room"> Ganesh Room</label>
-                <label><input type="checkbox" value="Kitchen"> Kitchen (only with Surya or Patanjali)</label>
-                <label><input type="checkbox" value="Entire Facility"> Entire Facility</label>
-              </div>
-            </div>
-
-            <div class="request-field">
-              <label>Date(s) &amp; time(s) <span class="req-star">*</span></label>
-              <p class="card-sub" style="margin:0 0 8px;font-size:0.82rem;color:var(--muted);">Add more than one row for a multi-day event or a repeating booking.</p>
-              <div id="rf-dates-list"></div>
-              <button type="button" class="request-add-date-btn" id="rf-add-date-btn">+ Add another date</button>
-            </div>
-
-            <div class="request-section-title">A few more details</div>
-            <div class="request-field">
-              <label>Are you working with any HCCGC representative?</label>
-              <select id="rf-hccg-rep">
-                <option value="">Choose…</option>
-                <option>Rajendra Kelkar</option>
-                <option>Raj Loni</option>
-                <option>Raghvendra Tadpatri</option>
-                <option>Nilaj Rukadikar</option>
-                <option>Other</option>
-                <option>No</option>
-              </select>
-            </div>
-            <div class="request-field" id="rf-hccg-rep-other-field" style="display:none;"><label>Please specify name</label><input type="text" id="rf-hccg-rep-other"></div>
-            <div class="request-field"><label>Personal or business references (optional)</label><textarea id="rf-references"></textarea></div>
-            <div class="request-field"><label>Additional requests or notes (optional)</label><textarea id="rf-notes" placeholder="Anything else we should know?"></textarea></div>
-
-            <button type="submit" class="request-submit-btn" id="rf-submit-btn">Submit request</button>
-            <div class="request-result-box" id="rf-result-box" style="display:none;"></div>
-            </div>
-          </form>
-
-          <div class="request-success-panel" id="rf-success-panel" style="display:none;">
-            <div class="icon">🎉</div>
-            <h3>Request received!</h3>
-            <p>Thank you for your interest in renting space at HCCGC. We've sent a confirmation to your email, and our team will follow up within 2–3 business days.</p>
+        <div class="embed-card">
+          <div class="embed-frame">
+            <iframe
+              src="https://docs.google.com/forms/d/e/1FAIpQLSccjJ4UGAz_lweFz3CXYTC4uXDS2UupqhxSI_xEqkZ8ar4PTQ/viewform?embedded=true"
+              width="640"
+              height="100%"
+              frameborder="0"
+              marginheight="0"
+              marginwidth="0">Loading…
+            </iframe>
           </div>
         </div>
       </div>
@@ -1248,50 +1073,20 @@
     initializePage();
 
     // ── Cost Estimator ──
-    const rates      = { surya: 45, patanjali: 40, nataraj: 30, ganesh: 15 };
-    const roomNames  = { surya: 'Surya Hall', patanjali: 'Patanjali Hall', nataraj: 'Nataraj Room', ganesh: 'Ganesh Room' };
-    const ALL_ROOMS  = ['surya', 'patanjali', 'nataraj', 'ganesh'];
+    const rates     = { surya: 45, patanjali: 40, nataraj: 30, ganesh: 15 };
+    const roomNames = { surya: 'Surya Hall', patanjali: 'Patanjali Hall', nataraj: 'Nataraj Room', ganesh: 'Ganesh Room' };
 
-    let selectedRooms = new Set(['surya']);
+    let selectedRoom = 'surya';
     let hours = 2;
 
-    function syncEntireFacilityButton() {
-      const allSelected = ALL_ROOMS.every(r => selectedRooms.has(r));
-      document.getElementById('entireFacilityBtn').classList.toggle('active', allSelected);
-    }
-
-    // Individual room buttons — multi-select
-    document.querySelectorAll('.room-btn[data-room]:not(#entireFacilityBtn)').forEach(btn => {
+    // Room buttons
+    document.querySelectorAll('.room-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const room = btn.dataset.room;
-        if (selectedRooms.has(room)) {
-          if (selectedRooms.size === 1) return; // keep at least one room selected
-          selectedRooms.delete(room);
-          btn.classList.remove('active');
-        } else {
-          selectedRooms.add(room);
-          btn.classList.add('active');
-        }
-        syncEntireFacilityButton();
+        document.querySelectorAll('.room-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedRoom = btn.dataset.room;
         calculate();
       });
-    });
-
-    // Entire Facility — selects/deselects all four at once
-    document.getElementById('entireFacilityBtn').addEventListener('click', () => {
-      const allSelected = ALL_ROOMS.every(r => selectedRooms.has(r));
-      if (allSelected) {
-        // Deselecting entire facility falls back to just Surya Hall, rather
-        // than leaving nothing selected.
-        selectedRooms = new Set(['surya']);
-      } else {
-        selectedRooms = new Set(ALL_ROOMS);
-      }
-      document.querySelectorAll('.room-btn[data-room]:not(#entireFacilityBtn)').forEach(b => {
-        b.classList.toggle('active', selectedRooms.has(b.dataset.room));
-      });
-      syncEntireFacilityButton();
-      calculate();
     });
 
     // Hours stepper
@@ -1317,8 +1112,7 @@
       const isNonprofit = document.getElementById('nonprofitCheck').checked;
       const isExtended  = hours >= 4;
 
-      const roomsList = ALL_ROOMS.filter(r => selectedRooms.has(r));
-      const baseRate  = roomsList.reduce((sum, r) => sum + rates[r], 0);
+      const baseRate  = rates[selectedRoom];
       const baseTotal = baseRate * hours;
 
       let mult = 1;
@@ -1333,9 +1127,7 @@
 
       document.getElementById('totalAmount').textContent = '$' + total.toFixed(2);
 
-      const isEntire = ALL_ROOMS.every(r => selectedRooms.has(r));
-      const roomLabel = isEntire ? 'Entire Facility' : roomsList.map(r => roomNames[r]).join(' + ');
-      let text = `${roomLabel} · ${hours} hr${hours !== 1 ? 's' : ''} · $${baseRate}/hr combined`;
+      let text = `${roomNames[selectedRoom]} · ${hours} hr${hours !== 1 ? 's' : ''} · $${baseRate}/hr`;
       text += savings > 0.01
         ? ` · Base: $${baseTotal.toFixed(2)} · You save: $${savings.toFixed(2)}`
         : ` = $${baseTotal.toFixed(2)}`;
@@ -1343,308 +1135,9 @@
 
       document.getElementById('discountPills').innerHTML =
         pills.map(p => `<span class="disc-pill">${p}</span>`).join('');
-
-      // Extended-hours indicator updates live, even though it's automatic
-      // rather than a toggle the visitor controls directly.
-      const extRow = document.getElementById('extendedHoursRow');
-      const extTag = document.getElementById('extendedHoursTag');
-      const extNote = document.getElementById('extendedHoursNote');
-      extRow.classList.toggle('discount-applied', isExtended);
-      extTag.textContent = isExtended ? '20% off — applied' : '20% off';
-      extNote.textContent = isExtended
-        ? 'Applied — your booking is 4 or more hours.'
-        : 'Applies automatically once you select 4 or more hours below.';
     }
 
     calculate();
-
-    // ── Facility Request Form ──
-    const API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';
-
-    document.getElementById('rf-hccg-rep').addEventListener('change', (e) => {
-      document.getElementById('rf-hccg-rep-other-field').style.display = e.target.value === 'Other' ? 'flex' : 'none';
-    });
-
-    // ── Email-first lookup: auto-fill for a returning renter ──
-    let knownRenter = null;
-    document.getElementById('rf-is-nonprofit').addEventListener('change', function () {
-      const isNonprofit = this.value === 'yes';
-      document.getElementById('rf-website-field').style.display = isNonprofit ? 'flex' : 'none';
-      const orgLabel = document.getElementById('rf-org-label');
-      const orgInput = document.getElementById('rf-org');
-      if (isNonprofit) {
-        orgLabel.innerHTML = 'Organization name <span class="req-star">*</span>';
-        orgInput.required = true;
-      } else {
-        orgLabel.textContent = 'Organization name (optional)';
-        orgInput.required = false;
-      }
-    });
-    const CONTACT_FIELD_IDS = ['rf-first-name', 'rf-last-name', 'rf-phone', 'rf-org', 'rf-website', 'rf-street', 'rf-suite', 'rf-city', 'rf-state', 'rf-zip'];
-
-    function setContactFieldsLocked(locked) {
-      CONTACT_FIELD_IDS.forEach((id) => {
-        const el = document.getElementById(id);
-        el.readOnly = locked;
-        el.style.background = locked ? 'var(--surface-soft, #fff6ea)' : '#fff';
-      });
-    }
-
-    async function checkEmailAndProceed() {
-      const emailInput = document.getElementById('rf-email');
-      const email = emailInput.value.trim();
-      const statusEl = document.getElementById('rf-email-status');
-      const banner = document.getElementById('rf-known-renter-banner');
-      const continueBtn = document.getElementById('rf-continue-btn');
-
-      if (!email || !email.includes('@')) {
-        statusEl.style.color = '#b3382c';
-        statusEl.textContent = 'Please enter a valid email address.';
-        return;
-      }
-
-      statusEl.style.color = 'var(--muted)';
-      statusEl.textContent = 'Checking…';
-      continueBtn.disabled = true;
-
-      try {
-        const res = await fetch(API_BASE + '/public/renter-lookup?email=' + encodeURIComponent(email));
-        const data = await res.json();
-        statusEl.textContent = '';
-        document.getElementById('rf-after-email').style.display = 'block';
-
-        if (data.found) {
-          knownRenter = data.renter;
-          banner.style.display = 'block';
-          document.getElementById('rf-known-renter-name').textContent = data.renter.contact_name;
-          const nameParts = (data.renter.contact_name || '').split(' ');
-          document.getElementById('rf-first-name').value = nameParts[0] || '';
-          document.getElementById('rf-last-name').value = nameParts.slice(1).join(' ') || '';
-          document.getElementById('rf-phone').value = data.renter.phone || '';
-          document.getElementById('rf-org').value = data.renter.organization_name || '';
-          document.getElementById('rf-is-nonprofit').value = data.renter.is_nonprofit ? 'yes' : 'no';
-          document.getElementById('rf-website').value = data.renter.website || '';
-          document.getElementById('rf-is-nonprofit').dispatchEvent(new Event('change'));
-          document.getElementById('rf-street').value = data.renter.address || '';
-          document.getElementById('rf-suite').value = '';
-          document.getElementById('rf-city').value = '';
-          document.getElementById('rf-state').value = '';
-          document.getElementById('rf-zip').value = '';
-          setContactFieldsLocked(true);
-          document.getElementById('rf-event-details').focus();
-        } else {
-          knownRenter = null;
-          banner.style.display = 'none';
-          setContactFieldsLocked(false);
-          document.getElementById('rf-first-name').focus();
-        }
-      } catch (err) {
-        statusEl.style.color = '#b3382c';
-        statusEl.textContent = 'Could not check that email — you can still continue and fill in your info below.';
-        document.getElementById('rf-after-email').style.display = 'block';
-        setContactFieldsLocked(false);
-      } finally {
-        continueBtn.disabled = false;
-      }
-    }
-
-    document.getElementById('rf-continue-btn').addEventListener('click', checkEmailAndProceed);
-    document.getElementById('rf-email').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { e.preventDefault(); checkEmailAndProceed(); }
-    });
-    document.getElementById('rf-edit-contact-btn').addEventListener('click', () => {
-      setContactFieldsLocked(false);
-      document.getElementById('rf-first-name').focus();
-    });
-
-    function showRequestResult(message) {
-      const box = document.getElementById('rf-result-box');
-      box.style.display = 'block';
-      box.className = 'request-result-box error';
-      box.textContent = message;
-    }
-
-    // ── Room multi-select ──
-    const roomPanel = document.getElementById('rf-room-panel');
-    const roomBtn = document.getElementById('rf-room-btn');
-    roomBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      roomPanel.style.display = roomPanel.style.display === 'none' ? 'block' : 'none';
-    });
-    document.addEventListener('click', (e) => {
-      if (roomPanel.style.display !== 'none' && !roomPanel.contains(e.target) && e.target !== roomBtn) roomPanel.style.display = 'none';
-    });
-    function selectedRoomValues() {
-      return Array.from(roomPanel.querySelectorAll('input:checked')).map(cb => cb.value);
-    }
-    roomPanel.addEventListener('change', () => {
-      const selected = selectedRoomValues();
-      roomBtn.textContent = selected.length ? selected.join(', ') : 'Choose room(s)…';
-    });
-
-    // ── Repeatable date/time rows ──
-    let dateRowCount = 0;
-    function addDateRow() {
-      dateRowCount++;
-      const id = dateRowCount;
-      const row = document.createElement('div');
-      row.className = 'rf-date-row';
-      row.dataset.rowId = id;
-      row.innerHTML =
-        '<div class="request-field"><label>Date</label><input type="date" class="rf-date-input" required></div>' +
-        '<div class="request-field"><label>Start time</label><input type="time" class="rf-start-input" required></div>' +
-        '<div class="request-field"><label>End time</label><input type="time" class="rf-end-input" required></div>' +
-        '<div class="rf-remove-date-wrap"><button type="button" class="rf-remove-date" title="Remove this date">&times;</button></div>';
-      row.querySelector('.rf-remove-date').addEventListener('click', () => {
-        if (document.querySelectorAll('.rf-date-row').length === 1) return; // keep at least one row
-        row.remove();
-      });
-      document.getElementById('rf-dates-list').appendChild(row);
-    }
-    document.getElementById('rf-add-date-btn').addEventListener('click', addDateRow);
-    addDateRow(); // start with one row
-
-    document.getElementById('requestForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const btn = document.getElementById('rf-submit-btn');
-
-      const rooms = selectedRoomValues();
-      if (!rooms.length) { showRequestResult('Please select at least one room.'); return; }
-      if (rooms.includes('Kitchen') && !rooms.includes('Surya Hall') && !rooms.includes('Patanjali Hall')) {
-        showRequestResult('Kitchen can only be booked together with Surya Hall or Patanjali Hall.'); return;
-      }
-
-      const occurrences = Array.from(document.querySelectorAll('.rf-date-row')).map(row => ({
-        date: row.querySelector('.rf-date-input').value,
-        startTime: row.querySelector('.rf-start-input').value,
-        endTime: row.querySelector('.rf-end-input').value
-      }));
-      if (occurrences.some(o => !o.date || !o.startTime || !o.endTime)) { showRequestResult('Please fill in every date row completely.'); return; }
-      if (document.getElementById('rf-is-nonprofit').value === 'yes' && !document.getElementById('rf-org').value.trim()) {
-        showRequestResult('Organization name is required for nonprofits.'); return;
-      }
-
-      const addressParts = [document.getElementById('rf-street').value, document.getElementById('rf-suite').value].filter(Boolean).join(', ');
-      const fullAddress = addressParts + (addressParts ? ', ' : '') +
-        document.getElementById('rf-city').value + ', ' + document.getElementById('rf-state').value + ' ' + document.getElementById('rf-zip').value;
-
-      const repValue = document.getElementById('rf-hccg-rep').value;
-      const hccgcRepresentative = repValue === 'Other' ? document.getElementById('rf-hccg-rep-other').value : repValue;
-
-      const payload = {
-        firstName: document.getElementById('rf-first-name').value,
-        lastName: document.getElementById('rf-last-name').value,
-        email: document.getElementById('rf-email').value,
-        phone: document.getElementById('rf-phone').value,
-        organizationName: document.getElementById('rf-org').value,
-        isNonprofit: document.getElementById('rf-is-nonprofit').value === 'yes',
-        website: document.getElementById('rf-website').value,
-        billingAddress: fullAddress,
-        eventDetails: document.getElementById('rf-event-details').value,
-        rooms: rooms,
-        occurrences: occurrences,
-        hccgcRepresentative: hccgcRepresentative,
-        references: document.getElementById('rf-references').value,
-        notes: document.getElementById('rf-notes').value
-      };
-
-      btn.disabled = true; btn.textContent = 'Submitting…';
-      try {
-        const res = await fetch(API_BASE + '/public/facility-request', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          showRequestResult((data.errors || [data.error || 'Something went wrong. Please try again.']).join(' '));
-          btn.disabled = false; btn.textContent = 'Submit request';
-        } else {
-          document.getElementById('requestForm').style.display = 'none';
-          document.getElementById('rf-success-panel').style.display = 'block';
-        }
-      } catch (err) {
-        showRequestResult('Could not reach the server: ' + err.message);
-        btn.disabled = false; btn.textContent = 'Submit request';
-      }
-    });
-
-    // ── Address autocomplete ──
-    // Uses OpenStreetMap's free Nominatim search — no API key required, so
-    // this works out of the box. If a Google Maps API key gets added below,
-    // that takes over instead (generally higher-quality US address results).
-    const GOOGLE_MAPS_API_KEY = ''; // <-- add a Maps JavaScript API key (with Places enabled) here to switch to Google's autocomplete
-    if (GOOGLE_MAPS_API_KEY) {
-      const gmapsScript = document.createElement('script');
-      gmapsScript.src = 'https://maps.googleapis.com/maps/api/js?key=' + GOOGLE_MAPS_API_KEY + '&libraries=places&callback=initRequestFormAutocomplete';
-      gmapsScript.async = true;
-      document.head.appendChild(gmapsScript);
-    } else {
-      setupFreeAddressAutocomplete();
-    }
-    window.initRequestFormAutocomplete = function () {
-      const input = document.getElementById('rf-street');
-      const autocomplete = new google.maps.places.Autocomplete(input, { types: ['address'], componentRestrictions: { country: 'us' } });
-      autocomplete.addListener('place_changed', () => {
-        const place = autocomplete.getPlace();
-        if (!place.address_components) return;
-        let streetNumber = '', route = '', city = '', state = '', zip = '';
-        place.address_components.forEach((c) => {
-          if (c.types.includes('street_number')) streetNumber = c.long_name;
-          if (c.types.includes('route')) route = c.long_name;
-          if (c.types.includes('locality')) city = c.long_name;
-          if (c.types.includes('administrative_area_level_1')) state = c.short_name;
-          if (c.types.includes('postal_code')) zip = c.long_name;
-        });
-        document.getElementById('rf-street').value = (streetNumber + ' ' + route).trim();
-        document.getElementById('rf-city').value = city;
-        document.getElementById('rf-state').value = state;
-        document.getElementById('rf-zip').value = zip;
-      });
-    };
-
-    function setupFreeAddressAutocomplete() {
-      const input = document.getElementById('rf-street');
-      const list = document.getElementById('rf-street-autocomplete');
-      let debounceTimer = null;
-
-      input.addEventListener('input', () => {
-        const query = input.value.trim();
-        clearTimeout(debounceTimer);
-        if (query.length < 3) { list.style.display = 'none'; return; }
-        debounceTimer = setTimeout(async () => {
-          try {
-            // viewbox biases results toward Greater Cincinnati (without
-            // strictly excluding elsewhere) since most renters are local —
-            // this alone fixes a lot of "my address doesn't show up" cases,
-            // since unbiased results were getting crowded out by
-            // better-known places elsewhere in the US with similar names.
-            const viewbox = '-84.9,39.5,-83.9,38.9';
-            const res = await fetch('https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=us&limit=8&dedupe=1&accept-language=en&viewbox=' + viewbox + '&bounded=0&q=' + encodeURIComponent(query));
-            const results = await res.json();
-            if (!results.length) { list.style.display = 'none'; return; }
-            list.innerHTML = results.map((r, i) => '<div data-i="' + i + '">' + r.display_name.replace(/</g, '&lt;') + '</div>').join('');
-            list.style.display = 'block';
-            list.querySelectorAll('div').forEach((div, i) => {
-              div.addEventListener('click', () => {
-                const addr = results[i].address || {};
-                const streetNum = addr.house_number || '';
-                const streetName = addr.road || '';
-                input.value = (streetNum + ' ' + streetName).trim();
-                document.getElementById('rf-city').value = addr.city || addr.town || addr.village || '';
-                document.getElementById('rf-state').value = addr.state ? (US_STATE_ABBR[addr.state] || addr.state) : '';
-                document.getElementById('rf-zip').value = addr.postcode || '';
-                list.style.display = 'none';
-              });
-            });
-          } catch (err) {
-            list.style.display = 'none';
-          }
-        }, 400);
-      });
-      document.addEventListener('click', (e) => {
-        if (!list.contains(e.target) && e.target !== input) list.style.display = 'none';
-      });
-    }
-    const US_STATE_ABBR = { 'Ohio': 'OH', 'Kentucky': 'KY', 'Indiana': 'IN', 'Michigan': 'MI', 'Pennsylvania': 'PA', 'West Virginia': 'WV', 'Illinois': 'IL' };
   </script>
 
 </body>

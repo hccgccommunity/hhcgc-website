@@ -1297,12 +1297,17 @@ function renderGroup(prefix, items, rowFn, emptyMessage) {
   emptyState.style.display = 'none';
   tbody.innerHTML = items.map(rowFn).join('');
 }
+function txUndoBtnHtml(t) {
+  if (t.splitParent) return ' <button type="button" class="btn-secondary" style="padding:1px 6px;font-size:0.68rem;" data-unsplit-key="' + t.splitParent + '" title="Restore this to a single transaction">Unsplit</button>';
+  if (t.mergeId) return ' <button type="button" class="btn-secondary" style="padding:1px 6px;font-size:0.68rem;" data-unmerge-id="' + t.mergeId + '" title="Restore the original individual transactions">Unmerge</button>';
+  return '';
+}
 function renderTxRow(t, includeInvoiceIcon) {
   const rowId = t.source + '|' + t.sourceKey;
   return '<tr>' +
     '<td>' + txCheckboxHtml(rowId) + '</td>' +
     '<td>' + formatDate(t.date) + '</td>' +
-    '<td>' + escHtml(t.description) + '</td>' +
+    '<td>' + escHtml(t.description) + txUndoBtnHtml(t) + '</td>' +
     '<td class="amount">' + money(t.amount) + '</td>' +
     '<td>' + txCategorySelectHtml(t, rowId) + ' ' + txNoteBtnHtml(t) + ' ' + txReviewedCircleHtml(t, rowId) + '</td>' +
     (includeInvoiceIcon === false ? '' : '<td>' + invoiceIconHtml(t) + '</td>') +
@@ -1538,6 +1543,40 @@ document.getElementById('btn-load-tx').addEventListener('click', loadTransaction
 // ── Reviewed circle: the actual save point for category + review state ──
 ['tx-rental-tbody', 'tx-fundraising-tbody', 'tx-donations-tbody', 'tx-zeffy-refunds-tbody', 'tx-zelle-tbody', 'tx-other-tbody'].forEach(function (id) {
   document.getElementById(id).addEventListener('click', async function (e) {
+    const unsplitBtn = e.target.closest('[data-unsplit-key]');
+    if (unsplitBtn) {
+      if (!confirm('Restore this to a single transaction? Any category/note/review set on the split parts will be cleared.')) return;
+      unsplitBtn.disabled = true;
+      try {
+        const res = await authedFetch(API_BASE + '/finance/unsplit-transaction', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sourceKey: unsplitBtn.dataset.unsplitKey })
+        });
+        const data = await res.json();
+        if (!res.ok) { alert('Could not unsplit: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); unsplitBtn.disabled = false; return; }
+        await loadTransactions();
+      } catch (err) {
+        alert('Could not reach the server: ' + err.message);
+        unsplitBtn.disabled = false;
+      }
+      return;
+    }
+    const unmergeBtn = e.target.closest('[data-unmerge-id]');
+    if (unmergeBtn) {
+      if (!confirm('Restore the original individual transactions? The category/note/review set on the merged line will be cleared.')) return;
+      unmergeBtn.disabled = true;
+      try {
+        const res = await authedFetch(API_BASE + '/finance/unmerge-transactions', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mergeId: unmergeBtn.dataset.unmergeId })
+        });
+        const data = await res.json();
+        if (!res.ok) { alert('Could not unmerge: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); unmergeBtn.disabled = false; return; }
+        await loadTransactions();
+      } catch (err) {
+        alert('Could not reach the server: ' + err.message);
+        unmergeBtn.disabled = false;
+      }
+      return;
+    }
     const circle = e.target.closest('[data-reviewed-toggle]');
     if (!circle) return;
     const rowId = circle.dataset.reviewedToggle;

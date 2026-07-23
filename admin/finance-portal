@@ -430,7 +430,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
           <span class="toggle-arrow">&#9654;</span>
         </div>
         <div class="collapsible-body" id="zeffy-refunds-body">
-          <div class="tx-bulk-bar" id="zeffy-refunds-bulk-bar" style="display:none;"><span id="zeffy-refunds-selected-count"></span> selected <button type="button" class="btn-primary" style="margin-top:0;padding:6px 14px;font-size:0.8rem;" data-bulk-review-prefix="zeffy-refunds">Mark selected as reviewed</button></div>
+          <div class="tx-bulk-bar" id="zeffy-refunds-bulk-bar" style="display:none;"><span id="zeffy-refunds-selected-count"></span> selected <button type="button" class="btn-primary" style="margin-top:0;padding:6px 14px;font-size:0.8rem;" data-bulk-review-prefix="zeffy-refunds">Mark selected as reviewed</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-split-prefix="zeffy-refunds">Split</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-merge-prefix="zeffy-refunds">Merge</button></div>
           <div class="table-wrap">
             <table>
               <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-zeffy-refunds-select-all" title="Select all"></th><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead>
@@ -443,10 +443,10 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
     </div>
 
     <div class="sub-tab-panel" id="subtab-tx-zelle">
-          <div class="tx-bulk-bar" id="zelle-bulk-bar" style="display:none;"><span id="zelle-selected-count"></span> selected <button type="button" class="btn-primary" style="margin-top:0;padding:6px 14px;font-size:0.8rem;" data-bulk-review-prefix="zelle">Mark selected as reviewed</button></div>
+          <div class="tx-bulk-bar" id="zelle-bulk-bar" style="display:none;"><span id="zelle-selected-count"></span> selected <button type="button" class="btn-primary" style="margin-top:0;padding:6px 14px;font-size:0.8rem;" data-bulk-review-prefix="zelle">Mark selected as reviewed</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-split-prefix="zelle">Split</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-merge-prefix="zelle">Merge</button></div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-zelle-select-all" title="Select all"></th><th>Date</th><th>Description</th><th>Amount</th><th>Category</th><th>Invoice</th></tr></thead>
+          <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-zelle-select-all" title="Select all"></th><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead>
           <tbody id="tx-zelle-tbody"></tbody>
         </table>
         <div class="empty-state" id="tx-zelle-empty" style="display:none;">No Zelle transactions in this range.</div>
@@ -454,10 +454,10 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
     </div>
 
     <div class="sub-tab-panel" id="subtab-tx-other">
-          <div class="tx-bulk-bar" id="other-bulk-bar" style="display:none;"><span id="other-selected-count"></span> selected <button type="button" class="btn-primary" style="margin-top:0;padding:6px 14px;font-size:0.8rem;" data-bulk-review-prefix="other">Mark selected as reviewed</button></div>
+          <div class="tx-bulk-bar" id="other-bulk-bar" style="display:none;"><span id="other-selected-count"></span> selected <button type="button" class="btn-primary" style="margin-top:0;padding:6px 14px;font-size:0.8rem;" data-bulk-review-prefix="other">Mark selected as reviewed</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-split-prefix="other">Split</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-merge-prefix="other">Merge</button></div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-other-select-all" title="Select all"></th><th>Date</th><th>Description</th><th>Amount</th><th>Category</th><th>Invoice</th></tr></thead>
+          <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-other-select-all" title="Select all"></th><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead>
           <tbody id="tx-other-tbody"></tbody>
         </table>
         <div class="empty-state" id="tx-other-empty" style="display:none;">No other transactions in this range.</div>
@@ -650,6 +650,49 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
       <button class="modal-close" id="btn-close-receipt-action">&times;</button>
     </div>
     <div class="modal-body" id="receipt-action-body" style="display:flex;flex-direction:column;gap:10px;"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="split-tx-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:460px;">
+    <div class="modal-header">
+      <h2>Split transaction</h2>
+      <button class="modal-close" id="btn-close-split-tx">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="card-sub" style="margin-bottom:10px;" id="split-tx-original"></p>
+      <div class="field-row">
+        <div class="field"><label>Part 1 amount ($)</label><input type="number" step="0.01" id="split-tx-amount1"></div>
+        <div class="field"><label>Part 1 description</label><input type="text" id="split-tx-desc1"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Part 2 amount ($)</label><input type="number" step="0.01" id="split-tx-amount2"></div>
+        <div class="field"><label>Part 2 description</label><input type="text" id="split-tx-desc2"></div>
+      </div>
+      <div class="result-box" id="split-tx-result" style="display:none;margin-top:10px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-cancel-split-tx">Cancel</button>
+      <button type="button" class="btn-primary" id="btn-confirm-split-tx" style="margin-top:0;">Split</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="merge-tx-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:460px;">
+    <div class="modal-header">
+      <h2>Merge transactions</h2>
+      <button class="modal-close" id="btn-close-merge-tx">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="card-sub" style="margin-bottom:10px;" id="merge-tx-summary"></p>
+      <div id="merge-tx-list"></div>
+      <div class="result-box" id="merge-tx-result" style="display:none;margin-top:10px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-cancel-merge-tx">Cancel</button>
+      <button type="button" class="btn-primary" id="btn-confirm-merge-tx" style="margin-top:0;">Merge</button>
+    </div>
   </div>
 </div>
 
@@ -1210,8 +1253,8 @@ async function loadTransactions() {
     document.getElementById('donations-count').textContent = data.donations.length ? '(' + data.donations.length + ')' : '(none)';
     renderGroup('tx-zeffy-refunds', data.zeffyRefunds, function (t) { return renderTxRow(t, false); }, 'No Zeffy refunds in this range.');
     document.getElementById('zeffy-refunds-count').textContent = data.zeffyRefunds.length ? '(' + data.zeffyRefunds.length + ')' : '(none)';
-    renderGroup('tx-zelle', data.zelle, renderTxRow, 'No Zelle transactions in this range.');
-    renderGroup('tx-other', data.other, renderTxRow, 'No other transactions in this range.');
+    renderGroup('tx-zelle', data.zelle, function (t) { return renderTxRow(t, false); }, 'No Zelle transactions in this range.');
+    renderGroup('tx-other', data.other, function (t) { return renderTxRow(t, false); }, 'No other transactions in this range.');
     populateCategorySelects();
   } catch (err) {
     ['tx-rental', 'tx-fundraising', 'tx-donations', 'tx-zeffy-refunds', 'tx-zelle', 'tx-other'].forEach(function (id) {
@@ -1583,6 +1626,110 @@ document.getElementById('btn-load-tx').addEventListener('click', loadTransaction
         bulkBtn.disabled = false; bulkBtn.textContent = originalText;
       }
     });
+  }
+
+  var splitBtn = document.querySelector('[data-bulk-split-prefix="' + prefix + '"]');
+  if (splitBtn) {
+    splitBtn.addEventListener('click', function () {
+      var checked = Array.from(document.querySelectorAll('#' + tbodyId + ' [data-row-checkbox]:checked'));
+      if (checked.length !== 1) { alert('Select exactly one transaction to split.'); return; }
+      var rowId = checked[0].dataset.rowCheckbox;
+      var tx = TRANSACTIONS.find(function (t) { return (t.source + '|' + t.sourceKey) === rowId; });
+      if (!tx) return;
+      openSplitModal(tx);
+    });
+  }
+
+  var mergeBtn = document.querySelector('[data-bulk-merge-prefix="' + prefix + '"]');
+  if (mergeBtn) {
+    mergeBtn.addEventListener('click', function () {
+      var checked = Array.from(document.querySelectorAll('#' + tbodyId + ' [data-row-checkbox]:checked'));
+      if (checked.length < 2) { alert('Select at least two transactions of the same type (both debits or both credits) to merge.'); return; }
+      var txs = checked.map(function (cb) {
+        var rowId = cb.dataset.rowCheckbox;
+        return TRANSACTIONS.find(function (t) { return (t.source + '|' + t.sourceKey) === rowId; });
+      }).filter(Boolean);
+      openMergeModal(txs);
+    });
+  }
+});
+
+let splitTxContext = null;
+function openSplitModal(tx) {
+  splitTxContext = tx;
+  document.getElementById('split-tx-original').textContent = escHtml(tx.description) + ' — ' + money(tx.amount) + ' on ' + formatDate(tx.date);
+  document.getElementById('split-tx-amount1').value = '';
+  document.getElementById('split-tx-desc1').value = tx.description;
+  document.getElementById('split-tx-amount2').value = '';
+  document.getElementById('split-tx-desc2').value = tx.description;
+  document.getElementById('split-tx-result').style.display = 'none';
+  document.getElementById('split-tx-overlay').style.display = 'flex';
+}
+document.getElementById('btn-close-split-tx').addEventListener('click', function () { document.getElementById('split-tx-overlay').style.display = 'none'; });
+document.getElementById('btn-cancel-split-tx').addEventListener('click', function () { document.getElementById('split-tx-overlay').style.display = 'none'; });
+document.getElementById('split-tx-overlay').addEventListener('click', function (e) { if (e.target === this) this.style.display = 'none'; });
+document.getElementById('btn-confirm-split-tx').addEventListener('click', async function () {
+  if (!splitTxContext) return;
+  var amount1 = parseFloat(document.getElementById('split-tx-amount1').value);
+  var amount2 = parseFloat(document.getElementById('split-tx-amount2').value);
+  var resultBox = document.getElementById('split-tx-result');
+  if (!amount1 || !amount2) { resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = 'Enter both part amounts.'; return; }
+  var btn = this;
+  btn.disabled = true; btn.textContent = 'Splitting…';
+  try {
+    var res = await authedFetch(API_BASE + '/finance/split-transaction', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sourceKey: splitTxContext.sourceKey, originalAmount: splitTxContext.amount,
+        parts: [
+          { amount: amount1, description: document.getElementById('split-tx-desc1').value },
+          { amount: amount2, description: document.getElementById('split-tx-desc2').value }
+        ]
+      })
+    });
+    var data = await res.json();
+    if (!res.ok) { resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = (data.errors || [data.error]).join(' ') || 'unknown error'; return; }
+    document.getElementById('split-tx-overlay').style.display = 'none';
+    await loadTransactions();
+  } catch (err) {
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Split';
+  }
+});
+
+let mergeTxContext = null;
+function openMergeModal(txs) {
+  mergeTxContext = txs;
+  var total = txs.reduce(function (sum, t) { return sum + t.amount; }, 0);
+  document.getElementById('merge-tx-summary').textContent = txs.length + ' transactions, combined total ' + money(total) + '.';
+  document.getElementById('merge-tx-list').innerHTML = txs.map(function (t) {
+    return '<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:0.86rem;">' + formatDate(t.date) + ' — ' + escHtml(t.description) + ' — ' + money(t.amount) + '</div>';
+  }).join('');
+  document.getElementById('merge-tx-result').style.display = 'none';
+  document.getElementById('merge-tx-overlay').style.display = 'flex';
+}
+document.getElementById('btn-close-merge-tx').addEventListener('click', function () { document.getElementById('merge-tx-overlay').style.display = 'none'; });
+document.getElementById('btn-cancel-merge-tx').addEventListener('click', function () { document.getElementById('merge-tx-overlay').style.display = 'none'; });
+document.getElementById('merge-tx-overlay').addEventListener('click', function (e) { if (e.target === this) this.style.display = 'none'; });
+document.getElementById('btn-confirm-merge-tx').addEventListener('click', async function () {
+  if (!mergeTxContext || mergeTxContext.length < 2) return;
+  var resultBox = document.getElementById('merge-tx-result');
+  var btn = this;
+  btn.disabled = true; btn.textContent = 'Merging…';
+  try {
+    var res = await authedFetch(API_BASE + '/finance/merge-transactions', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items: mergeTxContext.map(function (t) { return { sourceKey: t.sourceKey, amount: t.amount }; }) })
+    });
+    var data = await res.json();
+    if (!res.ok) { resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = (data.errors || [data.error]).join(' ') || 'unknown error'; return; }
+    document.getElementById('merge-tx-overlay').style.display = 'none';
+    await loadTransactions();
+  } catch (err) {
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Merge';
   }
 });
 

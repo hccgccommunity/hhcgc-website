@@ -639,39 +639,20 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
   </div>
 </div>
 
-<div class="modal-overlay" id="reverse-payment-overlay" style="display:none;">
+<div class="modal-overlay" id="void-invoice-overlay" style="display:none;">
   <div class="modal-panel" style="max-width:460px;">
     <div class="modal-header">
-      <h2>Reverse payment confirmation</h2>
-      <button class="modal-close" id="btn-close-reverse-payment">&times;</button>
+      <h2>Void invoice &amp; receipt</h2>
+      <button class="modal-close" id="btn-close-void-invoice">&times;</button>
     </div>
     <div class="modal-body">
-      <p class="card-sub" style="margin-bottom:10px;">This undoes the "confirmed as paid" status only — the linked transaction(s) stay in place. Use this when the confirmation itself was a mistake (wrong booking, wrong method), not when the payment actually bounced.</p>
-      <textarea id="reverse-payment-reason" rows="4" placeholder="Reason for reversing" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></textarea>
-      <div class="result-box" id="reverse-payment-result" style="display:none;margin-top:10px;"></div>
+      <p class="card-sub" style="margin-bottom:10px;">Use this when a payment was reversed or refunded directly at the bank (outside this system). This voids the invoice and receipt, removes any linked transaction, and automatically emails the renter — the note below is included in that email, so write it as you'd want them to read it.</p>
+      <textarea id="void-invoice-note" rows="4" placeholder="Note to include in the email to the renter (required)" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></textarea>
+      <div class="result-box" id="void-invoice-result" style="display:none;margin-top:10px;"></div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn-secondary" id="btn-cancel-reverse-payment">Cancel</button>
-      <button type="button" class="btn-primary" id="btn-confirm-reverse-payment" style="margin-top:0;">Reverse</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="refund-invoice-overlay" style="display:none;">
-  <div class="modal-panel" style="max-width:460px;">
-    <div class="modal-header">
-      <h2>Refund</h2>
-      <button class="modal-close" id="btn-close-refund-invoice">&times;</button>
-    </div>
-    <div class="modal-body">
-      <p class="card-sub" style="margin-bottom:10px;">Money actually going back to the renter — full or partial. This reduces what's linked to this invoice and, if it's no longer fully covered, reverts it from Paid.</p>
-      <div class="field"><label>Amount to refund ($)</label><input type="number" step="0.01" min="0.01" id="refund-amount-input"></div>
-      <textarea id="refund-reason" rows="3" placeholder="Reason for the refund" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;margin-top:8px;"></textarea>
-      <div class="result-box" id="refund-invoice-result" style="display:none;margin-top:10px;"></div>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn-secondary" id="btn-cancel-refund-invoice">Cancel</button>
-      <button type="button" class="btn-primary" id="btn-confirm-refund-invoice" style="margin-top:0;">Record refund</button>
+      <button type="button" class="btn-secondary" id="btn-cancel-void-invoice">Cancel</button>
+      <button type="button" class="btn-primary" id="btn-confirm-void-invoice" style="margin-top:0;">Void &amp; email renter</button>
     </div>
   </div>
 </div>
@@ -1365,8 +1346,7 @@ async function refreshAllocationModal() {
     return;
   }
   invoicePickerContext.remaining = txnSummary.remaining;
-  summaryEl.innerHTML = 'Transaction total <strong>' + money(amount) + '</strong> &middot; Linked so far <strong>' + money(txnSummary.allocated) + '</strong> &middot; Unallocated <strong style="color:' + (txnSummary.remaining > 0.009 ? 'var(--saffron-dark)' : 'var(--green,#2e7d4f)') + ';">' + money(txnSummary.remaining) + '</strong>' +
-    (txnSummary.allocations.length ? ' <button type="button" class="btn-secondary" style="padding:2px 8px;font-size:0.72rem;margin-left:8px;" id="btn-reverse-this-transaction">Reverse this transaction</button>' : '');
+  summaryEl.innerHTML = 'Transaction total <strong>' + money(amount) + '</strong> &middot; Linked so far <strong>' + money(txnSummary.allocated) + '</strong> &middot; Unallocated <strong style="color:' + (txnSummary.remaining > 0.009 ? 'var(--saffron-dark)' : 'var(--green,#2e7d4f)') + ';">' + money(txnSummary.remaining) + '</strong>';
 
   if (!txnSummary.allocations.length) {
     existingEl.innerHTML = '<div class="empty-state" style="padding:10px;">Not linked to anything yet.</div>';
@@ -1433,26 +1413,6 @@ document.getElementById('btn-close-invoice-picker').addEventListener('click', fu
 });
 document.getElementById('invoice-picker-overlay').addEventListener('click', function (e) {
   if (e.target === this) this.style.display = 'none';
-});
-document.getElementById('alloc-txn-summary').addEventListener('click', async function (e) {
-  if (!e.target.closest('#btn-reverse-this-transaction') || !invoicePickerContext) return;
-  const reason = prompt('Reason this transaction is being reversed (bounced, chargeback, etc.)? This unwinds every invoice it\'s linked to.');
-  if (reason === null) return;
-  if (!reason.trim()) { alert('A reason is required.'); return; }
-  if (!confirm('Reverse this transaction? Every invoice it\'s linked to will lose that allocation, and any that were marked Paid because of it will revert to unpaid.')) return;
-  try {
-    const res = await authedFetch(API_BASE + '/finance/reverse-transaction', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ source: invoicePickerContext.source, sourceKey: invoicePickerContext.sourceKey, reason })
-    });
-    const data = await res.json();
-    if (!res.ok) { alert('Could not reverse: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
-    alert('Reversed. ' + data.revertedToUnpaid + ' invoice(s) reverted from Paid.');
-    document.getElementById('invoice-picker-overlay').style.display = 'none';
-    await loadTransactions();
-  } catch (err) {
-    alert('Could not reach the server: ' + err.message);
-  }
 });
 document.getElementById('alloc-existing-list').addEventListener('click', async function (e) {
   const btn = e.target.closest('[data-unlink-allocation]');
@@ -1703,7 +1663,7 @@ function renderInvoiceRow(inv) {
   // shows how much is still owed instead, matching what the backend
   // itself now enforces rather than just hiding the option client-side.
   const confirmPaidBtn = inv.paymentStatus === 'paid'
-    ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid</span> <button type="button" class="btn-secondary" style="padding:2px 8px;font-size:0.72rem;margin-left:4px;" data-reverse-payment-booking="' + inv.bookingId + '">Reverse</button> <button type="button" class="btn-secondary" style="padding:2px 8px;font-size:0.72rem;" data-refund-booking="' + inv.bookingId + '" data-refund-max="' + inv.allocated + '">Refund</button>'
+    ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid</span> <button type="button" class="btn-secondary" style="padding:2px 8px;font-size:0.72rem;margin-left:4px;" data-void-invoice-booking="' + inv.bookingId + '">Void</button>'
     : (inv.matchSource && inv.remaining <= 0.01
         ? '<select class="confirm-paid-select" data-confirm-paid-booking="' + inv.bookingId + '"><option value="">Confirm as paid \u2014</option><option value="zeffy">Zeffy</option><option value="zelle">Zelle</option><option value="cash">Cash</option><option value="check">Check</option></select>'
         : (inv.matchSource
@@ -1873,82 +1833,42 @@ async function downloadDocument(bookingId, kind) {
   }
 }
 
-// ── Reverse payment confirmation ──
-let reversePaymentBookingId = null;
+// ── Void invoice & receipt ──
+// Used when a payment was reversed or refunded directly at the bank,
+// outside this system — reconciliation itself happens against the bank
+// account now, not through Finance's own matching UI.
+let voidInvoiceBookingId = null;
 document.getElementById('inv-tbody').addEventListener('click', function (e) {
-  const btn = e.target.closest('[data-reverse-payment-booking]');
-  if (btn) {
-    reversePaymentBookingId = btn.dataset.reversePaymentBooking;
-    document.getElementById('reverse-payment-reason').value = '';
-    document.getElementById('reverse-payment-result').style.display = 'none';
-    document.getElementById('reverse-payment-overlay').style.display = 'flex';
-    return;
-  }
-  const refundBtn = e.target.closest('[data-refund-booking]');
-  if (refundBtn) {
-    refundInvoiceBookingId = refundBtn.dataset.refundBooking;
-    document.getElementById('refund-amount-input').value = refundBtn.dataset.refundMax;
-    document.getElementById('refund-amount-input').max = refundBtn.dataset.refundMax;
-    document.getElementById('refund-reason').value = '';
-    document.getElementById('refund-invoice-result').style.display = 'none';
-    document.getElementById('refund-invoice-overlay').style.display = 'flex';
-  }
+  const btn = e.target.closest('[data-void-invoice-booking]');
+  if (!btn) return;
+  voidInvoiceBookingId = btn.dataset.voidInvoiceBooking;
+  document.getElementById('void-invoice-note').value = '';
+  document.getElementById('void-invoice-result').style.display = 'none';
+  document.getElementById('void-invoice-overlay').style.display = 'flex';
 });
-document.getElementById('btn-close-reverse-payment').addEventListener('click', function () { document.getElementById('reverse-payment-overlay').style.display = 'none'; });
-document.getElementById('btn-cancel-reverse-payment').addEventListener('click', function () { document.getElementById('reverse-payment-overlay').style.display = 'none'; });
-document.getElementById('reverse-payment-overlay').addEventListener('click', function (e) { if (e.target === this) this.style.display = 'none'; });
-document.getElementById('btn-confirm-reverse-payment').addEventListener('click', async function () {
-  if (!reversePaymentBookingId) return;
-  const reason = document.getElementById('reverse-payment-reason').value.trim();
-  const resultBox = document.getElementById('reverse-payment-result');
-  if (!reason) { resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = 'A reason is required.'; return; }
+document.getElementById('btn-close-void-invoice').addEventListener('click', function () { document.getElementById('void-invoice-overlay').style.display = 'none'; });
+document.getElementById('btn-cancel-void-invoice').addEventListener('click', function () { document.getElementById('void-invoice-overlay').style.display = 'none'; });
+document.getElementById('void-invoice-overlay').addEventListener('click', function (e) { if (e.target === this) this.style.display = 'none'; });
+document.getElementById('btn-confirm-void-invoice').addEventListener('click', async function () {
+  if (!voidInvoiceBookingId) return;
+  const note = document.getElementById('void-invoice-note').value.trim();
+  const resultBox = document.getElementById('void-invoice-result');
+  if (!note) { resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = 'A note is required — it will be included in the email to the renter.'; return; }
+  if (!confirm('Void this invoice and receipt, and email the renter now? This cannot be undone from here.')) return;
   const btn = this;
-  btn.disabled = true; btn.textContent = 'Reversing…';
+  btn.disabled = true; btn.textContent = 'Voiding…';
   try {
-    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(reversePaymentBookingId) + '/reverse-payment-confirmation', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason })
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(voidInvoiceBookingId) + '/void', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ note })
     });
     const data = await res.json();
     if (!res.ok) { resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = (data.errors || [data.error]).join(' ') || 'unknown error'; return; }
-    document.getElementById('reverse-payment-overlay').style.display = 'none';
+    document.getElementById('void-invoice-overlay').style.display = 'none';
     await loadInvoices();
   } catch (err) {
     resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = 'Could not reach the server: ' + err.message;
   } finally {
-    btn.disabled = false; btn.textContent = 'Reverse';
-  }
-});
-
-// ── Refund (full or partial) ──
-let refundInvoiceBookingId = null;
-document.getElementById('btn-close-refund-invoice').addEventListener('click', function () { document.getElementById('refund-invoice-overlay').style.display = 'none'; });
-document.getElementById('btn-cancel-refund-invoice').addEventListener('click', function () { document.getElementById('refund-invoice-overlay').style.display = 'none'; });
-document.getElementById('refund-invoice-overlay').addEventListener('click', function (e) { if (e.target === this) this.style.display = 'none'; });
-document.getElementById('btn-confirm-refund-invoice').addEventListener('click', async function () {
-  if (!refundInvoiceBookingId) return;
-  const amount = parseFloat(document.getElementById('refund-amount-input').value);
-  const reason = document.getElementById('refund-reason').value.trim();
-  const resultBox = document.getElementById('refund-invoice-result');
-  if (!amount || amount <= 0) { resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = 'Enter an amount greater than zero.'; return; }
-  if (!reason) { resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = 'A reason is required.'; return; }
-  if (!confirm('Record a $' + amount.toFixed(2) + ' refund for this invoice? This cannot be undone from here.')) return;
-  const btn = this;
-  btn.disabled = true; btn.textContent = 'Recording…';
-  try {
-    const res = await authedFetch(API_BASE + '/finance/refund-invoice', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bookingId: refundInvoiceBookingId, amount, reason })
-    });
-    const data = await res.json();
-    if (!res.ok) { resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = (data.errors || [data.error]).join(' ') || 'unknown error'; return; }
-    resultBox.style.display = 'block'; resultBox.className = 'result-box success';
-    resultBox.textContent = data.statusReverted ? 'Refund recorded — invoice reverted from Paid since it\'s no longer fully covered.' : 'Refund recorded.';
-    await loadInvoices();
-    setTimeout(function () { document.getElementById('refund-invoice-overlay').style.display = 'none'; }, 1400);
-  } catch (err) {
-    resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = 'Could not reach the server: ' + err.message;
-  } finally {
-    btn.disabled = false; btn.textContent = 'Record refund';
+    btn.disabled = false; btn.textContent = 'Void & email renter';
   }
 });
 

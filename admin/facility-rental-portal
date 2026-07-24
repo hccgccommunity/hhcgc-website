@@ -772,7 +772,7 @@ tbody input[type="text"], tbody input[type="number"] {
       <div class="field"><label>Customer</label><div id="ir-renter-display" style="font-weight:700;"></div></div>
       <div class="field"><label>Event name <span class="req-star">*</span></label><input type="text" id="ir-event-name" placeholder="Name this event for the invoice and calendar"></div>
     </div>
-    <div class="field" id="ir-event-description-field" style="display:none;"><label>About this event</label><div id="ir-event-description" style="font-size:0.86rem;color:var(--muted);"></div></div>
+    <div class="field" id="ir-event-description-field" style="display:none;"><label>About this event</label><textarea id="ir-event-description" rows="4"></textarea></div>
     <div class="field"><label>Rooms</label><div class="modal-room-picker" id="ir-room-picker"></div></div>
 
     <div class="field" id="ir-single-time-field">
@@ -1517,9 +1517,9 @@ function renderPendingRequestsList() {
     const isSeries = item.type === 'series';
     const repBookingId = isSeries ? item.occurrences[0].booking_id : item.booking.booking_id;
     const dateStr = formatDate(item.event_date) + (isSeries ? ' \u2013 ' + formatDate(item.event_date_last) : '');
-    return '<div class="exp-line-item" style="cursor:default;" data-request-row="' + repBookingId + '">' +
+    return '<div class="exp-line-item" style="cursor:pointer;" data-request-row="' + repBookingId + '">' +
       '<div class="exp-top-row"><span>' + escHtml(item.renter_name) + (isSeries ? ' \u2014 ' + item.occurrences.length + ' occurrences' : '') + '</span>' +
-        '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-show-request-details="' + repBookingId + '">Show details</button></div>' +
+        '<span class="request-row-chevron" id="request-chevron-' + repBookingId + '" style="color:var(--muted);">\u25be</span></div>' +
       '<div class="exp-date">' + dateStr + '</div>' +
       '<div class="request-detail-slot" id="request-detail-' + repBookingId + '"></div>' +
     '</div>';
@@ -1529,13 +1529,18 @@ function renderPendingRequestsList() {
   // it), keep its panel open rather than silently losing the open state.
   if (wasReviewing && pending.some(function (b) { return b.booking_id === wasReviewing || (b.recurring_series_id && BOOKINGS.some(function (x) { return x.booking_id === wasReviewing && x.recurring_series_id === b.recurring_series_id; })); })) {
     const slot = document.getElementById('request-detail-' + wasReviewing);
-    const btn = document.querySelector('[data-show-request-details="' + wasReviewing + '"]');
-    if (slot) { slot.appendChild(form); form.style.display = 'block'; if (btn) btn.textContent = 'Hide details'; reviewingBookingId = wasReviewing; }
+    const chevron = document.getElementById('request-chevron-' + wasReviewing);
+    if (slot) { slot.appendChild(form); form.style.display = 'block'; if (chevron) chevron.textContent = '\u25b4'; reviewingBookingId = wasReviewing; }
   }
 }
 document.getElementById('pending-requests-list').addEventListener('click', function (e) {
-  const btn = e.target.closest('[data-show-request-details]');
-  if (btn) toggleInlineBookingReview(btn.dataset.showRequestDetails, btn);
+  const row = e.target.closest('[data-request-row]');
+  // Don't toggle when the click landed inside the expanded form itself
+  // (e.g. typing in a field, clicking Approve) — only the row's own
+  // summary area (outside the detail slot) opens/closes it.
+  if (row && !e.target.closest('.request-detail-slot')) {
+    toggleInlineBookingReview(row.dataset.requestRow, document.getElementById('request-chevron-' + row.dataset.requestRow));
+  }
 });
 
 let state = { contactFilter: undefined, statusFilter: undefined, room: '', month: 'thisyear', sortKey: 'updated_display', sortDir: 'desc', pageSize: 20, page: 1 };
@@ -2265,20 +2270,20 @@ function buildInlineReviewOccTable(occurrences) {
     input.addEventListener('change', recalcInlineReview);
   });
 }
-function toggleInlineBookingReview(bookingId, btn) {
+function toggleInlineBookingReview(bookingId, chevron) {
   const form = document.getElementById('inline-review-form');
   const slot = document.getElementById('request-detail-' + bookingId);
   // Same request clicked again — collapse it.
   if (reviewingBookingId === bookingId && form.style.display !== 'none') {
     form.style.display = 'none';
-    if (btn) btn.textContent = 'Show details';
+    if (chevron) chevron.textContent = '\u25be';
     reviewingBookingId = null;
     return;
   }
-  // Reset whichever button was previously showing "Hide details".
-  document.querySelectorAll('[data-show-request-details]').forEach(function (b) { b.textContent = 'Show details'; });
+  // Reset whichever row's chevron was previously showing "open".
+  document.querySelectorAll('.request-row-chevron').forEach(function (c) { c.textContent = '\u25be'; });
   slot.appendChild(form);
-  if (btn) btn.textContent = 'Hide details';
+  if (chevron) chevron.textContent = '\u25b4';
   openInlineBookingReview(bookingId);
 }
 async function openInlineBookingReview(bookingId) {
@@ -2289,13 +2294,8 @@ async function openInlineBookingReview(bookingId) {
 
   document.getElementById('ir-renter-display').textContent = b.renter_name + (b.renter_email ? ' (' + b.renter_email + ')' : '');
   document.getElementById('ir-event-name').value = b.event_name || '';
-  const descField = document.getElementById('ir-event-description-field');
-  if (b.event_description) {
-    descField.style.display = 'block';
-    document.getElementById('ir-event-description').textContent = b.event_description;
-  } else {
-    descField.style.display = 'none';
-  }
+  document.getElementById('ir-event-description-field').style.display = 'block';
+  document.getElementById('ir-event-description').value = b.event_description || '';
   buildInlineReviewRoomPicker(b.rooms);
   enforceInlineReviewKitchenRule();
 
@@ -2466,7 +2466,7 @@ function formatTimeRange(start, end) {
 }
 document.getElementById('btn-close-inline-review').addEventListener('click', function () {
   document.getElementById('inline-review-form').style.display = 'none';
-  document.querySelectorAll('[data-show-request-details]').forEach(function (b) { b.textContent = 'Show details'; });
+  document.querySelectorAll('.request-row-chevron').forEach(function (c) { c.textContent = '\u25be'; });
   reviewingBookingId = null;
 });
 document.getElementById('btn-inline-review-approve').addEventListener('click', async function () {
@@ -2480,6 +2480,7 @@ document.getElementById('btn-inline-review-approve').addEventListener('click', a
     resultBox.textContent = 'An event name is required to approve this request.'; return;
   }
   payload.eventName = eventName;
+  payload.eventDescription = document.getElementById('ir-event-description').value.trim() || null;
   const rooms = inlineReviewSelectedRooms();
   if (!rooms.length && !window.__reviewingBooking.is_internal) {
     resultBox.style.display = 'block'; resultBox.className = 'result-box error';

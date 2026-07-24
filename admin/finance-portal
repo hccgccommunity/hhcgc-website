@@ -248,11 +248,11 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 <div class="tab-nav">
   <div class="container">
     <ul>
-      <li><button class="tab-btn active" data-tab="dashboard">Dashboard</button></li>
+      <li><button class="tab-btn" data-tab="dashboard">Dashboard</button></li>
       <li><button class="tab-btn" data-tab="transactions">Transactions</button></li>
       <li><button class="tab-btn" data-tab="statements">Statements</button></li>
       <li><button class="tab-btn" data-tab="reconciliation">Zeffy Reconciliation</button></li>
-      <li><button class="tab-btn" data-tab="matching">Invoices</button></li>
+      <li><button class="tab-btn active" data-tab="matching">Invoices</button></li>
       <li><button class="tab-btn" data-tab="expenses">Expense Approvals</button></li>
     </ul>
   </div>
@@ -262,7 +262,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 
   <!-- ── TRANSACTIONS TAB ── -->
   <!-- ── DASHBOARD TAB ── -->
-  <div class="tab-panel active" id="tab-dashboard">
+  <div class="tab-panel" id="tab-dashboard">
     <div class="card" style="margin-bottom:20px;">
       <h2 style="font-family:Georgia,serif;color:var(--maroon);margin-bottom:6px;font-size:1.05rem;">Monthly cash vs. sustainability threshold — last 12 months</h2>
       <p style="font-size:0.8rem;color:var(--muted);margin-bottom:10px;">Always the trailing 12 months — not affected by the date filter below.</p>
@@ -581,7 +581,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
   </div>
 
   <!-- ── INVOICE MATCHING TAB ── -->
-  <div class="tab-panel" id="tab-matching">
+  <div class="tab-panel active" id="tab-matching">
     <div class="card" style="margin-bottom:16px;">
       <p style="font-size:0.86rem;color:var(--muted);line-height:1.6;margin:0;">Every invoice actually sent, in one place — attach status, send status, paid status, and receipt status. Notes here are the exact same notes shown on the matched transaction in the Transactions tab — editing from either place updates the one record, not a separate copy.</p>
     </div>
@@ -831,6 +831,7 @@ async function authedFetch(url, options) {
 }
 function escHtml(str) { return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function formatDate(d) { if (!d) return '—'; return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+function formatTimestampDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
 function money(n) { return '$' + Number(n).toFixed(2); }
 function moneyRound(n) { return '$' + Math.round(Number(n)).toLocaleString('en-US'); }
 
@@ -866,7 +867,8 @@ document.querySelectorAll('.tab-btn').forEach(function (btn) {
     document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
     btn.classList.add('active');
     document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-    if (btn.dataset.tab === 'dashboard' && !window.__dashboardLoaded) loadDashboard();
+    if (btn.dataset.tab === 'dashboard' && !window.__dashboardLoaded) { loadDashboard(); loadAnnualTrendChart(); }
+    if (btn.dataset.tab === 'transactions' && !window.__txLoaded) { loadTransactions(); window.__txLoaded = true; }
     if (btn.dataset.tab === 'reconciliation' && !window.__reconLoaded) loadReconciliation();
     if (btn.dataset.tab === 'matching' && !window.__matchingLoaded) loadInvoices();
     if (btn.dataset.tab === 'statements' && !window.__bsItemsLoaded) loadBalanceSheetItems();
@@ -1961,7 +1963,7 @@ function renderInvoiceRow(inv) {
     ? (inv.remaining > 0.01 ? escHtml(inv.matchSource) + ' \u2014 ' + money(inv.remaining) + ' still owed' : escHtml(inv.matchSource) + ' \u2014 fully covered')
     : '<span style="color:var(--muted);">Not attached</span>';
   const noteBtn = '<button type="button" class="btn-note' + (inv.notes ? ' has-content' : '') + '" title="' + (inv.notes ? 'Note: ' + escHtml(inv.notes) : 'Add a note') + '" data-invoice-note-booking="' + inv.bookingId + '">\ud83d\udcdd</button>';
-  const invoiceIcon = '<button type="button" class="btn-invoice sent" title="Invoice sent ' + formatDate(inv.invoiceSentAt) + ' — click to view or download" data-invoice-popup-booking="' + inv.bookingId + '">\ud83e\uddfe</button>';
+  const invoiceIcon = '<button type="button" class="btn-invoice sent" title="Invoice sent ' + formatTimestampDate(inv.invoiceSentAt) + ' — click to view or download" data-invoice-popup-booking="' + inv.bookingId + '">\ud83e\uddfe</button>';
   const receiptIcon = '<button type="button" class="btn-receipt' + (inv.receiptSentAt ? ' sent' : '') + '"' + (inv.paymentStatus === 'paid' ? '' : ' disabled title="Confirm as paid first"') + (inv.paymentStatus === 'paid' ? ' data-receipt-popup-booking="' + inv.bookingId + '"' : '') + '>' + (inv.receiptSentAt ? '\ud83e\uddfe' : (inv.paymentStatus === 'paid' ? '\u2795' : '\u2014')) + '</button>';
   // Confirm Paid — the actual point where linked transactions become a
   // confirmed payment. Only offered once the invoice is FULLY covered
@@ -1978,7 +1980,7 @@ function renderInvoiceRow(inv) {
   return '<tr>' +
     '<td>' + escHtml(inv.renterName) + '</td>' +
     '<td>' + escHtml(inv.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(inv.eventDate) + '</div></td>' +
-    '<td>' + formatDate(inv.invoiceSentAt) + '</td>' +
+    '<td>' + formatTimestampDate(inv.invoiceSentAt) + '</td>' +
     '<td class="amount">' + money(inv.amount) + '</td>' +
     '<td><span class="source-tag" style="' + (inv.paymentStatus === 'paid' ? 'color:var(--green);' : '') + '">' + escHtml(inv.paymentStatus) + '</span></td>' +
     '<td style="font-size:0.82rem;">' + attachedTo + '</td>' +
@@ -2034,7 +2036,7 @@ function openFinanceInvoicePopup(bookingId) {
   body.innerHTML =
     '<button type="button" class="invoice-action-btn" data-fin-inv-action="view">View invoice</button>' +
     '<button type="button" class="invoice-action-btn" data-fin-inv-action="download">Download invoice</button>' +
-    '<p class="card-sub" style="margin:6px 0 0;">Sent ' + formatDate(inv.invoiceSentAt) + '. Invoices can only be edited or sent from the Facility Rental Portal.</p>';
+    '<p class="card-sub" style="margin:6px 0 0;">Sent ' + formatTimestampDate(inv.invoiceSentAt) + '. Invoices can only be edited or sent from the Facility Rental Portal.</p>';
   body.dataset.bookingId = bookingId;
   document.getElementById('invoice-action-overlay').style.display = 'flex';
 }
@@ -2063,7 +2065,7 @@ function openFinanceReceiptPopup(bookingId) {
   let html = '<button type="button" class="invoice-action-btn" data-fin-rcpt-action="view">View receipt</button>';
   html += '<button type="button" class="invoice-action-btn primary" data-fin-rcpt-action="send">' + (alreadySent ? 'Resend receipt' : 'Send receipt') + '</button>';
   html += '<button type="button" class="invoice-action-btn" data-fin-rcpt-action="download">Download receipt</button>';
-  if (alreadySent) html += '<p class="card-sub" style="margin:6px 0 0;">Last sent ' + formatDate(inv.receiptSentAt) + '.</p>';
+  if (alreadySent) html += '<p class="card-sub" style="margin:6px 0 0;">Last sent ' + formatTimestampDate(inv.receiptSentAt) + '.</p>';
   body.innerHTML = html;
   body.dataset.bookingId = bookingId;
   document.getElementById('receipt-action-overlay').style.display = 'flex';
@@ -2637,7 +2639,7 @@ onAuthStateChanged(auth, function(user) {
     }
     document.getElementById('gate').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    loadCategories().then(function () { loadDashboard(); loadAnnualTrendChart(); loadTransactions(); });
+    loadCategories().then(function () { loadInvoices(); window.__matchingLoaded = true; });
   }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });
 });
 </script>

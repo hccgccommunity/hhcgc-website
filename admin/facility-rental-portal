@@ -1517,11 +1517,10 @@ function renderPendingRequestsList() {
     const isSeries = item.type === 'series';
     const repBookingId = isSeries ? item.occurrences[0].booking_id : item.booking.booking_id;
     const dateStr = formatDate(item.event_date) + (isSeries ? ' \u2013 ' + formatDate(item.event_date_last) : '');
-    const desc = (isSeries ? item.occurrences[0].event_description : item.booking.event_description) || '';
     return '<div class="exp-line-item" style="cursor:default;" data-request-row="' + repBookingId + '">' +
-      '<div class="exp-top-row"><span>' + escHtml(item.renter_name) + (isSeries ? ' \u2014 ' + item.occurrences.length + ' occurrences' : '') + '</span><span>' + money(item.final_total) + '</span></div>' +
-      '<div class="exp-date">' + dateStr + (desc ? ' \u00b7 ' + escHtml(desc.length > 80 ? desc.slice(0, 80) + '\u2026' : desc) : '') + '</div>' +
-      '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;margin-top:8px;" data-show-request-details="' + repBookingId + '">Show details</button>' +
+      '<div class="exp-top-row"><span>' + escHtml(item.renter_name) + (isSeries ? ' \u2014 ' + item.occurrences.length + ' occurrences' : '') + '</span>' +
+        '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-show-request-details="' + repBookingId + '">Show details</button></div>' +
+      '<div class="exp-date">' + dateStr + '</div>' +
       '<div class="request-detail-slot" id="request-detail-' + repBookingId + '"></div>' +
     '</div>';
   }).join('');

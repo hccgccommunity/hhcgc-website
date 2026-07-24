@@ -609,7 +609,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
       </select>
       <button type="button" class="btn-secondary" id="btn-load-invoices">Refresh</button>
       <button type="button" class="btn-primary" id="btn-create-invoice" style="margin-top:0;">+ Create invoice</button>
-      <button type="button" class="btn-secondary" id="btn-create-receipt">+ Create receipt</button>
+      <button type="button" class="btn-primary" id="btn-create-receipt" style="margin-top:0;">+ Create receipt</button>
       <span class="count" id="inv-count"></span>
     </div>
     <div class="table-wrap">
@@ -860,6 +860,14 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 .modal-panel { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); }
 .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 22px 26px; border-bottom: 1px solid var(--border); }
 .modal-header h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.15rem; color: var(--maroon); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label { font-size: 0.78rem; font-weight: 700; color: var(--muted); }
+.field input[type="text"], .field input[type="email"], .field input[type="tel"], .field input[type="date"], .field input[type="time"], .field input[type="number"], .field select, .field textarea {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 10px; background: #fff; color: var(--text);
+  width: 100%; box-sizing: border-box; min-width: 0;
+}
+.field textarea { resize: vertical; min-height: 56px; }
 .modal-close { background: none; border: none; font-size: 1.4rem; color: var(--muted); cursor: pointer; line-height: 1; }
 .modal-body { padding: 22px 26px; }
 .modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 18px 26px; border-top: 1px solid var(--border); }

@@ -2246,6 +2246,19 @@ document.getElementById('ir-discount-enabled').addEventListener('change', functi
   document.getElementById('ir-discount-fields').style.display = show ? 'grid' : 'none';
   document.getElementById('ir-discount-reason-field').style.display = show ? 'flex' : 'none';
 });
+// Only Kartikeya Shakha series are invoiced per occurrence — everything
+// else gets one invoice for the whole series. Since the event name is
+// filled in during review (not known beforehand for public requests),
+// this suggests the right mode live as the approver types, rather than
+// requiring them to remember the rule themselves. Still overridable —
+// this is a default, not a lock.
+document.getElementById('ir-event-name').addEventListener('input', function () {
+  if (document.getElementById('ir-invoice-mode-field').style.display === 'none') return;
+  var isKartikeyaShakha = this.value.toLowerCase().includes('kartikeya shakha');
+  var targetMode = isKartikeyaShakha ? 'per_occurrence' : 'combined';
+  var radio = document.querySelector('input[name="ir-invoice-mode"][value="' + targetMode + '"]');
+  if (radio) radio.checked = true;
+});
 function formatTimeRange(start, end) {
   var s = new Date(start), e = new Date(end);
   return s.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' }) + '\u2013' + e.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' });
@@ -3237,6 +3250,16 @@ function renderOccTable() {
 document.getElementById('f-recurring-enabled').addEventListener('change', function () {
   document.getElementById('recurring-fields').classList.toggle('open', this.checked);
   regenerateOccurrences();
+});
+// Same Kartikeya Shakha rule as the inline review section — suggests the
+// right invoicing mode as the admin types the event name, still
+// overridable.
+document.getElementById('f-event-name').addEventListener('input', function () {
+  if (document.getElementById('invoice-mode-field').style.display === 'none') return;
+  var isKartikeyaShakha = this.value.toLowerCase().includes('kartikeya shakha');
+  var targetMode = isKartikeyaShakha ? 'per_occurrence' : 'combined';
+  var radio = document.querySelector('input[name="f-invoice-mode"][value="' + targetMode + '"]');
+  if (radio) radio.checked = true;
 });
 document.getElementById('f-recur-end-type').addEventListener('change', function () {
   const isCount = this.value === 'count';

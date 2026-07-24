@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -284,20 +283,16 @@ input:focus { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 3px
 
     <div class="page-header" style="margin-top:36px;">
       <h1 style="font-size:1.3rem;">System Settings</h1>
-      <p>Booking reminder emails — currently a work in progress, so test mode is on by default.</p>
     </div>
     <div class="user-table" style="padding:20px;">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
         <input type="checkbox" id="setting-test-mode" style="width:18px;height:18px;">
-        <label for="setting-test-mode" style="font-weight:700;">Test mode — send every reminder to the pseudo email below instead of real renters</label>
+        <label for="setting-test-mode" style="font-weight:700;">Test mode</label>
       </div>
+      <div class="field-hint" style="margin:-10px 0 16px 28px;">When on, every external email from Finance Portal and the Facility Rental Portal (invoices, receipts, approvals, reminders, everything) goes to the pseudo email below instead of the real renter.</div>
       <div class="form-group">
         <label for="setting-test-email">Pseudo/test email (used only while test mode is on)</label>
         <input type="email" id="setting-test-email" placeholder="tech-admin@hccgc.org">
-      </div>
-      <div class="form-group">
-        <label for="setting-hours-before">Hours before the event to send the reminder</label>
-        <input type="number" id="setting-hours-before" min="1" style="max-width:120px;">
       </div>
       <button class="btn-add" id="btn-save-settings" style="margin-top:8px;">Save settings</button>
       <div class="field-hint" id="settings-save-result" style="margin-top:10px;"></div>
@@ -392,11 +387,11 @@ var APP_REGISTRY = [
   { key: 'manage-events', name: 'Manage Events' },
   { key: 'manage-pages', name: 'Manage Pages' },
   { key: 'marketing-assistant', name: 'Hey HCCGC' },
-  { key: 'bookings-finance', name: 'Facility Booking' },
-  { key: 'org-finance', name: 'Finance' },
-  { key: 'issue-reporting', name: 'Issue Reporting' },
-  { key: 'logs-app', name: 'Logs' }
+  { key: 'bookings-finance', name: 'Facility Booking' }
 ];
+
+var allUsers = [];
+var currentUserEmail = null;
 
 const API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';
 async function authedFetch(url, options) {
@@ -407,9 +402,6 @@ async function authedFetch(url, options) {
   options.headers = Object.assign({}, options.headers, { 'Authorization': 'Bearer ' + token });
   return fetch(url, options);
 }
-
-var allUsers = [];
-var currentUserEmail = null;
 
 window.addEventListener('hccgc-um-ready', function (e) {
   currentUserEmail = e.detail.currentUserEmail;
@@ -423,9 +415,8 @@ async function loadSettings() {
     var settings = await res.json();
     var byKey = {};
     settings.forEach(function (s) { byKey[s.key] = s.value; });
-    document.getElementById('setting-test-mode').checked = byKey.reminder_test_mode !== 'false';
-    document.getElementById('setting-test-email').value = byKey.reminder_test_email || '';
-    document.getElementById('setting-hours-before').value = byKey.reminder_hours_before || '48';
+    document.getElementById('setting-test-mode').checked = byKey.test_mode === 'true';
+    document.getElementById('setting-test-email').value = byKey.test_mode_email || '';
   } catch (err) {
     document.getElementById('settings-save-result').textContent = 'Could not load settings: ' + err.message;
   }
@@ -435,9 +426,8 @@ document.getElementById('btn-save-settings').addEventListener('click', async fun
   var resultEl = document.getElementById('settings-save-result');
   btn.disabled = true; btn.textContent = 'Saving…';
   var toSave = [
-    { key: 'reminder_test_mode', value: document.getElementById('setting-test-mode').checked ? 'true' : 'false' },
-    { key: 'reminder_test_email', value: document.getElementById('setting-test-email').value },
-    { key: 'reminder_hours_before', value: document.getElementById('setting-hours-before').value }
+    { key: 'test_mode', value: document.getElementById('setting-test-mode').checked ? 'true' : 'false' },
+    { key: 'test_mode_email', value: document.getElementById('setting-test-email').value }
   ];
   try {
     for (var i = 0; i < toSave.length; i++) {
@@ -447,11 +437,11 @@ document.getElementById('btn-save-settings').addEventListener('click', async fun
       });
       if (!res.ok) { var data = await res.json().catch(function () { return {}; }); throw new Error((data.errors || [data.error]).join(' ') || 'unknown error'); }
     }
+    resultEl.style.color = 'var(--green)';
     resultEl.textContent = 'Saved.';
-    resultEl.style.color = 'var(--green, #2e7d4f)';
   } catch (err) {
+    resultEl.style.color = 'var(--red)';
     resultEl.textContent = 'Could not save: ' + err.message;
-    resultEl.style.color = 'var(--red, #b3382c)';
   } finally {
     btn.disabled = false; btn.textContent = 'Save settings';
   }

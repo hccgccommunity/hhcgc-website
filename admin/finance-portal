@@ -152,6 +152,10 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 .amount.income { color: var(--green); }
 .amount.expense { color: var(--red); }
 .source-tag { display: inline-block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--surface-soft); color: var(--saffron-dark); }
+.sortable-th { cursor: pointer; user-select: none; }
+.sortable-th:hover { color: var(--saffron-dark); }
+.sort-arrow { font-size: 0.7rem; opacity: 0.5; }
+.sort-arrow.active { opacity: 1; color: var(--saffron-dark); }
 .cat-select { font-family: inherit; font-size: 0.82rem; padding: 6px 10px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; }
 .cat-select:disabled { background: var(--surface-soft); color: var(--muted); cursor: not-allowed; opacity: 0.85; }
 .confirm-paid-select { font-family: inherit; font-size: 0.8rem; padding: 6px 8px; border: 1.5px solid var(--saffron-dark); border-radius: 8px; background: #fff; color: var(--saffron-dark); font-weight: 700; }
@@ -587,7 +591,8 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
     </div>
     <div class="toolbar">
       <select id="inv-range-preset" class="range-preset-select">
-        <option value="last3months" selected>Last 3 months</option>
+        <option value="alltime" selected>All time</option>
+        <option value="last3months">Last 3 months</option>
         <option value="thismonth">This month</option>
         <option value="thisquarter">This quarter</option>
         <option value="lastmonth">Last month</option>
@@ -608,7 +613,14 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Renter</th><th>Event</th><th>Invoice Sent</th><th>Amount</th><th>Status</th><th>Attached To</th><th>Notes</th><th>Invoice</th><th>Receipt</th><th>Confirm Paid</th></tr></thead>
+        <thead><tr>
+          <th class="sortable-th" data-sort-key="renter">Renter <span class="sort-arrow" data-sort-arrow="renter"></span></th>
+          <th class="sortable-th" data-sort-key="event">Event <span class="sort-arrow" data-sort-arrow="event"></span></th>
+          <th class="sortable-th" data-sort-key="invoiceSent">Invoice Sent <span class="sort-arrow" data-sort-arrow="invoiceSent"></span></th>
+          <th class="sortable-th" data-sort-key="amount">Amount <span class="sort-arrow" data-sort-arrow="amount"></span></th>
+          <th class="sortable-th" data-sort-key="status">Status <span class="sort-arrow" data-sort-arrow="status"></span></th>
+          <th>Linked Transaction</th><th>Notes</th><th>Invoice</th><th>Receipt</th><th>Payment</th>
+        </tr></thead>
         <tbody id="inv-tbody"></tbody>
       </table>
       <div class="empty-state" id="inv-empty" style="display:none;">No invoices in this range.</div>
@@ -710,6 +722,19 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
     <div class="modal-footer">
       <button type="button" class="btn-secondary" id="btn-cancel-void-invoice">Cancel</button>
       <button type="button" class="btn-primary" id="btn-confirm-void-invoice" style="margin-top:0;">Void &amp; email renter</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="link-txn-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:480px;">
+    <div class="modal-header">
+      <h2>Link a transaction</h2>
+      <button class="modal-close" id="btn-close-link-txn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="card-sub" style="margin-bottom:10px;">Transactions matching <strong id="link-txn-amount-label"></strong> exactly — click one to link it.</p>
+      <div id="link-txn-list"></div>
     </div>
   </div>
 </div>
@@ -953,8 +978,11 @@ function defaultDateRange() {
 }
 (function initDateFields() {
   const range = computePresetRange('last3months');
-  ['tx-start-date', 'stmt-start-date', 'cf-start-date', 'dash-start-date', 'inv-start-date'].forEach(function (id) { document.getElementById(id).value = range.start; });
-  ['tx-end-date', 'stmt-end-date', 'cf-end-date', 'dash-end-date', 'inv-end-date'].forEach(function (id) { document.getElementById(id).value = range.end; });
+  ['tx-start-date', 'stmt-start-date', 'cf-start-date', 'dash-start-date'].forEach(function (id) { document.getElementById(id).value = range.start; });
+  ['tx-end-date', 'stmt-end-date', 'cf-end-date', 'dash-end-date'].forEach(function (id) { document.getElementById(id).value = range.end; });
+  const invRange = computePresetRange('alltime');
+  document.getElementById('inv-start-date').value = invRange.start;
+  document.getElementById('inv-end-date').value = invRange.end;
 })();
 
 // ── Dashboard ──
@@ -962,6 +990,7 @@ function computePresetRange(preset) {
   const now = new Date();
   const fmt = d => d.toISOString().slice(0, 10);
   const y = now.getFullYear(), m = now.getMonth();
+  if (preset === 'alltime') return { start: '2000-01-01', end: fmt(new Date(y + 1, 11, 31)) };
   if (preset === 'thismonth') return { start: fmt(new Date(y, m, 1)), end: fmt(new Date(y, m + 1, 0)) };
   if (preset === 'lastmonth') return { start: fmt(new Date(y, m - 1, 1)), end: fmt(new Date(y, m, 0)) };
   if (preset === 'thisquarter') { const qStart = Math.floor(m / 3) * 3; return { start: fmt(new Date(y, qStart, 1)), end: fmt(new Date(y, qStart + 3, 0)) }; }
@@ -1878,6 +1907,17 @@ async function loadReconciliation() {
 setupRangePreset('inv-range-preset', 'inv-start-date', 'inv-end-date', loadInvoices);
 document.getElementById('inv-paid-filter').addEventListener('change', loadInvoices);
 document.getElementById('btn-load-invoices').addEventListener('click', loadInvoices);
+document.querySelectorAll('.sortable-th').forEach(function (th) {
+  th.addEventListener('click', function () {
+    const key = th.dataset.sortKey;
+    if (invSortKey === key) { invSortDir = invSortDir === 'asc' ? 'desc' : 'asc'; }
+    else { invSortKey = key; invSortDir = 'asc'; }
+    document.querySelectorAll('.sort-arrow').forEach(function (a) { a.classList.remove('active'); a.textContent = ''; });
+    const arrow = document.querySelector('[data-sort-arrow="' + key + '"]');
+    if (arrow) { arrow.classList.add('active'); arrow.textContent = invSortDir === 'asc' ? '\u2191' : '\u2193'; }
+    loadInvoices();
+  });
+});
 document.getElementById('btn-create-invoice').addEventListener('click', function () {
   document.getElementById('create-inv-name').value = '';
   document.getElementById('create-inv-email').value = '';
@@ -1934,6 +1974,7 @@ document.getElementById('btn-confirm-create-invoice').addEventListener('click', 
   }
 });
 let INVOICES = [];
+let invSortKey = 'activity', invSortDir = 'desc';
 async function loadInvoices() {
   window.__matchingLoaded = true;
   const start = document.getElementById('inv-start-date').value;
@@ -1944,7 +1985,7 @@ async function loadInvoices() {
   tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px;">Loading…</td></tr>';
   setTabLoading('tab-matching', true);
   try {
-    const params = new URLSearchParams({ startDate: start, endDate: end });
+    const params = new URLSearchParams({ startDate: start, endDate: end, sort: invSortKey, dir: invSortDir });
     if (status) params.set('status', status);
     const res = await authedFetch(API_BASE + '/finance/invoices?' + params.toString());
     INVOICES = await res.json();
@@ -1959,56 +2000,38 @@ async function loadInvoices() {
   }
 }
 function renderInvoiceRow(inv) {
-  const attachedTo = inv.matchSource
-    ? (inv.remaining > 0.01 ? escHtml(inv.matchSource) + ' \u2014 ' + money(inv.remaining) + ' still owed' : escHtml(inv.matchSource) + ' \u2014 fully covered')
-    : '<span style="color:var(--muted);">Not attached</span>';
+  const linkedTo = inv.matchSource
+    ? escHtml(inv.matchSource) + ' transaction \u2014 linked'
+    : '<span style="color:var(--muted);">Not linked</span>';
   const noteBtn = '<button type="button" class="btn-note' + (inv.notes ? ' has-content' : '') + '" title="' + (inv.notes ? 'Note: ' + escHtml(inv.notes) : 'Add a note') + '" data-invoice-note-booking="' + inv.bookingId + '">\ud83d\udcdd</button>';
-  const invoiceIcon = '<button type="button" class="btn-invoice sent" title="Invoice sent ' + formatTimestampDate(inv.invoiceSentAt) + ' — click to view or download" data-invoice-popup-booking="' + inv.bookingId + '">\ud83e\uddfe</button>';
+  // Yellow until actually sent, green once it is — this is the default
+  // state for every generated invoice now, not just an edge case.
+  const invoiceIcon = inv.invoiceSentAt
+    ? '<button type="button" class="btn-invoice sent" title="Invoice sent ' + formatTimestampDate(inv.invoiceSentAt) + ' — click to view or download" data-invoice-popup-booking="' + inv.bookingId + '">\ud83e\uddfe</button>'
+    : '<button type="button" class="btn-invoice attached" title="Not sent yet — click to view, send, or download" data-invoice-popup-booking="' + inv.bookingId + '">\ud83e\uddfe</button>';
   const receiptIcon = '<button type="button" class="btn-receipt' + (inv.receiptSentAt ? ' sent' : '') + '"' + (inv.paymentStatus === 'paid' ? '' : ' disabled title="Confirm as paid first"') + (inv.paymentStatus === 'paid' ? ' data-receipt-popup-booking="' + inv.bookingId + '"' : '') + '>' + (inv.receiptSentAt ? '\ud83e\uddfe' : (inv.paymentStatus === 'paid' ? '\u2795' : '\u2014')) + '</button>';
-  // Confirm Paid — the actual point where linked transactions become a
-  // confirmed payment. Only offered once the invoice is FULLY covered
-  // (remaining <= 0), not just "something" linked — a partial allocation
-  // shows how much is still owed instead, matching what the backend
-  // itself now enforces rather than just hiding the option client-side.
-  const confirmPaidBtn = inv.paymentStatus === 'paid'
+  // Payment column — link a matching transaction, which immediately
+  // prompts Mark Paid? Yes/No (see openLinkTransactionModal). No payment
+  // method selection anymore; it's derived from whichever transaction
+  // gets linked.
+  const paymentCell = inv.paymentStatus === 'paid'
     ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid</span> <button type="button" class="btn-secondary" style="padding:2px 8px;font-size:0.72rem;margin-left:4px;" data-void-invoice-booking="' + inv.bookingId + '">Void</button>'
-    : (inv.matchSource && inv.remaining <= 0.01
-        ? '<select class="confirm-paid-select" data-confirm-paid-booking="' + inv.bookingId + '"><option value="">Confirm as paid \u2014</option><option value="zeffy">Zeffy</option><option value="zelle">Zelle</option><option value="cash">Cash</option><option value="check">Check</option></select>'
-        : (inv.matchSource
-            ? '<span style="color:var(--saffron-dark);font-size:0.78rem;font-weight:700;">' + money(inv.remaining) + ' still owed</span>'
-            : '<span style="color:var(--muted);font-size:0.78rem;">Link a transaction first</span>'));
+    : (inv.matchSource
+        ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + inv.bookingId + '">Mark paid?</button> <button type="button" class="btn-secondary" style="padding:4px 8px;font-size:0.72rem;" data-unlink-booking="' + inv.bookingId + '">Unlink</button>'
+        : '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-link-txn-booking="' + inv.bookingId + '" data-link-txn-amount="' + inv.amount + '">Link transaction</button>');
   return '<tr>' +
     '<td>' + escHtml(inv.renterName) + '</td>' +
     '<td>' + escHtml(inv.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(inv.eventDate) + '</div></td>' +
-    '<td>' + formatTimestampDate(inv.invoiceSentAt) + '</td>' +
+    '<td>' + (inv.invoiceSentAt ? formatTimestampDate(inv.invoiceSentAt) : '<span style="color:var(--muted);">Not sent</span>') + '</td>' +
     '<td class="amount">' + money(inv.amount) + '</td>' +
     '<td><span class="source-tag" style="' + (inv.paymentStatus === 'paid' ? 'color:var(--green);' : '') + '">' + escHtml(inv.paymentStatus) + '</span></td>' +
-    '<td style="font-size:0.82rem;">' + attachedTo + '</td>' +
+    '<td style="font-size:0.82rem;">' + linkedTo + '</td>' +
     '<td>' + noteBtn + '</td>' +
     '<td>' + invoiceIcon + '</td>' +
     '<td>' + receiptIcon + '</td>' +
-    '<td>' + confirmPaidBtn + '</td>' +
+    '<td>' + paymentCell + '</td>' +
   '</tr>';
 }
-document.getElementById('inv-tbody').addEventListener('change', async function (e) {
-  const sel = e.target.closest('[data-confirm-paid-booking]');
-  if (!sel || !sel.value) return;
-  const bookingId = sel.dataset.confirmPaidBooking;
-  const method = sel.value;
-  if (!confirm('Confirm this booking as paid via ' + method + '? This cannot be easily undone from here.')) { sel.value = ''; return; }
-  try {
-    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/mark-paid', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ paymentMethod: method })
-    });
-    const data = await res.json();
-    if (!res.ok) { alert('Could not confirm paid: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); sel.value = ''; return; }
-    await loadInvoices();
-  } catch (err) {
-    alert('Could not reach the server: ' + err.message);
-    sel.value = '';
-  }
-});
 document.getElementById('inv-tbody').addEventListener('click', async function (e) {
   const noteBtn = e.target.closest('[data-invoice-note-booking]');
   if (noteBtn) {
@@ -2025,7 +2048,103 @@ document.getElementById('inv-tbody').addEventListener('click', async function (e
     openFinanceReceiptPopup(receiptPopupBtn.dataset.receiptPopupBooking);
     return;
   }
+  const linkBtn = e.target.closest('[data-link-txn-booking]');
+  if (linkBtn) {
+    openLinkTransactionModal(linkBtn.dataset.linkTxnBooking, Number(linkBtn.dataset.linkTxnAmount));
+    return;
+  }
+  const markPaidBtn = e.target.closest('[data-mark-paid-booking]');
+  if (markPaidBtn) {
+    await promptMarkPaid(markPaidBtn.dataset.markPaidBooking);
+    return;
+  }
+  const unlinkBtn = e.target.closest('[data-unlink-booking]');
+  if (unlinkBtn) {
+    if (!confirm('Unlink this transaction from the invoice?')) return;
+    try {
+      const res = await authedFetch(API_BASE + '/finance/detach-invoice', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bookingId: unlinkBtn.dataset.unlinkBooking })
+      });
+      const data = await res.json();
+      if (!res.ok) { alert('Could not unlink: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+      await loadInvoices();
+    } catch (err) {
+      alert('Could not reach the server: ' + err.message);
+    }
+    return;
+  }
 });
+
+// ── Link a matching transaction, then immediately offer Mark Paid ──
+let linkTxnContext = null;
+async function openLinkTransactionModal(bookingId, amount) {
+  linkTxnContext = { bookingId: bookingId, amount: amount };
+  const list = document.getElementById('link-txn-list');
+  list.innerHTML = '<div class="empty-state">Loading…</div>';
+  document.getElementById('link-txn-amount-label').textContent = money(amount);
+  document.getElementById('link-txn-overlay').style.display = 'flex';
+  try {
+    const res = await authedFetch(API_BASE + '/finance/transaction-candidates?amount=' + amount);
+    const candidates = await res.json();
+    if (!candidates.length) { list.innerHTML = '<div class="empty-state">No unlinked transactions found for ' + money(amount) + '.</div>'; return; }
+    list.innerHTML = candidates.map(function (c) {
+      return '<div class="exp-line-item" data-pick-txn-source="' + c.source + '" data-pick-txn-key="' + c.sourceKey + '" data-pick-txn-date="' + c.date + '">' +
+        '<div class="exp-top-row"><span>' + escHtml(c.description) + '</span><span>' + money(c.amount) + '</span></div>' +
+        '<div class="exp-date">' + formatDate(c.date) + ' \u00b7 ' + c.source + '</div>' +
+      '</div>';
+    }).join('');
+  } catch (err) {
+    list.innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
+  }
+}
+document.getElementById('btn-close-link-txn').addEventListener('click', function () { document.getElementById('link-txn-overlay').style.display = 'none'; });
+document.getElementById('link-txn-overlay').addEventListener('click', function (e) { if (e.target === this) this.style.display = 'none'; });
+document.getElementById('link-txn-list').addEventListener('click', async function (e) {
+  const row = e.target.closest('[data-pick-txn-source]');
+  if (!row || !linkTxnContext) return;
+  try {
+    const res = await authedFetch(API_BASE + '/finance/attach-invoice', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source: row.dataset.pickTxnSource, sourceKey: row.dataset.pickTxnKey, bookingId: linkTxnContext.bookingId, amount: linkTxnContext.amount, date: row.dataset.pickTxnDate })
+    });
+    const data = await res.json();
+    if (!res.ok) { alert('Could not link: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+    document.getElementById('link-txn-overlay').style.display = 'none';
+    await loadInvoices();
+    // Linking is immediately followed by the Mark Paid prompt — the
+    // whole point of linking is to record that payment arrived.
+    await promptMarkPaid(linkTxnContext.bookingId);
+  } catch (err) {
+    alert('Could not reach the server: ' + err.message);
+  }
+});
+
+async function promptMarkPaid(bookingId) {
+  if (!confirm('Mark this invoice as paid?')) return;
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/mark-paid', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) { alert('Could not mark paid: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+    await loadInvoices();
+    // Immediately follow with the receipt prompt, same as marking paid
+    // in the invoice popup itself.
+    await promptSendReceipt(bookingId);
+  } catch (err) {
+    alert('Could not reach the server: ' + err.message);
+  }
+}
+async function promptSendReceipt(bookingId) {
+  const sendNow = confirm('Send the receipt now? OK = send now, Cancel = send later.');
+  if (!sendNow) { await loadInvoices(); return; }
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/send-receipt', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) { alert('Could not send receipt: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+    await loadInvoices();
+  } catch (err) {
+    alert('Could not reach the server: ' + err.message);
+  }
+}
 // View/Download only — facility-rental invoices are only ever generated
 // and sent from the Facility Rental Portal (never here), so there's
 // deliberately no Edit or Send option in this popup.

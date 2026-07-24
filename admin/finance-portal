@@ -335,7 +335,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
         <div id="dash-top-donors"></div>
       </div>
       <div class="card">
-        <h2 style="font-family:Georgia,serif;color:var(--maroon);margin-bottom:14px;font-size:1.05rem;">Top renters</h2>
+        <h2 style="font-family:Georgia,serif;color:var(--maroon);margin-bottom:14px;font-size:1.05rem;">Top customers</h2>
         <div id="dash-top-renters"></div>
       </div>
     </div>
@@ -386,7 +386,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
           <div class="tx-bulk-bar" id="rental-bulk-bar" style="display:none;"><span id="rental-selected-count"></span> selected <button type="button" class="btn-primary" style="margin-top:0;padding:6px 14px;font-size:0.8rem;" data-bulk-review-prefix="rental">Mark selected as reviewed</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-split-prefix="rental">Split</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-merge-prefix="rental">Merge</button></div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-rental-select-all" title="Select all"></th><th>Date</th><th>Renter</th><th>Amount</th><th>Category</th></tr></thead>
+              <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-rental-select-all" title="Select all"></th><th>Date</th><th>Customer</th><th>Amount</th><th>Category</th></tr></thead>
               <tbody id="tx-rental-tbody"></tbody>
             </table>
             <div class="empty-state" id="tx-rental-empty" style="display:none;">No Facility Rental activity in this range.</div>
@@ -716,13 +716,13 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
       <button class="modal-close" id="btn-close-void-invoice">&times;</button>
     </div>
     <div class="modal-body">
-      <p class="card-sub" style="margin-bottom:10px;">Use this when a payment was reversed or refunded directly at the bank (outside this system). This voids the invoice and receipt, removes any linked transaction, and automatically emails the renter — the note below is included in that email, so write it as you'd want them to read it.</p>
-      <textarea id="void-invoice-note" rows="4" placeholder="Note to include in the email to the renter (required)" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></textarea>
+      <p class="card-sub" style="margin-bottom:10px;">Use this when a payment was reversed or refunded directly at the bank (outside this system). This voids the invoice and receipt, removes any linked transaction, and automatically emails the customer — the note below is included in that email, so write it as you'd want them to read it.</p>
+      <textarea id="void-invoice-note" rows="4" placeholder="Note to include in the email to the customer (required)" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></textarea>
       <div class="result-box" id="void-invoice-result" style="display:none;margin-top:10px;"></div>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn-secondary" id="btn-cancel-void-invoice">Cancel</button>
-      <button type="button" class="btn-primary" id="btn-confirm-void-invoice" style="margin-top:0;">Void &amp; email renter</button>
+      <button type="button" class="btn-primary" id="btn-confirm-void-invoice" style="margin-top:0;">Void &amp; email customer</button>
     </div>
   </div>
 </div>
@@ -749,8 +749,8 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
     <div class="modal-body">
       <p class="card-sub" style="margin-bottom:14px;">For anything outside a facility room booking — a vendor charge, a misc bill, anything Finance needs to invoice directly.</p>
       <div class="field">
-        <label>Renter</label>
-        <select id="create-inv-renter"><option value="">Loading renters…</option></select>
+        <label>Customer</label>
+        <select id="create-inv-renter"><option value="">Loading customers…</option></select>
       </div>
       <div class="field"><label>Description</label><textarea id="create-inv-description" rows="3" placeholder="What this invoice is for"></textarea></div>
       <div class="field-row">
@@ -851,7 +851,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
       </div>
       <div style="font-size:0.8rem;font-weight:700;color:var(--muted);margin-bottom:8px;">Link to another invoice</div>
       <div id="alloc-suggested-match" style="display:none;margin-bottom:14px;"></div>
-      <input type="text" id="alloc-search-input" placeholder="Search by renter or event name…" style="width:100%;font-family:inherit;font-size:0.86rem;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:10px;">
+      <input type="text" id="alloc-search-input" placeholder="Search by customer or event name…" style="width:100%;font-family:inherit;font-size:0.86rem;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:10px;">
       <div id="invoice-picker-list"></div>
       <div class="result-box" id="alloc-result" style="display:none;margin-top:12px;"></div>
     </div>
@@ -1285,7 +1285,7 @@ async function showFutureBookingsDetail() {
     const res = await authedFetch(API_BASE + '/finance/future-booked-revenue-detail');
     const rows = await res.json();
     if (!rows.length) { detail.innerHTML = '<div class="empty-state" style="padding:14px;">No upcoming unpaid bookings.</div>'; return; }
-    detail.innerHTML = '<table style="width:100%;font-size:0.82rem;"><thead><tr><th style="text-align:left;padding:4px;">Renter</th><th style="text-align:left;padding:4px;">Event date</th><th style="text-align:left;padding:4px;">Status</th><th style="text-align:right;padding:4px;">Amount</th></tr></thead><tbody>' +
+    detail.innerHTML = '<table style="width:100%;font-size:0.82rem;"><thead><tr><th style="text-align:left;padding:4px;">Customer</th><th style="text-align:left;padding:4px;">Event date</th><th style="text-align:left;padding:4px;">Status</th><th style="text-align:right;padding:4px;">Amount</th></tr></thead><tbody>' +
       rows.map(function (b) {
         return '<tr><td style="padding:4px;">' + escHtml(b.renterName) + '</td><td style="padding:4px;">' + formatDate(b.eventDate) + '</td><td style="padding:4px;">' + escHtml(b.paymentStatus) + '</td><td style="padding:4px;text-align:right;font-weight:700;">' + moneyRound(b.amount) + '</td></tr>';
       }).join('') + '</tbody></table>';
@@ -1962,7 +1962,7 @@ document.querySelectorAll('.sortable-th').forEach(function (th) {
     loadInvoices();
   });
 });
-// ── Renter dropdown, shared by Create Invoice and Create Receipt ──
+// ── Customer dropdown, shared by Create Invoice and Create Receipt ──
 let RENTERS_CACHE = null;
 async function loadRentersIntoSelect(selectEl) {
   if (!RENTERS_CACHE) {
@@ -1970,11 +1970,11 @@ async function loadRentersIntoSelect(selectEl) {
       const res = await authedFetch(API_BASE + '/renters');
       RENTERS_CACHE = await res.json();
     } catch (err) {
-      selectEl.innerHTML = '<option value="">Could not load renters</option>';
+      selectEl.innerHTML = '<option value="">Could not load customers</option>';
       return;
     }
   }
-  selectEl.innerHTML = '<option value="">Select a renter…</option>' +
+  selectEl.innerHTML = '<option value="">Select a customer…</option>' +
     RENTERS_CACHE.map(function (r) { return '<option value="' + r.renter_id + '">' + escHtml(r.contact_name || r.email) + (r.organization_name ? ' — ' + escHtml(r.organization_name) : '') + '</option>'; }).join('');
 }
 
@@ -1998,7 +1998,7 @@ async function submitCreateInvoice(alsoSend, btn) {
   const resultBox = document.getElementById('create-invoice-result');
   if (!renterId || !description || !amount || amount <= 0) {
     resultBox.style.display = 'block'; resultBox.className = 'result-box error';
-    resultBox.textContent = 'Choose a renter and fill in description and amount.'; return;
+    resultBox.textContent = 'Choose a customer and fill in description and amount.'; return;
   }
   const originalText = btn.textContent;
   btn.disabled = true; btn.textContent = 'Creating…';
@@ -2466,7 +2466,7 @@ document.getElementById('btn-confirm-void-invoice').addEventListener('click', as
   const note = document.getElementById('void-invoice-note').value.trim();
   const resultBox = document.getElementById('void-invoice-result');
   if (!note) { resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = 'A note is required — it will be included in the email to the renter.'; return; }
-  if (!confirm('Void this invoice and receipt, and email the renter now? This cannot be undone from here.')) return;
+  if (!confirm('Void this invoice and receipt, and email the customer now? This cannot be undone from here.')) return;
   const btn = this;
   btn.disabled = true; btn.textContent = 'Voiding…';
   try {
@@ -2480,7 +2480,7 @@ document.getElementById('btn-confirm-void-invoice').addEventListener('click', as
   } catch (err) {
     resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = 'Could not reach the server: ' + err.message;
   } finally {
-    btn.disabled = false; btn.textContent = 'Void & email renter';
+    btn.disabled = false; btn.textContent = 'Void & email customer';
   }
 });
 

@@ -288,25 +288,25 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%), radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%), var(--bg); color: var(--text); min-height: 100vh; }
-.container { width: min(calc(100% - 32px), 1280px); margin: 0 auto; }
-.site-header { position: sticky; top: 0; z-index: 50; background: rgba(255,249,241,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
-.nav { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 92px; padding: 12px 0; }
+
+
+
 .site-header a.brand, .site-header a.brand:link, .site-header a.brand:visited { text-decoration: none; color: inherit; }
-.brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
-.brand-logo-wrap { background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 8px; box-shadow: var(--shadow); flex-shrink: 0; }
-.brand-logo { width: 88px; height: auto; border-radius: 12px; object-fit: contain; }
+
+
+
 .brand-text h1 { margin: 0; font-size: 1.2rem; line-height: 1.15; color: var(--maroon); }
 .site-header nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 18px; margin: 0; padding: 0; align-items: center; justify-content: flex-end; }
 .site-header nav a, .site-header nav a:link, .site-header nav a:visited { font-weight: 700; color: var(--text); font-size: 0.96rem; text-decoration: none; }
 .site-header nav a:hover { color: var(--saffron-dark); }
-.menu-toggle { display: none; border: 0; background: transparent; padding: 6px 0; cursor: pointer; color: #2c1b10; align-self: flex-end; }
+
 .menu-toggle .bar { display: block; width: 26px; height: 2px; margin: 5px 0; background: currentColor; }
 @media (max-width: 768px) {
   .nav { flex-direction: column; align-items: stretch; gap: 8px; } .menu-toggle { display: inline-block; }
   .site-header nav { display: none; width: 100%; background: rgba(255,249,241,0.95); padding: 10px 0; }
   .site-header nav.is-open { display: block; } .site-header nav ul { flex-direction: column; gap: 14px; }
 }
-.page-hero { padding: 28px 0 22px; background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%); color: #fff; }
+
 .page-hero .eyebrow { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.75); margin-bottom: 6px; }
 .page-hero h1 { font-family: Georgia, "Times New Roman", serif; font-size: 1.9rem; color: #fff; margin-bottom: 6px; }
 .page-hero p { color: #ffffff; opacity: 0.9; font-size: 0.92rem; max-width: 560px; }
@@ -353,7 +353,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
   .layout { grid-template-columns: 1fr; }
   .form-col { grid-template-columns: 1fr; }
 }
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; box-shadow: var(--shadow); }
+
 .cost-summary-card { background: linear-gradient(165deg, var(--surface-soft), var(--surface)); border-color: rgba(213,138,45,0.3); }
 .card + .card { margin-top: 20px; }
 .card h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.15rem; color: var(--maroon); margin-bottom: 4px; }
@@ -384,7 +384,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 }
 .btn-whole-facility:hover { background: #fbe9cf; }
 
-.checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 0.86rem; }
+
 .section-divider { border-top: 1px solid var(--border); margin: 6px 0 16px; }
 .checkbox-row input { width: 16px; height: 16px; }
 
@@ -392,51 +392,44 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .summary-line:last-of-type { border-bottom: none; }
 .summary-line .label { color: var(--muted); }
 .summary-line.total { font-weight: 700; font-size: 1.05rem; color: var(--maroon); padding-top: 12px; }
-.discount-chip { display: inline-block; font-size: 0.68rem; font-weight: 700; color: var(--saffron-dark); background: var(--surface-soft); border-radius: 999px; padding: 2px 8px; margin: 2px 4px 0 0; }
+
 .no-discount { font-size: 0.78rem; color: var(--muted); font-style: italic; }
 
 .adjustment-toggle { display: flex; align-items: center; gap: 8px; margin: 16px 0 10px; font-size: 0.86rem; font-weight: 700; color: var(--text); cursor: pointer; }
 .collapsible { display: none; padding-top: 8px; }
 .collapsible.open { display: block; }
 
-.btn-primary {
-  font-family: Arial, Helvetica, sans-serif; font-size: 0.9rem; font-weight: 700; color: #fff;
-  background: linear-gradient(135deg, var(--saffron-dark), var(--maroon)); border: none; border-radius: 12px;
-  padding: 12px 20px; cursor: pointer; width: 100%; margin-top: 14px;
-}
-.btn-primary:hover { opacity: 0.92; }
-.btn-secondary {
-  font-family: Arial, Helvetica, sans-serif; font-size: 0.78rem; font-weight: 700; color: var(--saffron-dark);
-  background: var(--surface-soft); border: 1.5px solid var(--border); border-radius: 8px; padding: 6px 12px; cursor: pointer;
-}
 
-.result-box { margin-top: 16px; border-radius: 12px; padding: 12px 16px; font-size: 0.84rem; line-height: 1.5; }
-.modal-overlay { position: fixed; inset: 0; background: rgba(44,27,16,0.5); z-index: 100; display: flex; align-items: flex-start; justify-content: center; padding: 60px 16px; overflow-y: auto; }
-.modal-panel { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); width: 100%; max-width: 480px; }
-.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 22px 26px; border-bottom: 1px solid var(--border); }
+.btn-primary:hover { opacity: 0.92; }
+
+
+
+
+
+
 .modal-header h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.15rem; color: var(--maroon); }
-.modal-close { background: none; border: none; font-size: 1.4rem; color: var(--muted); cursor: pointer; line-height: 1; }
-.modal-body { padding: 22px 26px; }
-.modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 18px 26px; border-top: 1px solid var(--border); }
+
+
+
 .result-box.success { background: #e8f5ec; color: #2e7d4f; border: 1px solid rgba(46,125,79,0.25); }
 .result-box.error { background: #fbe9e7; color: #b3382c; border: 1px solid rgba(179,56,44,0.25); }
 .conflict-note { background: #fdf1de; color: #a15c00; border: 1px solid rgba(161,92,0,0.2); border-radius: 12px; padding: 12px 16px; font-size: 0.8rem; margin-top: 16px; }
 
-.occ-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 10px; }
+
 .occ-table th { text-align: left; font-size: 0.68rem; text-transform: uppercase; color: var(--muted); padding: 6px 6px; }
 .occ-table td { padding: 4px 6px; }
 .occ-table input[type="date"], .occ-table input[type="time"] { font-family: Arial, Helvetica, sans-serif; font-size: 0.8rem; padding: 6px 8px; border: 1.5px solid var(--border); border-radius: 8px; width: 100%; }
 .occ-remove { background: none; border: none; color: #b3382c; cursor: pointer; font-size: 0.9rem; padding: 4px 6px; }
 
 
-#gate{padding:60px 16px;display:flex;justify-content:center;}
-.gate-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow);}
+
+
 .gate-card h3{font-family:Georgia,serif;font-size:1.3rem;color:var(--maroon);margin-bottom:.5rem;}
 .gate-card p{color:var(--muted);font-size:.88rem;line-height:1.6;}
 .gate-card a{color:var(--saffron-dark);}
-.back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.85); text-decoration: none; margin-bottom: 14px; }
+
 .back-link:hover { color: #fff; text-decoration: underline; }
-.nav-badge { display: inline-block; background: #b3382c; color: #fff; font-size: 0.68rem; font-weight: 700; padding: 1px 6px; border-radius: 999px; margin-left: 4px; vertical-align: middle; }
+
 
 /* ==== Dashboard tab styles ==== */
 
@@ -449,28 +442,28 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%), radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%), var(--bg); color: var(--text); min-height: 100vh; }
-.container { width: min(calc(100% - 32px), 1200px); margin: 0 auto; }
-.site-header { position: sticky; top: 0; z-index: 50; background: rgba(255, 249, 241, 0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
-.nav { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 92px; padding: 12px 0; }
+
+
+
 .site-header a.brand, .site-header a.brand:link, .site-header a.brand:visited { text-decoration: none; color: inherit; }
-.brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
-.brand-logo-wrap { background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 8px; box-shadow: var(--shadow); flex-shrink: 0; }
-.brand-logo { width: 88px; height: auto; border-radius: 12px; object-fit: contain; }
+
+
+
 .brand-text h1 { margin: 0; font-size: 1.2rem; line-height: 1.15; color: var(--maroon); }
 .site-header nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 18px; margin: 0; padding: 0; align-items: center; justify-content: flex-end; }
 .site-header nav a, .site-header nav a:link, .site-header nav a:visited { font-weight: 700; color: var(--text); font-size: 0.96rem; text-decoration: none; }
 .site-header nav a:hover { color: var(--saffron-dark); }
-.menu-toggle { display: none; border: 0; background: transparent; padding: 6px 0; cursor: pointer; color: #2c1b10; align-self: flex-end; }
+
 .menu-toggle .bar { display: block; width: 26px; height: 2px; margin: 5px 0; background: currentColor; }
 @media (max-width: 768px) {
   .nav { flex-direction: column; align-items: stretch; gap: 8px; } .menu-toggle { display: inline-block; }
   .site-header nav { display: none; width: 100%; background: rgba(255,249,241,0.95); padding: 10px 0; }
   .site-header nav.is-open { display: block; } .site-header nav ul { flex-direction: column; gap: 14px; }
 }
-.page-hero { padding: 28px 0 22px; background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%); color: #fff; }
+
 .page-hero h1 { font-family: Georgia, "Times New Roman", serif; font-size: 1.9rem; color: #fff; margin-bottom: 6px; }
 .page-hero p { color: #ffffff; opacity: 0.9; font-size: 0.92rem; max-width: 620px; }
-.back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.85); text-decoration: none; margin-bottom: 14px; }
+
 .back-link:hover { color: #fff; text-decoration: underline; }
 .eyebrow { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: rgba(255,255,255,0.75); margin-bottom: 6px; }
 .module-nav { background: var(--surface); border-bottom: 1px solid var(--border); }
@@ -479,10 +472,10 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .module-nav a.active { background: var(--surface-soft); color: var(--saffron-dark); }
 .module-nav a:not(.active):hover { background: var(--surface-soft); }
 
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
-.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 20px; }
+
+
 .toolbar select, .toolbar input[type="date"] { font-family: inherit; font-size: 0.88rem; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 10px; background: #fff; color: var(--text); }
-.btn-secondary { font-family: inherit; font-size: 0.86rem; font-weight: 700; color: var(--text); background: #fff; border: 1.5px solid var(--border); border-radius: 10px; padding: 9px 14px; cursor: pointer; }
+
 
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 20px; }
 .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; text-align: center; box-shadow: var(--shadow); }
@@ -514,14 +507,204 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .contributor-row .name { flex: 1; }
 .contributor-row .meta { color: var(--muted); font-size: 0.76rem; }
 .contributor-row .amount { font-weight: 700; }
-.empty-state { text-align: center; padding: 30px 20px; color: var(--muted); }
 
-#gate{padding:60px 16px;display:flex;justify-content:center;}
-.gate-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow);}
+
+
+
 .gate-card h3{font-family:Georgia,serif;font-size:1.3rem;color:var(--maroon);margin-bottom:.5rem;}
 .gate-card p{color:var(--muted);font-size:.88rem;line-height:1.6;}
 .gate-card a{color:var(--saffron-dark);}
-.nav-badge { display: inline-block; background: #b3382c; color: #fff; font-size: 0.68rem; font-weight: 700; padding: 1px 6px; border-radius: 999px; margin-left: 4px; vertical-align: middle; }
+
+
+/* ==== Rooms & Rates tab styles ==== */
+
+:root {
+  --bg: #fff9f1; --surface: #ffffff; --surface-soft: #fff6ea; --border: rgba(121,62,17,0.14);
+  --text: #2c1b10; --muted: #6a5141; --saffron: #b55a18; --saffron-dark: #8d3e0d; --maroon: #7f2e16;
+  --radius: 22px; --shadow: 0 18px 45px rgba(93,43,14,0.10);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%), radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%), var(--bg); color: var(--text); min-height: 100vh; }
+
+
+
+.site-header a.brand, .site-header a.brand:link, .site-header a.brand:visited { text-decoration: none; color: inherit; }
+
+
+
+.brand-text h1 { margin: 0; font-size: 1.2rem; line-height: 1.15; color: var(--maroon); }
+.site-header nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 18px; margin: 0; padding: 0; align-items: center; justify-content: flex-end; }
+.site-header nav a, .site-header nav a:link, .site-header nav a:visited { font-weight: 700; color: var(--text); font-size: 0.96rem; text-decoration: none; }
+.site-header nav a:hover { color: var(--saffron-dark); }
+
+.menu-toggle .bar { display: block; width: 26px; height: 2px; margin: 5px 0; background: currentColor; }
+@media (max-width: 768px) {
+  .nav { flex-direction: column; align-items: stretch; gap: 8px; } .menu-toggle { display: inline-block; }
+  .site-header nav { display: none; width: 100%; background: rgba(255,249,241,0.95); padding: 10px 0; }
+  .site-header nav.is-open { display: block; } .site-header nav ul { flex-direction: column; gap: 14px; }
+}
+
+.page-hero .eyebrow { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.75); margin-bottom: 6px; }
+.page-hero h1 { font-family: Georgia, "Times New Roman", serif; font-size: 1.9rem; color: #fff; margin-bottom: 6px; }
+.page-hero p { color: #ffffff; opacity: 0.9; font-size: 0.92rem; max-width: 560px; }
+
+.module-nav ul { list-style: none; display: flex; gap: 4px; padding: 10px 0; flex-wrap: wrap; }
+.module-nav a { display: inline-block; padding: 8px 16px; border-radius: 999px; font-size: 0.86rem; font-weight: 700; color: var(--muted); text-decoration: none; transition: background 0.15s, color 0.15s; }
+.module-nav a.active { background: var(--surface-soft); color: var(--saffron-dark); }
+.module-nav a.disabled { color: rgba(106,81,65,0.4); cursor: default; }
+.module-nav a:not(.disabled):not(.active):hover { background: var(--surface-soft); }
+
+
+.card h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.2rem; color: var(--maroon); margin-bottom: 4px; }
+.card .card-sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 18px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+thead th { text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); background: var(--surface-soft); padding: 10px 12px; }
+tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody input[type="text"], tbody input[type="number"] {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; padding: 6px 10px; border: 1.5px solid var(--border); border-radius: 8px; width: 100%;
+}
+.rate-input-wrap { display: flex; align-items: center; gap: 4px; }
+.rate-input-wrap input { width: 80px; }
+.status-pill { font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+.status-active { background: #e8f5ec; color: #2e7d4f; }
+.status-inactive { background: #f1ede8; color: var(--muted); }
+.btn-small { font-family: Arial, Helvetica, sans-serif; font-size: 0.78rem; font-weight: 700; padding: 6px 12px; border-radius: 8px; border: 1.5px solid var(--saffron-dark); background: #fff; color: var(--saffron-dark); cursor: pointer; }
+.btn-small:hover { background: var(--surface-soft); }
+.btn-small.danger { border-color: #b3382c; color: #b3382c; }
+
+.rules-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.rule-field { display: flex; flex-direction: column; gap: 6px; }
+.rule-field label { font-size: 0.78rem; font-weight: 700; color: var(--muted); }
+.rule-field .rule-hint { font-size: 0.74rem; color: var(--muted); font-style: italic; }
+.rule-field input { font-family: Arial, Helvetica, sans-serif; font-size: 0.9rem; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 10px; }
+
+
+.btn-primary:hover { opacity: 0.92; }
+
+
+.result-box.success { background: #e8f5ec; color: #2e7d4f; border: 1px solid rgba(46,125,79,0.25); }
+.result-box.error { background: #fbe9e7; color: #b3382c; border: 1px solid rgba(179,56,44,0.25); }
+.add-room-row { display: grid; grid-template-columns: 2fr 1fr 2fr 1fr; gap: 10px; margin-top: 16px; align-items: end; }
+.add-room-row .field { display: flex; flex-direction: column; gap: 6px; }
+.add-room-row .field label { font-size: 0.76rem; font-weight: 700; color: var(--muted); }
+.add-room-row input { font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 10px; }
+
+
+.gate-card h3{font-family:Georgia,serif;font-size:1.3rem;color:var(--maroon);margin-bottom:.5rem;}
+.gate-card p{color:var(--muted);font-size:.88rem;line-height:1.6;}
+.gate-card a{color:var(--saffron-dark);}
+
+.back-link:hover { color: #fff; text-decoration: underline; }
+
+
+/* ==== Add A Renter tab styles ==== */
+
+:root {
+  --bg: #fff9f1; --surface: #ffffff; --surface-soft: #fff6ea; --border: rgba(121,62,17,0.14);
+  --text: #2c1b10; --muted: #6a5141; --saffron: #b55a18; --saffron-dark: #8d3e0d; --maroon: #7f2e16;
+  --radius: 22px; --shadow: 0 18px 45px rgba(93,43,14,0.10);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%), radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%), var(--bg); color: var(--text); min-height: 100vh; }
+
+
+
+.site-header a.brand, .site-header a.brand:link, .site-header a.brand:visited { text-decoration: none; color: inherit; }
+
+
+
+.brand-text h1 { margin: 0; font-size: 1.2rem; line-height: 1.15; color: var(--maroon); }
+.site-header nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 18px; margin: 0; padding: 0; align-items: center; justify-content: flex-end; }
+.site-header nav a, .site-header nav a:link, .site-header nav a:visited { font-weight: 700; color: var(--text); font-size: 0.96rem; text-decoration: none; }
+.site-header nav a:hover { color: var(--saffron-dark); }
+
+.menu-toggle .bar { display: block; width: 26px; height: 2px; margin: 5px 0; background: currentColor; }
+@media (max-width: 768px) {
+  .nav { flex-direction: column; align-items: stretch; gap: 8px; } .menu-toggle { display: inline-block; }
+  .site-header nav { display: none; width: 100%; background: rgba(255,249,241,0.95); padding: 10px 0; }
+  .site-header nav.is-open { display: block; } .site-header nav ul { flex-direction: column; gap: 14px; }
+}
+
+.page-hero .eyebrow { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.75); margin-bottom: 6px; }
+.page-hero h1 { font-family: Georgia, "Times New Roman", serif; font-size: 1.9rem; color: #fff; margin-bottom: 6px; }
+.page-hero p { color: #ffffff; opacity: 0.9; font-size: 0.92rem; max-width: 560px; }
+
+.back-link:hover { color: #fff; text-decoration: underline; }
+
+.module-nav ul { list-style: none; display: flex; gap: 4px; padding: 10px 0; flex-wrap: wrap; }
+.module-nav a { display: inline-block; padding: 8px 16px; border-radius: 999px; font-size: 0.86rem; font-weight: 700; color: var(--muted); text-decoration: none; transition: background 0.15s, color 0.15s; }
+.module-nav a.active { background: var(--surface-soft); color: var(--saffron-dark); }
+.module-nav a:not(.active):hover { background: var(--surface-soft); }
+
+
+.card h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.2rem; color: var(--maroon); margin-bottom: 4px; }
+.card .card-sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 18px; }
+
+
+
+.field label { font-size: 0.78rem; font-weight: 700; color: var(--muted); }
+.field input[type="text"], .field input[type="email"], .field input[type="tel"], .field textarea {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.9rem; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 10px; background: #fff; color: var(--text);
+}
+.field textarea { resize: vertical; min-height: 56px; }
+
+
+.btn-primary:hover { opacity: 0.92; }
+
+
+.result-box.success { background: #e8f5ec; color: #2e7d4f; border: 1px solid rgba(46,125,79,0.25); }
+.result-box.error { background: #fbe9e7; color: #b3382c; border: 1px solid rgba(179,56,44,0.25); }
+
+
+.toolbar input[type="text"] { flex: 1; font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; padding: 9px 14px; border: 1.5px solid var(--border); border-radius: 10px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+thead th { text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); background: var(--surface-soft); padding: 10px 12px; }
+tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+tbody tr:last-child td { border-bottom: none; }
+
+
+.autocomplete-list {
+  position: absolute; top: 100%; left: 0; right: 0; background: var(--surface); border: 1.5px solid var(--border);
+  border-top: none; border-radius: 0 0 10px 10px; z-index: 20; max-height: 220px; overflow-y: auto; box-shadow: var(--shadow);
+}
+.autocomplete-list div { padding: 9px 12px; font-size: 0.86rem; cursor: pointer; }
+.autocomplete-list div:hover { background: var(--surface-soft); }
+
+.status-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+.status-badge.approved { background: #e8f5ec; color: #2e7d4f; }
+.status-badge.pending { background: #fff3e0; color: #b5750a; }
+.status-badge.rejected { background: #fbe9e7; color: #b3382c; }
+.status-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.status-tabs button {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.82rem; font-weight: 700; padding: 7px 14px;
+  border-radius: 999px; border: 1.5px solid var(--border); background: #fff; color: var(--muted); cursor: pointer;
+}
+.status-tabs button.active { background: var(--surface-soft); color: var(--saffron-dark); border-color: var(--saffron-dark); }
+
+.btn-approve { border: 1.5px solid #2e7d4f; background: #fff; color: #2e7d4f; }
+.btn-approve:hover { background: #e8f5ec; }
+.btn-reject { border: 1.5px solid var(--saffron-dark); background: #fff; color: var(--saffron-dark); }
+.btn-reject:hover { background: var(--surface-soft); }
+.btn-edit-renter { border: 1.5px solid var(--border); background: #fff; color: var(--text); }
+.btn-edit-renter:hover { background: var(--surface-soft); }
+
+
+
+
+.modal-header h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.15rem; color: var(--maroon); }
+
+
+
+
+
+
+
+.gate-card h3{font-family:Georgia,serif;font-size:1.3rem;color:var(--maroon);margin-bottom:.5rem;}
+.gate-card p{color:var(--muted);font-size:.88rem;line-height:1.6;}
+.gate-card a{color:var(--saffron-dark);}
+
 
 .tab-nav { background: var(--surface); border-bottom: 1px solid var(--border); }
 .tab-nav ul { list-style: none; display: flex; gap: 4px; padding: 10px 0; flex-wrap: wrap; }
@@ -530,8 +713,6 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .tab-nav button:not(.active):hover { background: var(--surface-soft); }
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
-.tab-stub { padding: 60px 20px; text-align: center; color: var(--muted); }
-.tab-stub a { color: var(--saffron-dark); font-weight: 700; }
 
 </style>
 </head>
@@ -555,6 +736,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 </div>
 
 <div class="tab-nav">
+  <div class="container">
   <ul>
     <li><button class="tab-btn" data-tab="dashboard">Dashboard</button></li>
     <li><button class="tab-btn" data-tab="new-booking">New Booking</button></li>
@@ -562,6 +744,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
     <li><button class="tab-btn" data-tab="rooms-rates">Rooms &amp; Rates</button></li>
     <li><button class="tab-btn" data-tab="add-renter" id="nav-add-renter">Add A Renter</button></li>
   </ul>
+  </div>
 </div>
 
   <div class="tab-panel active" id="tab-all-bookings">
@@ -1029,11 +1212,149 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
   </div>
 
   <div class="tab-panel" id="tab-rooms-rates">
-    <div class="tab-stub">This tab is still being migrated into the merged page — use <a href="/admin/bookings/rooms-rates">the standalone Rooms &amp; Rates page</a> for now.</div>
+<div class="container">
+  <div class="card">
+    <h2>Rooms</h2>
+    <div class="card-sub">Edit a rate directly in the table, then click Save changes to generate the update query.</div>
+    <table>
+      <thead><tr><th>Room</th><th>Rate / hour</th><th>Status</th><th></th></tr></thead>
+      <tbody id="rooms-tbody"></tbody>
+    </table>
+
+    <div class="add-room-row">
+      <div class="field"><label>New room name</label><input type="text" id="new-room-name" placeholder="e.g. Community Hall"></div>
+      <div class="field"><label>Rate / hour</label><input type="number" id="new-room-rate" placeholder="25"></div>
+      <div class="field"><label>Calendar email</label><input type="text" id="new-room-calendar" placeholder="room@resource.calendar.google.com"></div>
+      <button type="button" class="btn-small" id="btn-add-room">Add room</button>
+    </div>
+
+    <div class="result-box" id="rooms-result" style="display:none;"></div>
+  </div>
+
+  <div class="card">
+    <h2>Discount rules</h2>
+    <div class="card-sub">These apply automatically to every booking — see New Booking for how they stack.</div>
+    <div class="rules-grid">
+      <div class="rule-field">
+        <label>Weekday multiplier</label>
+        <input type="number" id="r-weekday" value="0.80" step="0.01">
+        <span class="rule-hint">0.80 = 20% off Mon–Fri bookings</span>
+      </div>
+      <div class="rule-field">
+        <label>Nonprofit multiplier</label>
+        <input type="number" id="r-nonprofit" value="0.75" step="0.01">
+        <span class="rule-hint">0.75 = 25% off for nonprofit renters</span>
+      </div>
+      <div class="rule-field">
+        <label>Extended-hours multiplier</label>
+        <input type="number" id="r-extended-mult" value="0.80" step="0.01">
+        <span class="rule-hint">applies once hours meet the threshold below</span>
+      </div>
+      <div class="rule-field">
+        <label>Extended-hours threshold</label>
+        <input type="number" id="r-extended-threshold" value="4" step="0.5">
+        <span class="rule-hint">in hours</span>
+      </div>
+    </div>
+    <div class="card-sub" style="margin-top:12px;margin-bottom:0;">There's no automatic whole-facility/bundle discount — that's applied case by case as a discretionary adjustment on the booking itself, in New Booking.</div>
+    <button type="button" class="btn-primary" id="btn-generate-rules">Save discount rules</button>
+    <div class="result-box" id="rules-result" style="display:none;"></div>
+  </div>
+</div>
   </div>
 
   <div class="tab-panel" id="tab-add-renter">
-    <div class="tab-stub">This tab is still being migrated into the merged page — use <a href="/admin/bookings/add-renter">the standalone Add A Renter page</a> for now.</div>
+<div class="container">
+  <div class="card">
+    <h2>New renter</h2>
+    <div class="card-sub">This becomes selectable on the New Booking page immediately.</div>
+    <div class="field-row">
+      <div class="field"><label>Contact name</label><input type="text" id="f-name" placeholder="Jane Doe"></div>
+      <div class="field"><label>Phone</label><input type="tel" id="f-phone" placeholder="555-555-5555"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Email</label><input type="email" id="f-email" placeholder="jane@example.com"></div>
+      <div class="field"><label>Organization (optional)</label><input type="text" id="f-org" placeholder="e.g. a company or community group"></div>
+      <div class="field"><label>Website (optional)</label><input type="url" id="f-website" placeholder="https://"></div>
+    </div>
+    <div class="field" style="position:relative;">
+      <label>Street address</label>
+      <input type="text" id="f-street" placeholder="Start typing an address…" autocomplete="off">
+      <div class="autocomplete-list" id="street-autocomplete-list" style="display:none;"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Suite / Apartment # (optional)</label><input type="text" id="f-suite" placeholder="e.g. Suite 200"></div>
+      <div class="field"><label>City</label><input type="text" id="f-city"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>State</label><input type="text" id="f-state" placeholder="OH"></div>
+      <div class="field"><label>ZIP</label><input type="text" id="f-zip"></div>
+    </div>
+    <div class="field"><label>Notes (optional)</label><textarea id="f-notes" placeholder="Anything worth remembering about this contact"></textarea></div>
+    <div class="checkbox-row" style="display:flex;align-items:center;gap:8px;margin-bottom:14px;"><input type="checkbox" id="f-nonprofit"><label for="f-nonprofit">This renter is a nonprofit — applicable discount will be applied automatically on bookings</label></div>
+    <button type="button" class="btn-primary" id="btn-add-renter">Save renter</button>
+    <div class="result-box" id="result-box" style="display:none;"></div>
+  </div>
+
+  <div class="card">
+    <h2>Renters</h2>
+    <div class="status-tabs" id="status-tabs">
+      <button data-status="pending" class="active">Pending review</button>
+      <button data-status="approved">Approved</button>
+      <button data-status="rejected">Rejected</button>
+      <button data-status="">All</button>
+    </div>
+    <div class="toolbar">
+      <input type="text" id="search-input" placeholder="Search by name, email, or organization…">
+    </div>
+    <table>
+      <thead><tr><th>Contact</th><th>Email</th><th>Phone</th><th>Organization</th><th>Status</th><th></th></tr></thead>
+      <tbody id="renters-tbody"></tbody>
+    </table>
+    <div class="empty-state" id="empty-state" style="display:none;">No renters here.</div>
+  </div>
+</div>
+
+</div>
+
+<div class="modal-overlay" id="review-renter-modal-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:560px;">
+    <div class="modal-header">
+      <h2>Review request</h2>
+      <button class="modal-close" id="btn-close-review-renter">&times;</button>
+    </div>
+    <div class="modal-body" id="review-renter-body"></div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-review-reject">Reject</button>
+      <button type="button" class="btn-primary" id="btn-review-approve" style="margin-top:0;">Approve</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="edit-renter-modal-overlay" style="display:none;">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <h2>Edit renter</h2>
+      <button class="modal-close" id="btn-close-edit-renter">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="field"><label>Contact name</label><input type="text" id="edit-f-name"></div>
+      <div class="field-row">
+        <div class="field"><label>Phone</label><input type="tel" id="edit-f-phone"></div>
+        <div class="field"><label>Email</label><input type="email" id="edit-f-email"></div>
+      </div>
+      <div class="field"><label>Organization</label><input type="text" id="edit-f-org"></div>
+      <div class="field"><label>Website</label><input type="url" id="edit-f-website" placeholder="https://"></div>
+      <div class="field"><label>Address</label><textarea id="edit-f-address" rows="2" placeholder="Street, suite, city, state, ZIP"></textarea></div>
+      <div class="field"><label>Notes</label><textarea id="edit-f-notes"></textarea></div>
+      <div class="checkbox-row" style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="edit-f-nonprofit"><label for="edit-f-nonprofit">This renter is a nonprofit</label></div>
+      <div class="result-box" id="edit-result-box" style="display:none;"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-cancel-edit-renter">Close</button>
+      <button type="button" class="btn-primary" id="btn-save-edit-renter" style="margin-top:0;">Save changes</button>
+    </div>
+  </div>
   </div>
 </div>
 
@@ -3559,6 +3880,467 @@ function initDashboardTab() {
   loadMonthlyTrend();
 }
 
+// ==================== ROOMS & RATES TAB ====================
+
+let ROOMS = [];
+
+async function loadRooms() {
+  try {
+    const res = await authedFetch(API_BASE + '/rooms');
+    if (!res.ok) throw new Error('Server returned ' + res.status);
+    const data = await res.json();
+    ROOMS = data.map(function (r) { return { name: r.name, rate: Number(r.rate_per_hour), active: true }; });
+  } catch (err) {
+    showRoomsResult('error', 'Could not load rooms from the database (' + err.message + ').');
+    ROOMS = [];
+  }
+  renderRooms();
+}
+
+async function loadDiscountRules() {
+  try {
+    const res = await authedFetch(API_BASE + '/discount-rules');
+    if (!res.ok) throw new Error('Server returned ' + res.status);
+    const r = await res.json();
+    document.getElementById('r-weekday').value = r.weekday_multiplier;
+    document.getElementById('r-nonprofit').value = r.nonprofit_multiplier;
+    document.getElementById('r-extended-mult').value = r.extended_hours_multiplier;
+    document.getElementById('r-extended-threshold').value = r.extended_hours_threshold;
+  } catch (err) {
+    showRulesResult('error', 'Could not load current discount rules (' + err.message + '). Showing defaults — check before saving.');
+  }
+}
+
+function renderRooms() {
+  const tbody = document.getElementById('rooms-tbody');
+  tbody.innerHTML = ROOMS.map(function (r, i) {
+    return (
+      '<tr>' +
+        '<td>' + escHtml(r.name) + '</td>' +
+        '<td><div class="rate-input-wrap">$<input type="number" step="1" value="' + r.rate + '" data-idx="' + i + '" class="rate-field"> /hr</div></td>' +
+        '<td><span class="status-pill ' + (r.active ? 'status-active' : 'status-inactive') + '">' + (r.active ? 'Active' : 'Retired') + '</span></td>' +
+        '<td>' + (r.active ? '<button type="button" class="btn-small" data-save="' + i + '">Save rate</button> <button type="button" class="btn-small danger" data-retire="' + i + '">Retire</button>' : '') + '</td>' +
+      '</tr>'
+    );
+  }).join('');
+
+  document.querySelectorAll('.rate-field').forEach(function (input) {
+    input.addEventListener('change', function () {
+      const idx = parseInt(this.dataset.idx, 10);
+      ROOMS[idx].rate = parseFloat(this.value) || ROOMS[idx].rate;
+    });
+  });
+  document.querySelectorAll('[data-save]').forEach(function (btn) {
+    btn.addEventListener('click', async function () {
+      const idx = parseInt(this.dataset.save, 10);
+      const room = ROOMS[idx];
+      btn.disabled = true; btn.textContent = 'Saving…';
+      try {
+        const res = await authedFetch(API_BASE + '/rooms/' + encodeURIComponent(room.name), {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ratePerHour: room.rate })
+        });
+        if (!res.ok) throw new Error('Server returned ' + res.status);
+        showRoomsResult('success', room.name + ' rate updated to $' + room.rate + '/hr.');
+      } catch (err) {
+        showRoomsResult('error', 'Could not save: ' + err.message);
+      } finally {
+        btn.disabled = false; btn.textContent = 'Save rate';
+      }
+    });
+  });
+  document.querySelectorAll('[data-retire]').forEach(function (btn) {
+    btn.addEventListener('click', async function () {
+      const idx = parseInt(this.dataset.retire, 10);
+      const room = ROOMS[idx];
+      if (!confirm('Retire ' + room.name + '? It stays visible on past bookings but can\'t be selected for new ones.')) return;
+      try {
+        const res = await authedFetch(API_BASE + '/rooms/' + encodeURIComponent(room.name), {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ active: false })
+        });
+        if (!res.ok) throw new Error('Server returned ' + res.status);
+        room.active = false;
+        renderRooms();
+        showRoomsResult('success', room.name + ' retired.');
+      } catch (err) {
+        showRoomsResult('error', 'Could not retire: ' + err.message);
+      }
+    });
+  });
+}
+
+function showRoomsResult(type, message) {
+  const box = document.getElementById('rooms-result');
+  box.style.display = 'block';
+  box.className = 'result-box ' + type;
+  box.textContent = message;
+}
+function showRulesResult(type, message) {
+  const box = document.getElementById('rules-result');
+  box.style.display = 'block';
+  box.className = 'result-box ' + type;
+  box.textContent = message;
+}
+
+// loadRooms() / loadDiscountRules() intentionally NOT called here — moved
+// into the auth gate's success handler below, since they need a valid
+// sign-in token first.
+
+document.getElementById('btn-add-room').addEventListener('click', async function () {
+  const name = document.getElementById('new-room-name').value.trim();
+  const rate = parseFloat(document.getElementById('new-room-rate').value);
+  const calendar = document.getElementById('new-room-calendar').value.trim();
+  if (!name || !rate) { showRoomsResult('error', 'Enter a room name and rate first.'); return; }
+  try {
+    const res = await authedFetch(API_BASE + '/rooms', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name, ratePerHour: rate, calendarId: calendar })
+    });
+    if (!res.ok) throw new Error('Server returned ' + res.status);
+    document.getElementById('new-room-name').value = '';
+    document.getElementById('new-room-rate').value = '';
+    document.getElementById('new-room-calendar').value = '';
+    showRoomsResult('success', name + ' added.');
+    await loadRooms();
+  } catch (err) {
+    showRoomsResult('error', 'Could not add room: ' + err.message);
+  }
+});
+
+document.getElementById('btn-generate-rules').addEventListener('click', async function () {
+  const btn = this;
+  const payload = {
+    weekdayMultiplier: parseFloat(document.getElementById('r-weekday').value),
+    nonprofitMultiplier: parseFloat(document.getElementById('r-nonprofit').value),
+    extendedHoursMultiplier: parseFloat(document.getElementById('r-extended-mult').value),
+    extendedHoursThreshold: parseFloat(document.getElementById('r-extended-threshold').value)
+  };
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const res = await authedFetch(API_BASE + '/discount-rules', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('Server returned ' + res.status);
+    showRulesResult('success', 'Discount rules saved.');
+  } catch (err) {
+    showRulesResult('error', 'Could not save: ' + err.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save discount rules';
+  }
+});
+
+
+function initRoomsRatesTab() {
+  window.__rrLoaded = true;
+  loadRooms();
+  loadDiscountRules();
+}
+
+// ==================== ADD A RENTER TAB ====================
+
+let RENTERS = [];
+let statusFilter = 'pending';
+
+async function loadRenters() {
+  try {
+    const res = await authedFetch(API_BASE + '/renters?all=true');
+    if (!res.ok) throw new Error('Server returned ' + res.status);
+    RENTERS = await res.json();
+  } catch (err) {
+    RENTERS = [];
+  }
+  renderRenters();
+}
+
+function renderRenters() {
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  const filtered = RENTERS.filter(function (r) {
+    if (statusFilter && (r.status || 'approved') !== statusFilter) return false;
+    if (!q) return true;
+    return (r.contact_name || '').toLowerCase().includes(q) ||
+           (r.email || '').toLowerCase().includes(q) ||
+           (r.organization_name || '').toLowerCase().includes(q);
+  });
+  const tbody = document.getElementById('renters-tbody');
+  const emptyState = document.getElementById('empty-state');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    emptyState.style.display = 'block';
+    return;
+  }
+  emptyState.style.display = 'none';
+  tbody.innerHTML = filtered.map(function (r) {
+    const status = r.status || 'approved';
+    const actions = [];
+    if (status === 'pending') {
+      actions.push('<button type="button" class="btn-small btn-approve" onclick="openRenterReviewModal(\'' + r.renter_id + '\')">Review</button>');
+    } else if (status === 'approved') {
+      actions.push('<button type="button" class="btn-small btn-reject" onclick="rejectRenterAction(\'' + r.renter_id + '\')">Reject</button>');
+    } else if (status === 'rejected') {
+      actions.push('<button type="button" class="btn-small btn-approve" onclick="approveRenterAction(\'' + r.renter_id + '\')">Approve</button>');
+    }
+    actions.push('<button type="button" class="btn-small btn-edit-renter" onclick="openEditRenterModal(\'' + r.renter_id + '\')">Edit</button>');
+    return '<tr>' +
+      '<td>' + escHtml(r.contact_name) + '</td>' +
+      '<td>' + escHtml(r.email) + '</td>' +
+      '<td>' + escHtml(r.phone) + '</td>' +
+      '<td>' + escHtml(r.organization_name) + '</td>' +
+      '<td><span class="status-badge ' + status + '">' + status.charAt(0).toUpperCase() + status.slice(1) + '</span></td>' +
+      '<td style="white-space:nowrap;">' + actions.join('') + '</td>' +
+    '</tr>';
+  }).join('');
+}
+document.getElementById('search-input').addEventListener('input', renderRenters);
+document.getElementById('status-tabs').addEventListener('click', function (e) {
+  if (e.target.tagName !== 'BUTTON') return;
+  statusFilter = e.target.dataset.status;
+  document.querySelectorAll('#status-tabs button').forEach(function (b) { b.classList.toggle('active', b === e.target); });
+  renderRenters();
+});
+
+async function approveRenterAction(renterId) {
+  try {
+    const res = await authedFetch(API_BASE + '/renters/' + encodeURIComponent(renterId) + '/approve', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) { alert('Could not approve: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+    await loadRenters();
+  } catch (err) {
+    alert('Could not reach the server: ' + err.message);
+  }
+}
+async function rejectRenterAction(renterId) {
+  const reason = prompt('Reason for rejecting this renter? This will be emailed to them.');
+  if (reason === null) return; // cancelled
+  if (!reason.trim()) { alert('A reason is required.'); return; }
+  try {
+    const res = await authedFetch(API_BASE + '/renters/' + encodeURIComponent(renterId) + '/reject', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason })
+    });
+    const data = await res.json();
+    if (!res.ok) { alert('Could not reject: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+    await loadRenters();
+  } catch (err) {
+    alert('Could not reach the server: ' + err.message);
+  }
+}
+
+// ---- Review modal (pending renters) — full details + linked booking
+// requests, before approving or rejecting. ----
+let reviewingRenterId = null;
+async function openRenterReviewModal(renterId) {
+  const r = RENTERS.find(function (x) { return x.renter_id === renterId; });
+  if (!r) return;
+  reviewingRenterId = renterId;
+  const body = document.getElementById('review-renter-body');
+  body.innerHTML = '<div class="empty-state">Loading…</div>';
+  document.getElementById('review-renter-modal-overlay').style.display = 'flex';
+
+  let html = '<div class="field-row">';
+  html += '<div class="field"><label>Contact name</label><div>' + escHtml(r.contact_name || '\u2014') + '</div></div>';
+  html += '<div class="field"><label>Email</label><div>' + escHtml(r.email || '\u2014') + '</div></div>';
+  html += '</div><div class="field-row">';
+  html += '<div class="field"><label>Phone</label><div>' + escHtml(r.phone || '\u2014') + '</div></div>';
+  html += '<div class="field"><label>Address</label><div>' + escHtml(r.address || '\u2014') + '</div></div>';
+  html += '</div><div class="field-row">';
+  html += '<div class="field"><label>Organization</label><div>' + escHtml(r.organization_name || '\u2014') + '</div></div>';
+  html += '<div class="field"><label>Website</label><div>' + (r.website ? '<a href="' + escHtml(r.website) + '" target="_blank" rel="noopener">' + escHtml(r.website) + '</a>' : '\u2014') + '</div></div>';
+  html += '</div>';
+  html += '<div class="field"><label>Self-reported nonprofit status</label><div>' + (r.is_nonprofit ? 'Yes \u2014 discount will apply automatically once approved' : 'No') + '</div></div>';
+  if (r.notes) html += '<div class="field"><label>Notes</label><div>' + escHtml(r.notes) + '</div></div>';
+
+  html += '<div class="field" style="margin-top:16px;"><label>Booking request(s) submitted</label><div id="review-renter-bookings"></div></div>';
+  body.innerHTML = html;
+
+  try {
+    const res = await authedFetch(API_BASE + '/renters/' + encodeURIComponent(renterId) + '/requests');
+    const requests = await res.json();
+    const bookingsEl = document.getElementById('review-renter-bookings');
+    if (!requests.length) { bookingsEl.innerHTML = '<div class="empty-state" style="padding:12px;">No booking requests on file yet.</div>'; return; }
+    bookingsEl.innerHTML = requests.map(function (req) {
+      var dateStr = new Date(req.eventDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      var timeStr = req.startTime && req.endTime ? new Date(req.startTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' }) + '\u2013' + new Date(req.endTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' }) : '';
+      var notesHtml = '';
+      if (req.notes) {
+        var notesLines = req.notes.split(' | ').map(function (line) { return '<div>' + escHtml(line) + '</div>'; }).join('');
+        notesHtml = '<div style="font-size:0.84rem;margin-top:6px;padding-top:6px;border-top:1px dashed var(--border,#e5d9c8);">' + notesLines + '</div>';
+      }
+      return '<div style="border:1px solid var(--border,#e5d9c8);border-radius:10px;padding:10px 14px;margin-bottom:8px;">' +
+        '<div style="font-weight:700;">' + escHtml((req.rooms || []).join(', ')) + ' \u2014 ' + dateStr + (timeStr ? ' \u00b7 ' + timeStr : '') + '</div>' +
+        '<div style="font-size:0.85rem;color:var(--muted,#6a5141);">' + escHtml(req.eventName || '') + '</div>' +
+        '<div style="font-size:0.85rem;">$' + Number(req.finalTotal).toFixed(2) + ' \u00b7 status: ' + escHtml(req.paymentStatus) + '</div>' +
+        notesHtml +
+      '</div>';
+    }).join('');
+  } catch (err) {
+    document.getElementById('review-renter-bookings').innerHTML = '<div class="empty-state">Could not load booking requests: ' + escHtml(err.message) + '</div>';
+  }
+}
+document.getElementById('btn-close-review-renter').addEventListener('click', function () {
+  document.getElementById('review-renter-modal-overlay').style.display = 'none';
+});
+document.getElementById('review-renter-modal-overlay').addEventListener('click', function (e) {
+  if (e.target === this) this.style.display = 'none';
+});
+document.getElementById('btn-review-approve').addEventListener('click', async function () {
+  if (!reviewingRenterId) return;
+  document.getElementById('review-renter-modal-overlay').style.display = 'none';
+  await approveRenterAction(reviewingRenterId);
+});
+document.getElementById('btn-review-reject').addEventListener('click', async function () {
+  if (!reviewingRenterId) return;
+  document.getElementById('review-renter-modal-overlay').style.display = 'none';
+  await rejectRenterAction(reviewingRenterId);
+});
+
+let editingRenterId = null;
+function openEditRenterModal(renterId) {
+  const r = RENTERS.find(function (x) { return x.renter_id === renterId; });
+  if (!r) return;
+  editingRenterId = renterId;
+  document.getElementById('edit-f-name').value = r.contact_name || '';
+  document.getElementById('edit-f-phone').value = r.phone || '';
+  document.getElementById('edit-f-email').value = r.email || '';
+  document.getElementById('edit-f-org').value = r.organization_name || '';
+  document.getElementById('edit-f-website').value = r.website || '';
+  document.getElementById('edit-f-address').value = r.address || '';
+  document.getElementById('edit-f-notes').value = r.notes || '';
+  document.getElementById('edit-f-nonprofit').checked = !!r.is_nonprofit;
+  document.getElementById('edit-result-box').style.display = 'none';
+  document.getElementById('edit-renter-modal-overlay').style.display = 'flex';
+}
+function closeEditRenterModal() { document.getElementById('edit-renter-modal-overlay').style.display = 'none'; }
+document.getElementById('btn-close-edit-renter').addEventListener('click', closeEditRenterModal);
+document.getElementById('btn-cancel-edit-renter').addEventListener('click', closeEditRenterModal);
+document.getElementById('edit-renter-modal-overlay').addEventListener('click', function (e) { if (e.target === this) closeEditRenterModal(); });
+
+document.getElementById('btn-save-edit-renter').addEventListener('click', async function () {
+  const btn = this;
+  const resultBox = document.getElementById('edit-result-box');
+  const payload = {
+    contactName: document.getElementById('edit-f-name').value,
+    phone: document.getElementById('edit-f-phone').value,
+    email: document.getElementById('edit-f-email').value,
+    organizationName: document.getElementById('edit-f-org').value,
+    website: document.getElementById('edit-f-website').value,
+    address: document.getElementById('edit-f-address').value,
+    notes: document.getElementById('edit-f-notes').value,
+    isNonprofit: document.getElementById('edit-f-nonprofit').checked
+  };
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const res = await authedFetch(API_BASE + '/renters/' + encodeURIComponent(editingRenterId), {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    resultBox.style.display = 'block';
+    if (!res.ok) {
+      resultBox.className = 'result-box error';
+      resultBox.textContent = (data.errors || [data.error || 'Something went wrong.']).join(' ');
+    } else {
+      resultBox.className = 'result-box success';
+      resultBox.textContent = 'Saved.';
+      await loadRenters();
+      setTimeout(closeEditRenterModal, 900);
+    }
+  } catch (err) {
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+    resultBox.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save changes';
+  }
+});
+
+function showResult(type, message) {
+  const box = document.getElementById('result-box');
+  box.style.display = 'block';
+  box.className = 'result-box ' + type;
+  box.textContent = message;
+}
+
+document.getElementById('btn-add-renter').addEventListener('click', async function () {
+  const btn = this;
+  const addressParts = [
+    document.getElementById('f-street').value,
+    document.getElementById('f-suite').value,
+    document.getElementById('f-city').value && document.getElementById('f-state').value
+      ? (document.getElementById('f-city').value + ', ' + document.getElementById('f-state').value + ' ' + document.getElementById('f-zip').value)
+      : document.getElementById('f-city').value
+  ].filter(Boolean).join(', ');
+  const payload = {
+    contactName: document.getElementById('f-name').value,
+    phone: document.getElementById('f-phone').value,
+    email: document.getElementById('f-email').value,
+    organizationName: document.getElementById('f-org').value,
+    website: document.getElementById('f-website').value,
+    address: addressParts,
+    notes: document.getElementById('f-notes').value,
+    isNonprofit: document.getElementById('f-nonprofit').checked
+  };
+  if (!payload.contactName) { showResult('error', 'Contact name is required.'); return; }
+
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const res = await authedFetch(API_BASE + '/renters', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      showResult('error', (data.errors || [data.error || 'Something went wrong.']).join(' '));
+    } else {
+      showResult('success', payload.contactName + ' saved — selectable on New Booking now.');
+      ['f-name','f-phone','f-email','f-org','f-website','f-street','f-suite','f-city','f-state','f-zip','f-notes'].forEach(function (id) { document.getElementById(id).value = ''; });
+      document.getElementById('f-nonprofit').checked = false;
+      await loadRenters();
+    }
+  } catch (err) {
+    showResult('error', 'Could not reach the server: ' + err.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save renter';
+  }
+});
+
+// ---- Address autocomplete ----
+// Uses Google Places Autocomplete if a Maps API key is configured below;
+// otherwise the fields just work as plain manual entry, no error, no
+// broken UI — autocomplete is a nice-to-have layered on top, not a
+// requirement for the fields to function.
+const GOOGLE_MAPS_API_KEY = ''; // <-- add a Maps JavaScript API key (with Places enabled) here to turn on autocomplete
+
+if (GOOGLE_MAPS_API_KEY) {
+  const script = document.createElement('script');
+  script.src = 'https://maps.googleapis.com/maps/api/js?key=' + GOOGLE_MAPS_API_KEY + '&libraries=places&callback=initAddressAutocomplete';
+  script.async = true;
+  document.head.appendChild(script);
+}
+window.initAddressAutocomplete = function () {
+  const input = document.getElementById('f-street');
+  const autocomplete = new google.maps.places.Autocomplete(input, { types: ['address'], componentRestrictions: { country: 'us' } });
+  autocomplete.addListener('place_changed', function () {
+    const place = autocomplete.getPlace();
+    if (!place.address_components) return;
+    let streetNumber = '', route = '', city = '', state = '', zip = '';
+    place.address_components.forEach(function (c) {
+      if (c.types.includes('street_number')) streetNumber = c.long_name;
+      if (c.types.includes('route')) route = c.long_name;
+      if (c.types.includes('locality')) city = c.long_name;
+      if (c.types.includes('administrative_area_level_1')) state = c.short_name;
+      if (c.types.includes('postal_code')) zip = c.long_name;
+    });
+    document.getElementById('f-street').value = (streetNumber + ' ' + route).trim();
+    document.getElementById('f-city').value = city;
+    document.getElementById('f-state').value = state;
+    document.getElementById('f-zip').value = zip;
+  });
+};
+
+
+function initAddRenterTab() {
+  window.__arLoaded = true;
+  loadRenters();
+}
+
 // ==================== TAB SWITCHING ====================
 document.querySelectorAll('.tab-btn').forEach(function (btn) {
   btn.addEventListener('click', function () {
@@ -3568,7 +4350,8 @@ document.querySelectorAll('.tab-btn').forEach(function (btn) {
     document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
     if (btn.dataset.tab === 'new-booking' && !window.__nbLoaded) initNewBookingTab();
     if (btn.dataset.tab === 'dashboard' && !window.__dashLoaded) initDashboardTab();
-    // Remaining tabs are still stubs pointing to their standalone pages.
+    if (btn.dataset.tab === 'rooms-rates' && !window.__rrLoaded) initRoomsRatesTab();
+    if (btn.dataset.tab === 'add-renter' && !window.__arLoaded) initAddRenterTab();
   });
 });
 </script>

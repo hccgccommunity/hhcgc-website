@@ -101,8 +101,8 @@ tbody tr.cancelled-row:hover { background: rgba(179,56,44,0.12); }
 tbody tr.cancelled-row td { color: var(--muted); }
 tr.series-summary-row { cursor: pointer; background: var(--surface-soft); }
 tr.series-summary-row:hover { background: rgba(217,138,30,0.10); }
-tr.sub-row td { background: rgba(0,0,0,0.015); }
-tr.sub-row td:first-child { padding-left: 28px; }
+tr.sub-row td { background: var(--surface-soft); }
+tr.sub-row td:first-child { padding-left: 22px; border-left: 3px solid var(--saffron-dark); }
 .btn-expand-series {
   font-family: Arial, Helvetica, sans-serif; font-size: 0.7rem; font-weight: 700;
   padding: 5px 8px; border-radius: 7px; border: 1.5px solid var(--saffron-dark);
@@ -757,6 +757,48 @@ tbody input[type="text"], tbody input[type="number"] {
 <div class="container">
   <div class="mock-notice" id="mock-notice" style="display:none;"></div>
 
+  <div class="card" id="inline-review-section" style="display:none;margin-bottom:20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <h2 style="margin:0;">Review booking request</h2>
+      <button type="button" class="btn-secondary" id="btn-close-inline-review" style="padding:4px 10px;font-size:0.78rem;">Close</button>
+    </div>
+    <div class="card-sub" style="margin-bottom:14px;">Same fields as New Booking, without the calendar — everything below is editable before you approve.</div>
+    <div class="field-row">
+      <div class="field"><label>Customer</label><div id="ir-renter-display" style="font-weight:700;"></div></div>
+      <div class="field"><label>Event name <span class="req-star">*</span></label><input type="text" id="ir-event-name" placeholder="Name this event for the invoice and calendar"></div>
+    </div>
+    <div class="field" id="ir-event-description-field" style="display:none;"><label>About this event</label><div id="ir-event-description" style="font-size:0.86rem;color:var(--muted);"></div></div>
+    <div class="field"><label>Rooms</label><div class="modal-room-picker" id="ir-room-picker"></div></div>
+    <div class="field-row">
+      <div class="field"><label>Date</label><input type="date" id="ir-date"></div>
+      <div class="field-row">
+        <div class="field"><label>Start time</label><input type="time" id="ir-start"></div>
+        <div class="field"><label>End time</label><input type="time" id="ir-end"></div>
+      </div>
+    </div>
+    <div class="card-sub" id="ir-recurrence-note" style="display:none;margin-top:-8px;"></div>
+    <div class="field" id="ir-invoice-mode-field" style="display:none;">
+      <label>How should invoicing work for this series?</label>
+      <div class="request-field-row" style="gap:16px;">
+        <label style="display:flex;align-items:center;gap:6px;font-weight:400;"><input type="radio" name="ir-invoice-mode" value="combined" checked> One invoice for the whole series</label>
+        <label style="display:flex;align-items:center;gap:6px;font-weight:400;"><input type="radio" name="ir-invoice-mode" value="per_occurrence"> One invoice per occurrence</label>
+      </div>
+    </div>
+    <div class="field" id="ir-conflicts-field"><label>Conflicts</label><div id="ir-conflicts">Checking…</div></div>
+    <div class="field"><label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="ir-discount-enabled"> Apply a one-time discretionary discount</label></div>
+    <div class="field-row" id="ir-discount-fields" style="display:none;">
+      <div class="field"><label>Type</label><select id="ir-discount-type"><option value="percent">Percent off</option><option value="flat">Flat dollar amount off</option></select></div>
+      <div class="field"><label>Value</label><input type="number" id="ir-discount-value" step="0.01" min="0"></div>
+    </div>
+    <div class="field" id="ir-discount-reason-field" style="display:none;"><label>Reason</label><input type="text" id="ir-discount-reason" placeholder="Required if applying a discount"></div>
+    <div class="field"><label>Rate calculation</label><div id="ir-rate-calc" style="font-size:0.86rem;line-height:1.7;"></div></div>
+    <div class="result-box" id="ir-result-box" style="display:none;"></div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button type="button" class="btn-secondary" id="btn-inline-review-reject">Reject</button>
+      <button type="button" class="btn-primary" id="btn-inline-review-approve" style="margin-top:0;">Approve</button>
+    </div>
+  </div>
+
   <div class="toolbar">
     <div class="contact-filter-wrap">
       <button type="button" class="btn-secondary" id="btn-contact-filter-toggle">Contact: All <span id="contact-filter-count"></span> &#9662;</button>
@@ -962,20 +1004,6 @@ tbody input[type="text"], tbody input[type="number"] {
     <div class="modal-footer">
       <button type="button" class="btn-secondary" id="btn-cancel-notes-edit">Cancel</button>
       <button type="button" class="btn-primary" id="btn-save-notes-edit" style="margin-top:0;">Save</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="booking-review-overlay" style="display:none;">
-  <div class="modal-panel" style="max-width:600px;">
-    <div class="modal-header">
-      <h2>Review booking request</h2>
-      <button class="modal-close" id="btn-close-booking-review">&times;</button>
-    </div>
-    <div class="modal-body" id="booking-review-body"></div>
-    <div class="modal-footer">
-      <button type="button" class="btn-secondary" id="btn-booking-review-reject">Reject</button>
-      <button type="button" class="btn-primary" id="btn-booking-review-approve" style="margin-top:0;">Approve</button>
     </div>
   </div>
 </div>
@@ -1759,7 +1787,7 @@ function renderBookingRow(b, isSubRow, seriesIsMixed) {
   // applies until an admin has actually approved or rejected it.
   if (b.payment_status === 'requested' || b.payment_status === 'rejected') {
     const actions = b.payment_status === 'requested'
-      ? [{ label: 'Review request', fn: () => openBookingReviewModal(b.booking_id) }]
+      ? [{ label: 'Review request', fn: () => openInlineBookingReview(b.booking_id) }]
       : [];
     const actionsCell = treatAsSubRow ? '<td></td>' : '<td>' + renderActionsKebab(b.booking_id, actions) + '</td>';
     return (
@@ -1804,7 +1832,7 @@ function renderSeriesSummaryRow(item) {
 
   if (item.payment_status === 'requested' || item.payment_status === 'rejected') {
     const actions = item.payment_status === 'requested'
-      ? [{ label: 'Review request (all dates)', fn: () => openBookingReviewModal(repOcc.booking_id) }]
+      ? [{ label: 'Review request (all dates)', fn: () => openInlineBookingReview(repOcc.booking_id) }]
       : [];
     return (
       '<tr class="series-summary-row">' +
@@ -2128,71 +2156,76 @@ document.getElementById('btn-confirm-reject-reason').addEventListener('click', a
 // ---- Booking request review modal: full details, conflict check,
 // discretionary discount, then Approve/Reject ----
 let reviewingBookingId = null;
-async function openBookingReviewModal(bookingId) {
+function buildInlineReviewRoomPicker(selectedRooms) {
+  const wrap = document.getElementById('ir-room-picker');
+  wrap.innerHTML = EDIT_ROOMS.map(function (r) {
+    const checked = (selectedRooms || []).includes(r.name) ? ' checked' : '';
+    return '<label class="modal-room-check"><input type="checkbox" disabled' + checked + '> ' + r.name + '</label>';
+  }).join('');
+}
+async function openInlineBookingReview(bookingId) {
   const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
   if (!b) return;
   reviewingBookingId = bookingId;
-  const body = document.getElementById('booking-review-body');
-  body.innerHTML = '<div class="empty-state">Loading…</div>';
-  document.getElementById('booking-review-overlay').style.display = 'flex';
+  document.getElementById('inline-review-section').style.display = 'block';
+  document.getElementById('inline-review-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  const dateStr = new Date(b.event_date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-  const timeStr = formatTimeRange(b.start_time, b.end_time);
-  let html = '<div class="field-row">';
-  html += '<div class="field"><label>Renter</label><div>' + escHtml(b.renter_name) + '</div></div>';
-  html += '<div class="field"><label>Email</label><div>' + escHtml(b.renter_email || '\u2014') + '</div></div>';
-  html += '</div><div class="field-row">';
-  html += '<div class="field"><label>Event name' + (b.event_name ? '' : ' <span class="req-star">*</span>') + '</label><input type="text" id="review-event-name" value="' + escHtml(b.event_name || '') + '" placeholder="Name this event for the invoice and calendar"></div>';
-  html += '<div class="field"><label>Organization</label><div>' + escHtml(b.organization_name || '\u2014') + '</div></div>';
-  html += '</div>';
-  html += '<div class="field"><label>Rooms</label><div>' + escHtml((b.rooms || []).join(', ')) + '</div></div>';
-  html += '<div class="field"><label>Date &amp; time</label><div>' + dateStr + ' \u00b7 ' + timeStr + (b.recurrence_summary ? ' (' + escHtml(b.recurrence_summary) + ')' : '') + '</div></div>';
+  document.getElementById('ir-renter-display').textContent = b.renter_name + (b.renter_email ? ' (' + b.renter_email + ')' : '');
+  document.getElementById('ir-event-name').value = b.event_name || '';
+  const descField = document.getElementById('ir-event-description-field');
   if (b.event_description) {
-    html += '<div class="field"><label>About this event</label><div>' + escHtml(b.event_description) + '</div></div>';
+    descField.style.display = 'block';
+    document.getElementById('ir-event-description').textContent = b.event_description;
+  } else {
+    descField.style.display = 'none';
   }
+  buildInlineReviewRoomPicker(b.rooms);
+  document.getElementById('ir-date').value = b.event_date;
+  document.getElementById('ir-date').disabled = true;
+  const startLocal = new Date(b.start_time), endLocal = new Date(b.end_time);
+  document.getElementById('ir-start').value = startLocal.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York' });
+  document.getElementById('ir-end').value = endLocal.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York' });
+  document.getElementById('ir-start').disabled = true;
+  document.getElementById('ir-end').disabled = true;
+
   const baseTotal = Number(b.base_total || 0);
   const mult = Number(b.standard_discount_multiplier || 1);
   const subtotal = Number(b.subtotal_after_standard_discount || baseTotal);
-  html += '<div class="field"><label>Rate calculation</label><div style="font-size:0.86rem;line-height:1.7;">' +
-    'Base rate: $' + baseTotal.toFixed(2) + (mult !== 1 ? '<br>Discount applied: \u00d7 ' + mult + ' (' + (b.is_nonprofit ? 'nonprofit' : 'standard') + ')<br>Subtotal: $' + subtotal.toFixed(2) : '') +
-    '<br><strong>Requested total: $' + Number(b.final_total).toFixed(2) + '</strong></div></div>';
-  if (b.notes) {
-    html += '<div class="field"><label>Notes from request</label><div>' + b.notes.split(' | ').map(function (l) { return '<div>' + escHtml(l) + '</div>'; }).join('') + '</div></div>';
-  }
+  document.getElementById('ir-rate-calc').innerHTML = 'Base rate: $' + baseTotal.toFixed(2) +
+    (mult !== 1 ? '<br>Discount applied: \u00d7 ' + mult + ' (' + (b.is_nonprofit ? 'nonprofit' : 'standard') + ')<br>Subtotal: $' + subtotal.toFixed(2) : '') +
+    '<br><strong>Requested total: $' + Number(b.final_total).toFixed(2) + '</strong>';
+
   const seriesOccurrenceCount = b.recurring_series_id ? BOOKINGS.filter(function (x) { return x.recurring_series_id === b.recurring_series_id; }).length : 1;
+  const recurrenceNote = document.getElementById('ir-recurrence-note');
+  const invoiceModeField = document.getElementById('ir-invoice-mode-field');
   if (seriesOccurrenceCount > 1) {
-    html += '<div class="field" style="margin-top:8px;"><label>This request covers ' + seriesOccurrenceCount + ' occurrences — how should invoicing work?</label>' +
-      '<div class="request-field-row" style="gap:16px;">' +
-      '<label style="display:flex;align-items:center;gap:6px;font-weight:400;"><input type="radio" name="rb-invoice-mode" value="combined" checked> One invoice for the whole series</label>' +
-      '<label style="display:flex;align-items:center;gap:6px;font-weight:400;"><input type="radio" name="rb-invoice-mode" value="per_occurrence"> One invoice per occurrence</label>' +
-      '</div></div>';
+    recurrenceNote.style.display = 'block';
+    recurrenceNote.textContent = 'Part of a series of ' + seriesOccurrenceCount + ' occurrences' + (b.recurrence_summary ? ' (' + b.recurrence_summary + ')' : '') + ' — showing the first date above.';
+    invoiceModeField.style.display = 'block';
+  } else {
+    recurrenceNote.style.display = 'none';
+    invoiceModeField.style.display = 'none';
   }
-  html += '<div class="field" id="review-conflicts-field"><label>Conflicts</label><div id="review-conflicts">Checking…</div></div>';
-  html += '<div class="field" style="margin-top:8px;"><label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="rb-discount-enabled"> Apply a one-time discretionary discount</label></div>';
-  html += '<div class="field-row" id="rb-discount-fields" style="display:none;">';
-  html += '<div class="field"><label>Type</label><select id="rb-discount-type"><option value="percent">Percent off</option><option value="flat">Flat dollar amount off</option></select></div>';
-  html += '<div class="field"><label>Value</label><input type="number" id="rb-discount-value" step="0.01" min="0"></div>';
-  html += '</div><div class="field" id="rb-discount-reason-field" style="display:none;"><label>Reason</label><input type="text" id="rb-discount-reason" placeholder="Required if applying a discount"></div>';
-  html += '<div class="result-box" id="booking-review-result" style="display:none;"></div>';
-  body.innerHTML = html;
 
-  document.getElementById('rb-discount-enabled').addEventListener('change', function () {
-    var show = this.checked;
-    document.getElementById('rb-discount-fields').style.display = show ? 'grid' : 'none';
-    document.getElementById('rb-discount-reason-field').style.display = show ? 'flex' : 'none';
-  });
+  document.getElementById('ir-discount-enabled').checked = false;
+  document.getElementById('ir-discount-fields').style.display = 'none';
+  document.getElementById('ir-discount-reason-field').style.display = 'none';
+  document.getElementById('ir-result-box').style.display = 'none';
 
+  const conflictsField = document.getElementById('ir-conflicts-field');
+  conflictsField.style.background = ''; conflictsField.style.padding = ''; conflictsField.style.borderRadius = '';
+  document.getElementById('ir-conflicts').textContent = 'Checking…';
   try {
     const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/conflicts');
     const conflicts = await res.json();
-    const conflictsEl = document.getElementById('review-conflicts');
+    const conflictsEl = document.getElementById('ir-conflicts');
     if (!res.ok) { conflictsEl.textContent = 'Could not check for conflicts.'; return; }
     if (!conflicts.length) {
       conflictsEl.innerHTML = '<span style="color:var(--green);font-weight:700;">\u2713 No conflicts with existing bookings.</span>';
     } else {
-      document.getElementById('review-conflicts-field').style.background = 'var(--red-bg,#fbe9e7)';
-      document.getElementById('review-conflicts-field').style.padding = '10px 12px';
-      document.getElementById('review-conflicts-field').style.borderRadius = '10px';
+      conflictsField.style.background = 'var(--red-bg,#fbe9e7)';
+      conflictsField.style.padding = '10px 12px';
+      conflictsField.style.borderRadius = '10px';
       conflictsEl.innerHTML = '<span style="color:var(--red,#b3382c);font-weight:700;">\u26a0 Conflicts with ' + conflicts.length + ' existing booking(s):</span>' +
         conflicts.map(function (c) {
           var cTimeStr = formatTimeRange(c.startTime, c.endTime);
@@ -2205,55 +2238,57 @@ async function openBookingReviewModal(bookingId) {
         }).join('');
     }
   } catch (err) {
-    document.getElementById('review-conflicts').textContent = 'Could not check for conflicts: ' + err.message;
+    document.getElementById('ir-conflicts').textContent = 'Could not check for conflicts: ' + err.message;
   }
 }
+document.getElementById('ir-discount-enabled').addEventListener('change', function () {
+  var show = this.checked;
+  document.getElementById('ir-discount-fields').style.display = show ? 'grid' : 'none';
+  document.getElementById('ir-discount-reason-field').style.display = show ? 'flex' : 'none';
+});
 function formatTimeRange(start, end) {
   var s = new Date(start), e = new Date(end);
   return s.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' }) + '\u2013' + e.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' });
 }
-document.getElementById('btn-close-booking-review').addEventListener('click', function () {
-  document.getElementById('booking-review-overlay').style.display = 'none';
+document.getElementById('btn-close-inline-review').addEventListener('click', function () {
+  document.getElementById('inline-review-section').style.display = 'none';
+  reviewingBookingId = null;
 });
-document.getElementById('booking-review-overlay').addEventListener('click', function (e) {
-  if (e.target === this) this.style.display = 'none';
-});
-document.getElementById('btn-booking-review-approve').addEventListener('click', async function () {
+document.getElementById('btn-inline-review-approve').addEventListener('click', async function () {
   if (!reviewingBookingId) return;
-  const discountEnabled = document.getElementById('rb-discount-enabled').checked;
-  const resultBox = document.getElementById('booking-review-result');
+  const discountEnabled = document.getElementById('ir-discount-enabled').checked;
+  const resultBox = document.getElementById('ir-result-box');
   let payload = {};
-  const eventNameInput = document.getElementById('review-event-name');
-  if (eventNameInput) {
-    const eventName = eventNameInput.value.trim();
-    if (!eventName) {
-      resultBox.style.display = 'block'; resultBox.className = 'result-box error';
-      resultBox.textContent = 'An event name is required to approve this request.'; return;
-    }
-    payload.eventName = eventName;
+  const eventName = document.getElementById('ir-event-name').value.trim();
+  if (!eventName) {
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+    resultBox.textContent = 'An event name is required to approve this request.'; return;
   }
+  payload.eventName = eventName;
   if (discountEnabled) {
-    const reason = document.getElementById('rb-discount-reason').value.trim();
+    const reason = document.getElementById('ir-discount-reason').value.trim();
     if (!reason) {
       resultBox.style.display = 'block'; resultBox.className = 'result-box error';
       resultBox.textContent = 'A reason is required for the discount.'; return;
     }
-    payload.discountType = document.getElementById('rb-discount-type').value;
-    payload.discountValue = parseFloat(document.getElementById('rb-discount-value').value) || 0;
+    payload.discountType = document.getElementById('ir-discount-type').value;
+    payload.discountValue = parseFloat(document.getElementById('ir-discount-value').value) || 0;
     payload.discountReason = reason;
   }
-  const invoiceModeInput = document.querySelector('input[name="rb-invoice-mode"]:checked');
+  const invoiceModeInput = document.querySelector('input[name="ir-invoice-mode"]:checked');
   if (invoiceModeInput) payload.invoiceMode = invoiceModeInput.value;
   const btn = this;
   btn.disabled = true; btn.textContent = 'Approving…';
   const ok = await approveRequestAction(reviewingBookingId, payload);
   btn.disabled = false; btn.textContent = 'Approve';
-  if (ok) document.getElementById('booking-review-overlay').style.display = 'none';
+  if (ok) { document.getElementById('inline-review-section').style.display = 'none'; reviewingBookingId = null; }
 });
-document.getElementById('btn-booking-review-reject').addEventListener('click', async function () {
+document.getElementById('btn-inline-review-reject').addEventListener('click', async function () {
   if (!reviewingBookingId) return;
-  document.getElementById('booking-review-overlay').style.display = 'none';
-  await rejectRequestAction(reviewingBookingId);
+  const id = reviewingBookingId;
+  document.getElementById('inline-review-section').style.display = 'none';
+  reviewingBookingId = null;
+  await rejectRequestAction(id);
 });
 
 async function sendInvoiceAction(bookingId) {

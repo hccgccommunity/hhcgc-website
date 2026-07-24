@@ -2271,6 +2271,19 @@ document.getElementById('ambiguous-series-list').addEventListener('click', async
   }
 });
 function renderInvoiceRow(inv, isSubRow) {
+  if (isSubRow) {
+    // Part of a combined series — one invoice covers the whole group, so
+    // individual occurrences show only their date and amount, not their
+    // own independent invoice/receipt/payment actions (those only make
+    // sense once, at the group row, not repeated per occurrence).
+    return '<tr class="sub-row">' +
+      '<td></td>' +
+      '<td style="color:var(--muted);font-size:0.86rem;">' + formatDate(inv.eventDate) + '</td>' +
+      '<td></td>' +
+      '<td class="amount" style="color:var(--muted);">' + money(inv.amount) + '</td>' +
+      '<td colspan="6"></td>' +
+    '</tr>';
+  }
   const linkedTo = inv.matchSource
     ? escHtml(inv.matchSource) + ' transaction \u2014 linked'
     : '<span style="color:var(--muted);">Not linked</span>';
@@ -2290,7 +2303,7 @@ function renderInvoiceRow(inv, isSubRow) {
     : (inv.matchSource
         ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + inv.bookingId + '">Mark paid?</button> <button type="button" class="btn-secondary" style="padding:4px 8px;font-size:0.72rem;" data-unlink-booking="' + inv.bookingId + '">Unlink</button>'
         : '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-link-txn-booking="' + inv.bookingId + '" data-link-txn-amount="' + inv.amount + '">Link transaction</button>');
-  return '<tr class="' + (isSubRow ? 'sub-row' : '') + '">' +
+  return '<tr>' +
     '<td>' + escHtml(inv.renterName) + '</td>' +
     '<td>' + escHtml(inv.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(inv.eventDate) + '</div></td>' +
     '<td>' + (inv.invoiceSentAt ? formatTimestampDate(inv.invoiceSentAt) : '<span style="color:var(--muted);">Not sent</span>') + '</td>' +

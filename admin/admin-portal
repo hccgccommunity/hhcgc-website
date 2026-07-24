@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -400,29 +399,8 @@ body {
     "key": "bookings-finance",
     "name": "Facility Bookings",
     "description": "Book facility rentals and HCCGC events, manage rooms/rates, and log Zelle/cash transactions.",
-    "url": "bookings/new-booking",
+    "url": "facility-rental-portal",
     "icon": "calendar"
-  },
-  {
-    "key": "org-finance",
-    "name": "Finance",
-    "description": "Categorize transactions, reconcile Zeffy payouts, and generate the Statement of Activities.",
-    "url": "finance-portal",
-    "icon": "dollar"
-  },
-  {
-    "key": "issue-reporting",
-    "name": "Issue Reporting",
-    "description": "Report a problem with screenshots and priority — get notified once it's resolved.",
-    "url": "issue-reporting",
-    "icon": "flag"
-  },
-  {
-    "key": "logs-app",
-    "name": "Logs",
-    "description": "Activity across Facility Rental and Finance — filterable by date, app, and sub-page.",
-    "url": "logs",
-    "icon": "list"
   }
 ]
 </script>
@@ -457,17 +435,6 @@ const db = getFirestore(fbApp);
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ hd: ALLOWED_DOMAIN });
 
-// Persistence is set ONCE here, at load — not inside the click handler.
-// Awaiting it before calling signInWithPopup was the actual bug: the popup
-// call landed outside the synchronous click-event call stack, so browsers
-// silently blocked it on the first click (Firebase throws, generic error
-// shows), and only allowed it through on an immediate second click under
-// some browsers' relaxed heuristic for that. Popup must be opened
-// synchronously, directly inside the click handler, every time.
-setPersistence(auth, browserLocalPersistence).catch(function (err) {
-  console.error("[HCCGC AUTH] setPersistence failed:", err.code, err.message);
-});
-
 window.__hccgcPortal = { auth, db, doc, getDoc, setDoc, serverTimestamp, USERS_COLLECTION, ALLOWED_DOMAIN };
 
 function isMobileDevice() {
@@ -478,11 +445,17 @@ document.getElementById("btn-signin").addEventListener("click", function () {
   var errorBox = document.getElementById("signin-error");
   errorBox.style.display = "none";
 
-  var signInPromise = isMobileDevice()
-    ? signInWithRedirect(auth, provider)
-    : signInWithPopup(auth, provider);
-
-  signInPromise.catch(function (err) {
+  // Explicitly set local persistence before signing in — ensures the session
+  // is stored in localStorage on all browsers including mobile Safari,
+  // which can default to sessionStorage in certain in-app browser contexts.
+  setPersistence(auth, browserLocalPersistence).then(function () {
+    if (isMobileDevice()) {
+      console.log("[HCCGC AUTH] Mobile — using redirect sign-in...");
+      return signInWithRedirect(auth, provider);
+    }
+    console.log("[HCCGC AUTH] Desktop — opening popup...");
+    return signInWithPopup(auth, provider);
+  }).catch(function (err) {
     console.error("[HCCGC AUTH] Sign-in failed:", err.code, err.message);
     if (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request") return;
     errorBox.textContent = "Sign-in failed. Please try again.";
@@ -547,9 +520,6 @@ var ICONS = {
   sparkles: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>',
   users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',
   globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
-  dollar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
-  flag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="3"/></svg>',
-  list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
   default: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>'
 };
 

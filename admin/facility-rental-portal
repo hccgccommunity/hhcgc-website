@@ -1,0 +1,2340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facility Rental Portal — HCCGC Admin Portal</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F5ZHQ4CDR9');</script>
+
+<style>
+
+:root {
+  --bg: #fff9f1;
+  --surface: #ffffff;
+  --surface-soft: #fff6ea;
+  --border: rgba(121,62,17,0.14);
+  --text: #2c1b10;
+  --muted: #6a5141;
+  --saffron: #b55a18;
+  --saffron-dark: #8d3e0d;
+  --maroon: #7f2e16;
+  --radius: 22px;
+  --shadow: 0 18px 45px rgba(93,43,14,0.10);
+  --green: #2e7d4f;
+  --green-bg: #e8f5ec;
+  --amber: #a15c00;
+  --amber-bg: #fdf1de;
+  --grey-bg: #f1ede8;
+  --red: #b3382c;
+  --red-bg: #fbe9e7;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%),
+    radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%),
+    var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+.container { width: min(calc(100% - 32px), 1200px); margin: 0 auto; }
+
+/* Header partial styling, copied from portal shell so header.html renders identically */
+.site-header { position: sticky; top: 0; z-index: 50; background: rgba(255,249,241,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 92px; padding: 12px 0; }
+.site-header a.brand, .site-header a.brand:link, .site-header a.brand:visited { text-decoration: none; color: inherit; }
+.brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.brand-logo-wrap { background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 8px; box-shadow: var(--shadow); flex-shrink: 0; }
+.brand-logo { width: 88px; height: auto; border-radius: 12px; object-fit: contain; }
+.brand-text h1 { margin: 0; font-size: 1.2rem; line-height: 1.15; color: var(--maroon); }
+.site-header nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 18px; margin: 0; padding: 0; align-items: center; justify-content: flex-end; }
+.site-header nav a, .site-header nav a:link, .site-header nav a:visited { font-weight: 700; color: var(--text); font-size: 0.96rem; text-decoration: none; }
+.site-header nav a:hover { color: var(--saffron-dark); }
+.menu-toggle { display: none; border: 0; background: transparent; padding: 6px 0; cursor: pointer; color: #2c1b10; align-self: flex-end; }
+.menu-toggle .bar { display: block; width: 26px; height: 2px; margin: 5px 0; background: currentColor; }
+@media (max-width: 768px) {
+  .nav { flex-direction: column; align-items: stretch; gap: 8px; }
+  .menu-toggle { display: inline-block; }
+  .site-header nav { display: none; width: 100%; background: rgba(255,249,241,0.95); padding: 10px 0; }
+  .site-header nav.is-open { display: block; }
+  .site-header nav ul { flex-direction: column; gap: 14px; }
+}
+
+/* Page hero */
+.page-hero { padding: 40px 0 28px; background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%); color: #fff; position: relative; }
+.page-hero .eyebrow { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.75); margin-bottom: 6px; }
+.page-hero h1 { font-family: Georgia, "Times New Roman", serif; font-size: 1.9rem; color: #fff; margin-bottom: 6px; }
+.page-hero p { color: #ffffff; opacity: 0.9; font-size: 0.92rem; max-width: 560px; }
+
+/* Sub-nav across the Facility Bookings module */
+.module-nav { background: var(--surface); border-bottom: 1px solid var(--border); }
+.module-nav ul { list-style: none; display: flex; gap: 4px; padding: 10px 0; flex-wrap: wrap; }
+.module-nav a {
+  display: inline-block; padding: 8px 16px; border-radius: 999px; font-size: 0.86rem; font-weight: 700;
+  color: var(--muted); text-decoration: none; transition: background 0.15s, color 0.15s;
+}
+.module-nav a.active { background: var(--surface-soft); color: var(--saffron-dark); }
+.module-nav a.disabled { color: rgba(106,81,65,0.4); cursor: default; }
+.module-nav a:not(.disabled):not(.active):hover { background: var(--surface-soft); }
+
+/* Toolbar */
+.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 24px 0 16px; }
+.toolbar input[type="text"], .toolbar select {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; padding: 9px 14px;
+  border: 1.5px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text);
+}
+.toolbar input[type="text"] { flex: 1; min-width: 200px; }
+.toolbar .count { margin-left: auto; font-size: 0.82rem; color: var(--muted); }
+
+/* Table */
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow-x: auto; box-shadow: var(--shadow); margin-bottom: 60px; }
+thead th:last-child, tbody td:last-child { position: sticky; right: 0; background: var(--surface); box-shadow: -6px 0 8px -6px rgba(0,0,0,0.08); }
+thead th:last-child { background: var(--surface-soft); }
+tbody tr.cancelled-row td:last-child { background: var(--red-bg); }
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+thead th {
+  text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--muted); background: var(--surface-soft); padding: 10px 10px; border-bottom: 1px solid var(--border);
+}
+tbody td { padding: 10px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: rgba(217,138,30,0.04); }
+tbody tr.cancelled-row { background: var(--red-bg); }
+tbody tr.cancelled-row:hover { background: rgba(179,56,44,0.12); }
+tbody tr.cancelled-row td { color: var(--muted); }
+tr.series-summary-row { cursor: pointer; background: var(--surface-soft); }
+tr.series-summary-row:hover { background: rgba(217,138,30,0.10); }
+tr.sub-row td { background: rgba(0,0,0,0.015); }
+tr.sub-row td:first-child { padding-left: 28px; }
+.btn-expand-series {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.7rem; font-weight: 700;
+  padding: 5px 8px; border-radius: 7px; border: 1.5px solid var(--saffron-dark);
+  background: #fff; color: var(--saffron-dark); cursor: pointer; white-space: nowrap;
+}
+.btn-expand-series:hover { background: var(--surface-soft); }
+.renter-name { font-weight: 700; color: var(--text); }
+.renter-sub { font-size: 0.78rem; color: var(--muted); }
+.room-pill { font-size: 0.78rem; font-weight: 700; color: var(--saffron-dark); }
+.room-pill.whole-facility {
+  display: inline-flex; align-items: center; gap: 4px; color: var(--maroon);
+  background: linear-gradient(135deg, rgba(217,138,30,0.16), rgba(127,46,22,0.10));
+  padding: 3px 9px; border-radius: 999px; font-size: 0.74rem;
+}
+.amount { font-weight: 700; font-variant-numeric: tabular-nums; }
+.amount .adjusted-tag {
+  display: block; font-weight: 700; font-size: 0.68rem; color: var(--saffron-dark);
+  text-transform: uppercase; letter-spacing: 0.03em; margin-top: 2px;
+}
+
+.badge {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 0.74rem; font-weight: 700;
+  padding: 4px 10px; border-radius: 999px; white-space: nowrap;
+}
+.badge-paid { background: var(--green-bg); color: var(--green); }
+.badge-needs-confirm { background: var(--amber-bg); color: var(--amber); }
+.btn-invoice { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; vertical-align: middle; }
+.btn-invoice.attached { background: #ffe4a3; border: 2px solid #c8890a; box-shadow: 0 0 0 1px rgba(200,137,10,0.25); }
+.btn-invoice.sent { background: #bdedcf; border: 2px solid #1f6b3f; box-shadow: 0 0 0 1px rgba(31,107,63,0.25); cursor: default; }
+.btn-invoice:hover:not(.sent) { filter: brightness(0.96); }
+.action-icons { display: flex; align-items: center; gap: 4px; }
+.btn-icon-action { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; }
+.btn-icon-action.has-content { background: #bdedcf; border: 2px solid #1f6b3f; }
+.btn-icon-action:hover { filter: brightness(0.96); }
+.btn-receipt { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; }
+.btn-receipt.sent { background: #bdedcf; border: 2px solid #1f6b3f; box-shadow: 0 0 0 1px rgba(31,107,63,0.25); cursor: default; }
+.btn-receipt:disabled { opacity: 0.4; cursor: default; }
+.btn-receipt:hover:not(:disabled):not(.sent) { filter: brightness(0.96); }
+.invoice-action-btn { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1.5px solid var(--border); background: #fff; font-family: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer; text-align: left; }
+.invoice-action-btn:hover { background: var(--surface-soft); }
+.invoice-action-btn.primary { background: linear-gradient(135deg, var(--saffron-dark), var(--maroon)); color: #fff; border: none; }
+.badge-draft { background: var(--grey-bg); color: var(--muted); }
+.badge-cancelled { background: var(--red-bg); color: var(--red); }
+.badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.method-tag { font-size: 0.72rem; color: var(--muted); display: block; margin-top: 2px; }
+
+.empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+.pagination-bar { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 20px 0 50px; }
+.pagination-bar button {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.84rem; font-weight: 700; padding: 7px 14px;
+  border-radius: 8px; border: 1.5px solid var(--border); background: #fff; color: var(--text); cursor: pointer;
+}
+.pagination-bar button:hover:not(:disabled) { background: var(--surface-soft); }
+.pagination-bar button:disabled { opacity: 0.4; cursor: default; }
+.pagination-bar .page-indicator { font-size: 0.84rem; color: var(--muted); }
+
+.mock-notice {
+  background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(161,92,0,0.2);
+  border-radius: 12px; padding: 12px 16px; font-size: 0.82rem; margin: 20px 0 0;
+}
+
+
+.discount-chip { display: inline-block; font-size: 0.68rem; font-weight: 700; color: var(--saffron-dark); background: var(--surface-soft); border-radius: 999px; padding: 2px 8px; }
+
+thead th.sortable { cursor: pointer; user-select: none; white-space: nowrap; }
+thead th.sortable:hover { color: var(--saffron-dark); }
+thead th.sortable .sort-arrow { margin-left: 4px; opacity: 0.4; }
+thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
+.notes-cell { max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.78rem; color: var(--muted); }
+.updated-cell { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+
+.contact-filter-wrap { position: relative; }
+.contact-filter-panel { position: absolute; top: calc(100% + 4px); left: 0; z-index: 40; background: #fff; border: 1.5px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); padding: 10px; width: 260px; max-height: 320px; overflow-y: auto; }
+.contact-filter-actions { display: flex; gap: 8px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.contact-filter-actions button { font-family: inherit; font-size: 0.76rem; font-weight: 700; color: var(--saffron-dark); background: none; border: none; cursor: pointer; padding: 2px 4px; }
+.contact-filter-row { display: flex; align-items: center; gap: 8px; padding: 5px 4px; font-size: 0.86rem; }
+.contact-filter-row input { flex-shrink: 0; }
+.contact-filter-row label { cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.btn-kebab {
+  width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid var(--border); background: #fff;
+  color: var(--text); font-size: 1.1rem; line-height: 1; cursor: pointer; transition: background 0.15s;
+}
+.btn-kebab:hover { background: var(--surface-soft); }
+.actions-menu {
+  position: fixed; background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  box-shadow: var(--shadow); padding: 8px; z-index: 9999; display: none; min-width: 180px;
+}
+.actions-menu.open { display: block; }
+.actions-menu button {
+  display: block; width: 100%; text-align: left; padding: 8px 10px; border: none; background: none;
+  font-size: 0.84rem; color: var(--text); cursor: pointer; border-radius: 6px; font-family: Arial, Helvetica, sans-serif;
+}
+.actions-menu button:hover { background: var(--surface-soft); }
+.actions-menu button.danger { color: var(--red); }
+.actions-menu .menu-divider { border-top: 1px solid var(--border); margin: 6px 2px; }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(44,27,16,0.5); z-index: 100; display: flex; align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto; }
+.modal-panel { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); width: 100%; max-width: 640px; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 22px 26px; border-bottom: 1px solid var(--border); }
+.modal-header h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.2rem; color: var(--maroon); }
+.modal-close { background: none; border: none; font-size: 1.4rem; color: var(--muted); cursor: pointer; line-height: 1; }
+.modal-body { padding: 22px 26px; max-height: 65vh; overflow-y: auto; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 18px 26px; border-top: 1px solid var(--border); }
+.modal-body .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.modal-body .field label { font-size: 0.78rem; font-weight: 700; color: var(--muted); }
+.modal-body .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.modal-body input:not([type="checkbox"]), .modal-body select, .modal-body textarea {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.9rem; padding: 9px 12px; border: 1.5px solid var(--border);
+  border-radius: 10px; background: #fff; color: var(--text); width: 100%; box-sizing: border-box;
+}
+.modal-body textarea { resize: vertical; min-height: 56px; }
+.modal-room-picker { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 8px; margin-bottom: 8px; }
+.modal-room-check { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; font-size: 0.84rem; }
+.modal-room-check input[type="checkbox"] { width: 16px; height: 16px; flex-shrink: 0; margin: 0; }
+.modal-room-check:has(input:checked) { border-color: var(--saffron-dark); background: var(--surface-soft); font-weight: 700; }
+.modal-room-check .rate { margin-left: auto; font-size: 0.72rem; color: var(--muted); flex-shrink: 0; }
+.occ-table { border-collapse: collapse; margin: 10px 0 16px; }
+.occ-table th { text-align: left; font-size: 0.7rem; text-transform: uppercase; color: var(--muted); padding: 6px 8px; }
+.occ-table td { padding: 5px 8px; }
+.occ-table input[type="date"], .occ-table input[type="time"] { font-family: Arial, Helvetica, sans-serif; font-size: 0.82rem; padding: 6px 8px; border: 1.5px solid var(--border); border-radius: 8px; width: 100%; box-sizing: border-box; }
+.occ-table input[type="checkbox"] { width: 16px; height: 16px; }
+.occ-table tr.marked-for-removal td { opacity: 0.4; text-decoration: line-through; }
+.columns-panel {
+  position: absolute; top: calc(100% + 6px); right: 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; box-shadow: var(--shadow); padding: 12px; z-index: 30; min-width: 220px;
+}
+.columns-panel .columns-panel-note { font-size: 0.72rem; color: var(--muted); margin-bottom: 8px; }
+.columns-panel label { display: flex; align-items: center; gap: 8px; font-size: 0.84rem; padding: 5px 4px; cursor: pointer; border-radius: 6px; }
+.columns-panel label:hover { background: var(--surface-soft); }
+.columns-panel input:disabled + span { color: var(--muted); }
+.match-candidate { border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; }
+.match-candidate.high-confidence { border-color: var(--saffron-dark); background: var(--surface-soft); }
+.match-candidate .match-label { font-weight: 700; font-size: 0.9rem; }
+.match-candidate .match-reason { font-size: 0.78rem; color: var(--muted); margin: 2px 0 8px; }
+.match-candidate .match-source-tag { display: inline-block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--surface-soft); color: var(--saffron-dark); margin-bottom: 6px; }
+.month-calendar-panel {
+  position: absolute; top: calc(100% + 6px); left: 0; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; box-shadow: var(--shadow); padding: 14px; z-index: 30; width: 260px;
+}
+.month-calendar-quick { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.month-calendar-quick button {
+  text-align: left; padding: 7px 10px; border-radius: 8px; border: none; background: none; cursor: pointer;
+  font-size: 0.84rem; font-family: Arial, Helvetica, sans-serif; color: var(--text);
+}
+.month-calendar-quick button:hover, .month-calendar-quick button.active { background: var(--surface-soft); color: var(--saffron-dark); font-weight: 700; }
+.month-calendar-year-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.month-calendar-year-nav button { border: none; background: var(--surface-soft); border-radius: 6px; width: 26px; height: 26px; cursor: pointer; font-size: 0.9rem; }
+.month-calendar-year-nav span { font-weight: 700; color: var(--maroon); font-family: Georgia, serif; }
+.month-calendar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.month-calendar-grid button {
+  padding: 8px 4px; border-radius: 8px; border: 1.5px solid var(--border); background: #fff; cursor: pointer;
+  font-size: 0.8rem; font-family: Arial, Helvetica, sans-serif; color: var(--text);
+}
+.month-calendar-grid button:hover { background: var(--surface-soft); }
+.month-calendar-grid button.active { border-color: var(--saffron-dark); background: var(--surface-soft); color: var(--saffron-dark); font-weight: 700; }
+.checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 0.86rem; }
+.btn-secondary {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; font-weight: 700; color: var(--text);
+  background: #fff; border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 18px; cursor: pointer;
+}
+.btn-primary {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; font-weight: 700; color: #fff;
+  background: linear-gradient(135deg, var(--saffron-dark), var(--maroon)); border: none; border-radius: 10px; padding: 10px 18px; cursor: pointer;
+}
+.result-box { margin-top: 12px; border-radius: 12px; padding: 10px 14px; font-size: 0.82rem; }
+.result-box.success { background: #e8f5ec; color: #2e7d4f; border: 1px solid rgba(46,125,79,0.25); }
+.result-box.error { background: #fbe9e7; color: #b3382c; border: 1px solid rgba(179,56,44,0.25); }
+
+#gate{padding:60px 16px;display:flex;justify-content:center;}
+.gate-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow);}
+.gate-card h3{font-family:Georgia,serif;font-size:1.3rem;color:var(--maroon);margin-bottom:.5rem;}
+.gate-card p{color:var(--muted);font-size:.88rem;line-height:1.6;}
+.gate-card a{color:var(--saffron-dark);}
+.back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.85); text-decoration: none; margin-bottom: 14px; }
+.back-link:hover { color: #fff; text-decoration: underline; }
+.nav-badge { display: inline-block; background: #b3382c; color: #fff; font-size: 0.68rem; font-weight: 700; padding: 1px 6px; border-radius: 999px; margin-left: 4px; vertical-align: middle; }
+
+.tab-nav { background: var(--surface); border-bottom: 1px solid var(--border); }
+.tab-nav ul { list-style: none; display: flex; gap: 4px; padding: 10px 0; flex-wrap: wrap; }
+.tab-nav button { display: inline-block; padding: 8px 16px; border-radius: 999px; font-size: 0.86rem; font-weight: 700; color: var(--muted); background: none; border: none; cursor: pointer; transition: background 0.15s, color 0.15s; font-family: inherit; }
+.tab-nav button.active { background: var(--surface-soft); color: var(--saffron-dark); }
+.tab-nav button:not(.active):hover { background: var(--surface-soft); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.tab-stub { padding: 60px 20px; text-align: center; color: var(--muted); }
+.tab-stub a { color: var(--saffron-dark); font-weight: 700; }
+
+</style>
+</head>
+<body>
+<div id="site-header"></div>
+
+<div id="gate">
+  <div class="gate-card">
+    <h3>Checking access&hellip;</h3>
+    <p>Please sign in from the <a href="/admin/admin-portal">Admin Portal</a> first.</p>
+  </div>
+</div>
+
+<div id="app">
+  <div class="tab-nav">
+    <ul>
+      <li><button class="tab-btn active" data-tab="all-bookings">All Bookings</button></li>
+      <li><button class="tab-btn" data-tab="new-booking">New Booking</button></li>
+      <li><button class="tab-btn" data-tab="dashboard">Dashboard</button></li>
+      <li><button class="tab-btn" data-tab="rooms-rates">Rooms &amp; Rates</button></li>
+      <li><button class="tab-btn" data-tab="add-renter">Add A Renter</button></li>
+    </ul>
+  </div>
+
+  <div class="tab-panel active" id="tab-all-bookings">
+
+
+<div class="page-hero">
+  <div class="container">
+    <a class="back-link" href="https://hccgc.org/admin/admin-portal">&larr; Back to apps</a>
+    <div class="eyebrow">Facility Bookings</div>
+    <h1>All Bookings</h1>
+    <p>Every facility booking, its payment status, and who still owes what.</p>
+  </div>
+</div>
+
+<div class="module-nav">
+  <div class="container">
+    <ul>
+      <li><a href="dashboard">Dashboard</a></li>
+      <li><a href="new-booking">New Booking</a></li>
+      <li><a href="all-bookings" class="active" id="nav-all-bookings">All Bookings</a></li>
+      <li><a href="rooms-rates">Rooms &amp; Rates</a></li>
+      <li><a href="add-renter" id="nav-add-renter">Add A Renter</a></li>
+    </ul>
+  </div>
+</div>
+
+<div class="container">
+  <div class="mock-notice" id="mock-notice" style="display:none;"></div>
+
+  <div class="toolbar">
+    <div class="contact-filter-wrap">
+      <button type="button" class="btn-secondary" id="btn-contact-filter-toggle">Contact: All <span id="contact-filter-count"></span> &#9662;</button>
+      <div class="contact-filter-panel" id="contact-filter-panel" style="display:none;">
+        <div class="contact-filter-actions">
+          <button type="button" id="btn-contact-filter-all">Select all</button>
+          <button type="button" id="btn-contact-filter-none">Clear</button>
+        </div>
+        <div id="contact-filter-list"></div>
+      </div>
+    </div>
+    <select id="room-filter">
+      <option value="">All rooms</option>
+      <option value="Surya Hall">Surya Hall</option>
+      <option value="Patanjali Hall">Patanjali Hall</option>
+      <option value="Nataraj Room">Nataraj Room</option>
+      <option value="Ganesh Room">Ganesh Room</option>
+      <option value="__whole_facility__">Whole Facility</option>
+    </select>
+    <div class="contact-filter-wrap">
+      <button type="button" class="btn-secondary" id="btn-status-filter-toggle">Status <span id="status-filter-count"></span> &#9662;</button>
+      <div class="contact-filter-panel" id="status-filter-panel" style="display:none;">
+        <div class="contact-filter-actions">
+          <button type="button" id="btn-status-filter-all">Select all</button>
+          <button type="button" id="btn-status-filter-none">Clear</button>
+        </div>
+        <div id="status-filter-list"></div>
+      </div>
+    </div>
+    <div style="position:relative;">
+      <button type="button" class="btn-secondary" id="btn-month-filter" style="padding:9px 14px;font-size:0.86rem;"></button>
+      <div class="month-calendar-panel" id="month-calendar-panel" style="display:none;"></div>
+    </div>
+    <div style="position:relative;">
+      <button type="button" class="btn-secondary" id="btn-columns" style="padding:9px 14px;font-size:0.86rem;">Columns</button>
+      <div class="columns-panel" id="columns-panel" style="display:none;"></div>
+    </div>
+    <select id="page-size-filter" style="font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; padding: 9px 10px; border: 1.5px solid var(--border); border-radius: 10px;">
+      <option value="10">10 per page</option>
+      <option value="20" selected>20 per page</option>
+      <option value="30">30 per page</option>
+      <option value="50">50 per page</option>
+    </select>
+    <span class="count" id="result-count"></span>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr id="thead-row"></tr>
+      </thead>
+      <tbody id="bookings-tbody"></tbody>
+    </table>
+    <div class="empty-state" id="ab-empty-state" style="display:none;">No bookings match your filters.</div>
+  </div>
+  <div class="pagination-bar" id="pagination-bar"></div>
+</div>
+
+</div>
+
+<datalist id="ab-common-times">
+  <option value="06:00"><option value="06:30"><option value="07:00"><option value="07:30">
+  <option value="08:00"><option value="08:30"><option value="09:00"><option value="09:30">
+  <option value="10:00"><option value="10:30"><option value="11:00"><option value="11:30">
+  <option value="12:00"><option value="12:30"><option value="13:00"><option value="13:30">
+  <option value="14:00"><option value="14:30"><option value="15:00"><option value="15:30">
+  <option value="16:00"><option value="16:30"><option value="17:00"><option value="17:30">
+  <option value="18:00"><option value="18:30"><option value="19:00"><option value="19:30">
+  <option value="20:00"><option value="20:30"><option value="21:00"><option value="21:30">
+  <option value="22:00">
+</datalist>
+
+<div class="modal-overlay" id="edit-modal-overlay" style="display:none;">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <h2 id="edit-modal-title">Edit booking</h2>
+      <button class="modal-close" id="btn-close-edit">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="field" id="edit-renter-select-field">
+        <label>Select a contact</label>
+        <select id="edit-renter-select"><option value="">Choose a renter…</option></select>
+      </div>
+      <div class="field" id="edit-name-field" style="display:none;">
+        <label>Program / event name</label>
+        <input type="text" id="edit-name">
+      </div>
+      <div class="field" id="edit-hccg-rep-field" style="display:none;">
+        <label>HCCGC representative name</label>
+        <input type="text" id="edit-hccg-rep">
+      </div>
+      <div class="field"><label>Date</label><input type="date" id="edit-date"></div>
+      <div class="field-row">
+        <div class="field"><label>Start time</label><input type="time" id="edit-start" list="common-times"></div>
+        <div class="field"><label>End time</label><input type="time" id="edit-end" list="common-times"></div>
+      </div>
+      <div class="field">
+        <label>Rooms</label>
+        <div class="modal-room-picker" id="edit-room-picker"></div>
+      </div>
+      <div class="checkbox-row" id="edit-nonprofit-row"><input type="checkbox" id="edit-nonprofit"><label for="edit-nonprofit">Renter is a nonprofit</label></div>
+      <div class="field"><label>Notes</label><textarea id="edit-notes"></textarea></div>
+      <div class="result-box" id="ab-edit-result-box" style="display:none;"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-cancel-edit-modal">Close</button>
+      <button type="button" class="btn-primary" id="btn-save-edit">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="series-edit-modal-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:760px;">
+    <div class="modal-header">
+      <h2 id="series-edit-modal-title">Edit series</h2>
+      <button class="modal-close" id="btn-close-series-edit">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="card-sub" style="margin-bottom:14px;">Renter, rooms, and notes apply to every occurrence in this series. Each occurrence keeps its own date and time below — edit any of them, or remove one to cancel just that occurrence (with its own cancellation fee, per policy) without affecting the rest.</div>
+      <div class="field" id="series-edit-renter-select-field">
+        <label>Select a contact</label>
+        <select id="series-edit-renter-select"><option value="">Choose a renter…</option></select>
+      </div>
+      <div class="field" id="series-edit-name-field" style="display:none;">
+        <label>Program / event name</label>
+        <input type="text" id="series-edit-name">
+      </div>
+      <div class="field" id="series-edit-hccg-rep-field" style="display:none;">
+        <label>HCCGC representative name</label>
+        <input type="text" id="series-edit-hccg-rep">
+      </div>
+      <div class="field">
+        <label>Rooms</label>
+        <div class="modal-room-picker" id="series-edit-room-picker"></div>
+      </div>
+      <div class="checkbox-row" id="series-edit-nonprofit-row"><input type="checkbox" id="series-edit-nonprofit"><label for="series-edit-nonprofit">Renter is a nonprofit</label></div>
+      <div class="field"><label>Notes</label><textarea id="series-edit-notes"></textarea></div>
+
+      <div class="field"><label>Occurrences</label></div>
+      <table class="occ-table" style="width:100%;">
+        <thead><tr><th>Date</th><th>Start</th><th>End</th><th>Remove</th></tr></thead>
+        <tbody id="series-edit-occ-tbody"></tbody>
+      </table>
+
+      <div class="result-box" id="series-edit-result-box" style="display:none;"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-cancel-series-edit-modal">Close</button>
+      <button type="button" class="btn-primary" id="btn-save-series-edit">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="invoice-action-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:380px;">
+    <div class="modal-header">
+      <h2>Invoice</h2>
+      <button class="modal-close" id="btn-close-invoice-action">&times;</button>
+    </div>
+    <div class="modal-body" id="invoice-action-body" style="display:flex;flex-direction:column;gap:10px;"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="receipt-action-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:380px;">
+    <div class="modal-header">
+      <h2>Receipt</h2>
+      <button class="modal-close" id="btn-close-receipt-action">&times;</button>
+    </div>
+    <div class="modal-body" id="receipt-action-body" style="display:flex;flex-direction:column;gap:10px;"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="reject-reason-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:520px;">
+    <div class="modal-header">
+      <h2>Reject this request</h2>
+      <button class="modal-close" id="btn-close-reject-reason">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="card-sub" style="margin-bottom:10px;">This reason will be emailed to the renter — take the space you need to explain it properly.</p>
+      <textarea id="reject-reason-textarea" rows="10" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></textarea>
+      <div class="result-box" id="reject-reason-result" style="display:none;margin-top:10px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-cancel-reject-reason">Cancel</button>
+      <button type="button" class="btn-primary" id="btn-confirm-reject-reason" style="margin-top:0;">Reject &amp; send</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="notes-edit-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:460px;">
+    <div class="modal-header">
+      <h2>Notes</h2>
+      <button class="modal-close" id="btn-close-notes-edit">&times;</button>
+    </div>
+    <div class="modal-body">
+      <textarea id="notes-edit-textarea" rows="6" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></textarea>
+      <div class="result-box" id="notes-edit-result" style="display:none;margin-top:10px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-cancel-notes-edit">Cancel</button>
+      <button type="button" class="btn-primary" id="btn-save-notes-edit" style="margin-top:0;">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="booking-review-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:600px;">
+    <div class="modal-header">
+      <h2>Review booking request</h2>
+      <button class="modal-close" id="btn-close-booking-review">&times;</button>
+    </div>
+    <div class="modal-body" id="booking-review-body"></div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-booking-review-reject">Reject</button>
+      <button type="button" class="btn-primary" id="btn-booking-review-approve" style="margin-top:0;">Approve</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="edit-invoice-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:460px;">
+    <div class="modal-header">
+      <h2>Edit invoice</h2>
+      <button class="modal-close" id="btn-close-edit-invoice">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="card-sub" style="margin-bottom:16px;">Room, hours, and rate can only be changed by editing the booking itself. This only affects the invoice: notes and one adjustment amount.</p>
+      <div class="field"><label>Notes</label><textarea id="ei-notes" rows="3" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></textarea></div>
+      <div class="field"><label>Adjustment amount ($) — positive to add a charge, negative for a discount</label><input type="number" step="0.01" id="ei-flat-discount" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></div>
+      <div class="field"><label>Reason / description</label><input type="text" id="ei-adjustment-reason" placeholder="e.g. Extra cleaning fee, or Loyal renter discount" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></div>
+      <div class="result-box" id="edit-invoice-result" style="display:none;"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-cancel-edit-invoice">Cancel</button>
+      <button type="button" class="btn-secondary" id="btn-save-edit-invoice-only" style="margin-top:0;">Save only</button>
+      <button type="button" class="btn-primary" id="btn-save-edit-invoice">Save &amp; send</button>
+    </div>
+  </div>
+  </div>
+
+  <div class="tab-panel" id="tab-new-booking">
+    <div class="tab-stub">This tab is still being migrated into the merged page — use <a href="/admin/bookings/new-booking">the standalone New Booking page</a> for now.</div>
+  </div>
+
+  <div class="tab-panel" id="tab-dashboard">
+    <div class="tab-stub">This tab is still being migrated into the merged page — use <a href="/admin/bookings/dashboard">the standalone Dashboard page</a> for now.</div>
+  </div>
+
+  <div class="tab-panel" id="tab-rooms-rates">
+    <div class="tab-stub">This tab is still being migrated into the merged page — use <a href="/admin/bookings/rooms-rates">the standalone Rooms &amp; Rates page</a> for now.</div>
+  </div>
+
+  <div class="tab-panel" id="tab-add-renter">
+    <div class="tab-stub">This tab is still being migrated into the merged page — use <a href="/admin/bookings/add-renter">the standalone Add A Renter page</a> for now.</div>
+  </div>
+</div>
+
+<div id="site-footer"></div>
+
+<script>
+const API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';
+
+async function authedFetch(url, options) {
+  options = options || {};
+  var user = window.__hccgcFirebaseUser;
+  if (!user) throw new Error('Not signed in.');
+  var token = await user.getIdToken();
+  options.headers = Object.assign({}, options.headers, { 'Authorization': 'Bearer ' + token });
+  return fetch(url, options);
+}
+function escHtml(str) {
+  return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function loadPartial(id, file) {
+  var target = document.getElementById(id);
+  if (!target) return;
+  fetch(file).then(function (r) { return r.text(); }).then(function (html) {
+    target.innerHTML = html;
+    if (id === 'site-header') fixHeaderLinksForSubfolder(target);
+  }).catch(function () {});
+}
+function fixHeaderLinksForSubfolder(headerEl) {
+  var logo = headerEl.querySelector('.brand-logo');
+  if (logo && logo.getAttribute('src') && !logo.getAttribute('src').startsWith('/') && !logo.getAttribute('src').startsWith('http')) {
+    logo.setAttribute('src', '/' + logo.getAttribute('src'));
+  }
+  headerEl.querySelectorAll('a[href]').forEach(function (link) {
+    var href = link.getAttribute('href');
+    if (!href || href.startsWith('http') || href.startsWith('/') || href.startsWith('#')) return;
+    link.setAttribute('href', '/' + href);
+  });
+}
+loadPartial('site-header', '/header.html');
+loadPartial('site-footer', '/footer.html');
+async function loadPendingCounts() {
+  try {
+    var res = await authedFetch(API_BASE + '/pending-counts');
+    var data = await res.json();
+    if (data.pendingRenters > 0) {
+      var renterLink = document.getElementById('nav-add-renter');
+      if (renterLink && !renterLink.querySelector('.nav-badge')) renterLink.insertAdjacentHTML('beforeend', ' <span class="nav-badge">' + data.pendingRenters + '</span>');
+    }
+    if (data.pendingBookings > 0) {
+      var bookingLink = document.getElementById('nav-all-bookings');
+      if (bookingLink && !bookingLink.querySelector('.nav-badge')) bookingLink.insertAdjacentHTML('beforeend', ' <span class="nav-badge">' + data.pendingBookings + '</span>');
+    }
+  } catch (err) {
+    // Silent -- badges are a nice-to-have, not worth surfacing an error for.
+  }
+}
+
+// ==================== ALL BOOKINGS TAB ====================
+// ---- Sample data, standing in for a BigQuery-backed API call ----
+// Real bookings are loaded from the API below (see loadBookings()).
+const ALL_ROOM_NAMES = ['Surya Hall', 'Patanjali Hall', 'Nataraj Room', 'Ganesh Room'];
+
+let BOOKINGS = [];
+
+async function loadBookings() {
+  const notice = document.getElementById('mock-notice');
+  try {
+    const res = await authedFetch(API_BASE + '/bookings');
+    if (!res.ok) throw new Error('Server returned ' + res.status);
+    BOOKINGS = await res.json();
+    notice.style.display = 'none';
+  } catch (err) {
+    notice.textContent = 'Could not load bookings from the database (' + err.message + '). Check the database connection and try refreshing.';
+    notice.style.display = 'block';
+    BOOKINGS = [];
+  }
+  populateContactFilter();
+  render();
+}
+
+let state = { contactFilter: undefined, statusFilter: undefined, room: '', month: 'default3', sortKey: 'updated_display', sortDir: 'desc', pageSize: 20, page: 1 };
+
+// ---- Column configurator ----
+// Contact Name and Actions are always shown — everything else is
+// toggleable. Capped at MAX_VISIBLE so re-enabling everything can't just
+// recreate the same clutter we fixed earlier.
+const COLUMN_DEFS = [
+  { key: 'event_name', label: 'Event Name' },
+  { key: 'room', label: 'Room' },
+  { key: 'event_date', label: 'Booking Date', sortable: true },
+  { key: 'hours', label: 'Hours', sortable: true },
+  { key: 'final_total', label: 'Total', sortable: true },
+  { key: 'payment_status', label: 'Status', sortable: true },
+  { key: 'organization_name', label: 'Organization' },
+  { key: 'notes', label: 'Notes' },
+  { key: 'created_by', label: 'Booked By' },
+  { key: 'updated_display', label: 'Updated', sortable: true }
+];
+const DEFAULT_VISIBLE_COLUMNS = ['event_name', 'room', 'event_date', 'hours', 'final_total', 'payment_status'];
+const MAX_VISIBLE_COLUMNS = 7;
+
+function loadVisibleColumns() {
+  try {
+    const stored = JSON.parse(localStorage.getItem('hccgc-bookings-visible-columns'));
+    if (Array.isArray(stored) && stored.length) return new Set(stored);
+  } catch (err) { /* fall through to default */ }
+  return new Set(DEFAULT_VISIBLE_COLUMNS);
+}
+let visibleColumns = loadVisibleColumns();
+function saveVisibleColumns() {
+  try { localStorage.setItem('hccgc-bookings-visible-columns', JSON.stringify(Array.from(visibleColumns))); } catch (err) { /* ignore storage errors */ }
+}
+
+
+
+function formatDate(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+// For real timestamps (invoice_sent_at, receipt_sent_at, etc.) — unlike
+// formatDate above, these carry an actual time-of-day and must always
+// display in Eastern regardless of the viewer's own browser location,
+// since HCCGC staff anywhere need to see facility-local time consistently.
+function formatTimestampDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
+}
+function formatDateTime(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/New_York' }) + ', ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' });
+}
+
+function isPastDue(b) {
+  return (b.payment_status === 'invoiced' || b.payment_status === 'pending') && new Date(b.event_date) < new Date();
+}
+
+function statusBadge(b) {
+  if (b.is_internal || b.payment_status === 'n/a') {
+    return '<span class="badge badge-draft"><span class="badge-dot"></span>Internal · No charge</span>';
+  }
+  if (b.payment_status === 'requested') {
+    return '<span class="badge badge-needs-confirm"><span class="badge-dot"></span>Requested — awaiting review</span>';
+  }
+  if (b.payment_status === 'rejected') {
+    const reasonTag = b.rejection_reason ? '<span class="method-tag" title="' + escHtml(b.rejection_reason) + '">' + escHtml(b.rejection_reason.slice(0, 40)) + (b.rejection_reason.length > 40 ? '…' : '') + '</span>' : '';
+    return '<span class="badge badge-cancelled"><span class="badge-dot"></span>Rejected</span>' + reasonTag;
+  }
+  if (b.payment_status === 'cancelled') {
+    const feeTag = (b.cancellation_fee !== null && b.cancellation_fee !== undefined)
+      ? '<span class="method-tag">Fee: $' + Number(b.cancellation_fee).toFixed(2) + ' · Refund: $' + Number(b.refund_amount).toFixed(2) + '</span>' : '';
+    return '<span class="badge badge-cancelled"><span class="badge-dot"></span>Cancelled</span>' + feeTag;
+  }
+  if (b.receipt_sent_at) {
+    return '<span class="badge badge-paid"><span class="badge-dot"></span>Receipt Sent</span><span class="method-tag">' + formatDateTime(b.receipt_sent_at) + '</span>';
+  }
+  if (b.payment_status === 'paid') {
+    const methodLabel = b.payment_match_source === 'zeffy' ? 'Zeffy · auto-matched' :
+      b.payment_match_source === 'zelle' ? 'Zelle · auto-matched' :
+      b.payment_method === 'zelle' ? 'Zelle · confirmed' :
+      b.payment_method === 'cash' ? 'Cash · confirmed' :
+      b.payment_method === 'check' ? 'Check · confirmed' : 'Confirmed';
+    return '<span class="badge badge-paid"><span class="badge-dot"></span>Paid</span><span class="method-tag">' + methodLabel + '</span>';
+  }
+  if (b.invoice_sent_at) {
+    const label = isPastDue(b) ? 'Invoice sent · past due' : 'Invoice Sent';
+    return '<span class="badge badge-needs-confirm"><span class="badge-dot"></span>' + label + '</span><span class="method-tag">' + formatDateTime(b.invoice_sent_at) + '</span>';
+  }
+  return '<span class="badge badge-draft"><span class="badge-dot"></span>Booked</span>';
+}
+
+// The 3 action icons — Notes, Invoice, Receipt. Invoice is "needs sending"
+// (yellow) whenever there's no invoice_sent_at yet, OR the booking's been
+// edited since the last send (updated_at newer than invoice_sent_at) —
+// exactly the same condition send-invoice itself enforces server-side, so
+// the icon never promises an action the backend would actually refuse.
+function needsInvoiceSend(b) {
+  if (!b.invoice_sent_at) return true;
+  if (b.invoice_content_updated_at && new Date(b.invoice_content_updated_at) > new Date(b.invoice_sent_at)) return true;
+  return false;
+}
+function notesButtonHtml(b) {
+  return '<button type="button" class="btn-icon-action' + (b.notes ? ' has-content' : '') + '" title="' + (b.notes ? 'Note: ' + escHtml(b.notes) : 'Add a note') + '" data-notes-booking="' + b.booking_id + '">\ud83d\udcdd</button>';
+}
+function actionIcons(b) {
+  if (b.is_internal) return '';
+  const needsSend = needsInvoiceSend(b);
+  const notesBtn = notesButtonHtml(b);
+  const invoiceBtn = '<button type="button" class="btn-invoice ' + (needsSend ? 'attached' : 'sent') + '" title="' + (needsSend ? 'Invoice not sent — click to send, edit, or download' : 'Invoice sent ' + formatTimestampDate(b.invoice_sent_at) + ' — click to edit or download') + '" data-invoice-booking="' + b.booking_id + '">\ud83e\uddfe</button>';
+  const receiptDisabled = b.payment_status !== 'paid';
+  const receiptBtn = '<button type="button" class="btn-receipt' + (b.receipt_sent_at ? ' sent' : '') + '"' + (receiptDisabled ? ' disabled title="Mark paid in Finance first"' : ' title="' + (b.receipt_sent_at ? 'Receipt sent ' + formatTimestampDate(b.receipt_sent_at) : 'Click to send the receipt') + '"') + ' data-receipt-booking="' + b.booking_id + '">' + (b.receipt_sent_at ? '\ud83e\uddfe' : (receiptDisabled ? '\u2014' : '\u2795')) + '</button>';
+  return '<div class="action-icons">' + notesBtn + invoiceBtn + receiptBtn + '</div>';
+}
+
+function isWholeFacility(b) {
+  return ALL_ROOM_NAMES.every(function (r) { return b.rooms.includes(r); });
+}
+
+function monthRangeFor(monthValue) {
+  const today = new Date(); today.setDate(1); today.setHours(0, 0, 0, 0);
+  if (monthValue === 'all') return null;
+  if (monthValue === 'default3') {
+    const start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const end = new Date(today.getFullYear(), today.getMonth() + 2, 1); // exclusive, i.e. end of next month
+    return { start, end };
+  }
+  const [y, m] = monthValue.split('-').map(Number);
+  return { start: new Date(y, m - 1, 1), end: new Date(y, m, 1) };
+}
+
+const STATUS_CATEGORIES = ['requested', 'needs-attention', 'pending', 'paid', 'internal', 'cancelled', 'rejected'];
+function matchesStatusCategory(b, category) {
+  if (category === 'needs-attention') return b.payment_status === 'invoiced' || b.payment_status === 'pending';
+  if (category === 'paid') return b.payment_status === 'paid';
+  if (category === 'pending') return b.payment_status === 'pending';
+  if (category === 'cancelled') return b.payment_status === 'cancelled';
+  if (category === 'internal') return b.is_internal || b.payment_status === 'n/a';
+  if (category === 'requested') return b.payment_status === 'requested';
+  if (category === 'rejected') return b.payment_status === 'rejected';
+  return false;
+}
+
+function contactNameFor(b) { return b.is_internal ? 'HCCGC' : b.renter_name; }
+function matchesFilters(b) {
+  if (state.contactFilter && !state.contactFilter.has(contactNameFor(b))) return false;
+  if (state.room === '__whole_facility__' && !isWholeFacility(b)) return false;
+  if (state.room && state.room !== '__whole_facility__' && !b.rooms.includes(state.room)) return false;
+  if (state.statusFilter && !STATUS_CATEGORIES.some(function (cat) { return state.statusFilter.has(cat) && matchesStatusCategory(b, cat); })) return false;
+  const range = monthRangeFor(state.month);
+  if (range) {
+    const d = new Date(b.event_date + 'T00:00:00');
+    if (d < range.start || d >= range.end) return false;
+  }
+  return true;
+}
+
+function sortDisplayItems(items) {
+  const key = state.sortKey, dir = state.sortDir === 'asc' ? 1 : -1;
+  return items.slice().sort(function (a, b) {
+    let av = a[key], bv = b[key];
+    if (key === 'renter_name') { av = (av || '').toLowerCase(); bv = (bv || '').toLowerCase(); }
+    if (av === null || av === undefined) av = '';
+    if (bv === null || bv === undefined) bv = '';
+    if (av < bv) return -1 * dir;
+    if (av > bv) return 1 * dir;
+    return 0;
+  });
+}
+
+// Recurring Picktime series (and real recurring bookings made through New
+// Booking) share a recurring_series_id — group those into one collapsed
+// summary row by default instead of showing every occurrence separately.
+function groupIntoDisplayItems(list) {
+  const seriesMap = {};
+  const items = [];
+  list.forEach(function (b) {
+    if (b.recurring_series_id) {
+      if (!seriesMap[b.recurring_series_id]) {
+        const item = { type: 'series', seriesId: b.recurring_series_id, occurrences: [] };
+        seriesMap[b.recurring_series_id] = item;
+        items.push(item);
+      }
+      seriesMap[b.recurring_series_id].occurrences.push(b);
+    } else {
+      items.push({
+        type: 'single', booking: b, renter_name: b.renter_name, event_date: b.event_date,
+        hours: b.hours, final_total: Number(b.final_total), payment_status: b.payment_status,
+        updated_display: b.updated_display
+      });
+    }
+  });
+  items.forEach(function (item) {
+    if (item.type !== 'series') return;
+    const occ = item.occurrences.slice().sort(function (a, b) { return a.event_date < b.event_date ? -1 : (a.event_date > b.event_date ? 1 : 0); });
+    item.occurrences = occ;
+    const first = occ[0];
+    item.renter_name = first.renter_name;
+    item.renter_email = first.renter_email;
+    item.rooms = first.rooms;
+    item.is_internal = first.is_internal;
+    item.event_date = first.event_date;
+    item.event_date_last = occ[occ.length - 1].event_date;
+    item.hours = first.hours;
+    item.final_total = occ.reduce(function (sum, o) { return sum + Number(o.final_total); }, 0);
+    item.payment_status = occ.every(function (o) { return o.payment_status === first.payment_status; }) ? first.payment_status : 'mixed';
+    item.paidCount = occ.filter(function (o) { return o.payment_status === 'paid'; }).length;
+    item.notes = first.notes;
+    item.event_name = first.event_name;
+    item.organization_name = first.organization_name;
+    item.created_by = first.created_by;
+    item.updated_display = occ.reduce(function (latest, o) { return o.updated_display > latest ? o.updated_display : latest; }, first.updated_display);
+    item.recurrence_summary = first.recurrence_summary || (occ.length + ' occurrences');
+  });
+  return items;
+}
+
+let expandedSeries = new Set();
+function toggleSeries(seriesId) {
+  if (expandedSeries.has(seriesId)) expandedSeries.delete(seriesId);
+  else expandedSeries.add(seriesId);
+  render();
+}
+
+function getColumnCellHtml(columnKey, data, isSubRow) {
+  const isSeries = !!data.occurrences;
+  switch (columnKey) {
+    case 'event_name':
+      return '<td>' + escHtml(data.event_name || '—') + '</td>';
+    case 'room':
+      return '<td>' + (isWholeFacility(data)
+        ? '<span class="room-pill whole-facility">&#9733; Whole Facility</span>'
+        : '<span class="room-pill">' + escHtml(data.rooms.join(' + ')) + '</span>') + '</td>';
+    case 'event_date':
+      return '<td>' + (isSeries ? formatDate(data.event_date) + ' &ndash; ' + formatDate(data.event_date_last) : formatDate(data.event_date)) + '</td>';
+    case 'hours':
+      return '<td>' + data.hours + '</td>';
+    case 'final_total': {
+      let amt = '$' + Number(data.final_total).toFixed(2);
+      if (!isSeries && !isSubRow && data.manual_adjustment_type) amt += '<span class="adjusted-tag" title="' + escHtml(data.manual_adjustment_reason || '') + '">Adjusted</span>';
+      if (isSeries) amt += ' <span class="method-tag">total</span>';
+      return '<td class="amount">' + amt + '</td>';
+    }
+    case 'payment_status': {
+      // Occurrences are info-only — invoice/receipt only ever apply at the
+      // series level (one invoice per booking group, not per date), so an
+      // individual occurrence showing its own independent status badge is
+      // exactly what caused a sub-row to disagree with its own series
+      // summary. Plain text here, no badge, no icon, nothing actionable.
+      if (isSubRow) {
+        return '<td style="color:var(--muted);font-size:0.86rem;">' + escHtml(data.payment_status) + '</td>';
+      }
+      let html;
+      if (data.payment_status === 'mixed') {
+        html = '<span class="badge badge-needs-confirm"><span class="badge-dot"></span>' + data.paidCount + ' of ' + data.occurrences.length + ' paid</span>';
+      } else if (isSeries) {
+        html = statusBadge({ payment_status: data.payment_status, is_internal: data.is_internal, cancellation_fee: null, event_date: data.event_date_last });
+      } else {
+        html = statusBadge(data);
+      }
+      return '<td>' + html + '</td>';
+    }
+    case 'organization_name':
+      return '<td>' + escHtml(data.organization_name || '—') + '</td>';
+    case 'notes':
+      return '<td class="notes-cell" title="' + escHtml(data.notes || '') + '">' + escHtml(data.notes || '—') + '</td>';
+    case 'created_by':
+      return '<td style="font-size:0.8rem;color:var(--muted);">' + escHtml(data.created_by || '—') + '</td>';
+    case 'updated_display':
+      return '<td class="updated-cell">' + formatDateTime(data.updated_display) + '</td>';
+    default:
+      return '<td></td>';
+  }
+}
+
+function visibleColumnCells(data, isSubRow) {
+  return COLUMN_DEFS.filter(function (c) { return visibleColumns.has(c.key); })
+    .map(function (c) { return getColumnCellHtml(c.key, data, isSubRow); }).join('');
+}
+
+const PAST_BOOKING_EDIT_ALLOWLIST = ['nilaj@hccgc.org', 'admin@hccgc.org'];
+function currentUserEmail() { return ((window.__hccgcCurrentUser && window.__hccgcCurrentUser.email) || '').toLowerCase(); }
+function isBookingPast(b) { return new Date(b.event_date + 'T00:00:00') < new Date(new Date().toDateString()); }
+function isPicktimeHistoricalPaid(b) { return b.created_by === 'picktime-import' && b.payment_status === 'paid'; }
+
+function isHistoricallyLocked(b) {
+  // Anything that already happened, or was already paid via the Picktime
+  // import (a real historical transaction that predates this system) — no
+  // point offering to invoice, search for a payment, or (for anyone but the
+  // two allowlisted admins) edit those.
+  return isBookingPast(b) || isPicktimeHistoricalPaid(b);
+}
+
+function renderBookingRow(b, isSubRow, seriesIsMixed) {
+  const rowClasses = (b.payment_status === 'cancelled' || b.payment_status === 'rejected' ? 'cancelled-row ' : '') + (isSubRow ? 'sub-row' : '');
+  // Per-occurrence invoicing means each occurrence really is its own
+  // independent billing unit — same as a standalone booking — so it gets
+  // full status and actions even though it's a sub-row. Combined
+  // invoicing (the default) is the only case where sub-rows stay
+  // info-only, since the group above is the actual billing unit there.
+  // A series showing mixed payment status (some occurrences paid,
+  // others not) gets the same independent treatment regardless of
+  // invoice_mode — that mix could only happen if occurrences were
+  // actually operated on individually, most often historical series
+  // that predate this setting existing at all.
+  const actsIndependently = isSubRow && (b.invoice_mode === 'per_occurrence' || seriesIsMixed);
+  const treatAsSubRow = isSubRow && !actsIndependently;
+
+  // A public booking request awaiting review is a totally different case
+  // from every other status — nothing else (Mark Paid, Edit, Cancel, etc.)
+  // applies until an admin has actually approved or rejected it.
+  if (b.payment_status === 'requested' || b.payment_status === 'rejected') {
+    const actions = b.payment_status === 'requested'
+      ? [{ label: 'Review request', fn: () => openBookingReviewModal(b.booking_id) }]
+      : [];
+    const actionsCell = treatAsSubRow ? '<td></td>' : '<td>' + renderActionsKebab(b.booking_id, actions) + '</td>';
+    return (
+      '<tr' + (rowClasses ? ' class="' + rowClasses.trim() + '"' : '') + '>' +
+        '<td>' + (isSubRow ? '<div class="renter-sub">' + formatDate(b.event_date) + '</div>' : '<div class="renter-name">' + escHtml(b.renter_name) + '</div><div class="renter-sub">' + escHtml(b.renter_email) + '</div>') + '</td>' +
+        visibleColumnCells(b, treatAsSubRow) +
+        actionsCell +
+      '</tr>'
+    );
+  }
+
+  const needsAction = (b.payment_status === 'pending' || b.payment_status === 'invoiced');
+  const notCancelled = b.payment_status !== 'cancelled';
+  const notPaid = b.payment_status !== 'paid';
+  const locked = isHistoricallyLocked(b);
+  // Editing specifically has the one narrow admin override; every other
+  // locked action has no override at all. Paid bookings have no override
+  // at all — confirmed payment locks the invoice regardless of who's asking.
+  const canEditThis = notCancelled && notPaid && (!locked || (isBookingPast(b) && !isPicktimeHistoricalPaid(b) && PAST_BOOKING_EDIT_ALLOWLIST.includes(currentUserEmail())));
+
+  // Kebab menu is deliberately down to just Edit and Cancel now — invoice
+  // send/edit/download lives in the invoice icon's popup, and marking
+  // paid/matching payments moved entirely into Finance.
+  const actions = [];
+  if (canEditThis) actions.push({ label: 'Edit', fn: () => openEditModal(b.booking_id) });
+  if (notCancelled && !locked) actions.push({ label: 'Cancel', danger: true, fn: () => cancelBookingFlow(b.booking_id) });
+
+  const actionsCell = treatAsSubRow ? '<td></td>' : '<td><div style="display:flex;align-items:center;gap:8px;">' + actionIcons(b) + renderActionsKebab(b.booking_id, actions) + '</div></td>';
+  return (
+    '<tr' + (rowClasses ? ' class="' + rowClasses.trim() + '"' : '') + '>' +
+      '<td>' + (isSubRow ? '<div class="renter-sub">' + formatDate(b.event_date) + '</div>' : '<div class="renter-name">' + escHtml(b.renter_name) + '</div><div class="renter-sub">' + escHtml(b.renter_email) + '</div>') + '</td>' +
+      visibleColumnCells(b, treatAsSubRow) +
+      actionsCell +
+    '</tr>'
+  );
+}
+
+function renderSeriesSummaryRow(item) {
+  const isExpanded = expandedSeries.has(item.seriesId);
+  const repOcc = item.occurrences[0];
+  const perOccurrenceMode = repOcc && (repOcc.invoice_mode === 'per_occurrence' || item.payment_status === 'mixed');
+
+  if (item.payment_status === 'requested' || item.payment_status === 'rejected') {
+    const actions = item.payment_status === 'requested'
+      ? [{ label: 'Review request (all dates)', fn: () => openBookingReviewModal(repOcc.booking_id) }]
+      : [];
+    return (
+      '<tr class="series-summary-row">' +
+        '<td onclick="toggleSeries(\'' + item.seriesId + '\')" style="cursor:pointer;"><div class="renter-name">' + (isExpanded ? '&#9660; ' : '&#9654; ') + escHtml(item.renter_name) + ' <span class="discount-chip" style="margin-left:4px;">' + item.occurrences.length + ' occurrences</span></div><div class="renter-sub">' + escHtml(item.renter_email) + '</div></td>' +
+        visibleColumnCells(item) +
+        '<td>' + renderActionsKebab(item.seriesId, actions) + '</td>' +
+      '</tr>'
+    );
+  }
+
+  const notCancelled = item.payment_status !== 'cancelled';
+  const allPaid = item.payment_status === 'paid';
+  const allPast = item.occurrences.every(isBookingPast);
+  const allHistoricallyLocked = item.occurrences.every(isHistoricallyLocked);
+  // A fully-paid series has nothing left to edit. A "mixed" series (some
+  // occurrences paid, some not) still allows editing — the backend
+  // already excludes the paid occurrences from whatever gets changed,
+  // same as the individual-booking lock above.
+  const canEditThis = notCancelled && !allPaid && (!allHistoricallyLocked || (allPast && PAST_BOOKING_EDIT_ALLOWLIST.includes(currentUserEmail())));
+
+  const actions = [];
+  if (canEditThis) actions.push({ label: 'Edit series', fn: () => openSeriesEditModal(item.seriesId) });
+  if (notCancelled && !allHistoricallyLocked) actions.push({ label: 'Cancel all', danger: true, fn: () => cancelSeriesFlow(item.seriesId) });
+
+  // Combined invoicing (default): the group IS the billing unit, so it
+  // gets the exact same Notes/Invoice/Receipt icon treatment as a single
+  // booking, using the first occurrence as the representative record (the
+  // same one Edit Series and Download Invoice already treat as canonical).
+  // Per-occurrence invoicing: invoice/receipt belong to each occurrence
+  // individually now, so the group only gets a notes icon — there's still
+  // a group-level note worth having even when billing is split up.
+  const groupIcons = item.is_internal ? '' :
+    (perOccurrenceMode ? '<div class="action-icons">' + notesButtonHtml(repOcc) + '</div>' : actionIcons(repOcc));
+
+  return (
+    '<tr class="series-summary-row">' +
+      '<td onclick="toggleSeries(\'' + item.seriesId + '\')" style="cursor:pointer;"><div class="renter-name">' + (isExpanded ? '&#9660; ' : '&#9654; ') + escHtml(item.renter_name) + ' <span class="discount-chip" style="margin-left:4px;">' + item.occurrences.length + ' occurrences</span></div><div class="renter-sub">' + escHtml(item.renter_email) + '</div></td>' +
+      visibleColumnCells(item) +
+      '<td><div style="display:flex;align-items:center;gap:8px;">' + groupIcons + renderActionsKebab(item.seriesId, actions) + '</div></td>' +
+    '</tr>'
+  );
+}
+
+function renderTableHead() {
+  const theadRow = document.getElementById('thead-row');
+  let html = '<th class="sortable" data-sort="renter_name">Contact Name <span class="sort-arrow">&#8645;</span></th>';
+  COLUMN_DEFS.forEach(function (col) {
+    if (!visibleColumns.has(col.key)) return;
+    html += col.sortable
+      ? '<th class="sortable" data-sort="' + col.key + '">' + col.label + ' <span class="sort-arrow">&#8645;</span></th>'
+      : '<th>' + col.label + '</th>';
+  });
+  html += '<th></th>';
+  theadRow.innerHTML = html;
+  theadRow.querySelectorAll('th.sortable').forEach(function (th) {
+    th.classList.toggle('active', th.dataset.sort === state.sortKey);
+    th.querySelector('.sort-arrow').textContent = th.dataset.sort === state.sortKey ? (state.sortDir === 'asc' ? '↑' : '↓') : '⇅';
+    th.addEventListener('click', function () {
+      const key = th.dataset.sort;
+      if (state.sortKey === key) { state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc'; }
+      else { state.sortKey = key; state.sortDir = 'asc'; }
+      render();
+    });
+  });
+}
+
+function renderColumnsPanel() {
+  const panel = document.getElementById('columns-panel');
+  const atCap = visibleColumns.size >= MAX_VISIBLE_COLUMNS;
+  panel.innerHTML = '<div class="columns-panel-note">Contact Name is always shown. Up to ' + MAX_VISIBLE_COLUMNS + ' more at a time, to keep things readable.</div>' +
+    COLUMN_DEFS.map(function (col) {
+      const checked = visibleColumns.has(col.key);
+      const disable = !checked && atCap;
+      return '<label><input type="checkbox" data-col="' + col.key + '" ' + (checked ? 'checked' : '') + (disable ? ' disabled' : '') + '><span>' + col.label + '</span></label>';
+    }).join('');
+  panel.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      const key = cb.dataset.col;
+      if (cb.checked) visibleColumns.add(key); else visibleColumns.delete(key);
+      saveVisibleColumns();
+      renderTableHead();
+      renderColumnsPanel();
+      render();
+    });
+  });
+}
+document.getElementById('btn-columns').addEventListener('click', function (e) {
+  e.stopPropagation();
+  const panel = document.getElementById('columns-panel');
+  const willOpen = panel.style.display === 'none';
+  panel.style.display = willOpen ? 'block' : 'none';
+  if (willOpen) renderColumnsPanel();
+});
+document.addEventListener('click', function (e) {
+  const panel = document.getElementById('columns-panel');
+  if (panel.style.display !== 'none' && !panel.contains(e.target) && e.target.id !== 'btn-columns') panel.style.display = 'none';
+});
+
+function render() {
+  const tbody = document.getElementById('bookings-tbody');
+  const emptyState = document.getElementById('ab-empty-state');
+  const filteredBookings = BOOKINGS.filter(matchesFilters);
+  const allItems = sortDisplayItems(groupIntoDisplayItems(filteredBookings));
+
+  const totalPages = Math.max(1, Math.ceil(allItems.length / state.pageSize));
+  if (state.page > totalPages) state.page = totalPages;
+  if (state.page < 1) state.page = 1;
+  const pageStart = (state.page - 1) * state.pageSize;
+  const items = allItems.slice(pageStart, pageStart + state.pageSize);
+
+  document.getElementById('result-count').textContent =
+    filteredBookings.length + (filteredBookings.length === 1 ? ' booking' : ' bookings') +
+    (allItems.length !== filteredBookings.length ? ' (' + allItems.length + ' rows, grouped)' : '');
+
+  renderTableHead();
+  renderPaginationBar(totalPages);
+
+  if (items.length === 0) {
+    tbody.innerHTML = '';
+    emptyState.style.display = 'block';
+    return;
+  }
+  emptyState.style.display = 'none';
+
+  tbody.innerHTML = items.map(function (item) {
+    if (item.type === 'single') return renderBookingRow(item.booking, false);
+    const summary = renderSeriesSummaryRow(item);
+    if (!expandedSeries.has(item.seriesId)) return summary;
+    return summary + item.occurrences.map(function (occ) { return renderBookingRow(occ, true, item.payment_status === 'mixed'); }).join('');
+  }).join('');
+}
+
+function renderPaginationBar(totalPages) {
+  const bar = document.getElementById('pagination-bar');
+  if (totalPages <= 1) { bar.innerHTML = ''; return; }
+  bar.innerHTML =
+    '<button ' + (state.page <= 1 ? 'disabled' : '') + ' onclick="goToPage(' + (state.page - 1) + ')">&lsaquo; Prev</button>' +
+    '<span class="page-indicator">Page ' + state.page + ' of ' + totalPages + '</span>' +
+    '<button ' + (state.page >= totalPages ? 'disabled' : '') + ' onclick="goToPage(' + (state.page + 1) + ')">Next &rsaquo;</button>';
+}
+function goToPage(p) {
+  state.page = p;
+  render();
+  document.querySelector('.table-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ---- Generic per-row actions menu (kebab button + dropdown) — replaces
+// the old stack of individual buttons, which got unwieldy once a row could
+// have 5-6 possible actions at once. ----
+let ROW_ACTIONS_REGISTRY = {};
+function renderActionsKebab(rowId, actions) {
+  ROW_ACTIONS_REGISTRY[rowId] = actions;
+  if (!actions.length) return '<span style="font-size:0.7rem;color:var(--muted);">&mdash;</span>';
+  return '<button class="btn-kebab" onclick="toggleActionsMenu(event, \'' + rowId + '\')">&#8942;</button>' +
+    '<div class="actions-menu" id="actions-menu-' + rowId + '"></div>';
+}
+function toggleActionsMenu(evt, rowId) {
+  evt.stopPropagation();
+  document.querySelectorAll('.actions-menu.open').forEach(function (el) {
+    if (el.id !== 'actions-menu-' + rowId) el.classList.remove('open');
+  });
+  const menu = document.getElementById('actions-menu-' + rowId);
+  const willOpen = !menu.classList.contains('open');
+  if (willOpen) {
+    const actions = ROW_ACTIONS_REGISTRY[rowId] || [];
+    menu.innerHTML = actions.map(function (a, i) {
+      return '<button class="' + (a.danger ? 'danger' : '') + '" onclick="runRowAction(\'' + rowId + '\', ' + i + ')">' + a.label + '</button>';
+    }).join('');
+    // Reparent to <body> directly — a position:fixed element only escapes
+    // an ancestor's stacking context if NO ancestor between it and body
+    // has a transform/filter/perspective/will-change set. Moving it to be
+    // a direct child of body sidesteps that entirely, guaranteeing it
+    // renders above any modal overlay regardless of which ancestor was
+    // trapping it before.
+    document.body.appendChild(menu);
+    const rect = evt.target.getBoundingClientRect();
+    menu.style.left = Math.max(8, rect.right - 190) + 'px';
+    // Render first (off-screen positioning doesn't matter yet) so we can
+    // measure its real height, then decide whether it fits below the
+    // button or needs to open upward instead — otherwise a menu opened
+    // near the bottom of the page renders partly hidden under the footer.
+    menu.style.top = '-9999px';
+    menu.classList.add('open');
+    const menuHeight = menu.getBoundingClientRect().height;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    if (spaceBelow < menuHeight + 20) {
+      menu.style.top = Math.max(8, rect.top - menuHeight - 6) + 'px';
+    } else {
+      menu.style.top = (rect.bottom + 6) + 'px';
+    }
+  } else {
+    menu.classList.remove('open');
+  }
+}
+function runRowAction(rowId, index) {
+  const menu = document.getElementById('actions-menu-' + rowId);
+  if (menu) menu.classList.remove('open');
+  const actions = ROW_ACTIONS_REGISTRY[rowId] || [];
+  if (actions[index]) actions[index].fn();
+}
+document.addEventListener('click', function () {
+  document.querySelectorAll('.actions-menu.open').forEach(function (el) { el.classList.remove('open'); });
+});
+
+async function viewDocument(bookingId, kind) {
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/' + kind + '-preview');
+    if (!res.ok) {
+      const data = await res.json().catch(function () { return {}; });
+      alert('Could not load ' + kind + ': ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
+      return;
+    }
+    const html = await res.text();
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    setTimeout(function () { URL.revokeObjectURL(url); }, 30000);
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+  }
+}
+async function downloadDocument(bookingId, kind) {
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/' + kind + '-preview');
+    if (!res.ok) {
+      const data = await res.json().catch(function () { return {}; });
+      alert('Could not generate ' + kind + ': ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
+      return;
+    }
+    const html = await res.text();
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = kind + '-' + bookingId + '.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+  }
+}
+
+async function sendReceiptAction(bookingId) {
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/send-receipt', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) {
+      alert('Could not send receipt: ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
+      return;
+    }
+    alert('Receipt sent to ' + data.sentTo + '.');
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+  }
+}
+
+async function approveRequestAction(bookingId, discount) {
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/approve-request', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(discount || {})
+    });
+    const data = await res.json();
+    if (!res.ok) { alert('Could not approve: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return false; }
+    await loadBookings();
+    return true;
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+    return false;
+  }
+}
+
+let rejectingBookingId = null;
+function rejectRequestAction(bookingId) {
+  rejectingBookingId = bookingId;
+  document.getElementById('reject-reason-textarea').value = '';
+  document.getElementById('reject-reason-result').style.display = 'none';
+  document.getElementById('reject-reason-overlay').style.display = 'flex';
+}
+document.getElementById('btn-close-reject-reason').addEventListener('click', function () {
+  document.getElementById('reject-reason-overlay').style.display = 'none';
+});
+document.getElementById('btn-cancel-reject-reason').addEventListener('click', function () {
+  document.getElementById('reject-reason-overlay').style.display = 'none';
+});
+document.getElementById('reject-reason-overlay').addEventListener('click', function (e) {
+  if (e.target === this) this.style.display = 'none';
+});
+document.getElementById('btn-confirm-reject-reason').addEventListener('click', async function () {
+  if (!rejectingBookingId) return;
+  const reason = document.getElementById('reject-reason-textarea').value.trim();
+  const resultBox = document.getElementById('reject-reason-result');
+  if (!reason) {
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+    resultBox.textContent = 'A reason is required.'; return;
+  }
+  const btn = this;
+  btn.disabled = true; btn.textContent = 'Rejecting…';
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(rejectingBookingId) + '/reject-request', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+      resultBox.textContent = (data.errors || [data.error]).join(' ') || 'unknown error';
+      return;
+    }
+    document.getElementById('reject-reason-overlay').style.display = 'none';
+    await loadBookings();
+  } catch (err) {
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+    resultBox.textContent = 'Could not reach the booking system: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Reject & send';
+  }
+});
+
+// ---- Booking request review modal: full details, conflict check,
+// discretionary discount, then Approve/Reject ----
+let reviewingBookingId = null;
+async function openBookingReviewModal(bookingId) {
+  const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
+  if (!b) return;
+  reviewingBookingId = bookingId;
+  const body = document.getElementById('booking-review-body');
+  body.innerHTML = '<div class="empty-state">Loading…</div>';
+  document.getElementById('booking-review-overlay').style.display = 'flex';
+
+  const dateStr = new Date(b.event_date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  const timeStr = formatTimeRange(b.start_time, b.end_time);
+  let html = '<div class="field-row">';
+  html += '<div class="field"><label>Renter</label><div>' + escHtml(b.renter_name) + '</div></div>';
+  html += '<div class="field"><label>Email</label><div>' + escHtml(b.renter_email || '\u2014') + '</div></div>';
+  html += '</div><div class="field-row">';
+  html += '<div class="field"><label>Event</label><div>' + escHtml(b.event_name || '\u2014') + '</div></div>';
+  html += '<div class="field"><label>Organization</label><div>' + escHtml(b.organization_name || '\u2014') + '</div></div>';
+  html += '</div>';
+  html += '<div class="field"><label>Rooms</label><div>' + escHtml((b.rooms || []).join(', ')) + '</div></div>';
+  html += '<div class="field"><label>Date &amp; time</label><div>' + dateStr + ' \u00b7 ' + timeStr + (b.recurrence_summary ? ' (' + escHtml(b.recurrence_summary) + ')' : '') + '</div></div>';
+  html += '<div class="field"><label>Requested total</label><div style="font-weight:700;">$' + Number(b.final_total).toFixed(2) + '</div></div>';
+  if (b.notes) {
+    html += '<div class="field"><label>Notes from request</label><div>' + b.notes.split(' | ').map(function (l) { return '<div>' + escHtml(l) + '</div>'; }).join('') + '</div></div>';
+  }
+  const seriesOccurrenceCount = b.recurring_series_id ? BOOKINGS.filter(function (x) { return x.recurring_series_id === b.recurring_series_id; }).length : 1;
+  if (seriesOccurrenceCount > 1) {
+    html += '<div class="field" style="margin-top:8px;"><label>This request covers ' + seriesOccurrenceCount + ' occurrences — how should invoicing work?</label>' +
+      '<div class="request-field-row" style="gap:16px;">' +
+      '<label style="display:flex;align-items:center;gap:6px;font-weight:400;"><input type="radio" name="rb-invoice-mode" value="combined" checked> One invoice for the whole series</label>' +
+      '<label style="display:flex;align-items:center;gap:6px;font-weight:400;"><input type="radio" name="rb-invoice-mode" value="per_occurrence"> One invoice per occurrence</label>' +
+      '</div></div>';
+  }
+  html += '<div class="field" id="review-conflicts-field"><label>Conflicts</label><div id="review-conflicts">Checking…</div></div>';
+  html += '<div class="field" style="margin-top:8px;"><label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="rb-discount-enabled"> Apply a one-time discretionary discount</label></div>';
+  html += '<div class="field-row" id="rb-discount-fields" style="display:none;">';
+  html += '<div class="field"><label>Type</label><select id="rb-discount-type"><option value="percent">Percent off</option><option value="flat">Flat dollar amount off</option></select></div>';
+  html += '<div class="field"><label>Value</label><input type="number" id="rb-discount-value" step="0.01" min="0"></div>';
+  html += '</div><div class="field" id="rb-discount-reason-field" style="display:none;"><label>Reason</label><input type="text" id="rb-discount-reason" placeholder="Required if applying a discount"></div>';
+  html += '<div class="result-box" id="booking-review-result" style="display:none;"></div>';
+  body.innerHTML = html;
+
+  document.getElementById('rb-discount-enabled').addEventListener('change', function () {
+    var show = this.checked;
+    document.getElementById('rb-discount-fields').style.display = show ? 'grid' : 'none';
+    document.getElementById('rb-discount-reason-field').style.display = show ? 'flex' : 'none';
+  });
+
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/conflicts');
+    const conflicts = await res.json();
+    const conflictsEl = document.getElementById('review-conflicts');
+    if (!res.ok) { conflictsEl.textContent = 'Could not check for conflicts.'; return; }
+    if (!conflicts.length) {
+      conflictsEl.innerHTML = '<span style="color:var(--green);font-weight:700;">\u2713 No conflicts with existing bookings.</span>';
+    } else {
+      document.getElementById('review-conflicts-field').style.background = 'var(--red-bg,#fbe9e7)';
+      document.getElementById('review-conflicts-field').style.padding = '10px 12px';
+      document.getElementById('review-conflicts-field').style.borderRadius = '10px';
+      conflictsEl.innerHTML = '<span style="color:var(--red,#b3382c);font-weight:700;">\u26a0 Conflicts with ' + conflicts.length + ' existing booking(s):</span>' +
+        conflicts.map(function (c) {
+          var cTimeStr = formatTimeRange(c.startTime, c.endTime);
+          var cDateStr = new Date(c.eventDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          return '<div style="font-size:0.84rem;margin-top:6px;padding-top:6px;border-top:1px dashed var(--border,#e5d9c8);">' +
+            '<div style="font-weight:700;">' + escHtml(c.renterName) + (c.eventName ? ' \u2014 ' + escHtml(c.eventName) : '') + '</div>' +
+            '<div>' + cDateStr + ' \u00b7 ' + cTimeStr + ' \u00b7 ' + escHtml((c.rooms || []).join(', ')) + '</div>' +
+            '<div style="color:var(--muted,#6a5141);">' + escHtml(c.renterEmail || '') + ' \u00b7 status: ' + escHtml(c.paymentStatus) + '</div>' +
+          '</div>';
+        }).join('');
+    }
+  } catch (err) {
+    document.getElementById('review-conflicts').textContent = 'Could not check for conflicts: ' + err.message;
+  }
+}
+function formatTimeRange(start, end) {
+  var s = new Date(start), e = new Date(end);
+  return s.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' }) + '\u2013' + e.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' });
+}
+document.getElementById('btn-close-booking-review').addEventListener('click', function () {
+  document.getElementById('booking-review-overlay').style.display = 'none';
+});
+document.getElementById('booking-review-overlay').addEventListener('click', function (e) {
+  if (e.target === this) this.style.display = 'none';
+});
+document.getElementById('btn-booking-review-approve').addEventListener('click', async function () {
+  if (!reviewingBookingId) return;
+  const discountEnabled = document.getElementById('rb-discount-enabled').checked;
+  const resultBox = document.getElementById('booking-review-result');
+  let payload = {};
+  if (discountEnabled) {
+    const reason = document.getElementById('rb-discount-reason').value.trim();
+    if (!reason) {
+      resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+      resultBox.textContent = 'A reason is required for the discount.'; return;
+    }
+    payload.discountType = document.getElementById('rb-discount-type').value;
+    payload.discountValue = parseFloat(document.getElementById('rb-discount-value').value) || 0;
+    payload.discountReason = reason;
+  }
+  const invoiceModeInput = document.querySelector('input[name="rb-invoice-mode"]:checked');
+  if (invoiceModeInput) payload.invoiceMode = invoiceModeInput.value;
+  const btn = this;
+  btn.disabled = true; btn.textContent = 'Approving…';
+  const ok = await approveRequestAction(reviewingBookingId, payload);
+  btn.disabled = false; btn.textContent = 'Approve';
+  if (ok) document.getElementById('booking-review-overlay').style.display = 'none';
+});
+document.getElementById('btn-booking-review-reject').addEventListener('click', async function () {
+  if (!reviewingBookingId) return;
+  document.getElementById('booking-review-overlay').style.display = 'none';
+  await rejectRequestAction(reviewingBookingId);
+});
+
+async function sendInvoiceAction(bookingId) {
+  const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
+  const isResend = b && !needsInvoiceSend(b);
+  if (!confirm((isResend ? 'Resend' : 'Send') + ' an invoice email to this renter now?')) return;
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/send-invoice', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) {
+      alert('Could not send invoice: ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
+      return;
+    }
+    alert('Invoice sent to ' + data.sentTo + '.');
+    await loadBookings();
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+  }
+}
+
+// ---- Notes icon ----
+let editingNotesBookingId = null;
+function editNotesAction(bookingId) {
+  const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
+  if (!b) return;
+  editingNotesBookingId = bookingId;
+  document.getElementById('notes-edit-textarea').value = b.notes || '';
+  document.getElementById('notes-edit-result').style.display = 'none';
+  document.getElementById('notes-edit-overlay').style.display = 'flex';
+}
+document.getElementById('btn-close-notes-edit').addEventListener('click', function () {
+  document.getElementById('notes-edit-overlay').style.display = 'none';
+});
+document.getElementById('btn-cancel-notes-edit').addEventListener('click', function () {
+  document.getElementById('notes-edit-overlay').style.display = 'none';
+});
+document.getElementById('notes-edit-overlay').addEventListener('click', function (e) {
+  if (e.target === this) this.style.display = 'none';
+});
+document.getElementById('btn-save-notes-edit').addEventListener('click', async function () {
+  if (!editingNotesBookingId) return;
+  const btn = this;
+  const note = document.getElementById('notes-edit-textarea').value;
+  const resultBox = document.getElementById('notes-edit-result');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(editingNotesBookingId) + '/invoice', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notes: note })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+      resultBox.textContent = (data.errors || [data.error]).join(' ') || 'unknown error';
+      return;
+    }
+    document.getElementById('notes-edit-overlay').style.display = 'none';
+    await loadBookings();
+  } catch (err) {
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+    resultBox.textContent = 'Could not reach the booking system: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save';
+  }
+});
+document.addEventListener('click', function (e) {
+  const btn = e.target.closest('[data-notes-booking]');
+  if (!btn) return;
+  editNotesAction(btn.dataset.notesBooking);
+});
+
+// ---- Invoice icon: opens Send / Edit / Download, only what applies ----
+function openInvoiceActionMenu(bookingId) {
+  const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
+  if (!b) return;
+  const needsSend = needsInvoiceSend(b);
+  const isPaid = b.payment_status === 'paid';
+  const body = document.getElementById('invoice-action-body');
+  let html = '';
+  html += '<button type="button" class="invoice-action-btn" data-inv-action="view">View invoice</button>';
+  if (!isPaid) html += '<button type="button" class="invoice-action-btn" data-inv-action="edit">Edit invoice</button>';
+  html += '<button type="button" class="invoice-action-btn primary" data-inv-action="send">' + (needsSend ? 'Send invoice' : 'Resend invoice') + '</button>';
+  html += '<button type="button" class="invoice-action-btn" data-inv-action="download">Download invoice</button>';
+  if (!needsSend) html += '<p class="card-sub" style="margin:6px 0 0;">Last sent ' + formatTimestampDate(b.invoice_sent_at) + '.</p>';
+  if (isPaid) html += '<p class="card-sub" style="margin:6px 0 0;color:var(--green,#2e7d4f);">\u2713 Paid — invoice is locked.</p>';
+  body.innerHTML = html;
+  body.dataset.bookingId = bookingId;
+  document.getElementById('invoice-action-overlay').style.display = 'flex';
+}
+document.addEventListener('click', function (e) {
+  const btn = e.target.closest('[data-invoice-booking]');
+  if (!btn) return;
+  openInvoiceActionMenu(btn.dataset.invoiceBooking);
+});
+document.getElementById('invoice-action-body').addEventListener('click', function (e) {
+  const btn = e.target.closest('[data-inv-action]');
+  if (!btn) return;
+  const bookingId = this.dataset.bookingId;
+  document.getElementById('invoice-action-overlay').style.display = 'none';
+  if (btn.dataset.invAction === 'view') viewDocument(bookingId, 'invoice');
+  else if (btn.dataset.invAction === 'send') sendInvoiceAction(bookingId);
+  else if (btn.dataset.invAction === 'edit') openEditInvoiceModal(bookingId);
+  else if (btn.dataset.invAction === 'download') downloadDocument(bookingId, 'invoice');
+});
+document.getElementById('btn-close-invoice-action').addEventListener('click', function () {
+  document.getElementById('invoice-action-overlay').style.display = 'none';
+});
+document.getElementById('invoice-action-overlay').addEventListener('click', function (e) {
+  if (e.target === this) this.style.display = 'none';
+});
+
+// ---- Receipt icon popup: View / Send-or-Resend / Download ----
+function openReceiptActionMenu(bookingId) {
+  const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
+  if (!b) return;
+  const alreadySent = !!b.receipt_sent_at;
+  const body = document.getElementById('receipt-action-body');
+  let html = '';
+  html += '<button type="button" class="invoice-action-btn" data-rcpt-action="view">View receipt</button>';
+  html += '<button type="button" class="invoice-action-btn primary" data-rcpt-action="send">' + (alreadySent ? 'Resend receipt' : 'Send receipt') + '</button>';
+  html += '<button type="button" class="invoice-action-btn" data-rcpt-action="download">Download receipt</button>';
+  if (alreadySent) html += '<p class="card-sub" style="margin:6px 0 0;">Last sent ' + formatTimestampDate(b.receipt_sent_at) + '.</p>';
+  body.innerHTML = html;
+  body.dataset.bookingId = bookingId;
+  document.getElementById('receipt-action-overlay').style.display = 'flex';
+}
+document.addEventListener('click', function (e) {
+  const btn = e.target.closest('[data-receipt-booking]');
+  if (!btn || btn.disabled) return;
+  openReceiptActionMenu(btn.dataset.receiptBooking);
+});
+document.getElementById('receipt-action-body').addEventListener('click', async function (e) {
+  const btn = e.target.closest('[data-rcpt-action]');
+  if (!btn) return;
+  const bookingId = this.dataset.bookingId;
+  document.getElementById('receipt-action-overlay').style.display = 'none';
+  if (btn.dataset.rcptAction === 'view') viewDocument(bookingId, 'receipt');
+  else if (btn.dataset.rcptAction === 'download') downloadDocument(bookingId, 'receipt');
+  else if (btn.dataset.rcptAction === 'send') {
+    const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
+    const isResend = b && b.receipt_sent_at;
+    if (!confirm((isResend ? 'Resend' : 'Send') + ' a payment receipt to the renter now?')) return;
+    await sendReceiptAction(bookingId);
+    await loadBookings();
+  }
+});
+document.getElementById('btn-close-receipt-action').addEventListener('click', function () {
+  document.getElementById('receipt-action-overlay').style.display = 'none';
+});
+document.getElementById('receipt-action-overlay').addEventListener('click', function (e) {
+  if (e.target === this) this.style.display = 'none';
+});
+
+// ---- Edit invoice modal: notes + one-time flat discount only ----
+function openEditInvoiceModal(bookingId) {
+  const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
+  if (!b) return;
+  let signedAmount = 0;
+  if (b.manual_adjustment_type === 'flat') signedAmount = -(Number(b.manual_adjustment_value) || 0);
+  else if (b.manual_adjustment_type === 'additional_charge') signedAmount = Number(b.manual_adjustment_value) || 0;
+  document.getElementById('ei-notes').value = b.notes || '';
+  document.getElementById('ei-flat-discount').value = signedAmount;
+  document.getElementById('ei-adjustment-reason').value = b.manual_adjustment_reason || '';
+  document.getElementById('edit-invoice-result').style.display = 'none';
+  document.getElementById('btn-save-edit-invoice').dataset.bookingId = bookingId;
+  document.getElementById('btn-save-edit-invoice-only').dataset.bookingId = bookingId;
+  document.getElementById('edit-invoice-overlay').style.display = 'flex';
+}
+document.getElementById('btn-close-edit-invoice').addEventListener('click', function () {
+  document.getElementById('edit-invoice-overlay').style.display = 'none';
+});
+document.getElementById('btn-cancel-edit-invoice').addEventListener('click', function () {
+  document.getElementById('edit-invoice-overlay').style.display = 'none';
+});
+document.getElementById('edit-invoice-overlay').addEventListener('click', function (e) {
+  if (e.target === this) this.style.display = 'none';
+});
+async function saveInvoiceEdit(bookingId, andSend) {
+  const notes = document.getElementById('ei-notes').value;
+  const adjustmentAmount = Number(document.getElementById('ei-flat-discount').value) || 0;
+  const discountReason = document.getElementById('ei-adjustment-reason').value;
+  const resultBox = document.getElementById('edit-invoice-result');
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/invoice', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notes: notes, adjustmentAmount: adjustmentAmount, discountReason: discountReason })
+    });
+    const data = await res.json();
+    resultBox.style.display = 'block';
+    if (!res.ok) {
+      resultBox.className = 'result-box error';
+      resultBox.textContent = (data.errors || [data.error || 'Something went wrong.']).join(' ');
+      return false;
+    }
+    resultBox.className = 'result-box success';
+    resultBox.textContent = andSend ? 'Saved — sending invoice…' : 'Saved.';
+    await loadBookings();
+    return true;
+  } catch (err) {
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+    resultBox.textContent = 'Could not reach the booking system: ' + err.message;
+    return false;
+  }
+}
+document.getElementById('btn-save-edit-invoice-only').addEventListener('click', async function () {
+  const btn = this;
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const ok = await saveInvoiceEdit(btn.dataset.bookingId, false);
+  btn.disabled = false; btn.textContent = 'Save only';
+  if (ok) setTimeout(function () { document.getElementById('edit-invoice-overlay').style.display = 'none'; }, 900);
+});
+document.getElementById('btn-save-edit-invoice').addEventListener('click', async function () {
+  const btn = this;
+  const bookingId = btn.dataset.bookingId;
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const ok = await saveInvoiceEdit(bookingId, true);
+  if (ok) {
+    document.getElementById('edit-invoice-overlay').style.display = 'none';
+    await sendInvoiceAction(bookingId);
+  }
+  btn.disabled = false; btn.textContent = 'Save & send';
+});
+
+// ---- Cancellation ----
+// Client-side preview only, using the same policy the backend enforces
+// authoritatively: 14+ days' notice = no fee. 7-13 days = 50% fee. Under 7
+// days = 100% fee (this last tier was never explicitly specified — it's the
+// natural extension of the stated policy, flagged as an assumption).
+function computeCancellationPreview(b) {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const eventD = new Date(b.event_date + 'T00:00:00');
+  const daysUntil = Math.ceil((eventD - today) / 86400000);
+  let feeRate = daysUntil >= 14 ? 0 : daysUntil >= 7 ? 0.5 : 1.0;
+  const fee = Math.round(Number(b.final_total) * feeRate * 100) / 100;
+  const refund = Math.round((Number(b.final_total) - fee) * 100) / 100;
+  return { daysUntil, feeRate, fee, refund };
+}
+
+async function cancelBookingFlow(bookingId) {
+  const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
+  if (!b) return;
+  const preview = computeCancellationPreview(b);
+  const msg = b.is_internal
+    ? 'Cancel this internal booking? This frees up the room and removes it from the calendar.'
+    : ('Cancel this booking (' + preview.daysUntil + ' days before the event)?\n\n' +
+       'Cancellation fee: $' + preview.fee.toFixed(2) + '\n' +
+       'Refund: $' + preview.refund.toFixed(2) + '\n\n' +
+       'This cannot be undone.');
+  if (!confirm(msg)) return;
+
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/cancel', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) {
+      alert('Could not cancel: ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
+      return;
+    }
+    await loadBookings();
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+  }
+}
+
+// ---- Series-level actions: a renter pays for (and cancels) a whole
+// recurring series at once, not occurrence by occurrence. ----
+async function markSeriesPaidAction(seriesId, method) {
+  const pop = document.getElementById('series-popover-' + seriesId);
+  if (pop) pop.classList.remove('open');
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/series/' + encodeURIComponent(seriesId) + '/mark-paid', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paymentMethod: method })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert('Could not mark series as paid: ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
+      return;
+    }
+    await loadBookings();
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+  }
+}
+
+async function cancelSeriesFlow(seriesId) {
+  const occurrences = BOOKINGS.filter(function (b) { return b.recurring_series_id === seriesId && b.payment_status !== 'cancelled'; });
+  if (!occurrences.length) return;
+  const isInternal = occurrences[0].is_internal;
+  const msg = isInternal
+    ? ('Cancel all ' + occurrences.length + ' remaining occurrences in this series? This frees up the rooms and removes them from the calendar.')
+    : ('Cancel all ' + occurrences.length + ' remaining occurrences in this series?\n\n' +
+       'Each occurrence\'s cancellation fee is calculated individually based on its own date, per policy.\n\n' +
+       'This cannot be undone.');
+  if (!confirm(msg)) return;
+
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/series/' + encodeURIComponent(seriesId) + '/cancel', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) {
+      alert('Could not cancel series: ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
+      return;
+    }
+    alert('Cancelled ' + data.occurrencesCancelled + ' occurrence(s). Total fee: $' + data.totalFee.toFixed(2) + ', total refund: $' + data.totalRefund.toFixed(2) + '.');
+    await loadBookings();
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+  }
+}
+
+// ---- Edit ----
+const EDIT_ROOMS = [
+  { name: 'Surya Hall', rate: 45 }, { name: 'Patanjali Hall', rate: 40 },
+  { name: 'Nataraj Room', rate: 30 }, { name: 'Ganesh Room', rate: 15 }, { name: 'Kitchen', rate: 0 }
+];
+let EDIT_RENTERS = [];
+let editingBookingId = null;
+
+async function loadEditRenters() {
+  try {
+    const res = await authedFetch(API_BASE + '/renters');
+    if (res.ok) EDIT_RENTERS = await res.json();
+  } catch (err) { EDIT_RENTERS = []; }
+}
+
+function buildEditRoomPicker() {
+  const wrap = document.getElementById('edit-room-picker');
+  wrap.innerHTML = EDIT_ROOMS.map(function (r) {
+    const rateText = r.rate > 0 ? ('$' + r.rate + '/hr') : 'Free';
+    return '<label class="modal-room-check"><input type="checkbox" class="edit-room-cb" value="' + r.name + '"> ' + r.name + '<span class="rate">' + rateText + '</span></label>';
+  }).join('');
+  wrap.querySelectorAll('.edit-room-cb').forEach(function (cb) {
+    cb.addEventListener('change', enforceEditKitchenRule);
+  });
+}
+function enforceEditKitchenRule() {
+  const kitchenCb = document.querySelector('.edit-room-cb[value="Kitchen"]');
+  if (!kitchenCb) return;
+  const surya = document.querySelector('.edit-room-cb[value="Surya Hall"]').checked;
+  const patanjali = document.querySelector('.edit-room-cb[value="Patanjali Hall"]').checked;
+  const eligible = surya || patanjali;
+  kitchenCb.disabled = !eligible;
+  if (!eligible) kitchenCb.checked = false;
+}
+
+async function openEditModal(bookingId) {
+  const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
+  if (!b) return;
+  editingBookingId = bookingId;
+
+  buildEditRoomPicker();
+  await loadEditRenters();
+  const select = document.getElementById('edit-renter-select');
+  select.innerHTML = '<option value="">Choose a renter…</option>' + EDIT_RENTERS.map(function (r) {
+    const label = r.contact_name + (r.email ? (' — ' + r.email) : '');
+    return '<option value="' + r.renter_id + '">' + label.replace(/</g, '&lt;') + '</option>';
+  }).join('');
+
+  document.getElementById('edit-renter-select-field').style.display = b.is_internal ? 'none' : 'flex';
+  document.getElementById('edit-name-field').style.display = b.is_internal ? 'flex' : 'none';
+  document.getElementById('edit-hccg-rep-field').style.display = b.is_internal ? 'flex' : 'none';
+  document.getElementById('edit-nonprofit-row').style.display = b.is_internal ? 'none' : 'flex';
+
+  if (b.is_internal) {
+    document.getElementById('edit-name').value = b.renter_name || '';
+    document.getElementById('edit-hccg-rep').value = b.hccgc_representative_name || '';
+  } else {
+    select.value = b.renter_id || '';
+    document.getElementById('edit-nonprofit').checked = !!b.is_nonprofit;
+  }
+  document.getElementById('edit-date').value = b.event_date;
+  document.getElementById('edit-start').value = (b.start_time || '').slice(11, 16);
+  document.getElementById('edit-end').value = (b.end_time || '').slice(11, 16);
+  document.getElementById('edit-notes').value = b.notes || '';
+  document.querySelectorAll('.edit-room-cb').forEach(function (cb) { cb.checked = b.rooms.includes(cb.value); });
+  enforceEditKitchenRule();
+
+  document.getElementById('edit-modal-title').textContent = b.is_internal ? 'Edit internal booking' : 'Edit booking';
+  document.getElementById('ab-edit-result-box').style.display = 'none';
+  document.getElementById('edit-modal-overlay').style.display = 'flex';
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal-overlay').style.display = 'none';
+  editingBookingId = null;
+}
+document.getElementById('btn-close-edit').addEventListener('click', closeEditModal);
+document.getElementById('btn-cancel-edit-modal').addEventListener('click', closeEditModal);
+document.getElementById('edit-modal-overlay').addEventListener('click', function (e) {
+  if (e.target === this) closeEditModal();
+});
+
+document.getElementById('btn-save-edit').addEventListener('click', async function () {
+  const btn = this;
+  const b = BOOKINGS.find(function (x) { return x.booking_id === editingBookingId; });
+  if (!b) return;
+  const rooms = Array.from(document.querySelectorAll('.edit-room-cb:checked')).map(function (cb) { return cb.value; });
+  const resultBox = document.getElementById('ab-edit-result-box');
+
+  const payload = {
+    rooms: rooms,
+    eventDate: document.getElementById('edit-date').value,
+    startTime: document.getElementById('edit-start').value,
+    endTime: document.getElementById('edit-end').value,
+    notes: document.getElementById('edit-notes').value,
+    renterId: b.is_internal ? null : document.getElementById('edit-renter-select').value,
+    renterName: b.is_internal ? document.getElementById('edit-name').value : null,
+    hccgcRepresentativeName: b.is_internal ? document.getElementById('edit-hccg-rep').value : null,
+    isNonprofit: b.is_internal ? false : document.getElementById('edit-nonprofit').checked
+  };
+
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(editingBookingId), {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+      resultBox.textContent = (data.errors || [data.error || 'Something went wrong.']).join(' ');
+    } else {
+      resultBox.style.display = 'block'; resultBox.className = 'result-box success';
+      resultBox.textContent = 'Saved — new total $' + Number(data.finalTotal).toFixed(2) + '.';
+      await loadBookings();
+      setTimeout(closeEditModal, 900);
+    }
+  } catch (err) {
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+    resultBox.textContent = 'Could not reach the booking system: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save changes';
+  }
+});
+
+// ---- Series edit ----
+let editingSeriesId = null;
+
+function buildSeriesEditRoomPicker() {
+  const wrap = document.getElementById('series-edit-room-picker');
+  wrap.innerHTML = EDIT_ROOMS.map(function (r) {
+    const rateText = r.rate > 0 ? ('$' + r.rate + '/hr') : 'Free';
+    return '<label class="modal-room-check"><input type="checkbox" class="series-edit-room-cb" value="' + r.name + '"> ' + r.name + '<span class="rate">' + rateText + '</span></label>';
+  }).join('');
+  wrap.querySelectorAll('.series-edit-room-cb').forEach(function (cb) {
+    cb.addEventListener('change', enforceSeriesEditKitchenRule);
+  });
+}
+function enforceSeriesEditKitchenRule() {
+  const kitchenCb = document.querySelector('.series-edit-room-cb[value="Kitchen"]');
+  if (!kitchenCb) return;
+  const surya = document.querySelector('.series-edit-room-cb[value="Surya Hall"]').checked;
+  const patanjali = document.querySelector('.series-edit-room-cb[value="Patanjali Hall"]').checked;
+  const eligible = surya || patanjali;
+  kitchenCb.disabled = !eligible;
+  if (!eligible) kitchenCb.checked = false;
+}
+
+function renderSeriesEditOccTable(occurrences) {
+  const tbody = document.getElementById('series-edit-occ-tbody');
+  tbody.innerHTML = occurrences.map(function (occ) {
+    const past = isBookingPast(occ);
+    if (past) {
+      const rangeStr = formatTimeRange(occ.start_time, occ.end_time).split('\u2013');
+      return '<tr data-booking-id="' + occ.booking_id + '" class="past-occ-row" style="opacity:0.6;">' +
+        '<td>' + formatDate(occ.event_date) + ' <span class="method-tag">past</span></td>' +
+        '<td>' + (rangeStr[0] || '') + '</td>' +
+        '<td>' + (rangeStr[1] || '') + '</td>' +
+        '<td style="text-align:center;color:var(--muted);font-size:0.78rem;">read-only</td>' +
+      '</tr>';
+    }
+    return '<tr data-booking-id="' + occ.booking_id + '">' +
+      '<td><input type="date" class="series-occ-date" value="' + occ.event_date + '"></td>' +
+      '<td><input type="time" class="series-occ-start" value="' + (occ.start_time || '').slice(11, 16) + '" list="common-times"></td>' +
+      '<td><input type="time" class="series-occ-end" value="' + (occ.end_time || '').slice(11, 16) + '" list="common-times"></td>' +
+      '<td style="text-align:center;"><input type="checkbox" class="series-occ-remove"></td>' +
+    '</tr>';
+  }).join('');
+  tbody.querySelectorAll('.series-occ-remove').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      this.closest('tr').classList.toggle('marked-for-removal', this.checked);
+    });
+  });
+}
+
+async function openSeriesEditModal(seriesId) {
+  const occurrences = BOOKINGS.filter(function (b) { return b.recurring_series_id === seriesId && b.payment_status !== 'cancelled'; })
+    .sort(function (a, b) { return a.event_date < b.event_date ? -1 : 1; });
+  if (!occurrences.length) return;
+  editingSeriesId = seriesId;
+  const first = occurrences[0];
+
+  buildSeriesEditRoomPicker();
+  await loadEditRenters();
+  const select = document.getElementById('series-edit-renter-select');
+  select.innerHTML = '<option value="">Choose a renter…</option>' + EDIT_RENTERS.map(function (r) {
+    const label = r.contact_name + (r.email ? (' — ' + r.email) : '');
+    return '<option value="' + r.renter_id + '">' + label.replace(/</g, '&lt;') + '</option>';
+  }).join('');
+
+  document.getElementById('series-edit-renter-select-field').style.display = first.is_internal ? 'none' : 'flex';
+  document.getElementById('series-edit-name-field').style.display = first.is_internal ? 'flex' : 'none';
+  document.getElementById('series-edit-hccg-rep-field').style.display = first.is_internal ? 'flex' : 'none';
+  document.getElementById('series-edit-nonprofit-row').style.display = first.is_internal ? 'none' : 'flex';
+
+  if (first.is_internal) {
+    document.getElementById('series-edit-name').value = first.renter_name || '';
+    document.getElementById('series-edit-hccg-rep').value = first.hccgc_representative_name || '';
+  } else {
+    select.value = first.renter_id || '';
+    document.getElementById('series-edit-nonprofit').checked = !!first.is_nonprofit;
+  }
+  document.getElementById('series-edit-notes').value = first.notes || '';
+  document.querySelectorAll('.series-edit-room-cb').forEach(function (cb) { cb.checked = first.rooms.includes(cb.value); });
+  enforceSeriesEditKitchenRule();
+  renderSeriesEditOccTable(occurrences);
+
+  document.getElementById('series-edit-modal-title').textContent = (first.is_internal ? 'Edit internal series' : 'Edit series') + ' (' + occurrences.length + ' occurrences)';
+  document.getElementById('series-edit-result-box').style.display = 'none';
+  document.getElementById('series-edit-modal-overlay').style.display = 'flex';
+}
+
+function closeSeriesEditModal() {
+  document.getElementById('series-edit-modal-overlay').style.display = 'none';
+  editingSeriesId = null;
+}
+document.getElementById('btn-close-series-edit').addEventListener('click', closeSeriesEditModal);
+document.getElementById('btn-cancel-series-edit-modal').addEventListener('click', closeSeriesEditModal);
+document.getElementById('series-edit-modal-overlay').addEventListener('click', function (e) {
+  if (e.target === this) closeSeriesEditModal();
+});
+
+document.getElementById('btn-save-series-edit').addEventListener('click', async function () {
+  const btn = this;
+  const occurrences = BOOKINGS.filter(function (b) { return b.recurring_series_id === editingSeriesId && b.payment_status !== 'cancelled'; });
+  if (!occurrences.length) return;
+  const isInternal = occurrences[0].is_internal;
+  const rooms = Array.from(document.querySelectorAll('.series-edit-room-cb:checked')).map(function (cb) { return cb.value; });
+  const resultBox = document.getElementById('series-edit-result-box');
+
+  const occInputs = Array.from(document.querySelectorAll('#series-edit-occ-tbody tr')).map(function (tr) {
+    const bookingId = tr.dataset.bookingId;
+    if (tr.classList.contains('past-occ-row')) {
+      // Past occurrences are read-only here — submit their existing values
+      // unchanged rather than trying to read inputs that don't exist on
+      // this row, and they can never be marked for removal.
+      const existing = occurrences.find(function (o) { return o.booking_id === bookingId; });
+      return { bookingId: bookingId, eventDate: existing.event_date, startTime: (existing.start_time || '').slice(11, 16), endTime: (existing.end_time || '').slice(11, 16), remove: false };
+    }
+    return {
+      bookingId: bookingId,
+      eventDate: tr.querySelector('.series-occ-date').value,
+      startTime: tr.querySelector('.series-occ-start').value,
+      endTime: tr.querySelector('.series-occ-end').value,
+      remove: tr.querySelector('.series-occ-remove').checked
+    };
+  });
+
+  const payload = {
+    rooms: rooms,
+    notes: document.getElementById('series-edit-notes').value,
+    renterId: isInternal ? null : document.getElementById('series-edit-renter-select').value,
+    renterName: isInternal ? document.getElementById('series-edit-name').value : null,
+    hccgcRepresentativeName: isInternal ? document.getElementById('series-edit-hccg-rep').value : null,
+    isNonprofit: isInternal ? false : document.getElementById('series-edit-nonprofit').checked,
+    occurrences: occInputs
+  };
+
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/series/' + encodeURIComponent(editingSeriesId), {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+      resultBox.textContent = (data.errors || [data.error || 'Something went wrong.']).join(' ');
+    } else {
+      resultBox.style.display = 'block'; resultBox.className = 'result-box success';
+      let msg = 'Saved — ' + data.updatedCount + ' occurrence(s) updated';
+      if (data.removedCount) msg += ', ' + data.removedCount + ' removed';
+      msg += '.';
+      if (data.occurrenceErrors && data.occurrenceErrors.length) msg += ' Some rows had issues: ' + data.occurrenceErrors.join(' ');
+      resultBox.textContent = msg;
+      await loadBookings();
+      setTimeout(closeSeriesEditModal, 1200);
+    }
+  } catch (err) {
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+    resultBox.textContent = 'Could not reach the booking system: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save changes';
+  }
+});
+
+// Contact filter dropdown — one entry per distinct renter name across
+// loaded bookings, plus "HCCGC" for internal bookings. Everything starts
+// checked (state.contactFilter stays null, meaning "no filter applied")
+// so nothing — including HCCGC — is excluded by default.
+function populateContactFilter() {
+  const names = new Set();
+  BOOKINGS.forEach(function (b) { names.add(contactNameFor(b)); });
+  const sorted = Array.from(names).sort(function (a, b) { return a.localeCompare(b); });
+  // First time this runs (state.contactFilter is still undefined, not yet
+  // touched by the user), default to everything except HCCGC checked.
+  if (state.contactFilter === undefined) {
+    state.contactFilter = new Set(sorted.filter(function (n) { return n !== 'HCCGC'; }));
+  }
+  const list = document.getElementById('contact-filter-list');
+  const checkedSet = state.contactFilter; // null = everything checked
+  list.innerHTML = sorted.map(function (name) {
+    const checked = !checkedSet || checkedSet.has(name);
+    return '<div class="contact-filter-row"><input type="checkbox" id="cf-' + btoa(unescape(encodeURIComponent(name))).replace(/[^a-zA-Z0-9]/g, '') + '" data-contact-name="' + escHtml(name) + '"' + (checked ? ' checked' : '') + '><label for="cf-' + btoa(unescape(encodeURIComponent(name))).replace(/[^a-zA-Z0-9]/g, '') + '">' + escHtml(name) + '</label></div>';
+  }).join('');
+  updateContactFilterButtonLabel(sorted.length);
+}
+function updateContactFilterButtonLabel(totalCount) {
+  const btn = document.getElementById('btn-contact-filter-toggle');
+  const countSpan = document.getElementById('contact-filter-count');
+  if (!state.contactFilter) {
+    btn.firstChild.textContent = 'Contact: All ';
+    countSpan.textContent = '';
+  } else {
+    btn.firstChild.textContent = 'Contact: ';
+    countSpan.textContent = state.contactFilter.size + ' of ' + totalCount;
+  }
+}
+document.getElementById('btn-contact-filter-toggle').addEventListener('click', function (e) {
+  e.stopPropagation();
+  const panel = document.getElementById('contact-filter-panel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+});
+document.addEventListener('click', function (e) {
+  const panel = document.getElementById('contact-filter-panel');
+  if (panel.style.display !== 'none' && !e.target.closest('.contact-filter-wrap')) panel.style.display = 'none';
+});
+document.getElementById('contact-filter-list').addEventListener('change', function (e) {
+  const cb = e.target.closest('[data-contact-name]');
+  if (!cb) return;
+  const allNames = Array.from(document.querySelectorAll('[data-contact-name]')).map(function (el) { return el.dataset.contactName; });
+  if (!state.contactFilter) state.contactFilter = new Set(allNames); // first uncheck starts from "everything"
+  if (cb.checked) state.contactFilter.add(cb.dataset.contactName);
+  else state.contactFilter.delete(cb.dataset.contactName);
+  if (state.contactFilter.size === allNames.length) state.contactFilter = null; // back to "no filter" once everything's checked again
+  updateContactFilterButtonLabel(allNames.length);
+  state.page = 1;
+  render();
+});
+document.getElementById('btn-contact-filter-all').addEventListener('click', function () {
+  state.contactFilter = null;
+  populateContactFilter();
+  state.page = 1;
+  render();
+});
+document.getElementById('btn-contact-filter-none').addEventListener('click', function () {
+  state.contactFilter = new Set();
+  populateContactFilter();
+  state.page = 1;
+  render();
+});
+document.getElementById('room-filter').addEventListener('change', function (e) {
+  state.room = e.target.value;
+  state.page = 1;
+  render();
+});
+const STATUS_LABELS = {
+  requested: 'Requested — awaiting review',
+  'needs-attention': 'Needs attention',
+  pending: 'Pending (not yet invoiced)',
+  paid: 'Paid',
+  internal: 'Internal / No charge',
+  cancelled: 'Cancelled',
+  rejected: 'Rejected'
+};
+function populateStatusFilter() {
+  // Default: everything checked except Rejected — rejected bookings are
+  // usually noise once you're past reviewing them, so they stay hidden
+  // until someone deliberately asks to see them.
+  if (state.statusFilter === undefined) {
+    state.statusFilter = new Set(STATUS_CATEGORIES.filter(function (c) { return c !== 'rejected'; }));
+  }
+  const list = document.getElementById('status-filter-list');
+  const checkedSet = state.statusFilter;
+  list.innerHTML = STATUS_CATEGORIES.map(function (cat) {
+    const checked = !checkedSet || checkedSet.has(cat);
+    return '<div class="contact-filter-row"><input type="checkbox" id="sf-' + cat + '" data-status-cat="' + cat + '"' + (checked ? ' checked' : '') + '><label for="sf-' + cat + '">' + escHtml(STATUS_LABELS[cat]) + '</label></div>';
+  }).join('');
+  updateStatusFilterButtonLabel();
+}
+function updateStatusFilterButtonLabel() {
+  const btn = document.getElementById('btn-status-filter-toggle');
+  const countSpan = document.getElementById('status-filter-count');
+  if (!state.statusFilter || state.statusFilter.size === STATUS_CATEGORIES.length) {
+    btn.firstChild.textContent = 'Status: All ';
+    countSpan.textContent = '';
+  } else {
+    btn.firstChild.textContent = 'Status: ';
+    countSpan.textContent = state.statusFilter.size + ' of ' + STATUS_CATEGORIES.length;
+  }
+}
+document.getElementById('btn-status-filter-toggle').addEventListener('click', function (e) {
+  e.stopPropagation();
+  const panel = document.getElementById('status-filter-panel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+});
+document.addEventListener('click', function (e) {
+  const panel = document.getElementById('status-filter-panel');
+  if (panel.style.display !== 'none' && !e.target.closest('.contact-filter-wrap')) panel.style.display = 'none';
+});
+document.getElementById('status-filter-list').addEventListener('change', function (e) {
+  const cb = e.target.closest('[data-status-cat]');
+  if (!cb) return;
+  if (!state.statusFilter) state.statusFilter = new Set(STATUS_CATEGORIES);
+  if (cb.checked) state.statusFilter.add(cb.dataset.statusCat);
+  else state.statusFilter.delete(cb.dataset.statusCat);
+  updateStatusFilterButtonLabel();
+  state.page = 1;
+  render();
+});
+document.getElementById('btn-status-filter-all').addEventListener('click', function () {
+  state.statusFilter = new Set(STATUS_CATEGORIES);
+  populateStatusFilter();
+  state.page = 1;
+  render();
+});
+document.getElementById('btn-status-filter-none').addEventListener('click', function () {
+  state.statusFilter = new Set();
+  populateStatusFilter();
+  state.page = 1;
+  render();
+});
+populateStatusFilter();
+document.getElementById('page-size-filter').addEventListener('change', function (e) {
+  state.pageSize = Number(e.target.value);
+  state.page = 1;
+  render();
+});
+
+// Month filter — a real popup calendar (quick picks + a navigable
+// year/month grid) rather than a long flat dropdown list.
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTH_NAMES_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+let monthCalendarViewYear = new Date().getFullYear();
+
+function monthFilterLabel(value) {
+  if (value === 'default3') return 'This, last & next month';
+  if (value === 'all') return 'All time';
+  const [y, m] = value.split('-').map(Number);
+  return MONTH_NAMES[m - 1] + ' ' + y;
+}
+
+function renderMonthCalendarPanel() {
+  const panel = document.getElementById('month-calendar-panel');
+  const selectedIsSpecificMonth = /^\d{4}-\d{2}$/.test(state.month);
+  const selectedYear = selectedIsSpecificMonth ? Number(state.month.split('-')[0]) : null;
+
+  let html = '<div class="month-calendar-quick">' +
+    '<button class="' + (state.month === 'default3' ? 'active' : '') + '" onclick="selectMonthFilter(\'default3\')">This, last &amp; next month</button>' +
+    '<button class="' + (state.month === 'all' ? 'active' : '') + '" onclick="selectMonthFilter(\'all\')">All time</button>' +
+    '</div>';
+  html += '<div class="month-calendar-year-nav">' +
+    '<button onclick="shiftMonthCalendarYear(-1)">&lsaquo;</button>' +
+    '<span>' + monthCalendarViewYear + '</span>' +
+    '<button onclick="shiftMonthCalendarYear(1)">&rsaquo;</button>' +
+    '</div>';
+  html += '<div class="month-calendar-grid">' +
+    MONTH_NAMES_SHORT.map(function (name, i) {
+      const value = monthCalendarViewYear + '-' + String(i + 1).padStart(2, '0');
+      const isActive = selectedIsSpecificMonth && selectedYear === monthCalendarViewYear && Number(state.month.split('-')[1]) === i + 1;
+      return '<button class="' + (isActive ? 'active' : '') + '" onclick="selectMonthFilter(\'' + value + '\')">' + name + '</button>';
+    }).join('') +
+    '</div>';
+  panel.innerHTML = html;
+}
+function shiftMonthCalendarYear(delta) {
+  monthCalendarViewYear += delta;
+  renderMonthCalendarPanel();
+}
+function selectMonthFilter(value) {
+  state.month = value;
+  state.page = 1;
+  document.getElementById('btn-month-filter').textContent = monthFilterLabel(value);
+  document.getElementById('month-calendar-panel').style.display = 'none';
+  render();
+}
+document.getElementById('btn-month-filter').textContent = monthFilterLabel(state.month);
+document.getElementById('btn-month-filter').addEventListener('click', function (e) {
+  e.stopPropagation();
+  const panel = document.getElementById('month-calendar-panel');
+  const willOpen = panel.style.display === 'none';
+  if (willOpen) renderMonthCalendarPanel();
+  panel.style.display = willOpen ? 'block' : 'none';
+});
+document.addEventListener('click', function (e) {
+  const panel = document.getElementById('month-calendar-panel');
+  if (panel.style.display !== 'none' && !panel.contains(e.target) && e.target.id !== 'btn-month-filter') panel.style.display = 'none';
+});
+// loadBookings() is intentionally NOT called here — moved into the auth
+// gate's success handler below, since it needs a valid sign-in token first.
+
+
+// ==================== TAB SWITCHING ====================
+document.querySelectorAll('.tab-btn').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+    document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    // Only All Bookings is wired up so far -- other tabs are stubs
+    // pointing to their standalone pages until migrated.
+  });
+});
+</script>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js';
+import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
+
+var firebaseConfig = {
+  apiKey: 'AIzaSyA6IzLjWTg7Rq04HsTH-iA3eDmSzKI7xME',
+  authDomain: 'hccgc-a7a54.firebaseapp.com',
+  projectId: 'hccgc-a7a54',
+  storageBucket: 'hccgc-a7a54.firebasestorage.app',
+  messagingSenderId: '75757201418',
+  appId: '1:75757201418:web:c31e9361921242145717f3'
+};
+
+var ALLOWED_DOMAIN = 'hccgc.org';
+var REQUIRED_APP_KEY = 'bookings-finance';
+var PORTAL_URL = '/admin/admin-portal';
+
+var fbApp = initializeApp(firebaseConfig);
+var auth = getAuth(fbApp);
+var db = getFirestore(fbApp);
+
+function showGate(title, msg) {
+  document.getElementById('gate').querySelector('h3').textContent = title;
+  document.getElementById('gate').querySelector('p').innerHTML = msg;
+  document.getElementById('gate').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+onAuthStateChanged(auth, function(user) {
+  if (!user) { showGate('Sign in required', 'Please sign in from the <a href="'+PORTAL_URL+'">Admin Portal</a> first.'); return; }
+  var email = (user.email||'').toLowerCase();
+  window.__hccgcCurrentUser = { email: email };
+  window.__hccgcFirebaseUser = user;
+  if (!email.endsWith('@'+ALLOWED_DOMAIN)) { showGate('Access denied', 'Please use an @'+ALLOWED_DOMAIN+' account.'); return; }
+  getDoc(doc(db, 'portalUsers', email)).then(function(snap) {
+    var data = snap.exists() ? snap.data() : {};
+    if (!data.isAdmin && !(Array.isArray(data.allowedApps) && data.allowedApps.includes(REQUIRED_APP_KEY))) {
+      showGate('Access not granted', "You don't have access to Facility Bookings. Ask an admin to grant it.");
+      return;
+    }
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadPendingCounts();
+    var entryDisplay = document.getElementById('f-entered-by-display');
+    if (entryDisplay) entryDisplay.textContent = 'Signed in as ' + email;
+    loadBookings();
+  }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });
+});
+</script>
+</body>
+</html>

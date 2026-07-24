@@ -279,6 +279,165 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
 .back-link:hover { color: #fff; text-decoration: underline; }
 .nav-badge { display: inline-block; background: #b3382c; color: #fff; font-size: 0.68rem; font-weight: 700; padding: 1px 6px; border-radius: 999px; margin-left: 4px; vertical-align: middle; }
 
+/* ==== New Booking tab styles ==== */
+
+:root {
+  --bg: #fff9f1; --surface: #ffffff; --surface-soft: #fff6ea; --border: rgba(121,62,17,0.14);
+  --text: #2c1b10; --muted: #6a5141; --saffron: #b55a18; --saffron-dark: #8d3e0d; --maroon: #7f2e16;
+  --radius: 22px; --shadow: 0 18px 45px rgba(93,43,14,0.10);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%), radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%), var(--bg); color: var(--text); min-height: 100vh; }
+.container { width: min(calc(100% - 32px), 1280px); margin: 0 auto; }
+.site-header { position: sticky; top: 0; z-index: 50; background: rgba(255,249,241,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 92px; padding: 12px 0; }
+.site-header a.brand, .site-header a.brand:link, .site-header a.brand:visited { text-decoration: none; color: inherit; }
+.brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.brand-logo-wrap { background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 8px; box-shadow: var(--shadow); flex-shrink: 0; }
+.brand-logo { width: 88px; height: auto; border-radius: 12px; object-fit: contain; }
+.brand-text h1 { margin: 0; font-size: 1.2rem; line-height: 1.15; color: var(--maroon); }
+.site-header nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 18px; margin: 0; padding: 0; align-items: center; justify-content: flex-end; }
+.site-header nav a, .site-header nav a:link, .site-header nav a:visited { font-weight: 700; color: var(--text); font-size: 0.96rem; text-decoration: none; }
+.site-header nav a:hover { color: var(--saffron-dark); }
+.menu-toggle { display: none; border: 0; background: transparent; padding: 6px 0; cursor: pointer; color: #2c1b10; align-self: flex-end; }
+.menu-toggle .bar { display: block; width: 26px; height: 2px; margin: 5px 0; background: currentColor; }
+@media (max-width: 768px) {
+  .nav { flex-direction: column; align-items: stretch; gap: 8px; } .menu-toggle { display: inline-block; }
+  .site-header nav { display: none; width: 100%; background: rgba(255,249,241,0.95); padding: 10px 0; }
+  .site-header nav.is-open { display: block; } .site-header nav ul { flex-direction: column; gap: 14px; }
+}
+.page-hero { padding: 28px 0 22px; background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%); color: #fff; }
+.page-hero .eyebrow { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.75); margin-bottom: 6px; }
+.page-hero h1 { font-family: Georgia, "Times New Roman", serif; font-size: 1.9rem; color: #fff; margin-bottom: 6px; }
+.page-hero p { color: #ffffff; opacity: 0.9; font-size: 0.92rem; max-width: 560px; }
+
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; padding: 28px 0 60px; align-items: stretch; }
+.form-col { display: flex; flex-direction: column; gap: 20px; }
+.form-col .full-span { }
+.card { min-width: 0; }
+.calendar-col { display: flex; height: 100%; }
+.calendar-card { display: flex; flex-direction: column; width: 100%; }
+
+.avail-cal-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 0 12px; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+.avail-cal-nav { display: flex; align-items: center; gap: 8px; }
+.avail-cal-nav button { font-family: inherit; font-size: 1rem; font-weight: 700; color: var(--saffron-dark); background: var(--surface-soft); border: 1px solid var(--border); border-radius: 8px; width: 28px; height: 28px; cursor: pointer; }
+.avail-cal-nav button:hover { background: #fff; }
+.avail-cal-month-label { font-size: 0.9rem; font-weight: 700; color: var(--maroon); min-width: 120px; text-align: center; }
+.avail-view-toggle { display: flex; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; }
+.avail-view-btn { font-family: inherit; font-size: 0.72rem; font-weight: 700; padding: 5px 10px; border: none; background: #fff; color: var(--muted); cursor: pointer; }
+.avail-view-btn.active { background: var(--saffron-dark); color: #fff; }
+.avail-cal-legend { display: flex; gap: 8px; flex-wrap: wrap; font-size: 0.7rem; color: var(--muted); }
+.avail-cal-legend-item { display: flex; align-items: center; gap: 4px; }
+.avail-cal-legend-dot { width: 9px; height: 9px; border-radius: 3px; display: inline-block; flex-shrink: 0; }
+.avail-week-scroll { overflow-x: auto; overflow-y: hidden; flex: 1 1 auto; min-height: 0; }
+.avail-week-grid { display: grid; grid-template-columns: 42px repeat(7, minmax(64px, 1fr)); min-width: 500px; }
+.avail-week-daylabel { text-align: center; font-size: 0.66rem; font-weight: 700; color: var(--text); padding: 6px 2px; border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); }
+.avail-week-daylabel .dow { display: block; font-size: 0.6rem; color: var(--muted); text-transform: uppercase; font-weight: 700; }
+.avail-week-daylabel.is-today { color: var(--saffron-dark); }
+.avail-week-corner { border-bottom: 1px solid var(--border); }
+.avail-week-timecol { position: relative; }
+.avail-week-timelabel { position: absolute; right: 6px; font-size: 0.55rem; color: var(--muted); transform: translateY(-50%); white-space: nowrap; }
+.avail-week-daycol { border-left: 1px solid var(--border); position: relative; background-image: repeating-linear-gradient(to bottom, var(--border) 0, var(--border) 1px, transparent 1px, transparent var(--hour-px, 34px)); }
+.avail-week-chip { position: absolute; border-radius: 4px; padding: 1px 4px; color: #fff; font-size: 0.6rem; font-weight: 700; line-height: 1.25; overflow: hidden; box-sizing: border-box; cursor: default; }
+.avail-week-chip .detail { display: block; font-weight: 400; opacity: 0.92; font-size: 0.56rem; }
+.avail-month-grid { display: grid; grid-template-columns: repeat(7, 1fr); flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+.avail-month-weekday { text-align: center; font-size: 0.64rem; font-weight: 700; color: var(--muted); text-transform: uppercase; padding: 6px 2px; border-bottom: 1px solid var(--border); }
+.avail-month-day { min-height: 56px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 3px; font-size: 0.62rem; }
+.avail-month-day:nth-child(7n) { border-right: none; }
+.avail-month-day.empty { background: var(--surface-soft); }
+.avail-month-day-num { font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.avail-month-day.is-today .avail-month-day-num { color: var(--saffron-dark); }
+.avail-month-chip { display: block; border-radius: 3px; padding: 0 3px; margin-bottom: 1px; color: #fff; font-size: 0.56rem; line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.avail-month-more { font-size: 0.56rem; color: var(--muted); }
+@media (max-width: 1000px) {
+  .layout { grid-template-columns: 1fr; }
+  .form-col { grid-template-columns: 1fr; }
+}
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; box-shadow: var(--shadow); }
+.cost-summary-card { background: linear-gradient(165deg, var(--surface-soft), var(--surface)); border-color: rgba(213,138,45,0.3); }
+.card + .card { margin-top: 20px; }
+.card h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.15rem; color: var(--maroon); margin-bottom: 4px; }
+.card .card-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 16px; }
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label { font-size: 0.78rem; font-weight: 700; color: var(--muted); }
+.field input[type="text"], .field input[type="email"], .field input[type="tel"], .field input[type="date"], .field input[type="time"], .field input[type="number"], .field select, .field textarea {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 10px; background: #fff; color: var(--text);
+  width: 100%; box-sizing: border-box; min-width: 0;
+}
+.field textarea { resize: vertical; min-height: 56px; }
+
+.room-picker { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-bottom: 8px; }
+.room-check { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; font-size: 0.86rem; transition: border-color 0.15s, background 0.15s; }
+.room-check:has(input:checked) { border-color: var(--saffron-dark); background: var(--surface-soft); font-weight: 700; }
+.room-check input { width: 16px; height: 16px; accent-color: var(--saffron-dark); }
+.room-check .rate { margin-left: auto; font-size: 0.74rem; color: var(--muted); }
+
+.internal-toggle-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 24px; padding: 12px 18px; border: 1px dashed var(--border); border-radius: 14px; background: var(--surface); margin-bottom: 4px; }
+.internal-toggle-strip .checkbox-row { font-size: 0.86rem; }
+.internal-toggle-strip .muted-inline { color: var(--muted); font-weight: 400; }
+.internal-toggle-strip .collapsible.open { padding-top: 0; }
+.btn-whole-facility {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.76rem; font-weight: 700; color: var(--saffron-dark);
+  background: var(--surface-soft); border: 1.5px solid var(--border); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+.btn-whole-facility:hover { background: #fbe9cf; }
+
+.checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 0.86rem; }
+.section-divider { border-top: 1px solid var(--border); margin: 6px 0 16px; }
+.checkbox-row input { width: 16px; height: 16px; }
+
+.summary-line { display: flex; justify-content: space-between; font-size: 0.86rem; padding: 7px 0; border-bottom: 1px solid var(--border); }
+.summary-line:last-of-type { border-bottom: none; }
+.summary-line .label { color: var(--muted); }
+.summary-line.total { font-weight: 700; font-size: 1.05rem; color: var(--maroon); padding-top: 12px; }
+.discount-chip { display: inline-block; font-size: 0.68rem; font-weight: 700; color: var(--saffron-dark); background: var(--surface-soft); border-radius: 999px; padding: 2px 8px; margin: 2px 4px 0 0; }
+.no-discount { font-size: 0.78rem; color: var(--muted); font-style: italic; }
+
+.adjustment-toggle { display: flex; align-items: center; gap: 8px; margin: 16px 0 10px; font-size: 0.86rem; font-weight: 700; color: var(--text); cursor: pointer; }
+.collapsible { display: none; padding-top: 8px; }
+.collapsible.open { display: block; }
+
+.btn-primary {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.9rem; font-weight: 700; color: #fff;
+  background: linear-gradient(135deg, var(--saffron-dark), var(--maroon)); border: none; border-radius: 12px;
+  padding: 12px 20px; cursor: pointer; width: 100%; margin-top: 14px;
+}
+.btn-primary:hover { opacity: 0.92; }
+.btn-secondary {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.78rem; font-weight: 700; color: var(--saffron-dark);
+  background: var(--surface-soft); border: 1.5px solid var(--border); border-radius: 8px; padding: 6px 12px; cursor: pointer;
+}
+
+.result-box { margin-top: 16px; border-radius: 12px; padding: 12px 16px; font-size: 0.84rem; line-height: 1.5; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(44,27,16,0.5); z-index: 100; display: flex; align-items: flex-start; justify-content: center; padding: 60px 16px; overflow-y: auto; }
+.modal-panel { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); width: 100%; max-width: 480px; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 22px 26px; border-bottom: 1px solid var(--border); }
+.modal-header h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.15rem; color: var(--maroon); }
+.modal-close { background: none; border: none; font-size: 1.4rem; color: var(--muted); cursor: pointer; line-height: 1; }
+.modal-body { padding: 22px 26px; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 18px 26px; border-top: 1px solid var(--border); }
+.result-box.success { background: #e8f5ec; color: #2e7d4f; border: 1px solid rgba(46,125,79,0.25); }
+.result-box.error { background: #fbe9e7; color: #b3382c; border: 1px solid rgba(179,56,44,0.25); }
+.conflict-note { background: #fdf1de; color: #a15c00; border: 1px solid rgba(161,92,0,0.2); border-radius: 12px; padding: 12px 16px; font-size: 0.8rem; margin-top: 16px; }
+
+.occ-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 10px; }
+.occ-table th { text-align: left; font-size: 0.68rem; text-transform: uppercase; color: var(--muted); padding: 6px 6px; }
+.occ-table td { padding: 4px 6px; }
+.occ-table input[type="date"], .occ-table input[type="time"] { font-family: Arial, Helvetica, sans-serif; font-size: 0.8rem; padding: 6px 8px; border: 1.5px solid var(--border); border-radius: 8px; width: 100%; }
+.occ-remove { background: none; border: none; color: #b3382c; cursor: pointer; font-size: 0.9rem; padding: 4px 6px; }
+
+
+#gate{padding:60px 16px;display:flex;justify-content:center;}
+.gate-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow);}
+.gate-card h3{font-family:Georgia,serif;font-size:1.3rem;color:var(--maroon);margin-bottom:.5rem;}
+.gate-card p{color:var(--muted);font-size:.88rem;line-height:1.6;}
+.gate-card a{color:var(--saffron-dark);}
+.back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.85); text-decoration: none; margin-bottom: 14px; }
+.back-link:hover { color: #fff; text-decoration: underline; }
+.nav-badge { display: inline-block; background: #b3382c; color: #fff; font-size: 0.68rem; font-weight: 700; padding: 1px 6px; border-radius: 999px; margin-left: 4px; vertical-align: middle; }
+
 .tab-nav { background: var(--surface); border-bottom: 1px solid var(--border); }
 .tab-nav ul { list-style: none; display: flex; gap: 4px; padding: 10px 0; flex-wrap: wrap; }
 .tab-nav button { display: inline-block; padding: 8px 16px; border-radius: 999px; font-size: 0.86rem; font-weight: 700; color: var(--muted); background: none; border: none; cursor: pointer; transition: background 0.15s, color 0.15s; font-family: inherit; }
@@ -571,7 +730,181 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
   </div>
 
   <div class="tab-panel" id="tab-new-booking">
-    <div class="tab-stub">This tab is still being migrated into the merged page — use <a href="/admin/bookings/new-booking">the standalone New Booking page</a> for now.</div>
+
+<datalist id="nb-common-times">
+  <option value="06:00"><option value="06:30"><option value="07:00"><option value="07:30">
+  <option value="08:00"><option value="08:30"><option value="09:00"><option value="09:30">
+  <option value="10:00"><option value="10:30"><option value="11:00"><option value="11:30">
+  <option value="12:00"><option value="12:30"><option value="13:00"><option value="13:30">
+  <option value="14:00"><option value="14:30"><option value="15:00"><option value="15:30">
+  <option value="16:00"><option value="16:30"><option value="17:00"><option value="17:30">
+  <option value="18:00"><option value="18:30"><option value="19:00"><option value="19:30">
+  <option value="20:00"><option value="20:30"><option value="21:00"><option value="21:30">
+  <option value="22:00">
+</datalist>
+
+<div class="page-hero">
+  <div class="container">
+    <a class="back-link" href="https://hccgc.org/admin/admin-portal">&larr; Back to apps</a>
+    <h1>Facility Bookings</h1>
+    <p>Pick a room, a date, and a renter — cost and availability update as you go.</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="layout">
+    <div class="calendar-col">
+      <div class="card calendar-card">
+        <h2>Room availability</h2>
+        <div class="card-sub">Live from actual bookings — same source of truth as the public availability calendar.</div>
+        <div class="avail-cal-header">
+          <div class="avail-cal-nav">
+            <button type="button" id="avail-cal-prev" aria-label="Previous">&larr;</button>
+            <div class="avail-cal-month-label" id="avail-cal-week-label"></div>
+            <button type="button" id="avail-cal-next" aria-label="Next">&rarr;</button>
+          </div>
+          <div class="avail-view-toggle">
+            <button type="button" class="avail-view-btn active" id="avail-view-week-btn">Week</button>
+            <button type="button" class="avail-view-btn" id="avail-view-month-btn">Month</button>
+          </div>
+          <div class="avail-cal-legend" id="avail-cal-legend"></div>
+        </div>
+        <div class="avail-week-scroll" id="avail-week-container">
+          <div class="avail-week-grid" id="avail-week-grid"></div>
+        </div>
+        <div class="avail-month-grid" id="avail-month-grid" style="display:none;"></div>
+      </div>
+    </div>
+
+    <div class="form-col">
+      <div class="internal-toggle-strip full-span">
+        <div class="checkbox-row" style="margin-bottom:0;"><input type="checkbox" id="f-internal-enabled"><label for="f-internal-enabled">This is an HCCGC program/initiative <span class="muted-inline">— no charge, no customer</span></label></div>
+        <div class="collapsible" id="publish-event-field">
+          <div class="checkbox-row" style="margin-bottom:0;">
+            <input type="checkbox" id="f-publish-event" checked>
+            <label for="f-publish-event">Also list this on the public Upcoming Events page</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="renter-details-card">
+        <h2 id="renter-details-title">Renter</h2>
+        <div class="card-sub" id="renter-details-sub">Who's booking, and what for.</div>
+        <div class="field" id="f-renter-select-field">
+          <label>Select a contact</label>
+          <select id="f-renter-select" required>
+            <option value="">Choose a renter…</option>
+          </select>
+          <div class="card-sub" style="margin-bottom:0;margin-top:6px;">Don't see who you're looking for? <a href="add-renter" style="color:var(--saffron-dark);font-weight:700;">Add them on the Add A Renter page</a> first.</div>
+        </div>
+        <div class="field" id="f-event-name-field"><label>Event name</label><input type="text" id="f-event-name" placeholder="e.g. Weekly Shakha, Birthday Celebration"></div>
+        <div class="field" id="f-name-field" style="display:none;"><label id="f-name-label">Program / event name</label><input type="text" id="nb-f-name" placeholder="e.g. Weekly Bhajan Sandhya"></div>
+        <div class="field" id="f-hccg-rep-field" style="display:none;"><label>HCCGC representative name</label><input type="text" id="f-hccg-rep" placeholder="Who at HCCGC is organizing this?"></div>
+        <div class="field"><label id="f-notes-label">Notes (optional)</label><textarea id="nb-f-notes" placeholder="Anything worth remembering about this booking"></textarea></div>
+      </div>
+
+      <div class="card" id="rooms-card">
+        <h2>Rooms</h2>
+        <div class="card-sub">Select all four for whole-facility. Kitchen requires Surya Hall or Patanjali Hall.</div>
+        <button type="button" class="btn-whole-facility" id="btn-whole-facility">Select all rooms (whole facility)</button>
+        <div class="room-picker" id="room-picker" style="margin-top:12px;"></div>
+        <div class="checkbox-row" id="nonprofit-row" style="display:none;"><span style="color:var(--green);font-weight:700;">&#10003; Nonprofit discount applied</span> <span class="card-sub" style="margin:0;">(based on this renter's saved status — change it in Add A Renter)</span></div>
+
+        <div class="section-divider"></div>
+
+        <div class="adjustment-toggle" id="adjustment-toggle">
+          <input type="checkbox" id="f-adjustment-enabled" style="width:16px;height:16px;">
+          Apply a one-time discretionary discount
+        </div>
+        <div class="collapsible" id="adjustment-fields">
+          <div class="field-row">
+            <div class="field">
+              <label>Type</label>
+              <select id="f-adj-type"><option value="percent">Percent off</option><option value="flat">Flat dollar amount off</option></select>
+            </div>
+            <div class="field"><label>Value</label><input type="number" id="f-adj-value" placeholder="e.g. 10" min="0" step="0.01"></div>
+          </div>
+          <div class="field"><label>Reason (required — shows up in the audit report)</label><input type="text" id="f-adj-reason" placeholder="e.g. Board-approved discount for founding member"></div>
+          <div class="card-sub" style="margin-bottom:0;">For a recurring booking, this same discount applies to every occurrence.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Date &amp; time</h2>
+        <div class="card-sub">First occurrence. If this repeats, add the pattern below and adjust any date's time as needed.</div>
+        <div class="field"><label>Date</label><input type="date" id="f-date"></div>
+        <div class="field-row">
+          <div class="field"><label>Start time</label><input type="time" id="f-start" value="14:00" list="nb-common-times"></div>
+          <div class="field"><label>End time</label><input type="time" id="f-end" value="16:00" list="nb-common-times"></div>
+        </div>
+
+        <div class="checkbox-row"><input type="checkbox" id="f-recurring-enabled"><label for="f-recurring-enabled">This repeats</label></div>
+        <div class="collapsible" id="recurring-fields">
+          <div class="field-row">
+            <div class="field">
+              <label>Repeats</label>
+              <select id="f-recur-frequency"><option value="daily">Daily</option><option value="weekly" selected>Weekly</option><option value="biweekly">Every 2 weeks</option><option value="monthly">Monthly</option></select>
+            </div>
+            <div class="field">
+              <label>Ends</label>
+              <select id="f-recur-end-type"><option value="count">After a number of times</option><option value="until">On a specific date</option></select>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field" id="recur-count-field"><label>Number of occurrences</label><input type="number" id="f-recur-count" min="2" value="8"></div>
+            <div class="field" id="recur-until-field" style="display:none;"><label>Last occurrence date</label><input type="date" id="f-recur-until"></div>
+          </div>
+          <button type="button" class="btn-secondary" id="btn-regenerate-occurrences">Generate dates</button>
+
+          <table class="occ-table" id="occ-table" style="display:none;">
+            <thead><tr><th>Date</th><th>Start</th><th>End</th><th></th></tr></thead>
+            <tbody id="occ-tbody"></tbody>
+          </table>
+          <div class="card-sub" style="margin-bottom:0;">Each date's time defaults to the start/end above — edit any row individually, or remove a date (e.g. to skip a holiday).</div>
+
+          <div class="field" id="invoice-mode-field" style="display:none;margin-top:16px;">
+            <label>How should invoicing work for this series?</label>
+            <div class="request-field-row" style="gap:16px;">
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;"><input type="radio" name="f-invoice-mode" value="combined" checked> One invoice for the whole series</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;"><input type="radio" name="f-invoice-mode" value="per_occurrence"> One invoice per occurrence</label>
+            </div>
+            <div class="card-sub" style="margin:6px 0 0;">Combined: one invoice, one receipt, tracked at the series level — matches paying the whole series at once. Per occurrence: each date gets its own invoice and receipt, tracked independently — matches paying before each individual date.</div>
+          </div>
+        </div>
+
+        <div class="conflict-note">Availability is checked automatically for every date when you click Create booking — nothing gets created if even one date conflicts.</div>
+      </div>
+
+      <div class="card cost-summary-card">
+        <h2>Cost summary</h2>
+        <div class="card-sub" id="cost-summary-sub">Updates live as you fill in the form.</div>
+        <div class="summary-line"><span class="label">Base total</span><span id="s-base">$0.00</span></div>
+        <div class="summary-line"><span class="label">Discounts applied</span><span id="s-discount-tags"></span></div>
+        <div class="summary-line"><span class="label">Subtotal after standard discounts</span><span id="s-subtotal">$0.00</span></div>
+        <div class="summary-line" id="s-adjustment-line" style="display:none;"><span class="label">Discretionary adjustment</span><span id="s-adjustment">$0.00</span></div>
+        <div class="summary-line total"><span class="label" id="s-total-label">Total</span><span id="s-final">$0.00</span></div>
+
+        <button type="button" class="btn-primary" id="btn-generate">Create booking</button>
+        <div class="result-box" id="nb-result-box" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="modal-overlay" id="invoice-preview-overlay" style="display:none;">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <h2>Booking created</h2>
+      <button class="modal-close" id="btn-skip-invoice">&times;</button>
+    </div>
+    <div class="modal-body" id="invoice-preview-body"></div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-skip-invoice-2" onclick="document.getElementById('invoice-preview-overlay').style.display='none';">Close</button>
+      <a class="btn-primary" href="all-bookings" style="text-decoration:none;text-align:center;display:inline-block;">Review &amp; send invoice in All Bookings</a>
+    </div>
+  </div>
   </div>
 
   <div class="tab-panel" id="tab-dashboard">
@@ -2252,6 +2585,717 @@ document.addEventListener('click', function (e) {
 // gate's success handler below, since it needs a valid sign-in token first.
 
 
+// ==================== NEW BOOKING TAB ====================
+
+// ---- Mirrors zeffy_finance.rooms and zeffy_finance.discount_rules ----
+// TODO: once the backend endpoint exists, fetch these live instead of
+// hardcoding. Note: there is no bundle/whole-facility multiplier here on
+// purpose — that discount is always applied manually via the discretionary
+// adjustment above, never automatically.
+const NB_ROOMS = [
+  { name: 'Surya Hall', rate: 45 },
+  { name: 'Patanjali Hall', rate: 40 },
+  { name: 'Nataraj Room', rate: 30 },
+  { name: 'Ganesh Room', rate: 15 },
+  { name: 'Kitchen', rate: 0 }
+];
+const RULES = {
+  weekdayMultiplier: 0.80,
+  nonprofitMultiplier: 0.75,
+  extendedHoursMultiplier: 0.80,
+  extendedHoursThreshold: 4
+};
+
+const roomPicker = document.getElementById('room-picker');
+NB_ROOMS.forEach(function (r) {
+  const label = document.createElement('label');
+  label.className = 'room-check';
+  const rateText = r.rate > 0 ? ('$' + r.rate + '/hr') : 'Free';
+  label.innerHTML = '<input type="checkbox" class="room-cb" value="' + r.name + '"> ' + r.name + '<span class="rate">' + rateText + '</span>';
+  roomPicker.appendChild(label);
+});
+document.getElementById('btn-whole-facility').addEventListener('click', function () {
+  document.querySelectorAll('.room-cb').forEach(function (cb) { cb.checked = true; });
+  enforceKitchenRule();
+  recalc();
+});
+function selectedRooms() {
+  return Array.from(document.querySelectorAll('.room-cb:checked')).map(function (cb) { return cb.value; });
+}
+// Kitchen only makes sense alongside Surya Hall or Patanjali Hall — disable
+// it otherwise, and uncheck it automatically if the last qualifying room
+// gets unchecked while Kitchen is still selected.
+function enforceKitchenRule() {
+  const kitchenCb = document.querySelector('.room-cb[value="Kitchen"]');
+  const suryaChecked = document.querySelector('.room-cb[value="Surya Hall"]').checked;
+  const patanjaliChecked = document.querySelector('.room-cb[value="Patanjali Hall"]').checked;
+  const eligible = suryaChecked || patanjaliChecked;
+  kitchenCb.disabled = !eligible;
+  kitchenCb.closest('.room-check').style.opacity = eligible ? '1' : '0.5';
+  if (!eligible) kitchenCb.checked = false;
+}
+roomPicker.addEventListener('change', enforceKitchenRule);
+enforceKitchenRule();
+
+// ---- Occurrence list: the source of truth for what actually gets booked ----
+let occurrences = []; // [{ date, startTime, endTime }]
+
+function hoursBetween(startTime, endTime) {
+  if (!startTime || !endTime) return 0;
+  const s = startTime.split(':').map(Number);
+  const e = endTime.split(':').map(Number);
+  const diff = (e[0] * 60 + e[1]) - (s[0] * 60 + s[1]);
+  return diff > 0 ? Math.round((diff / 60) * 100) / 100 : 0;
+}
+function isWeekday(dateStr) {
+  if (!dateStr) return false;
+  const day = new Date(dateStr + 'T00:00:00').getDay();
+  return day >= 1 && day <= 5;
+}
+function addDays(dateStr, n) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+function addMonths(dateStr, n) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setMonth(d.getMonth() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+function regenerateOccurrences() {
+  const firstDate = document.getElementById('f-date').value;
+  const startTime = document.getElementById('f-start').value;
+  const endTime = document.getElementById('f-end').value;
+  if (!firstDate || !startTime || !endTime) { occurrences = []; renderOccTable(); return; }
+
+  if (!document.getElementById('f-recurring-enabled').checked) {
+    occurrences = [{ date: firstDate, startTime: startTime, endTime: endTime }];
+    renderOccTable();
+    return;
+  }
+
+  const frequency = document.getElementById('f-recur-frequency').value;
+  const endType = document.getElementById('f-recur-end-type').value;
+  const count = endType === 'count' ? parseInt(document.getElementById('f-recur-count').value, 10) : null;
+  const until = endType === 'until' ? document.getElementById('f-recur-until').value : null;
+
+  const dates = [firstDate];
+  let cur = firstDate;
+  let guard = 0;
+  while (guard++ < 366) {
+    if (count && dates.length >= count) break;
+    cur = frequency === 'daily' ? addDays(cur, 1)
+        : frequency === 'weekly' ? addDays(cur, 7)
+        : frequency === 'biweekly' ? addDays(cur, 14)
+        : addMonths(cur, 1);
+    if (until && cur > until) break;
+    if (!count && !until) break;
+    dates.push(cur);
+  }
+  occurrences = dates.map(function (d) { return { date: d, startTime: startTime, endTime: endTime }; });
+  renderOccTable();
+}
+
+function renderOccTable() {
+  const table = document.getElementById('occ-table');
+  const tbody = document.getElementById('occ-tbody');
+  const invoiceModeField = document.getElementById('invoice-mode-field');
+  const isRecurring = document.getElementById('f-recurring-enabled').checked;
+  if (!isRecurring || occurrences.length <= 1) { table.style.display = 'none'; invoiceModeField.style.display = 'none'; recalc(); return; }
+
+  table.style.display = 'table';
+  invoiceModeField.style.display = 'block';
+  tbody.innerHTML = occurrences.map(function (occ, i) {
+    return '<tr>' +
+      '<td><input type="date" value="' + occ.date + '" data-i="' + i + '" data-f="date"' + (window.__hccgcCurrentUser && window.__hccgcCurrentUser.email !== 'tech-admin@hccgc.org' ? ' min="' + new Date().toISOString().slice(0, 10) + '"' : '') + '></td>' +
+      '<td><input type="time" value="' + occ.startTime + '" data-i="' + i + '" data-f="startTime" list="nb-common-times"></td>' +
+      '<td><input type="time" value="' + occ.endTime + '" data-i="' + i + '" data-f="endTime" list="nb-common-times"></td>' +
+      '<td><button type="button" class="occ-remove" data-remove="' + i + '" title="Remove this date">&times;</button></td>' +
+    '</tr>';
+  }).join('');
+
+  tbody.querySelectorAll('input').forEach(function (input) {
+    input.addEventListener('change', function () {
+      occurrences[parseInt(this.dataset.i, 10)][this.dataset.f] = this.value;
+      recalc();
+    });
+  });
+  tbody.querySelectorAll('[data-remove]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      occurrences.splice(parseInt(this.dataset.remove, 10), 1);
+      renderOccTable();
+    });
+  });
+  recalc();
+}
+
+document.getElementById('f-recurring-enabled').addEventListener('change', function () {
+  document.getElementById('recurring-fields').classList.toggle('open', this.checked);
+  regenerateOccurrences();
+});
+document.getElementById('f-recur-end-type').addEventListener('change', function () {
+  const isCount = this.value === 'count';
+  document.getElementById('recur-count-field').style.display = isCount ? 'flex' : 'none';
+  document.getElementById('recur-until-field').style.display = isCount ? 'none' : 'flex';
+});
+document.getElementById('btn-regenerate-occurrences').addEventListener('click', regenerateOccurrences);
+['f-date','f-start','f-end'].forEach(function (id) {
+  document.getElementById(id).addEventListener('change', regenerateOccurrences);
+});
+
+document.getElementById('f-internal-enabled').addEventListener('change', function () {
+  const isInternal = this.checked;
+  document.getElementById('renter-details-title').textContent = isInternal ? 'Program' : 'Renter';
+  document.getElementById('renter-details-sub').textContent = isInternal ? 'What is this reserving the space for?' : "Who's booking, and what for.";
+  document.getElementById('f-renter-select-field').style.display = isInternal ? 'none' : 'flex';
+  document.getElementById('f-event-name-field').style.display = isInternal ? 'none' : 'flex';
+  document.getElementById('f-name-field').style.display = isInternal ? 'flex' : 'none';
+  document.getElementById('f-hccg-rep-field').style.display = isInternal ? 'flex' : 'none';
+  document.getElementById('publish-event-field').classList.toggle('open', isInternal);
+  document.getElementById('nonprofit-row').style.display = isInternal ? 'none' : 'flex';
+  document.getElementById('adjustment-toggle').style.display = isInternal ? 'none' : 'flex';
+  document.getElementById('f-notes-label').textContent = isInternal ? 'Description' : 'Notes (optional)';
+  document.getElementById('nb-f-notes').placeholder = isInternal ? 'What is this program/event about?' : 'Anything worth remembering about this booking';
+  if (isInternal) {
+    document.getElementById('f-renter-select').value = '';
+    document.getElementById('nonprofit-row').style.display = 'none';
+    document.getElementById('f-adjustment-enabled').checked = false;
+    document.getElementById('adjustment-fields').classList.remove('open');
+  } else {
+    document.getElementById('nb-f-name').value = '';
+    document.getElementById('f-hccg-rep').value = '';
+  }
+  recalc();
+});
+
+document.getElementById('adjustment-toggle').addEventListener('click', function (e) {
+  if (e.target.id !== 'f-adjustment-enabled') document.getElementById('f-adjustment-enabled').click();
+});
+document.getElementById('f-adjustment-enabled').addEventListener('change', function () {
+  document.getElementById('adjustment-fields').classList.toggle('open', this.checked);
+  recalc();
+});
+['f-renter-select','f-adj-type','f-adj-value'].forEach(function (id) {
+  document.getElementById(id).addEventListener('input', recalc);
+  document.getElementById(id).addEventListener('change', recalc);
+});
+roomPicker.addEventListener('change', recalc);
+
+function recalc() {
+  if (document.getElementById('f-internal-enabled').checked) {
+    document.getElementById('s-base').textContent = '$0.00';
+    document.getElementById('s-discount-tags').innerHTML = '<span class="no-discount">N/A — internal HCCGC use</span>';
+    document.getElementById('s-subtotal').textContent = '$0.00';
+    document.getElementById('s-adjustment-line').style.display = 'none';
+    document.getElementById('s-final').textContent = '$0.00';
+    document.getElementById('s-total-label').textContent = 'Total';
+    document.getElementById('cost-summary-sub').textContent = 'No charge for internal HCCGC programs — this just reserves the room and syncs the calendar.';
+    return;
+  }
+
+  const rooms = selectedRooms();
+  const rateSum = rooms.reduce(function (sum, name) {
+    const r = NB_ROOMS.find(function (x) { return x.name === name; });
+    return sum + (r ? r.rate : 0);
+  }, 0);
+  const selectedRenter = NB_RENTERS.find(function (r) { return r.renter_id === document.getElementById('f-renter-select').value; });
+  const isNonprofit = !document.getElementById('f-internal-enabled').checked && !!(selectedRenter && selectedRenter.is_nonprofit);
+  document.getElementById('nonprofit-row').style.display = isNonprofit ? 'flex' : 'none';
+  const occList = occurrences.length ? occurrences : [{
+    date: document.getElementById('f-date').value,
+    startTime: document.getElementById('f-start').value,
+    endTime: document.getElementById('f-end').value
+  }];
+
+  let base = 0, subtotal = 0;
+  const tagsSet = {};
+  occList.forEach(function (occ) {
+    const hours = hoursBetween(occ.startTime, occ.endTime);
+    const occBase = Math.round(rateSum * hours * 100) / 100;
+    let mult = 1;
+    if (isWeekday(occ.date)) { mult *= RULES.weekdayMultiplier; tagsSet['Weekday'] = true; }
+    if (hours >= RULES.extendedHoursThreshold) { mult *= RULES.extendedHoursMultiplier; tagsSet['Extended hours'] = true; }
+    if (isNonprofit) { mult *= RULES.nonprofitMultiplier; tagsSet['Nonprofit'] = true; }
+    base += occBase;
+    subtotal += Math.round(occBase * mult * 100) / 100;
+  });
+  base = Math.round(base * 100) / 100;
+  subtotal = Math.round(subtotal * 100) / 100;
+
+  const adjEnabled = document.getElementById('f-adjustment-enabled').checked;
+  const adjType = document.getElementById('f-adj-type').value;
+  const adjValue = parseFloat(document.getElementById('f-adj-value').value) || 0;
+  let final = subtotal;
+  let adjustmentAmount = 0;
+  if (adjEnabled && adjValue > 0) {
+    if (adjType === 'percent') { adjustmentAmount = Math.round(subtotal * (adjValue / 100) * 100) / 100; }
+    else { adjustmentAmount = adjValue * occList.length; }
+    final = Math.round((subtotal - adjustmentAmount) * 100) / 100;
+  }
+
+  document.getElementById('s-base').textContent = '$' + base.toFixed(2);
+  const tags = Object.keys(tagsSet);
+  document.getElementById('s-discount-tags').innerHTML = tags.length
+    ? tags.map(function (t) { return '<span class="discount-chip">' + t + '</span>'; }).join('')
+    : '<span class="no-discount">None</span>';
+  document.getElementById('s-subtotal').textContent = '$' + subtotal.toFixed(2);
+  document.getElementById('s-adjustment-line').style.display = (adjEnabled && adjValue > 0) ? 'flex' : 'none';
+  document.getElementById('s-adjustment').textContent = '-$' + adjustmentAmount.toFixed(2);
+  document.getElementById('s-final').textContent = '$' + final.toFixed(2);
+  document.getElementById('s-total-label').textContent = occList.length > 1 ? ('Total (' + occList.length + ' occurrences)') : 'Total';
+  document.getElementById('cost-summary-sub').textContent = occList.length > 1
+    ? 'Combined total across all ' + occList.length + ' occurrences below.'
+    : 'Recalculates live as you fill in the form.';
+}
+
+// ---- Calendar sidebar ----
+// Same underlying source of truth as the public availability calendar
+// (the bookings table itself) — just the authenticated, full-detail
+// endpoint instead of the stripped-down public one, since this is
+// internal-only. Previously this embedded the actual Google Calendar
+// resource calendars directly, which depended on the viewer having "See
+// all event details" access to those specific calendars in Google
+// Calendar — a permission that isn't guaranteed for everyone using this
+// page, which is why it could appear blank. Querying the same data this
+// portal already writes to sidesteps that entirely.
+const AVAIL_ROOM_COLORS = { 'Surya Hall': '#d9720c', 'Patanjali Hall': '#6b3fa0', 'Nataraj Room': '#2e7d4f', 'Ganesh Room': '#2255a4', 'Kitchen': '#c2185b' };
+// The visible window runs 9 AM today through 8 AM the next day, not
+// midnight-to-midnight — a booking that runs into the evening (e.g. 9pm-1am)
+// stays entirely within its own day's column instead of splitting across
+// the midnight boundary into a different column. Hours before 9 AM are
+// still real bookings, just displayed in the lower portion of the SAME
+// calendar day's column, treated as hour+24 for positioning purposes.
+const AVAIL_DAY_START_HOUR = 9;
+const AVAIL_DAY_END_HOUR = 33; // 9 + 24 = wraps to 8 AM the next day
+let availWeekOffset = 0;
+let availMonthOffset = 0;
+let availViewMode = 'week';
+
+// getHours()/getMinutes() return the BROWSER's own local time, not
+// necessarily Eastern — for an admin viewing this from outside the
+// Eastern timezone, that would silently misposition every chip
+// vertically in the calendar, not just mislabel it. This extracts the
+// actual Eastern hour/minute regardless of where the viewer is.
+function getEasternHourMinute(date) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York', hourCycle: 'h23', hour: '2-digit', minute: '2-digit'
+  }).formatToParts(date).reduce(function (acc, p) { if (p.type !== 'literal') acc[p.type] = Number(p.value); return acc; }, {});
+  return { hour: parts.hour, minute: parts.minute };
+}
+
+function formatTimeRangeEastern(startIso, endIso) {
+  var opts = { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' };
+  return new Date(startIso).toLocaleTimeString('en-US', opts) + '\u2013' + new Date(endIso).toLocaleTimeString('en-US', opts);
+}
+
+function layoutDayEvents(events) {
+  const sorted = events.slice().sort(function (a, b) { return a.start - b.start; });
+  const laneEnds = [];
+  sorted.forEach(function (ev) {
+    let placed = false;
+    for (let i = 0; i < laneEnds.length; i++) {
+      if (laneEnds[i] <= ev.start) { ev.lane = i; laneEnds[i] = ev.end; placed = true; break; }
+    }
+    if (!placed) { ev.lane = laneEnds.length; laneEnds.push(ev.end); }
+  });
+  sorted.forEach(function (ev) {
+    let maxLane = ev.lane;
+    sorted.forEach(function (other) {
+      if (other === ev) return;
+      if (other.start < ev.end && other.end > ev.start) maxLane = Math.max(maxLane, other.lane);
+    });
+    ev.totalLanes = maxLane + 1;
+  });
+  return sorted;
+}
+function renderAvailLegend() {
+  document.getElementById('avail-cal-legend').innerHTML = Object.keys(AVAIL_ROOM_COLORS).map(function (room) {
+    return '<span class="avail-cal-legend-item"><span class="avail-cal-legend-dot" style="background:' + AVAIL_ROOM_COLORS[room] + ';"></span>' + room + '</span>';
+  }).join('');
+}
+function getEasternDateParts(date) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit'
+  }).formatToParts(date).reduce(function (acc, p) { if (p.type !== 'literal') acc[p.type] = Number(p.value); return acc; }, {});
+  return parts;
+}
+function getAvailWeekDates(offset) {
+  const todayEastern = getEasternDateParts(new Date());
+  const today = new Date(todayEastern.year, todayEastern.month - 1, todayEastern.day);
+  const sunday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay() + (offset * 7));
+  const dates = [];
+  for (let i = 0; i < 7; i++) dates.push(new Date(sunday.getFullYear(), sunday.getMonth(), sunday.getDate() + i));
+  return dates;
+}
+function toAvailDateStr(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+
+async function loadAvailabilityCalendar() {
+  const weekDates = getAvailWeekDates(availWeekOffset);
+  const startDate = toAvailDateStr(weekDates[0]);
+  const endDate = toAvailDateStr(weekDates[6]);
+  document.getElementById('avail-cal-week-label').textContent =
+    weekDates[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' – ' + weekDates[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+  const gridEl = document.getElementById('avail-week-grid');
+  gridEl.innerHTML = '<div style="grid-column:1/-1;padding:20px;text-align:center;color:var(--muted);">Loading…</div>';
+
+  let bookings = [];
+  let loadError = null;
+  try {
+    const res = await authedFetch(API_BASE + '/bookings-availability?startDate=' + startDate + '&endDate=' + endDate);
+    if (res.ok) bookings = await res.json();
+    else {
+      const errData = await res.json().catch(function () { return {}; });
+      loadError = (errData.errors || [errData.error || ('Server returned ' + res.status)]).join(' ');
+    }
+  } catch (err) { loadError = err.message; }
+
+  if (loadError) {
+    gridEl.innerHTML = '<div style="grid-column:1/-1;padding:20px;text-align:center;color:#b3382c;font-size:0.8rem;">Could not load: ' + loadError + '</div>';
+    return;
+  }
+
+  const byDate = {};
+  bookings.forEach(function (b) {
+    if (!byDate[b.eventDate]) byDate[b.eventDate] = [];
+    (b.rooms || []).forEach(function (room) {
+      byDate[b.eventDate].push({ room: room, start: b.startTime, end: b.endTime, renterName: b.renterName, eventName: b.eventName, paymentStatus: b.paymentStatus, isInternal: b.isInternal });
+    });
+  });
+
+  const totalHours = AVAIL_DAY_END_HOUR - AVAIL_DAY_START_HOUR;
+  const todayEasternParts = getEasternDateParts(new Date());
+  const todayStr = todayEasternParts.year + '-' + String(todayEasternParts.month).padStart(2, '0') + '-' + String(todayEasternParts.day).padStart(2, '0');
+  // Use whatever height the flex layout has actually given this
+  // container (it fills the remaining space in the card via flex:1),
+  // rather than guessing a fixed row height that leaves the rest of
+  // that space blank. Falls back to a sane minimum if measured too early.
+  const containerHeight = document.getElementById('avail-week-container').clientHeight;
+  const rowHeightPx = Math.max(14, containerHeight / totalHours);
+  const bodyHeight = totalHours * rowHeightPx;
+
+  let html = '<div class="avail-week-corner"></div>';
+  weekDates.forEach(function (d) {
+    const dStr = toAvailDateStr(d);
+    html += '<div class="avail-week-daylabel' + (dStr === todayStr ? ' is-today' : '') + '"><span class="dow">' + d.toLocaleDateString('en-US', { weekday: 'short' }) + '</span>' + d.getDate() + '</div>';
+  });
+
+  html += '<div class="avail-week-timecol" style="height:' + bodyHeight + 'px;">';
+  for (let h = AVAIL_DAY_START_HOUR; h < AVAIL_DAY_END_HOUR; h++) {
+    const pct = ((h - AVAIL_DAY_START_HOUR) / totalHours) * 100;
+    const clockHour = h % 24;
+    const label = clockHour === 0 ? '12a' : clockHour === 12 ? '12p' : clockHour < 12 ? clockHour + 'a' : (clockHour - 12) + 'p';
+    html += '<div class="avail-week-timelabel" style="top:' + pct + '%;">' + label + '</div>';
+  }
+  html += '</div>';
+
+  weekDates.forEach(function (d) {
+    const dStr = toAvailDateStr(d);
+    const dayBookingsRaw = (byDate[dStr] || []).map(function (bk) { return Object.assign({}, bk, { start: new Date(bk.start), end: new Date(bk.end) }); });
+    const dayBookings = layoutDayEvents(dayBookingsRaw);
+    let colHtml = '<div class="avail-week-daycol" style="height:' + bodyHeight + 'px;--hour-px:' + rowHeightPx + 'px;">';
+    dayBookings.forEach(function (bk) {
+      const startHM = getEasternHourMinute(bk.start);
+      const endHM = getEasternHourMinute(bk.end);
+      const startHour24 = startHM.hour < AVAIL_DAY_START_HOUR ? startHM.hour + 24 : startHM.hour;
+      const endHour24 = endHM.hour < AVAIL_DAY_START_HOUR ? endHM.hour + 24 : endHM.hour;
+      const startFrac = (startHour24 + startHM.minute / 60 - AVAIL_DAY_START_HOUR) / totalHours;
+      const endFrac = (endHour24 + endHM.minute / 60 - AVAIL_DAY_START_HOUR) / totalHours;
+      const clampedStart = Math.max(0, Math.min(1, startFrac));
+      const clampedEnd = Math.max(0, Math.min(1, endFrac));
+      if (clampedEnd <= clampedStart) return;
+      const topPx = clampedStart * bodyHeight;
+      const heightPx = Math.max(15, (clampedEnd - clampedStart) * bodyHeight);
+      const widthPct = 100 / bk.totalLanes;
+      const leftPct = bk.lane * widthPct;
+      const timeLabel = bk.start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' }) + '–' + bk.end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' });
+      const who = bk.isInternal ? (bk.eventName || 'HCCGC program') : (bk.renterName || 'Renter');
+      const titleAttr = bk.room + ' — ' + who + (bk.eventName && !bk.isInternal ? ' (' + bk.eventName + ')' : '') + ' — ' + timeLabel + ' — ' + bk.paymentStatus;
+      colHtml += '<div class="avail-week-chip" style="top:' + topPx + 'px;height:' + heightPx + 'px;left:' + leftPct + '%;width:calc(' + widthPct + '% - 2px);background:' + (AVAIL_ROOM_COLORS[bk.room] || '#8d6e63') + ';" title="' + titleAttr.replace(/"/g, '&quot;') + '">' +
+        bk.room.replace(' Hall', '').replace(' Room', '') +
+        (heightPx > 26 && bk.totalLanes === 1 ? '<span class="detail">' + who + '</span>' : '') +
+      '</div>';
+    });
+    colHtml += '</div>';
+    html += colHtml;
+  });
+
+  gridEl.innerHTML = html;
+}
+
+async function loadMonthView() {
+  const today = new Date();
+  const viewMonth = new Date(today.getFullYear(), today.getMonth() + availMonthOffset, 1);
+  document.getElementById('avail-cal-week-label').textContent = viewMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  const gridEl = document.getElementById('avail-month-grid');
+  gridEl.innerHTML = '<div style="grid-column:1/-1;padding:20px;text-align:center;color:var(--muted);">Loading…</div>';
+
+  const firstOfMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth(), 1);
+  const lastOfMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 0);
+  const startDate = toAvailDateStr(firstOfMonth);
+  const endDate = toAvailDateStr(lastOfMonth);
+
+  let bookings = [];
+  let loadError = null;
+  try {
+    const res = await authedFetch(API_BASE + '/bookings-availability?startDate=' + startDate + '&endDate=' + endDate);
+    if (res.ok) bookings = await res.json();
+    else {
+      const errData = await res.json().catch(function () { return {}; });
+      loadError = (errData.errors || [errData.error || ('Server returned ' + res.status)]).join(' ');
+    }
+  } catch (err) { loadError = err.message; }
+
+  if (loadError) {
+    gridEl.innerHTML = '<div style="grid-column:1/-1;padding:20px;text-align:center;color:#b3382c;font-size:0.8rem;">Could not load: ' + loadError + '</div>';
+    return;
+  }
+
+  const byDate = {};
+  bookings.forEach(function (b) {
+    if (!byDate[b.eventDate]) byDate[b.eventDate] = [];
+    (b.rooms || []).forEach(function (room) {
+      byDate[b.eventDate].push({ room: room, who: b.isInternal ? (b.eventName || 'HCCGC program') : (b.renterName || 'Renter'), status: b.paymentStatus, startTime: b.startTime, endTime: b.endTime });
+    });
+  });
+
+  const startWeekday = firstOfMonth.getDay();
+  const daysInMonth = lastOfMonth.getDate();
+  const todayStr = toAvailDateStr(today);
+
+  let html = ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(function (d) { return '<div class="avail-month-weekday">' + d + '</div>'; }).join('');
+  for (let i = 0; i < startWeekday; i++) html += '<div class="avail-month-day empty"></div>';
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = toAvailDateStr(new Date(viewMonth.getFullYear(), viewMonth.getMonth(), d));
+    const dayBookings = byDate[dateStr] || [];
+    const shown = dayBookings.slice(0, 3);
+    const extra = dayBookings.length - shown.length;
+    html += '<div class="avail-month-day' + (dateStr === todayStr ? ' is-today' : '') + '">' +
+      '<div class="avail-month-day-num">' + d + '</div>' +
+      shown.map(function (bk) {
+        var timeLabel = new Date(bk.startTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: bk.startTime.slice(14,16) === '00' ? undefined : '2-digit', timeZone: 'America/New_York' }).replace(' ', '').toLowerCase();
+        var fullRange = formatTimeRangeEastern(bk.startTime, bk.endTime);
+        return '<span class="avail-month-chip" style="background:' + (AVAIL_ROOM_COLORS[bk.room] || '#8d6e63') + ';" title="' + bk.room + ' — ' + bk.who + ' — ' + fullRange + ' — ' + bk.status + '">' + timeLabel + ' ' + bk.who + '</span>';
+      }).join('') +
+      (extra > 0 ? '<div class="avail-month-more">+' + extra + '</div>' : '') +
+    '</div>';
+  }
+  gridEl.innerHTML = html;
+}
+
+function refreshAvailCalendar() {
+  if (availViewMode === 'week') loadAvailabilityCalendar();
+  else loadMonthView();
+}
+function setAvailViewMode(mode) {
+  availViewMode = mode;
+  document.getElementById('avail-view-week-btn').classList.toggle('active', mode === 'week');
+  document.getElementById('avail-view-month-btn').classList.toggle('active', mode === 'month');
+  document.getElementById('avail-week-container').style.display = mode === 'week' ? 'block' : 'none';
+  document.getElementById('avail-month-grid').style.display = mode === 'month' ? 'grid' : 'none';
+  refreshAvailCalendar();
+}
+document.getElementById('avail-view-week-btn').addEventListener('click', function () { setAvailViewMode('week'); });
+document.getElementById('avail-view-month-btn').addEventListener('click', function () { setAvailViewMode('month'); });
+
+document.getElementById('avail-cal-prev').addEventListener('click', function () {
+  if (availViewMode === 'week') availWeekOffset--; else availMonthOffset--;
+  refreshAvailCalendar();
+});
+document.getElementById('avail-cal-next').addEventListener('click', function () {
+  if (availViewMode === 'week') availWeekOffset++; else availMonthOffset++;
+  refreshAvailCalendar();
+});
+// Jump to the week containing the chosen date, same behavior the old embed had.
+document.getElementById('f-date').addEventListener('change', function () {
+  const chosen = this.value;
+  if (!chosen) return;
+  const chosenDate = new Date(chosen + 'T00:00:00');
+  const today = new Date(new Date().toDateString());
+  const todaySunday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay());
+  const chosenSunday = new Date(chosenDate.getFullYear(), chosenDate.getMonth(), chosenDate.getDate() - chosenDate.getDay());
+  availWeekOffset = Math.round((chosenSunday - todaySunday) / (7 * 86400000));
+  if (availViewMode !== 'week') setAvailViewMode('week'); else loadAvailabilityCalendar();
+});
+renderAvailLegend();
+let availResizeTimer = null;
+window.addEventListener('resize', function () {
+  clearTimeout(availResizeTimer);
+  availResizeTimer = setTimeout(function () { if (availViewMode === 'week') loadAvailabilityCalendar(); }, 200);
+});
+
+// ---- Submit ----
+// ---- Renter directory: pick a returning contact instead of re-typing ----
+// New Booking only ever selects from this list — there's no way to type a
+// new contact here by design; that happens on Add A Renter instead. The
+// backend looks up the renter's actual details by renterId, so nothing
+// beyond the selected ID needs to travel with the booking request.
+let NB_RENTERS = [];
+async function nbLoadRenters() {
+  try {
+    const res = await authedFetch(API_BASE + '/renters');
+    if (!res.ok) throw new Error('Server returned ' + res.status);
+    NB_RENTERS = await res.json();
+  } catch (err) {
+    NB_RENTERS = [];
+  }
+  const select = document.getElementById('f-renter-select');
+  select.innerHTML = '<option value="">Choose a renter…</option>' +
+    NB_RENTERS.map(function (r) {
+      const label = r.contact_name + (r.email ? (' — ' + r.email) : '');
+      return '<option value="' + r.renter_id + '">' + label.replace(/</g, '&lt;') + '</option>';
+    }).join('');
+}
+// nbLoadRenters() is intentionally NOT called here — this runs before Firebase
+// has resolved who's signed in, so authedFetch would throw "Not signed in"
+// every time. It's called instead inside the auth gate's success handler,
+// below, once there's actually a valid token to send.
+
+
+document.getElementById('btn-generate').addEventListener('click', async function () {
+  const rooms = selectedRooms();
+  const btn = this;
+  if (rooms.length === 0) { nbShowResult('error', 'Select at least one room first.'); return; }
+  if (!occurrences.length) regenerateOccurrences();
+  if (!occurrences.length) { nbShowResult('error', 'Add a date and time first.'); return; }
+  const isInternal = document.getElementById('f-internal-enabled').checked;
+  const selectedRenterId = document.getElementById('f-renter-select').value;
+  if (isInternal) {
+    if (!document.getElementById('nb-f-name').value.trim()) { nbShowResult('error', 'Program/event name is required.'); return; }
+    if (!document.getElementById('f-hccg-rep').value.trim()) { nbShowResult('error', 'HCCGC representative name is required for internal bookings.'); return; }
+    if (!document.getElementById('nb-f-notes').value.trim()) { nbShowResult('error', 'A description is required for internal bookings.'); return; }
+  } else if (!selectedRenterId) {
+    nbShowResult('error', 'Select a renter from the list first.');
+    return;
+  } else if (!document.getElementById('f-event-name').value.trim()) {
+    nbShowResult('error', 'Event name is required.');
+    return;
+  }
+
+  const payload = {
+    rooms: rooms,
+    isInternal: isInternal,
+    renterId: !isInternal ? selectedRenterId : null,
+    renterName: isInternal ? document.getElementById('nb-f-name').value : null,
+    eventName: !isInternal ? document.getElementById('f-event-name').value : null,
+    hccgcRepresentativeName: isInternal ? document.getElementById('f-hccg-rep').value : null,
+    publishAsEvent: isInternal ? document.getElementById('f-publish-event').checked : false,
+    isNonprofit: !isInternal && !!(NB_RENTERS.find(function (r) { return r.renter_id === document.getElementById('f-renter-select').value; }) || {}).is_nonprofit,
+    notes: document.getElementById('nb-f-notes').value,
+    manualAdjustmentType: (!isInternal && document.getElementById('f-adjustment-enabled').checked) ? document.getElementById('f-adj-type').value : null,
+    manualAdjustmentValue: (!isInternal && document.getElementById('f-adjustment-enabled').checked) ? parseFloat(document.getElementById('f-adj-value').value) || null : null,
+    manualAdjustmentReason: (!isInternal && document.getElementById('f-adjustment-enabled').checked) ? document.getElementById('f-adj-reason').value : null,
+    occurrences: occurrences,
+    invoiceMode: (document.querySelector('input[name="f-invoice-mode"]:checked') || {}).value || 'combined',
+    enteredBy: (window.__hccgcCurrentUser && window.__hccgcCurrentUser.email) || 'Unknown'
+  };
+
+  btn.disabled = true;
+  btn.textContent = 'Creating booking…';
+  try {
+    const res = await authedFetch(API_BASE + '/bookings', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      nbShowResult('error', (data.errors || [data.error || 'Something went wrong.']).join(' '));
+    } else {
+      const occText = data.occurrenceCount > 1 ? (data.occurrenceCount + ' occurrences created, total $' + data.totalAcrossAllOccurrences.toFixed(2)) : ('Booking created — ID ' + data.bookingIds[0]);
+      const syncWarning = data.calendarSyncErrors ? (' (Calendar sync had issues: ' + data.calendarSyncErrors.join('; ') + ')') : '';
+      const eventNote = data.eventListingCreated ? ' Also added to Manage Events as a draft — edit it there if needed.'
+        : (data.eventListingError ? (' Note: could not add to Manage Events (' + data.eventListingError + ') — add it there manually if needed.') : '');
+      const statusNote = data.isInternal ? ' No charge — internal booking.' : ' Marked as Pending until invoiced.';
+      nbShowResult('success', occText + '.' + statusNote + syncWarning + eventNote);
+      if (!isInternal && data.bookingIds && data.bookingIds.length) {
+        openInvoicePreview(data.bookingIds[0], payload, data);
+      }
+      resetForm();
+    }
+  } catch (err) {
+    nbShowResult('error', 'Could not reach the booking system. ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Create booking';
+  }
+});
+
+function nbShowResult(type, message) {
+  const box = document.getElementById('nb-result-box');
+  box.style.display = 'block';
+  box.className = 'result-box ' + type;
+  box.textContent = message;
+}
+
+// ---- Invoice preview + send, right after creating a real (non-internal)
+// booking. This is a client-side approximation of the same invoice the
+// backend actually generates and sends — good enough for the admin to
+// sanity-check before committing to sending it. ----
+function openInvoicePreview(bookingId, payload, createResult) {
+  const renterOption = Array.from(document.getElementById('f-renter-select').options).find(function (o) { return o.value === payload.renterId; });
+  const renterLabel = renterOption ? renterOption.textContent : '';
+  const total = createResult.occurrenceCount > 1 ? createResult.totalAcrossAllOccurrences : Number(document.getElementById('s-final').textContent.replace(/[^0-9.]/g, ''));
+  const firstOcc = payload.occurrences[0];
+
+  const overlay = document.getElementById('invoice-preview-overlay');
+  document.getElementById('invoice-preview-body').innerHTML =
+    '<div class="field"><label>To</label><div style="padding:9px 0;font-weight:700;">' + escHtmlLocal(renterLabel) + '</div></div>' +
+    '<div class="field"><label>Event</label><div style="padding:9px 0;">' + escHtmlLocal(payload.eventName) + '</div></div>' +
+    '<div class="field"><label>Rooms</label><div style="padding:9px 0;">' + escHtmlLocal(payload.rooms.join(', ')) + '</div></div>' +
+    '<div class="field"><label>Date' + (payload.occurrences.length > 1 ? ' (first of ' + payload.occurrences.length + ')' : '') + '</label><div style="padding:9px 0;">' + escHtmlLocal(firstOcc.date) + ', ' + escHtmlLocal(firstOcc.startTime) + '–' + escHtmlLocal(firstOcc.endTime) + '</div></div>' +
+    '<div class="field"><label>Amount due</label><div style="padding:9px 0;font-weight:700;font-size:1.1rem;color:var(--maroon);">$' + total.toFixed(2) + '</div></div>' +
+    '<div class="card-sub">Once created, review and send the invoice from All Bookings.</div>';
+  overlay.style.display = 'flex';
+}
+function escHtmlLocal(str) { return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+document.getElementById('btn-skip-invoice').addEventListener('click', function () {
+  document.getElementById('invoice-preview-overlay').style.display = 'none';
+});
+document.getElementById('invoice-preview-overlay').addEventListener('click', function (e) {
+  if (e.target === this) this.style.display = 'none';
+});
+
+function resetForm() {
+  ['nb-f-name','f-event-name','nb-f-notes','f-adj-value','f-adj-reason','f-hccg-rep'].forEach(function (id) { document.getElementById(id).value = ''; });
+  document.getElementById('nonprofit-row').style.display = 'none';
+  document.getElementById('f-adjustment-enabled').checked = false;
+  document.getElementById('adjustment-fields').classList.remove('open');
+  document.getElementById('f-recurring-enabled').checked = false;
+  document.getElementById('recurring-fields').classList.remove('open');
+  document.getElementById('invoice-mode-field').style.display = 'none';
+  document.querySelector('input[name="f-invoice-mode"][value="combined"]').checked = true;
+  document.getElementById('f-internal-enabled').checked = false;
+  document.getElementById('f-publish-event').checked = true;
+  document.getElementById('f-renter-select').value = '';
+  document.getElementById('f-internal-enabled').dispatchEvent(new Event('change'));
+  document.querySelectorAll('.room-cb').forEach(function (cb) { cb.checked = false; });
+  enforceKitchenRule();
+  occurrences = [];
+  renderOccTable();
+  recalc();
+  nbLoadRenters();
+}
+
+regenerateOccurrences();
+
+
+function initNewBookingTab() {
+  window.__nbLoaded = true;
+  var entryDisplay = document.getElementById('f-entered-by-display');
+  if (entryDisplay && window.__hccgcCurrentUser) entryDisplay.textContent = 'Signed in as ' + window.__hccgcCurrentUser.email;
+  if (!window.__hccgcCurrentUser || window.__hccgcCurrentUser.email !== 'tech-admin@hccgc.org') {
+    var todayStr = new Date().toISOString().slice(0, 10);
+    var dateField = document.getElementById('f-date');
+    if (dateField) dateField.min = todayStr;
+    var untilField = document.getElementById('f-recur-until');
+    if (untilField) untilField.min = todayStr;
+  }
+  nbLoadRenters();
+  loadAvailabilityCalendar();
+}
+
 // ==================== TAB SWITCHING ====================
 document.querySelectorAll('.tab-btn').forEach(function (btn) {
   btn.addEventListener('click', function () {
@@ -2259,8 +3303,8 @@ document.querySelectorAll('.tab-btn').forEach(function (btn) {
     document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
     btn.classList.add('active');
     document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-    // Only All Bookings is wired up so far -- other tabs are stubs
-    // pointing to their standalone pages until migrated.
+    if (btn.dataset.tab === 'new-booking' && !window.__nbLoaded) initNewBookingTab();
+    // Remaining tabs are still stubs pointing to their standalone pages.
   });
 });
 </script>

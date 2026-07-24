@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -71,16 +72,6 @@ body {
 .page-hero p { color: #ffffff; opacity: 0.9; font-size: 0.92rem; max-width: 560px; }
 
 /* Sub-nav across the Facility Bookings module */
-.module-nav { background: var(--surface); border-bottom: 1px solid var(--border); }
-.module-nav ul { list-style: none; display: flex; gap: 4px; padding: 10px 0; flex-wrap: wrap; }
-.module-nav a {
-  display: inline-block; padding: 8px 16px; border-radius: 999px; font-size: 0.86rem; font-weight: 700;
-  color: var(--muted); text-decoration: none; transition: background 0.15s, color 0.15s;
-}
-.module-nav a.active { background: var(--surface-soft); color: var(--saffron-dark); }
-.module-nav a.disabled { color: rgba(106,81,65,0.4); cursor: default; }
-.module-nav a:not(.disabled):not(.active):hover { background: var(--surface-soft); }
-
 /* Toolbar */
 .toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 24px 0 16px; }
 .toolbar input[type="text"], .toolbar select {
@@ -313,11 +304,11 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
 <div id="app">
   <div class="tab-nav">
     <ul>
-      <li><button class="tab-btn active" data-tab="all-bookings">All Bookings</button></li>
+      <li><button class="tab-btn active" data-tab="all-bookings" id="nav-all-bookings">All Bookings</button></li>
       <li><button class="tab-btn" data-tab="new-booking">New Booking</button></li>
       <li><button class="tab-btn" data-tab="dashboard">Dashboard</button></li>
       <li><button class="tab-btn" data-tab="rooms-rates">Rooms &amp; Rates</button></li>
-      <li><button class="tab-btn" data-tab="add-renter">Add A Renter</button></li>
+      <li><button class="tab-btn" data-tab="add-renter" id="nav-add-renter">Add A Renter</button></li>
     </ul>
   </div>
 
@@ -330,18 +321,6 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
     <div class="eyebrow">Facility Bookings</div>
     <h1>All Bookings</h1>
     <p>Every facility booking, its payment status, and who still owes what.</p>
-  </div>
-</div>
-
-<div class="module-nav">
-  <div class="container">
-    <ul>
-      <li><a href="dashboard">Dashboard</a></li>
-      <li><a href="new-booking">New Booking</a></li>
-      <li><a href="all-bookings" class="active" id="nav-all-bookings">All Bookings</a></li>
-      <li><a href="rooms-rates">Rooms &amp; Rates</a></li>
-      <li><a href="add-renter" id="nav-add-renter">Add A Renter</a></li>
-    </ul>
   </div>
 </div>
 

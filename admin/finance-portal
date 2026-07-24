@@ -593,6 +593,10 @@ tr.series-row:hover td { background: var(--surface-soft); }
     <div class="card" style="margin-bottom:16px;">
       <p style="font-size:0.86rem;color:var(--muted);line-height:1.6;margin:0;">Every invoice actually sent, in one place — attach status, send status, paid status, and receipt status. Notes here are the exact same notes shown on the matched transaction in the Transactions tab — editing from either place updates the one record, not a separate copy.</p>
     </div>
+    <div class="card" id="ambiguous-series-banner" style="display:none;margin-bottom:16px;border-color:var(--saffron-dark);">
+      <p style="font-size:0.86rem;margin:0 0 10px;"><strong id="ambiguous-series-count"></strong> recurring booking series have no invoicing mode set (from before that choice existed, or imported from Picktime) — decide combined vs. per-occurrence for each before they show up grouped by default.</p>
+      <button type="button" class="btn-secondary" id="btn-review-ambiguous-series">Review now</button>
+    </div>
     <div class="toolbar">
       <select id="inv-range-preset" class="range-preset-select">
         <option value="alltime" selected>All time</option>
@@ -709,6 +713,22 @@ tr.series-row:hover td { background: var(--surface-soft); }
     <div class="modal-footer">
       <button type="button" class="btn-secondary" id="btn-cancel-merge-tx">Cancel</button>
       <button type="button" class="btn-primary" id="btn-confirm-merge-tx" style="margin-top:0;">Merge</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="ambiguous-series-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:640px;">
+    <div class="modal-header">
+      <h2>Resolve invoicing mode</h2>
+      <button class="modal-close" id="btn-close-ambiguous-series">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="card-sub" style="margin-bottom:14px;">One at a time — pick how each series should be invoiced. This only affects display grouping and future invoice actions, not anything already sent.</p>
+      <div id="ambiguous-series-list"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-close-ambiguous-series-2">Close</button>
     </div>
   </div>
 </div>
@@ -2166,6 +2186,7 @@ let INVOICES = [];
 let invSortKey = 'activity', invSortDir = 'desc';
 async function loadInvoices() {
   window.__matchingLoaded = true;
+  checkAmbiguousInvoiceSeries();
   const start = document.getElementById('inv-start-date').value;
   const end = document.getElementById('inv-end-date').value;
   const status = document.getElementById('inv-paid-filter').value;
@@ -2188,6 +2209,67 @@ async function loadInvoices() {
     setTabLoading('tab-matching', false);
   }
 }
+
+// ── Ambiguous invoice_mode review — series from before that field existed,
+// or imported from Picktime, reviewed one at a time rather than silently
+// defaulted ──
+async function checkAmbiguousInvoiceSeries() {
+  try {
+    const res = await authedFetch(API_BASE + '/finance/ambiguous-invoice-series');
+    const series = await res.json();
+    const banner = document.getElementById('ambiguous-series-banner');
+    if (!series.length) { banner.style.display = 'none'; return; }
+    document.getElementById('ambiguous-series-count').textContent = series.length;
+    banner.style.display = 'block';
+    window.__ambiguousSeries = series;
+  } catch (err) {
+    // Quiet failure — this is a secondary, non-blocking check; the main
+    // invoice list loading its own error is the one that matters here.
+  }
+}
+function renderAmbiguousSeriesList() {
+  const list = document.getElementById('ambiguous-series-list');
+  const series = window.__ambiguousSeries || [];
+  if (!series.length) { list.innerHTML = '<div class="empty-state">All resolved.</div>'; return; }
+  list.innerHTML = series.map(function (s) {
+    return '<div class="exp-line-item" style="margin-bottom:10px;">' +
+      '<div class="exp-top-row"><span>' + escHtml(s.renterName) + (s.eventName ? ' — ' + escHtml(s.eventName) : '') + (s.organizationName ? ' (' + escHtml(s.organizationName) + ')' : '') + '</span><span>' + money(s.totalAmount) + '</span></div>' +
+      '<div class="exp-date">' + s.occurrenceCount + ' occurrences, ' + formatDate(s.firstDate) + ' \u2013 ' + formatDate(s.lastDate) + ' \u00b7 ' + s.paidCount + ' paid, ' + s.invoicedCount + ' invoiced \u00b7 created by ' + escHtml(s.createdBy || 'unknown') + '</div>' +
+      '<div style="margin-top:8px;display:flex;gap:8px;">' +
+        '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-resolve-series="' + s.seriesId + '" data-resolve-mode="combined">One invoice for the whole series</button>' +
+        '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-resolve-series="' + s.seriesId + '" data-resolve-mode="per_occurrence">Invoice each occurrence separately</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+document.getElementById('btn-review-ambiguous-series').addEventListener('click', function () {
+  renderAmbiguousSeriesList();
+  document.getElementById('ambiguous-series-overlay').style.display = 'flex';
+});
+document.getElementById('btn-close-ambiguous-series').addEventListener('click', function () { document.getElementById('ambiguous-series-overlay').style.display = 'none'; });
+document.getElementById('btn-close-ambiguous-series-2').addEventListener('click', function () { document.getElementById('ambiguous-series-overlay').style.display = 'none'; });
+document.getElementById('ambiguous-series-overlay').addEventListener('click', function (e) { if (e.target === this) this.style.display = 'none'; });
+document.getElementById('ambiguous-series-list').addEventListener('click', async function (e) {
+  const btn = e.target.closest('[data-resolve-series]');
+  if (!btn) return;
+  btn.disabled = true;
+  try {
+    const res = await authedFetch(API_BASE + '/finance/set-invoice-mode', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ seriesId: btn.dataset.resolveSeries, invoiceMode: btn.dataset.resolveMode })
+    });
+    const data = await res.json();
+    if (!res.ok) { alert('Could not set invoicing mode: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); btn.disabled = false; return; }
+    window.__ambiguousSeries = (window.__ambiguousSeries || []).filter(function (s) { return s.seriesId !== btn.dataset.resolveSeries; });
+    renderAmbiguousSeriesList();
+    document.getElementById('ambiguous-series-count').textContent = window.__ambiguousSeries.length;
+    if (!window.__ambiguousSeries.length) document.getElementById('ambiguous-series-banner').style.display = 'none';
+    await loadInvoices();
+  } catch (err) {
+    alert('Could not reach the server: ' + err.message);
+    btn.disabled = false;
+  }
+});
 function renderInvoiceRow(inv, isSubRow) {
   const linkedTo = inv.matchSource
     ? escHtml(inv.matchSource) + ' transaction \u2014 linked'

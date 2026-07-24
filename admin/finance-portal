@@ -383,7 +383,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
           <span class="toggle-arrow">&#9654;</span>
         </div>
         <div class="collapsible-body is-open" id="rental-body">
-          <div class="tx-bulk-bar" id="rental-bulk-bar" style="display:none;"><span id="rental-selected-count"></span> selected <button type="button" class="btn-primary" style="margin-top:0;padding:6px 14px;font-size:0.8rem;" data-bulk-review-prefix="rental">Mark selected as reviewed</button></div>
+          <div class="tx-bulk-bar" id="rental-bulk-bar" style="display:none;"><span id="rental-selected-count"></span> selected <button type="button" class="btn-primary" style="margin-top:0;padding:6px 14px;font-size:0.8rem;" data-bulk-review-prefix="rental">Mark selected as reviewed</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-split-prefix="rental">Split</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-merge-prefix="rental">Merge</button></div>
           <div class="table-wrap">
             <table>
               <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-rental-select-all" title="Select all"></th><th>Date</th><th>Renter</th><th>Amount</th><th>Category</th></tr></thead>
@@ -1329,8 +1329,8 @@ function renderGroup(prefix, items, rowFn, emptyMessage) {
   tbody.innerHTML = items.map(rowFn).join('');
 }
 function txUndoBtnHtml(t) {
-  if (t.splitParent) return ' <button type="button" class="btn-secondary" style="padding:1px 6px;font-size:0.68rem;" data-unsplit-key="' + t.splitParent + '" title="Restore this to a single transaction">Unsplit</button>';
-  if (t.mergeId) return ' <button type="button" class="btn-secondary" style="padding:1px 6px;font-size:0.68rem;" data-unmerge-id="' + t.mergeId + '" title="Restore the original individual transactions">Unmerge</button>';
+  if (t.splitParent) return ' <button type="button" class="btn-secondary" style="padding:1px 6px;font-size:0.68rem;" data-unsplit-key="' + t.splitParent + '" data-unsplit-source="' + t.source + '" title="Restore this to a single transaction">Unsplit</button>';
+  if (t.mergeId) return ' <button type="button" class="btn-secondary" style="padding:1px 6px;font-size:0.68rem;" data-unmerge-id="' + t.mergeId + '" data-unmerge-source="' + t.source + '" title="Restore the original individual transactions">Unmerge</button>';
   return '';
 }
 function renderTxRow(t, includeInvoiceIcon) {
@@ -1352,7 +1352,7 @@ function renderRentalLineRow(t) {
   return '<tr>' +
     '<td>' + txCheckboxHtml(rowId) + '</td>' +
     '<td>' + formatDate(t.date) + '</td>' +
-    '<td>' + renterCell + '</td>' +
+    '<td>' + renterCell + txUndoBtnHtml(t) + '</td>' +
     '<td class="amount">' + money(t.amount) + '</td>' +
     '<td>' + txCategorySelectHtml(t, rowId) + ' ' + txNoteBtnHtml(t) + ' ' + txReviewedCircleHtml(t, rowId) + '</td>' +
   '</tr>';
@@ -1580,7 +1580,7 @@ document.getElementById('btn-load-tx').addEventListener('click', loadTransaction
       unsplitBtn.disabled = true;
       try {
         const res = await authedFetch(API_BASE + '/finance/unsplit-transaction', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sourceKey: unsplitBtn.dataset.unsplitKey })
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sourceKey: unsplitBtn.dataset.unsplitKey, source: unsplitBtn.dataset.unsplitSource })
         });
         const data = await res.json();
         if (!res.ok) { alert('Could not unsplit: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); unsplitBtn.disabled = false; return; }
@@ -1597,7 +1597,7 @@ document.getElementById('btn-load-tx').addEventListener('click', loadTransaction
       unmergeBtn.disabled = true;
       try {
         const res = await authedFetch(API_BASE + '/finance/unmerge-transactions', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mergeId: unmergeBtn.dataset.unmergeId })
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mergeId: unmergeBtn.dataset.unmergeId, source: unmergeBtn.dataset.unmergeSource })
         });
         const data = await res.json();
         if (!res.ok) { alert('Could not unmerge: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); unmergeBtn.disabled = false; return; }
@@ -1750,7 +1750,7 @@ document.getElementById('btn-confirm-split-tx').addEventListener('click', async 
     var res = await authedFetch(API_BASE + '/finance/split-transaction', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        sourceKey: splitTxContext.sourceKey, originalAmount: splitTxContext.amount,
+        source: splitTxContext.source, sourceKey: splitTxContext.sourceKey, originalAmount: splitTxContext.amount,
         parts: [
           { amount: amount1, description: document.getElementById('split-tx-desc1').value },
           { amount: amount2, description: document.getElementById('split-tx-desc2').value }
@@ -1790,7 +1790,7 @@ document.getElementById('btn-confirm-merge-tx').addEventListener('click', async 
   try {
     var res = await authedFetch(API_BASE + '/finance/merge-transactions', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items: mergeTxContext.map(function (t) { return { sourceKey: t.sourceKey, amount: t.amount }; }) })
+      body: JSON.stringify({ source: mergeTxContext[0].source, items: mergeTxContext.map(function (t) { return { sourceKey: t.sourceKey, amount: t.amount }; }) })
     });
     var data = await res.json();
     if (!res.ok) { resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = (data.errors || [data.error]).join(' ') || 'unknown error'; return; }

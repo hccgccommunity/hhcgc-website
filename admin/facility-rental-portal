@@ -3622,6 +3622,7 @@ const AVAIL_DAY_START_HOUR = 9;
 const AVAIL_DAY_END_HOUR = 33; // 9 + 24 = wraps to 8 AM the next day
 let availWeekOffset = 0;
 let availMonthOffset = 0;
+const expandedMonthDays = new Set();
 let availViewMode = 'week';
 
 // getHours()/getMinutes() return the BROWSER's own local time, not
@@ -3822,7 +3823,8 @@ async function loadMonthView() {
   for (let d = 1; d <= daysInMonth; d++) {
     const dateStr = toAvailDateStr(new Date(viewMonth.getFullYear(), viewMonth.getMonth(), d));
     const dayBookings = byDate[dateStr] || [];
-    const shown = dayBookings.slice(0, 3);
+    const expanded = expandedMonthDays.has(dateStr);
+    const shown = expanded ? dayBookings : dayBookings.slice(0, 3);
     const extra = dayBookings.length - shown.length;
     html += '<div class="avail-month-day' + (dateStr === todayStr ? ' is-today' : '') + '">' +
       '<div class="avail-month-day-num">' + d + '</div>' +
@@ -3831,10 +3833,17 @@ async function loadMonthView() {
         var fullRange = formatTimeRangeEastern(bk.startTime, bk.endTime);
         return '<span class="avail-month-chip" style="background:' + (AVAIL_ROOM_COLORS[bk.room] || '#8d6e63') + ';" title="' + bk.room + ' — ' + bk.who + ' — ' + fullRange + ' — ' + bk.status + '">' + timeLabel + ' ' + bk.who + '</span>';
       }).join('') +
-      (extra > 0 ? '<div class="avail-month-more">+' + extra + '</div>' : '') +
+      (extra > 0 ? '<div class="avail-month-more" data-expand-day="' + dateStr + '" style="cursor:pointer;">+' + extra + ' more</div>' : '') +
+      (expanded && dayBookings.length > 3 ? '<div class="avail-month-more" data-collapse-day="' + dateStr + '" style="cursor:pointer;">Show less</div>' : '') +
     '</div>';
   }
   gridEl.innerHTML = html;
+  gridEl.querySelectorAll('[data-expand-day]').forEach(function (el) {
+    el.addEventListener('click', function () { expandedMonthDays.add(el.dataset.expandDay); loadMonthView(); });
+  });
+  gridEl.querySelectorAll('[data-collapse-day]').forEach(function (el) {
+    el.addEventListener('click', function () { expandedMonthDays.delete(el.dataset.collapseDay); loadMonthView(); });
+  });
 }
 
 function refreshAvailCalendar() {

@@ -152,8 +152,8 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 .amount.income { color: var(--green); }
 .amount.expense { color: var(--red); }
 .source-tag { display: inline-block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--surface-soft); color: var(--saffron-dark); }
-tr.sub-row td { background: rgba(0,0,0,0.015); }
-tr.sub-row td:first-child { padding-left: 28px; }
+tr.sub-row td { background: var(--surface-soft); }
+tr.sub-row td:first-child { padding-left: 22px; border-left: 3px solid var(--saffron-dark); }
 .method-tag { font-size: 0.72rem; color: var(--muted); display: block; margin-top: 2px; }
 tr.series-row:hover td { background: var(--surface-soft); }
 .sortable-th { cursor: pointer; user-select: none; }

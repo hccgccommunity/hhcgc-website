@@ -152,6 +152,10 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 .amount.income { color: var(--green); }
 .amount.expense { color: var(--red); }
 .source-tag { display: inline-block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--surface-soft); color: var(--saffron-dark); }
+tr.sub-row td { background: rgba(0,0,0,0.015); }
+tr.sub-row td:first-child { padding-left: 28px; }
+.method-tag { font-size: 0.72rem; color: var(--muted); display: block; margin-top: 2px; }
+tr.series-row:hover td { background: var(--surface-soft); }
 .sortable-th { cursor: pointer; user-select: none; }
 .sortable-th:hover { color: var(--saffron-dark); }
 .sort-arrow { font-size: 0.7rem; opacity: 0.5; }
@@ -615,7 +619,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
     <div class="table-wrap">
       <table>
         <thead><tr>
-          <th class="sortable-th" data-sort-key="renter">Renter <span class="sort-arrow" data-sort-arrow="renter"></span></th>
+          <th class="sortable-th" data-sort-key="renter">Customer <span class="sort-arrow" data-sort-arrow="renter"></span></th>
           <th class="sortable-th" data-sort-key="event">Event <span class="sort-arrow" data-sort-arrow="event"></span></th>
           <th class="sortable-th" data-sort-key="invoiceSent">Invoice Sent <span class="sort-arrow" data-sort-arrow="invoiceSent"></span></th>
           <th class="sortable-th" data-sort-key="amount">Amount <span class="sort-arrow" data-sort-arrow="amount"></span></th>
@@ -2177,14 +2181,14 @@ async function loadInvoices() {
     document.getElementById('inv-count').textContent = INVOICES.length + ' invoice' + (INVOICES.length === 1 ? '' : 's');
     if (!INVOICES.length) { tbody.innerHTML = ''; emptyState.style.display = 'block'; return; }
     emptyState.style.display = 'none';
-    tbody.innerHTML = INVOICES.map(renderInvoiceRow).join('');
+    renderInvoicesTable();
   } catch (err) {
     tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--red);padding:24px;">Could not load: ' + escHtml(err.message) + '</td></tr>';
   } finally {
     setTabLoading('tab-matching', false);
   }
 }
-function renderInvoiceRow(inv) {
+function renderInvoiceRow(inv, isSubRow) {
   const linkedTo = inv.matchSource
     ? escHtml(inv.matchSource) + ' transaction \u2014 linked'
     : '<span style="color:var(--muted);">Not linked</span>';
@@ -2204,7 +2208,7 @@ function renderInvoiceRow(inv) {
     : (inv.matchSource
         ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + inv.bookingId + '">Mark paid?</button> <button type="button" class="btn-secondary" style="padding:4px 8px;font-size:0.72rem;" data-unlink-booking="' + inv.bookingId + '">Unlink</button>'
         : '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-link-txn-booking="' + inv.bookingId + '" data-link-txn-amount="' + inv.amount + '">Link transaction</button>');
-  return '<tr>' +
+  return '<tr class="' + (isSubRow ? 'sub-row' : '') + '">' +
     '<td>' + escHtml(inv.renterName) + '</td>' +
     '<td>' + escHtml(inv.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(inv.eventDate) + '</div></td>' +
     '<td>' + (inv.invoiceSentAt ? formatTimestampDate(inv.invoiceSentAt) : '<span style="color:var(--muted);">Not sent</span>') + '</td>' +
@@ -2217,7 +2221,72 @@ function renderInvoiceRow(inv) {
     '<td>' + paymentCell + '</td>' +
   '</tr>';
 }
+// Same grouping pattern as All Bookings — occurrences sharing a
+// recurring_series_id collapse into one summary row by default, with the
+// individual occurrences available by expanding it.
+let expandedInvoiceSeries = new Set();
+function toggleInvoiceSeries(seriesId) {
+  if (expandedInvoiceSeries.has(seriesId)) expandedInvoiceSeries.delete(seriesId);
+  else expandedInvoiceSeries.add(seriesId);
+  renderInvoicesTable();
+}
+function groupInvoicesIntoDisplayItems(list) {
+  const seriesMap = {};
+  const items = [];
+  list.forEach(function (inv) {
+    if (inv.seriesId) {
+      if (!seriesMap[inv.seriesId]) {
+        const item = { type: 'series', seriesId: inv.seriesId, occurrences: [] };
+        seriesMap[inv.seriesId] = item;
+        items.push(item);
+      }
+      seriesMap[inv.seriesId].occurrences.push(inv);
+    } else {
+      items.push({ type: 'single', invoice: inv });
+    }
+  });
+  items.forEach(function (item) {
+    if (item.type !== 'series') return;
+    const occ = item.occurrences.slice().sort(function (a, b) { return a.eventDate < b.eventDate ? -1 : (a.eventDate > b.eventDate ? 1 : 0); });
+    item.occurrences = occ;
+    const first = occ[0];
+    item.renterName = first.renterName;
+    item.renterEmail = first.renterEmail;
+    item.eventName = first.eventName;
+    item.eventDate = first.eventDate;
+    item.eventDateLast = occ[occ.length - 1].eventDate;
+    item.amount = occ.reduce(function (sum, o) { return sum + Number(o.amount); }, 0);
+    item.paymentStatus = occ.every(function (o) { return o.paymentStatus === first.paymentStatus; }) ? first.paymentStatus : 'mixed';
+    item.paidCount = occ.filter(function (o) { return o.paymentStatus === 'paid'; }).length;
+    item.invoiceSentAt = occ.reduce(function (latest, o) { return (!latest || (o.invoiceSentAt && o.invoiceSentAt > latest)) ? o.invoiceSentAt : latest; }, first.invoiceSentAt);
+    item.recurrenceSummary = first.recurrenceSummary || (occ.length + ' occurrences');
+  });
+  return items;
+}
+function renderInvoicesTable() {
+  const tbody = document.getElementById('inv-tbody');
+  const items = groupInvoicesIntoDisplayItems(INVOICES);
+  tbody.innerHTML = items.map(function (item) {
+    if (item.type === 'single') return renderInvoiceRow(item.invoice, false);
+    const isExpanded = expandedInvoiceSeries.has(item.seriesId);
+    const seriesRow = '<tr class="series-row" data-toggle-invoice-series="' + item.seriesId + '" style="cursor:pointer;">' +
+      '<td>' + escHtml(item.renterName) + '</td>' +
+      '<td>' + escHtml(item.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(item.eventDate) + ' \u2013 ' + formatDate(item.eventDateLast) + ' \u00b7 ' + escHtml(item.recurrenceSummary) + '</div></td>' +
+      '<td>' + (item.invoiceSentAt ? formatTimestampDate(item.invoiceSentAt) : '<span style="color:var(--muted);">Not sent</span>') + '</td>' +
+      '<td class="amount">' + money(item.amount) + ' <span class="method-tag">total</span></td>' +
+      '<td><span class="source-tag">' + (item.paymentStatus === 'mixed' ? item.paidCount + ' of ' + item.occurrences.length + ' paid' : escHtml(item.paymentStatus)) + '</span></td>' +
+      '<td colspan="5" style="text-align:right;color:var(--muted);font-size:0.8rem;">' + (isExpanded ? '\u25b2 Hide occurrences' : '\u25bc Show ' + item.occurrences.length + ' occurrences') + '</td>' +
+    '</tr>';
+    const subRows = isExpanded ? item.occurrences.map(function (o) { return renderInvoiceRow(o, true); }).join('') : '';
+    return seriesRow + subRows;
+  }).join('');
+}
 document.getElementById('inv-tbody').addEventListener('click', async function (e) {
+  const seriesToggle = e.target.closest('[data-toggle-invoice-series]');
+  if (seriesToggle && !e.target.closest('button')) {
+    toggleInvoiceSeries(seriesToggle.dataset.toggleInvoiceSeries);
+    return;
+  }
   const noteBtn = e.target.closest('[data-invoice-note-booking]');
   if (noteBtn) {
     openInvoiceNotesModal(noteBtn.dataset.invoiceNoteBooking);
@@ -2384,7 +2453,7 @@ document.getElementById('receipt-action-body').addEventListener('click', async f
   else if (btn.dataset.finRcptAction === 'send') {
     const inv = INVOICES.find(function (i) { return i.bookingId === bookingId; });
     const isResend = inv && inv.receiptSentAt;
-    if (!confirm((isResend ? 'Resend' : 'Send') + ' the receipt to ' + (inv ? inv.renterName : 'the renter') + ' now?')) return;
+    if (!confirm((isResend ? 'Resend' : 'Send') + ' the receipt to ' + (inv ? inv.renterName : 'the customer') + ' now?')) return;
     try {
       const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/send-receipt', { method: 'POST' });
       const data = await res.json();
@@ -2465,7 +2534,7 @@ document.getElementById('btn-confirm-void-invoice').addEventListener('click', as
   if (!voidInvoiceBookingId) return;
   const note = document.getElementById('void-invoice-note').value.trim();
   const resultBox = document.getElementById('void-invoice-result');
-  if (!note) { resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = 'A note is required — it will be included in the email to the renter.'; return; }
+  if (!note) { resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = 'A note is required — it will be included in the email to the customer.'; return; }
   if (!confirm('Void this invoice and receipt, and email the customer now? This cannot be undone from here.')) return;
   const btn = this;
   btn.disabled = true; btn.textContent = 'Voiding…';

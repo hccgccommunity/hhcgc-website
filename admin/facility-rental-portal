@@ -1499,10 +1499,15 @@ async function loadBookings() {
 function renderPendingRequestsList() {
   const section = document.getElementById('inline-review-section');
   const list = document.getElementById('pending-requests-list');
+  const form = document.getElementById('inline-review-form');
+  // The form is a live element that gets moved into whichever row is
+  // expanded — parking it back at the section level first means
+  // rebuilding the list's innerHTML below never destroys it.
+  if (list.contains(form)) section.appendChild(form);
+  const wasReviewing = reviewingBookingId;
   const pending = BOOKINGS.filter(function (b) { return b.payment_status === 'requested'; });
   if (!pending.length) {
     section.style.display = 'none';
-    document.getElementById('inline-review-form').style.display = 'none';
     reviewingBookingId = null;
     return;
   }
@@ -1513,15 +1518,25 @@ function renderPendingRequestsList() {
     const repBookingId = isSeries ? item.occurrences[0].booking_id : item.booking.booking_id;
     const dateStr = formatDate(item.event_date) + (isSeries ? ' \u2013 ' + formatDate(item.event_date_last) : '');
     const desc = (isSeries ? item.occurrences[0].event_description : item.booking.event_description) || '';
-    return '<div class="exp-line-item" data-open-request-booking="' + repBookingId + '">' +
+    return '<div class="exp-line-item" style="cursor:default;" data-request-row="' + repBookingId + '">' +
       '<div class="exp-top-row"><span>' + escHtml(item.renter_name) + (isSeries ? ' \u2014 ' + item.occurrences.length + ' occurrences' : '') + '</span><span>' + money(item.final_total) + '</span></div>' +
       '<div class="exp-date">' + dateStr + (desc ? ' \u00b7 ' + escHtml(desc.length > 80 ? desc.slice(0, 80) + '\u2026' : desc) : '') + '</div>' +
+      '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;margin-top:8px;" data-show-request-details="' + repBookingId + '">Show details</button>' +
+      '<div class="request-detail-slot" id="request-detail-' + repBookingId + '"></div>' +
     '</div>';
   }).join('');
+  // If the request being reviewed is still pending after the refresh
+  // (e.g. approving one occurrence in a check that didn't fully clear
+  // it), keep its panel open rather than silently losing the open state.
+  if (wasReviewing && pending.some(function (b) { return b.booking_id === wasReviewing || (b.recurring_series_id && BOOKINGS.some(function (x) { return x.booking_id === wasReviewing && x.recurring_series_id === b.recurring_series_id; })); })) {
+    const slot = document.getElementById('request-detail-' + wasReviewing);
+    const btn = document.querySelector('[data-show-request-details="' + wasReviewing + '"]');
+    if (slot) { slot.appendChild(form); form.style.display = 'block'; if (btn) btn.textContent = 'Hide details'; reviewingBookingId = wasReviewing; }
+  }
 }
 document.getElementById('pending-requests-list').addEventListener('click', function (e) {
-  const row = e.target.closest('[data-open-request-booking]');
-  if (row) openInlineBookingReview(row.dataset.openRequestBooking);
+  const btn = e.target.closest('[data-show-request-details]');
+  if (btn) toggleInlineBookingReview(btn.dataset.showRequestDetails, btn);
 });
 
 let state = { contactFilter: undefined, statusFilter: undefined, room: '', month: 'thisyear', sortKey: 'updated_display', sortDir: 'desc', pageSize: 20, page: 1 };
@@ -2251,12 +2266,27 @@ function buildInlineReviewOccTable(occurrences) {
     input.addEventListener('change', recalcInlineReview);
   });
 }
+function toggleInlineBookingReview(bookingId, btn) {
+  const form = document.getElementById('inline-review-form');
+  const slot = document.getElementById('request-detail-' + bookingId);
+  // Same request clicked again — collapse it.
+  if (reviewingBookingId === bookingId && form.style.display !== 'none') {
+    form.style.display = 'none';
+    if (btn) btn.textContent = 'Show details';
+    reviewingBookingId = null;
+    return;
+  }
+  // Reset whichever button was previously showing "Hide details".
+  document.querySelectorAll('[data-show-request-details]').forEach(function (b) { b.textContent = 'Show details'; });
+  slot.appendChild(form);
+  if (btn) btn.textContent = 'Hide details';
+  openInlineBookingReview(bookingId);
+}
 async function openInlineBookingReview(bookingId) {
   const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
   if (!b) return;
   reviewingBookingId = bookingId;
   document.getElementById('inline-review-form').style.display = 'block';
-  document.getElementById('inline-review-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   document.getElementById('ir-renter-display').textContent = b.renter_name + (b.renter_email ? ' (' + b.renter_email + ')' : '');
   document.getElementById('ir-event-name').value = b.event_name || '';
@@ -2437,6 +2467,7 @@ function formatTimeRange(start, end) {
 }
 document.getElementById('btn-close-inline-review').addEventListener('click', function () {
   document.getElementById('inline-review-form').style.display = 'none';
+  document.querySelectorAll('[data-show-request-details]').forEach(function (b) { b.textContent = 'Show details'; });
   reviewingBookingId = null;
 });
 document.getElementById('btn-inline-review-approve').addEventListener('click', async function () {
@@ -2488,7 +2519,7 @@ document.getElementById('btn-inline-review-approve').addEventListener('click', a
   btn.disabled = true; btn.textContent = 'Approving…';
   const ok = await approveRequestAction(reviewingBookingId, payload);
   btn.disabled = false; btn.textContent = 'Approve';
-  if (ok) { document.getElementById('inline-review-section').style.display = 'none'; reviewingBookingId = null; }
+  if (ok) { document.getElementById('inline-review-form').style.display = 'none'; }
 });
 document.getElementById('btn-inline-review-reject').addEventListener('click', async function () {
   if (!reviewingBookingId) return;

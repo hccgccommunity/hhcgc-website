@@ -758,6 +758,11 @@ tbody input[type="text"], tbody input[type="number"] {
   <div class="mock-notice" id="mock-notice" style="display:none;"></div>
 
   <div class="card" id="inline-review-section" style="display:none;margin-bottom:20px;">
+    <h2 style="margin:0 0 4px;">New booking requests</h2>
+    <div class="card-sub" style="margin-bottom:12px;">Click a request to review it — all fields editable before you approve.</div>
+    <div id="pending-requests-list"></div>
+
+    <div id="inline-review-form" style="display:none;margin-top:18px;padding-top:18px;border-top:1.5px solid var(--border);">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
       <h2 style="margin:0;">Review booking request</h2>
       <button type="button" class="btn-secondary" id="btn-close-inline-review" style="padding:4px 10px;font-size:0.78rem;">Close</button>
@@ -769,12 +774,22 @@ tbody input[type="text"], tbody input[type="number"] {
     </div>
     <div class="field" id="ir-event-description-field" style="display:none;"><label>About this event</label><div id="ir-event-description" style="font-size:0.86rem;color:var(--muted);"></div></div>
     <div class="field"><label>Rooms</label><div class="modal-room-picker" id="ir-room-picker"></div></div>
-    <div class="field-row">
-      <div class="field"><label>Date</label><input type="date" id="ir-date"></div>
+
+    <div class="field" id="ir-single-time-field">
       <div class="field-row">
-        <div class="field"><label>Start time</label><input type="time" id="ir-start" list="nb-common-times"></div>
-        <div class="field"><label>End time</label><input type="time" id="ir-end" list="nb-common-times"></div>
+        <div class="field"><label>Date</label><input type="date" id="ir-date"></div>
+        <div class="field-row">
+          <div class="field"><label>Start time</label><input type="time" id="ir-start" list="nb-common-times"></div>
+          <div class="field"><label>End time</label><input type="time" id="ir-end" list="nb-common-times"></div>
+        </div>
       </div>
+    </div>
+    <div class="field" id="ir-occurrences-field" style="display:none;">
+      <label>Occurrences (<span id="ir-occ-count"></span>) — each editable individually</label>
+      <table class="occ-table" id="ir-occ-table">
+        <thead><tr><th>Date</th><th>Start</th><th>End</th></tr></thead>
+        <tbody id="ir-occ-tbody"></tbody>
+      </table>
     </div>
     <div class="card-sub" id="ir-recurrence-note" style="display:none;margin-top:-8px;"></div>
     <div class="field" id="ir-invoice-mode-field" style="display:none;">
@@ -804,6 +819,7 @@ tbody input[type="text"], tbody input[type="number"] {
     <div style="display:flex;gap:8px;margin-top:8px;">
       <button type="button" class="btn-secondary" id="btn-inline-review-reject">Reject</button>
       <button type="button" class="btn-primary" id="btn-inline-review-approve" style="margin-top:0;">Approve</button>
+    </div>
     </div>
   </div>
 
@@ -1101,6 +1117,7 @@ tbody input[type="text"], tbody input[type="number"] {
         <div class="field" id="f-event-name-field"><label>Event name</label><input type="text" id="f-event-name" placeholder="e.g. Weekly Shakha, Birthday Celebration"></div>
         <div class="field" id="f-name-field" style="display:none;"><label id="f-name-label">Program / event name</label><input type="text" id="nb-f-name" placeholder="e.g. Weekly Bhajan Sandhya"></div>
         <div class="field" id="f-hccg-rep-field" style="display:none;"><label>HCCGC representative name</label><input type="text" id="f-hccg-rep" placeholder="Who at HCCGC is organizing this?"></div>
+        <div class="field"><label>Event description (optional)</label><textarea id="f-event-description" placeholder="What's the occasion? Any details worth noting on the invoice or calendar."></textarea></div>
         <div class="field"><label id="f-notes-label">Notes (optional)</label><textarea id="nb-f-notes" placeholder="Anything worth remembering about this booking"></textarea></div>
       </div>
 
@@ -1475,8 +1492,37 @@ async function loadBookings() {
     BOOKINGS = [];
   }
   populateContactFilter();
+  renderPendingRequestsList();
   render();
 }
+
+function renderPendingRequestsList() {
+  const section = document.getElementById('inline-review-section');
+  const list = document.getElementById('pending-requests-list');
+  const pending = BOOKINGS.filter(function (b) { return b.payment_status === 'requested'; });
+  if (!pending.length) {
+    section.style.display = 'none';
+    document.getElementById('inline-review-form').style.display = 'none';
+    reviewingBookingId = null;
+    return;
+  }
+  section.style.display = 'block';
+  const items = groupIntoDisplayItems(pending);
+  list.innerHTML = items.map(function (item) {
+    const isSeries = item.type === 'series';
+    const repBookingId = isSeries ? item.occurrences[0].booking_id : item.booking.booking_id;
+    const dateStr = formatDate(item.event_date) + (isSeries ? ' \u2013 ' + formatDate(item.event_date_last) : '');
+    const desc = (isSeries ? item.occurrences[0].event_description : item.booking.event_description) || '';
+    return '<div class="exp-line-item" data-open-request-booking="' + repBookingId + '">' +
+      '<div class="exp-top-row"><span>' + escHtml(item.renter_name) + (isSeries ? ' \u2014 ' + item.occurrences.length + ' occurrences' : '') + '</span><span>' + money(item.final_total) + '</span></div>' +
+      '<div class="exp-date">' + dateStr + (desc ? ' \u00b7 ' + escHtml(desc.length > 80 ? desc.slice(0, 80) + '\u2026' : desc) : '') + '</div>' +
+    '</div>';
+  }).join('');
+}
+document.getElementById('pending-requests-list').addEventListener('click', function (e) {
+  const row = e.target.closest('[data-open-request-booking]');
+  if (row) openInlineBookingReview(row.dataset.openRequestBooking);
+});
 
 let state = { contactFilter: undefined, statusFilter: undefined, room: '', month: 'thisyear', sortKey: 'updated_display', sortDir: 'desc', pageSize: 20, page: 1 };
 
@@ -2187,12 +2233,30 @@ function enforceInlineReviewKitchenRule() {
 function inlineReviewSelectedRooms() {
   return Array.from(document.querySelectorAll('.ir-room-cb:checked')).map(function (cb) { return cb.value; });
 }
+function buildInlineReviewOccTable(occurrences) {
+  const sorted = occurrences.slice().sort(function (a, b) { return a.event_date < b.event_date ? -1 : (a.event_date > b.event_date ? 1 : 0); });
+  const tbody = document.getElementById('ir-occ-tbody');
+  tbody.innerHTML = sorted.map(function (occ) {
+    const startLocal = new Date(occ.start_time), endLocal = new Date(occ.end_time);
+    const startVal = startLocal.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York' });
+    const endVal = endLocal.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York' });
+    return '<tr data-occ-booking-id="' + occ.booking_id + '">' +
+      '<td><input type="date" class="ir-occ-date" value="' + occ.event_date + '" style="width:100%;"></td>' +
+      '<td><input type="time" class="ir-occ-start" value="' + startVal + '" list="nb-common-times" style="width:100%;"></td>' +
+      '<td><input type="time" class="ir-occ-end" value="' + endVal + '" list="nb-common-times" style="width:100%;"></td>' +
+    '</tr>';
+  }).join('');
+  tbody.querySelectorAll('input').forEach(function (input) {
+    input.addEventListener('input', recalcInlineReview);
+    input.addEventListener('change', recalcInlineReview);
+  });
+}
 async function openInlineBookingReview(bookingId) {
   const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
   if (!b) return;
   reviewingBookingId = bookingId;
-  document.getElementById('inline-review-section').style.display = 'block';
-  document.getElementById('inline-review-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById('inline-review-form').style.display = 'block';
+  document.getElementById('inline-review-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   document.getElementById('ir-renter-display').textContent = b.renter_name + (b.renter_email ? ' (' + b.renter_email + ')' : '');
   document.getElementById('ir-event-name').value = b.event_name || '';
@@ -2205,22 +2269,31 @@ async function openInlineBookingReview(bookingId) {
   }
   buildInlineReviewRoomPicker(b.rooms);
   enforceInlineReviewKitchenRule();
-  document.getElementById('ir-date').value = b.event_date;
-  const startLocal = new Date(b.start_time), endLocal = new Date(b.end_time);
-  document.getElementById('ir-start').value = startLocal.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York' });
-  document.getElementById('ir-end').value = endLocal.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York' });
 
-  const seriesOccurrenceCount = b.recurring_series_id ? BOOKINGS.filter(function (x) { return x.recurring_series_id === b.recurring_series_id; }).length : 1;
+  const seriesOccurrences = b.recurring_series_id ? BOOKINGS.filter(function (x) { return x.recurring_series_id === b.recurring_series_id; }) : [b];
+  const seriesOccurrenceCount = seriesOccurrences.length;
+  const singleField = document.getElementById('ir-single-time-field');
+  const occField = document.getElementById('ir-occurrences-field');
+  window.__reviewingOccurrences = seriesOccurrences;
+  if (seriesOccurrenceCount > 1) {
+    singleField.style.display = 'none';
+    occField.style.display = 'block';
+    document.getElementById('ir-occ-count').textContent = seriesOccurrenceCount;
+    buildInlineReviewOccTable(seriesOccurrences);
+  } else {
+    singleField.style.display = 'block';
+    occField.style.display = 'none';
+    document.getElementById('ir-date').value = b.event_date;
+    const startLocal = new Date(b.start_time), endLocal = new Date(b.end_time);
+    document.getElementById('ir-start').value = startLocal.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York' });
+    document.getElementById('ir-end').value = endLocal.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York' });
+  }
+
   const recurrenceNote = document.getElementById('ir-recurrence-note');
   const invoiceModeField = document.getElementById('ir-invoice-mode-field');
-  // Date reassignment across a whole series isn't something this endpoint
-  // handles — each occurrence has its own date, so "edit the date" only
-  // makes unambiguous sense for a single, non-recurring booking. Rooms and
-  // time-of-day are still editable either way since they don't vary by date.
-  document.getElementById('ir-date').disabled = seriesOccurrenceCount > 1;
   if (seriesOccurrenceCount > 1) {
     recurrenceNote.style.display = 'block';
-    recurrenceNote.textContent = 'Part of a series of ' + seriesOccurrenceCount + ' occurrences' + (b.recurrence_summary ? ' (' + b.recurrence_summary + ')' : '') + ' — showing the first date above; date isn\u2019t editable for a series here, but rooms and time apply to every occurrence.';
+    recurrenceNote.textContent = 'Part of a series of ' + seriesOccurrenceCount + ' occurrences' + (b.recurrence_summary ? ' (' + b.recurrence_summary + ')' : '') + ' — rooms apply to every occurrence; each date/time below is editable individually.';
     invoiceModeField.style.display = 'block';
   } else {
     recurrenceNote.style.display = 'none';
@@ -2288,18 +2361,34 @@ function recalcInlineReview() {
   }
   var rooms = inlineReviewSelectedRooms();
   var rateSum = rooms.reduce(function (sum, name) { var r = NB_ROOMS.find(function (x) { return x.name === name; }); return sum + (r ? r.rate : 0); }, 0);
-  var hours = hoursBetweenTimes(document.getElementById('ir-start').value, document.getElementById('ir-end').value);
-  var date = document.getElementById('ir-date').value || b.event_date;
-  var base = Math.round(rateSum * hours * 100) / 100;
   var isNonprofit = !!b.is_nonprofit;
-  var day = new Date(date + 'T00:00:00').getDay();
-  var isWeekday = day >= 1 && day <= 5;
-  var mult = 1;
+
+  var occRows = document.getElementById('ir-occurrences-field').style.display !== 'none'
+    ? Array.from(document.querySelectorAll('#ir-occ-tbody tr')).map(function (tr) {
+        return {
+          date: tr.querySelector('.ir-occ-date').value,
+          startTime: tr.querySelector('.ir-occ-start').value,
+          endTime: tr.querySelector('.ir-occ-end').value
+        };
+      })
+    : [{ date: document.getElementById('ir-date').value || b.event_date, startTime: document.getElementById('ir-start').value, endTime: document.getElementById('ir-end').value }];
+
+  var base = 0, subtotal = 0;
   var tagsSet = {};
-  if (isWeekday) { mult *= RULES.weekdayMultiplier; tagsSet['Weekday'] = true; }
-  if (hours >= RULES.extendedHoursThreshold) { mult *= RULES.extendedHoursMultiplier; tagsSet['Extended hours'] = true; }
-  if (isNonprofit) { mult *= RULES.nonprofitMultiplier; tagsSet['Nonprofit'] = true; }
-  var subtotal = Math.round(base * mult * 100) / 100;
+  occRows.forEach(function (occ) {
+    var hours = hoursBetweenTimes(occ.startTime, occ.endTime);
+    var occBase = Math.round(rateSum * hours * 100) / 100;
+    var day = new Date(occ.date + 'T00:00:00').getDay();
+    var isWeekday = day >= 1 && day <= 5;
+    var mult = 1;
+    if (isWeekday) { mult *= RULES.weekdayMultiplier; tagsSet['Weekday'] = true; }
+    if (hours >= RULES.extendedHoursThreshold) { mult *= RULES.extendedHoursMultiplier; tagsSet['Extended hours'] = true; }
+    if (isNonprofit) { mult *= RULES.nonprofitMultiplier; tagsSet['Nonprofit'] = true; }
+    base += occBase;
+    subtotal += Math.round(occBase * mult * 100) / 100;
+  });
+  base = Math.round(base * 100) / 100;
+  subtotal = Math.round(subtotal * 100) / 100;
 
   var adjEnabled = document.getElementById('ir-discount-enabled').checked;
   var adjType = document.getElementById('ir-discount-type').value;
@@ -2307,7 +2396,7 @@ function recalcInlineReview() {
   var final = subtotal;
   var adjustmentAmount = 0;
   if (adjEnabled && adjValue > 0) {
-    adjustmentAmount = adjType === 'percent' ? Math.round(subtotal * (adjValue / 100) * 100) / 100 : adjValue;
+    adjustmentAmount = adjType === 'percent' ? Math.round(subtotal * (adjValue / 100) * 100) / 100 : adjValue * occRows.length;
     final = Math.round((subtotal - adjustmentAmount) * 100) / 100;
   }
 
@@ -2320,10 +2409,9 @@ function recalcInlineReview() {
   document.getElementById('ir-s-adjustment-line').style.display = (adjEnabled && adjValue > 0) ? 'flex' : 'none';
   document.getElementById('ir-s-adjustment').textContent = '-$' + adjustmentAmount.toFixed(2);
   document.getElementById('ir-s-final').textContent = '$' + final.toFixed(2);
-  var seriesOccurrenceCount = b.recurring_series_id ? BOOKINGS.filter(function (x) { return x.recurring_series_id === b.recurring_series_id; }).length : 1;
-  document.getElementById('ir-s-total-label').textContent = seriesOccurrenceCount > 1 ? ('Total (per occurrence, ' + seriesOccurrenceCount + ' in series)') : 'Total';
-  document.getElementById('ir-cost-summary-sub').textContent = seriesOccurrenceCount > 1
-    ? 'Applies to every occurrence in the series.'
+  document.getElementById('ir-s-total-label').textContent = occRows.length > 1 ? ('Total (' + occRows.length + ' occurrences)') : 'Total';
+  document.getElementById('ir-cost-summary-sub').textContent = occRows.length > 1
+    ? 'Combined total across all ' + occRows.length + ' occurrences.'
     : 'Recalculates live as you edit rooms, time, or the discount above.';
 }
 ['ir-date', 'ir-start', 'ir-end', 'ir-discount-type', 'ir-discount-value'].forEach(function (id) {
@@ -2348,7 +2436,7 @@ function formatTimeRange(start, end) {
   return s.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' }) + '\u2013' + e.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' });
 }
 document.getElementById('btn-close-inline-review').addEventListener('click', function () {
-  document.getElementById('inline-review-section').style.display = 'none';
+  document.getElementById('inline-review-form').style.display = 'none';
   reviewingBookingId = null;
 });
 document.getElementById('btn-inline-review-approve').addEventListener('click', async function () {
@@ -2368,9 +2456,22 @@ document.getElementById('btn-inline-review-approve').addEventListener('click', a
     resultBox.textContent = 'Select at least one room.'; return;
   }
   payload.rooms = rooms;
-  payload.startTime = document.getElementById('ir-start').value;
-  payload.endTime = document.getElementById('ir-end').value;
-  if (!document.getElementById('ir-date').disabled) payload.eventDate = document.getElementById('ir-date').value;
+  payload.occurrenceOverrides = {};
+  if (document.getElementById('ir-occurrences-field').style.display !== 'none') {
+    document.querySelectorAll('#ir-occ-tbody tr').forEach(function (tr) {
+      payload.occurrenceOverrides[tr.dataset.occBookingId] = {
+        date: tr.querySelector('.ir-occ-date').value,
+        startTime: tr.querySelector('.ir-occ-start').value,
+        endTime: tr.querySelector('.ir-occ-end').value
+      };
+    });
+  } else {
+    payload.occurrenceOverrides[reviewingBookingId] = {
+      date: document.getElementById('ir-date').value,
+      startTime: document.getElementById('ir-start').value,
+      endTime: document.getElementById('ir-end').value
+    };
+  }
   if (discountEnabled) {
     const reason = document.getElementById('ir-discount-reason').value.trim();
     if (!reason) {
@@ -3800,6 +3901,7 @@ document.getElementById('btn-generate').addEventListener('click', async function
     renterId: !isInternal ? selectedRenterId : null,
     renterName: isInternal ? document.getElementById('nb-f-name').value : null,
     eventName: !isInternal ? document.getElementById('f-event-name').value : null,
+    eventDescription: document.getElementById('f-event-description').value || null,
     hccgcRepresentativeName: isInternal ? document.getElementById('f-hccg-rep').value : null,
     publishAsEvent: isInternal ? document.getElementById('f-publish-event').checked : false,
     isNonprofit: !isInternal && !!(NB_RENTERS.find(function (r) { return r.renter_id === document.getElementById('f-renter-select').value; }) || {}).is_nonprofit,

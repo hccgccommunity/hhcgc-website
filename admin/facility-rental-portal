@@ -772,8 +772,8 @@ tbody input[type="text"], tbody input[type="number"] {
     <div class="field-row">
       <div class="field"><label>Date</label><input type="date" id="ir-date"></div>
       <div class="field-row">
-        <div class="field"><label>Start time</label><input type="time" id="ir-start"></div>
-        <div class="field"><label>End time</label><input type="time" id="ir-end"></div>
+        <div class="field"><label>Start time</label><input type="time" id="ir-start" list="nb-common-times"></div>
+        <div class="field"><label>End time</label><input type="time" id="ir-end" list="nb-common-times"></div>
       </div>
     </div>
     <div class="card-sub" id="ir-recurrence-note" style="display:none;margin-top:-8px;"></div>
@@ -791,13 +791,22 @@ tbody input[type="text"], tbody input[type="number"] {
       <div class="field"><label>Value</label><input type="number" id="ir-discount-value" step="0.01" min="0"></div>
     </div>
     <div class="field" id="ir-discount-reason-field" style="display:none;"><label>Reason</label><input type="text" id="ir-discount-reason" placeholder="Required if applying a discount"></div>
-    <div class="field"><label>Rate calculation</label><div id="ir-rate-calc" style="font-size:0.86rem;line-height:1.7;"></div></div>
+    <div class="card cost-summary-card" style="margin-top:8px;">
+      <h2>Cost summary</h2>
+      <div class="card-sub" id="ir-cost-summary-sub">Recalculates live as you edit rooms, time, or the discount above.</div>
+      <div class="summary-line"><span class="label">Base total</span><span id="ir-s-base">$0.00</span></div>
+      <div class="summary-line"><span class="label">Discounts applied</span><span id="ir-s-discount-tags"></span></div>
+      <div class="summary-line"><span class="label">Subtotal after standard discounts</span><span id="ir-s-subtotal">$0.00</span></div>
+      <div class="summary-line" id="ir-s-adjustment-line" style="display:none;"><span class="label">Discretionary adjustment</span><span id="ir-s-adjustment">$0.00</span></div>
+      <div class="summary-line total"><span class="label" id="ir-s-total-label">Total</span><span id="ir-s-final">$0.00</span></div>
+    </div>
     <div class="result-box" id="ir-result-box" style="display:none;"></div>
     <div style="display:flex;gap:8px;margin-top:8px;">
       <button type="button" class="btn-secondary" id="btn-inline-review-reject">Reject</button>
       <button type="button" class="btn-primary" id="btn-inline-review-approve" style="margin-top:0;">Approve</button>
     </div>
   </div>
+
 
   <div class="toolbar">
     <div class="contact-filter-wrap">
@@ -2160,8 +2169,23 @@ function buildInlineReviewRoomPicker(selectedRooms) {
   const wrap = document.getElementById('ir-room-picker');
   wrap.innerHTML = EDIT_ROOMS.map(function (r) {
     const checked = (selectedRooms || []).includes(r.name) ? ' checked' : '';
-    return '<label class="modal-room-check"><input type="checkbox" disabled' + checked + '> ' + r.name + '</label>';
+    return '<label class="modal-room-check"><input type="checkbox" class="ir-room-cb" value="' + r.name + '"' + checked + '> ' + r.name + '</label>';
   }).join('');
+  wrap.querySelectorAll('.ir-room-cb').forEach(function (cb) {
+    cb.addEventListener('change', function () { enforceInlineReviewKitchenRule(); recalcInlineReview(); });
+  });
+}
+function enforceInlineReviewKitchenRule() {
+  const kitchenCb = document.querySelector('.ir-room-cb[value="Kitchen"]');
+  if (!kitchenCb) return;
+  const surya = document.querySelector('.ir-room-cb[value="Surya Hall"]').checked;
+  const patanjali = document.querySelector('.ir-room-cb[value="Patanjali Hall"]').checked;
+  const eligible = surya || patanjali;
+  kitchenCb.disabled = !eligible;
+  if (!eligible) kitchenCb.checked = false;
+}
+function inlineReviewSelectedRooms() {
+  return Array.from(document.querySelectorAll('.ir-room-cb:checked')).map(function (cb) { return cb.value; });
 }
 async function openInlineBookingReview(bookingId) {
   const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
@@ -2180,27 +2204,23 @@ async function openInlineBookingReview(bookingId) {
     descField.style.display = 'none';
   }
   buildInlineReviewRoomPicker(b.rooms);
+  enforceInlineReviewKitchenRule();
   document.getElementById('ir-date').value = b.event_date;
-  document.getElementById('ir-date').disabled = true;
   const startLocal = new Date(b.start_time), endLocal = new Date(b.end_time);
   document.getElementById('ir-start').value = startLocal.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York' });
   document.getElementById('ir-end').value = endLocal.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York' });
-  document.getElementById('ir-start').disabled = true;
-  document.getElementById('ir-end').disabled = true;
-
-  const baseTotal = Number(b.base_total || 0);
-  const mult = Number(b.standard_discount_multiplier || 1);
-  const subtotal = Number(b.subtotal_after_standard_discount || baseTotal);
-  document.getElementById('ir-rate-calc').innerHTML = 'Base rate: $' + baseTotal.toFixed(2) +
-    (mult !== 1 ? '<br>Discount applied: \u00d7 ' + mult + ' (' + (b.is_nonprofit ? 'nonprofit' : 'standard') + ')<br>Subtotal: $' + subtotal.toFixed(2) : '') +
-    '<br><strong>Requested total: $' + Number(b.final_total).toFixed(2) + '</strong>';
 
   const seriesOccurrenceCount = b.recurring_series_id ? BOOKINGS.filter(function (x) { return x.recurring_series_id === b.recurring_series_id; }).length : 1;
   const recurrenceNote = document.getElementById('ir-recurrence-note');
   const invoiceModeField = document.getElementById('ir-invoice-mode-field');
+  // Date reassignment across a whole series isn't something this endpoint
+  // handles — each occurrence has its own date, so "edit the date" only
+  // makes unambiguous sense for a single, non-recurring booking. Rooms and
+  // time-of-day are still editable either way since they don't vary by date.
+  document.getElementById('ir-date').disabled = seriesOccurrenceCount > 1;
   if (seriesOccurrenceCount > 1) {
     recurrenceNote.style.display = 'block';
-    recurrenceNote.textContent = 'Part of a series of ' + seriesOccurrenceCount + ' occurrences' + (b.recurrence_summary ? ' (' + b.recurrence_summary + ')' : '') + ' — showing the first date above.';
+    recurrenceNote.textContent = 'Part of a series of ' + seriesOccurrenceCount + ' occurrences' + (b.recurrence_summary ? ' (' + b.recurrence_summary + ')' : '') + ' — showing the first date above; date isn\u2019t editable for a series here, but rooms and time apply to every occurrence.';
     invoiceModeField.style.display = 'block';
   } else {
     recurrenceNote.style.display = 'none';
@@ -2211,6 +2231,8 @@ async function openInlineBookingReview(bookingId) {
   document.getElementById('ir-discount-fields').style.display = 'none';
   document.getElementById('ir-discount-reason-field').style.display = 'none';
   document.getElementById('ir-result-box').style.display = 'none';
+  window.__reviewingBooking = b;
+  recalcInlineReview();
 
   const conflictsField = document.getElementById('ir-conflicts-field');
   conflictsField.style.background = ''; conflictsField.style.padding = ''; conflictsField.style.borderRadius = '';
@@ -2245,6 +2267,68 @@ document.getElementById('ir-discount-enabled').addEventListener('change', functi
   var show = this.checked;
   document.getElementById('ir-discount-fields').style.display = show ? 'grid' : 'none';
   document.getElementById('ir-discount-reason-field').style.display = show ? 'flex' : 'none';
+  recalcInlineReview();
+});
+function hoursBetweenTimes(start, end) {
+  if (!start || !end) return 0;
+  var s = start.split(':').map(Number), e = end.split(':').map(Number);
+  return Math.max(0, Math.round(((e[0] * 60 + e[1]) - (s[0] * 60 + s[1])) / 60 * 100) / 100);
+}
+function recalcInlineReview() {
+  var b = window.__reviewingBooking;
+  if (!b) return;
+  if (b.is_internal) {
+    document.getElementById('ir-s-base').textContent = '$0.00';
+    document.getElementById('ir-s-discount-tags').innerHTML = '<span class="no-discount">N/A — internal HCCGC use</span>';
+    document.getElementById('ir-s-subtotal').textContent = '$0.00';
+    document.getElementById('ir-s-adjustment-line').style.display = 'none';
+    document.getElementById('ir-s-final').textContent = '$0.00';
+    document.getElementById('ir-cost-summary-sub').textContent = 'No charge for internal HCCGC programs.';
+    return;
+  }
+  var rooms = inlineReviewSelectedRooms();
+  var rateSum = rooms.reduce(function (sum, name) { var r = NB_ROOMS.find(function (x) { return x.name === name; }); return sum + (r ? r.rate : 0); }, 0);
+  var hours = hoursBetweenTimes(document.getElementById('ir-start').value, document.getElementById('ir-end').value);
+  var date = document.getElementById('ir-date').value || b.event_date;
+  var base = Math.round(rateSum * hours * 100) / 100;
+  var isNonprofit = !!b.is_nonprofit;
+  var day = new Date(date + 'T00:00:00').getDay();
+  var isWeekday = day >= 1 && day <= 5;
+  var mult = 1;
+  var tagsSet = {};
+  if (isWeekday) { mult *= RULES.weekdayMultiplier; tagsSet['Weekday'] = true; }
+  if (hours >= RULES.extendedHoursThreshold) { mult *= RULES.extendedHoursMultiplier; tagsSet['Extended hours'] = true; }
+  if (isNonprofit) { mult *= RULES.nonprofitMultiplier; tagsSet['Nonprofit'] = true; }
+  var subtotal = Math.round(base * mult * 100) / 100;
+
+  var adjEnabled = document.getElementById('ir-discount-enabled').checked;
+  var adjType = document.getElementById('ir-discount-type').value;
+  var adjValue = parseFloat(document.getElementById('ir-discount-value').value) || 0;
+  var final = subtotal;
+  var adjustmentAmount = 0;
+  if (adjEnabled && adjValue > 0) {
+    adjustmentAmount = adjType === 'percent' ? Math.round(subtotal * (adjValue / 100) * 100) / 100 : adjValue;
+    final = Math.round((subtotal - adjustmentAmount) * 100) / 100;
+  }
+
+  document.getElementById('ir-s-base').textContent = '$' + base.toFixed(2);
+  var tags = Object.keys(tagsSet);
+  document.getElementById('ir-s-discount-tags').innerHTML = tags.length
+    ? tags.map(function (t) { return '<span class="discount-chip">' + t + '</span>'; }).join('')
+    : '<span class="no-discount">None</span>';
+  document.getElementById('ir-s-subtotal').textContent = '$' + subtotal.toFixed(2);
+  document.getElementById('ir-s-adjustment-line').style.display = (adjEnabled && adjValue > 0) ? 'flex' : 'none';
+  document.getElementById('ir-s-adjustment').textContent = '-$' + adjustmentAmount.toFixed(2);
+  document.getElementById('ir-s-final').textContent = '$' + final.toFixed(2);
+  var seriesOccurrenceCount = b.recurring_series_id ? BOOKINGS.filter(function (x) { return x.recurring_series_id === b.recurring_series_id; }).length : 1;
+  document.getElementById('ir-s-total-label').textContent = seriesOccurrenceCount > 1 ? ('Total (per occurrence, ' + seriesOccurrenceCount + ' in series)') : 'Total';
+  document.getElementById('ir-cost-summary-sub').textContent = seriesOccurrenceCount > 1
+    ? 'Applies to every occurrence in the series.'
+    : 'Recalculates live as you edit rooms, time, or the discount above.';
+}
+['ir-date', 'ir-start', 'ir-end', 'ir-discount-type', 'ir-discount-value'].forEach(function (id) {
+  document.getElementById(id).addEventListener('input', recalcInlineReview);
+  document.getElementById(id).addEventListener('change', recalcInlineReview);
 });
 // Only Kartikeya Shakha series are invoiced per occurrence — everything
 // else gets one invoice for the whole series. Since the event name is
@@ -2278,6 +2362,15 @@ document.getElementById('btn-inline-review-approve').addEventListener('click', a
     resultBox.textContent = 'An event name is required to approve this request.'; return;
   }
   payload.eventName = eventName;
+  const rooms = inlineReviewSelectedRooms();
+  if (!rooms.length && !window.__reviewingBooking.is_internal) {
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+    resultBox.textContent = 'Select at least one room.'; return;
+  }
+  payload.rooms = rooms;
+  payload.startTime = document.getElementById('ir-start').value;
+  payload.endTime = document.getElementById('ir-end').value;
+  if (!document.getElementById('ir-date').disabled) payload.eventDate = document.getElementById('ir-date').value;
   if (discountEnabled) {
     const reason = document.getElementById('ir-discount-reason').value.trim();
     if (!reason) {

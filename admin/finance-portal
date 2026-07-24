@@ -761,32 +761,37 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
     </div>
     <div class="modal-footer" style="display:flex;gap:8px;flex-wrap:wrap;">
       <button type="button" class="btn-secondary" id="btn-cancel-create-invoice">Cancel</button>
-      <button type="button" class="btn-secondary" id="btn-just-create-invoice">Just create</button>
+      <button type="button" class="btn-secondary" id="btn-just-create-invoice">Create</button>
       <button type="button" class="btn-primary" id="btn-confirm-create-invoice" style="margin-top:0;">Create &amp; send</button>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="create-receipt-overlay" style="display:none;">
-  <div class="modal-panel" style="max-width:480px;">
+  <div class="modal-panel" style="max-width:520px;">
     <div class="modal-header" style="background:linear-gradient(135deg,var(--surface-soft),#fff);border-radius:var(--radius) var(--radius) 0 0;">
       <h2>🧾 Create receipt</h2>
       <button class="modal-close" id="btn-close-create-receipt">&times;</button>
     </div>
     <div class="modal-body">
-      <p class="card-sub" style="margin-bottom:14px;">For a payment that already happened outside the normal invoice flow — cash at the door, a check received directly, etc. Marks it paid right away.</p>
+      <p class="card-sub" style="margin-bottom:14px;">For an invoice created via Create Invoice — link a matching transaction and mark it paid to generate the receipt.</p>
       <div class="field">
-        <label>Renter</label>
-        <select id="create-rcpt-renter"><option value="">Loading renters…</option></select>
+        <label>Invoice</label>
+        <select id="create-rcpt-invoice"><option value="">Loading invoices…</option></select>
       </div>
       <div class="field"><label>Description</label><textarea id="create-rcpt-description" rows="3" placeholder="What this payment was for"></textarea></div>
-      <div class="field"><label>Amount ($)</label><input type="number" step="0.01" min="0.01" id="create-rcpt-amount"></div>
+      <div class="field"><label>Amount</label><input type="text" id="create-rcpt-amount" readonly style="background:var(--surface-soft);color:var(--muted);"></div>
+      <div id="create-rcpt-txn-section" style="display:none;">
+        <div style="font-size:0.8rem;font-weight:700;color:var(--muted);margin:14px 0 8px;">Matching transaction</div>
+        <div id="create-rcpt-txn-list"></div>
+        <div id="create-rcpt-paid-status" style="margin-top:10px;font-size:0.86rem;"></div>
+      </div>
       <div class="result-box" id="create-receipt-result" style="display:none;margin-top:10px;"></div>
     </div>
     <div class="modal-footer" style="display:flex;gap:8px;flex-wrap:wrap;">
       <button type="button" class="btn-secondary" id="btn-cancel-create-receipt">Cancel</button>
-      <button type="button" class="btn-secondary" id="btn-just-create-receipt">Just create</button>
-      <button type="button" class="btn-primary" id="btn-confirm-create-receipt" style="margin-top:0;">Create &amp; send</button>
+      <button type="button" class="btn-secondary" id="btn-just-create-receipt" disabled>Create</button>
+      <button type="button" class="btn-primary" id="btn-confirm-create-receipt" style="margin-top:0;" disabled>Create &amp; send</button>
     </div>
   </div>
 </div>
@@ -2030,49 +2035,116 @@ async function submitCreateInvoice(alsoSend, btn) {
 document.getElementById('btn-confirm-create-invoice').addEventListener('click', function () { submitCreateInvoice(true, this); });
 document.getElementById('btn-just-create-invoice').addEventListener('click', function () { submitCreateInvoice(false, this); });
 
-// ── Create Receipt — same pattern, no due date, marks paid immediately ──
+// ── Create Receipt — scoped to an existing invoice created via Create
+// Invoice. Select the invoice, select a matching transaction, mark it
+// paid, then generate (and optionally send) the receipt. Nothing new
+// gets created here except the receipt itself — the invoice/booking
+// record already exists.
+let createRcptContext = null;
 document.getElementById('btn-create-receipt').addEventListener('click', async function () {
+  createRcptContext = null;
   document.getElementById('create-rcpt-description').value = '';
   document.getElementById('create-rcpt-amount').value = '';
+  document.getElementById('create-rcpt-txn-section').style.display = 'none';
   document.getElementById('create-receipt-result').style.display = 'none';
+  document.getElementById('btn-just-create-receipt').disabled = true;
+  document.getElementById('btn-confirm-create-receipt').disabled = true;
   document.getElementById('create-receipt-overlay').style.display = 'flex';
-  await loadRentersIntoSelect(document.getElementById('create-rcpt-renter'));
+  const sel = document.getElementById('create-rcpt-invoice');
+  sel.innerHTML = '<option value="">Loading invoices…</option>';
+  try {
+    const res = await authedFetch(API_BASE + '/finance/unpaid-non-facility-invoices');
+    const invoices = await res.json();
+    if (!invoices.length) { sel.innerHTML = '<option value="">No unpaid invoices found — create one first</option>'; return; }
+    sel.innerHTML = '<option value="">Select an invoice…</option>' +
+      invoices.map(function (inv) { return '<option value="' + inv.bookingId + '" data-amount="' + inv.amount + '" data-description="' + escHtml(inv.description || '') + '">' + escHtml(inv.renterName) + ' — ' + money(inv.amount) + (inv.description ? ' — ' + escHtml(inv.description) : '') + '</option>'; }).join('');
+  } catch (err) {
+    sel.innerHTML = '<option value="">Could not load invoices</option>';
+  }
 });
 document.getElementById('btn-close-create-receipt').addEventListener('click', function () { document.getElementById('create-receipt-overlay').style.display = 'none'; });
 document.getElementById('btn-cancel-create-receipt').addEventListener('click', function () { document.getElementById('create-receipt-overlay').style.display = 'none'; });
 document.getElementById('create-receipt-overlay').addEventListener('click', function (e) { if (e.target === this) this.style.display = 'none'; });
 
+document.getElementById('create-rcpt-invoice').addEventListener('change', async function () {
+  const opt = this.options[this.selectedIndex];
+  const bookingId = this.value;
+  const txnSection = document.getElementById('create-rcpt-txn-section');
+  if (!bookingId) { txnSection.style.display = 'none'; document.getElementById('btn-just-create-receipt').disabled = true; document.getElementById('btn-confirm-create-receipt').disabled = true; return; }
+  const amount = Number(opt.dataset.amount);
+  createRcptContext = { bookingId: bookingId, amount: amount, linked: false, paid: false };
+  document.getElementById('create-rcpt-description').value = opt.dataset.description || '';
+  document.getElementById('create-rcpt-amount').value = money(amount);
+  txnSection.style.display = 'block';
+  await loadCreateRcptTransactions();
+});
+
+async function loadCreateRcptTransactions() {
+  const list = document.getElementById('create-rcpt-txn-list');
+  const statusEl = document.getElementById('create-rcpt-paid-status');
+  list.innerHTML = '<div class="empty-state">Loading…</div>';
+  statusEl.textContent = '';
+  try {
+    const res = await authedFetch(API_BASE + '/finance/transaction-candidates?amount=' + createRcptContext.amount);
+    const candidates = await res.json();
+    if (!candidates.length) { list.innerHTML = '<div class="empty-state">No unlinked transactions found for ' + money(createRcptContext.amount) + '.</div>'; return; }
+    list.innerHTML = candidates.map(function (c) {
+      return '<div class="exp-line-item" data-pick-rcpt-txn-source="' + c.source + '" data-pick-rcpt-txn-key="' + c.sourceKey + '">' +
+        '<div class="exp-top-row"><span>' + escHtml(c.description) + '</span><span>' + money(c.amount) + '</span></div>' +
+        '<div class="exp-date">' + formatDate(c.date) + ' \u00b7 ' + c.source + '</div>' +
+      '</div>';
+    }).join('');
+  } catch (err) {
+    list.innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
+  }
+}
+document.getElementById('create-rcpt-txn-list').addEventListener('click', async function (e) {
+  const row = e.target.closest('[data-pick-rcpt-txn-source]');
+  if (!row || !createRcptContext) return;
+  const statusEl = document.getElementById('create-rcpt-paid-status');
+  try {
+    const linkRes = await authedFetch(API_BASE + '/finance/attach-invoice', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source: row.dataset.pickRcptTxnSource, sourceKey: row.dataset.pickRcptTxnKey, bookingId: createRcptContext.bookingId, amount: createRcptContext.amount })
+    });
+    const linkData = await linkRes.json();
+    if (!linkRes.ok) { alert('Could not link: ' + ((linkData.errors || [linkData.error]).join(' ') || 'unknown error')); return; }
+    const paidRes = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(createRcptContext.bookingId) + '/mark-paid', { method: 'POST' });
+    const paidData = await paidRes.json();
+    if (!paidRes.ok) { alert('Linked, but could not mark paid: ' + ((paidData.errors || [paidData.error]).join(' ') || 'unknown error')); return; }
+    createRcptContext.paid = true;
+    statusEl.style.color = 'var(--green)';
+    statusEl.textContent = '\u2713 Linked and marked paid.';
+    document.getElementById('btn-just-create-receipt').disabled = false;
+    document.getElementById('btn-confirm-create-receipt').disabled = false;
+  } catch (err) {
+    alert('Could not reach the server: ' + err.message);
+  }
+});
+
 async function submitCreateReceipt(alsoSend, btn) {
-  const renterId = document.getElementById('create-rcpt-renter').value;
-  const description = document.getElementById('create-rcpt-description').value.trim();
-  const amount = parseFloat(document.getElementById('create-rcpt-amount').value);
   const resultBox = document.getElementById('create-receipt-result');
-  if (!renterId || !description || !amount || amount <= 0) {
+  if (!createRcptContext || !createRcptContext.paid) {
     resultBox.style.display = 'block'; resultBox.className = 'result-box error';
-    resultBox.textContent = 'Choose a renter and fill in description and amount.'; return;
+    resultBox.textContent = 'Link a matching transaction and mark it paid first.'; return;
+  }
+  if (!alsoSend) {
+    // Already paid at this point — "Create" with nothing further to do
+    // beyond what linking already did, since the receipt only actually
+    // gets generated/emailed on send.
+    document.getElementById('create-receipt-overlay').style.display = 'none';
+    await loadInvoices();
+    return;
   }
   const originalText = btn.textContent;
-  btn.disabled = true; btn.textContent = 'Creating…';
+  btn.disabled = true; btn.textContent = 'Sending…';
   try {
-    const createRes = await authedFetch(API_BASE + '/finance/create-receipt', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ renterId, description, amount })
-    });
-    const createData = await createRes.json();
-    if (!createRes.ok) {
+    const sendRes = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(createRcptContext.bookingId) + '/send-receipt', { method: 'POST' });
+    const sendData = await sendRes.json();
+    if (!sendRes.ok) {
       resultBox.style.display = 'block'; resultBox.className = 'result-box error';
-      resultBox.textContent = (createData.errors || [createData.error]).join(' ') || 'unknown error';
+      resultBox.textContent = 'Could not send receipt: ' + ((sendData.errors || [sendData.error]).join(' ') || 'unknown error');
       return;
-    }
-    if (alsoSend) {
-      btn.textContent = 'Sending…';
-      const sendRes = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(createData.bookingId) + '/send-receipt', { method: 'POST' });
-      const sendData = await sendRes.json();
-      if (!sendRes.ok) {
-        resultBox.style.display = 'block'; resultBox.className = 'result-box error';
-        resultBox.textContent = 'Receipt created but could not be sent: ' + ((sendData.errors || [sendData.error]).join(' ') || 'unknown error') + '. Reference: ' + createData.bookingId;
-        return;
-      }
     }
     document.getElementById('create-receipt-overlay').style.display = 'none';
     await loadInvoices();

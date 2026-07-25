@@ -195,6 +195,12 @@ tr.series-row:hover td { background: var(--surface-soft); }
 .invoice-action-btn:hover { background: var(--surface-soft); }
 .invoice-action-btn.primary { background: linear-gradient(135deg, var(--saffron-dark), var(--maroon)); color: #fff; border: none; }
 .btn-invoice { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; vertical-align: middle; }
+.btn-attach-link { border: 1.5px dashed var(--border); background: #fff; border-radius: 8px; padding: 3px 8px; cursor: pointer; font-size: 0.72rem; color: var(--muted); }
+.btn-attach-link:hover { border-color: var(--saffron); color: var(--saffron-dark); }
+.btn-attach-link.has-attachments { border: 1.5px solid var(--saffron-dark); background: var(--surface-soft); padding: 3px 6px; }
+.attachment-chip { font-size: 0.9rem; margin-right: 2px; }
+.attachment-detail-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 6px; font-size: 0.86rem; }
+.attachment-detail-row .btn-remove-attachment { font-family: inherit; font-size: 0.72rem; color: var(--red); background: none; border: none; cursor: pointer; }
 .btn-invoice.attached { background: #ffe4a3; border: 2px solid #c8890a; box-shadow: 0 0 0 1px rgba(200,137,10,0.25); }
 .btn-invoice.sent { background: #bdedcf; border: 2px solid #1f6b3f; box-shadow: 0 0 0 1px rgba(31,107,63,0.25); }
 .btn-invoice:hover:not(.sent) { filter: brightness(0.96); }
@@ -407,7 +413,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
           <div class="tx-bulk-bar" id="rental-bulk-bar" style="display:none;"><span id="rental-selected-count"></span> selected <button type="button" class="btn-primary" style="margin-top:0;padding:6px 14px;font-size:0.8rem;" data-bulk-review-prefix="rental">Mark selected as reviewed</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-split-prefix="rental">Split</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-merge-prefix="rental">Merge</button></div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-rental-select-all" title="Select all"></th><th>Date</th><th>Customer</th><th>Amount</th><th>Category</th></tr></thead>
+              <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-rental-select-all" title="Select all"></th><th>Date</th><th>Customer</th><th>Amount</th><th>Category</th><th>Linked</th></tr></thead>
               <tbody id="tx-rental-tbody"></tbody>
             </table>
             <div class="empty-state" id="tx-rental-empty" style="display:none;">No Facility Rental activity in this range.</div>
@@ -471,7 +477,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
           <div class="tx-bulk-bar" id="zelle-bulk-bar" style="display:none;"><span id="zelle-selected-count"></span> selected <button type="button" class="btn-primary" style="margin-top:0;padding:6px 14px;font-size:0.8rem;" data-bulk-review-prefix="zelle">Mark selected as reviewed</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-split-prefix="zelle">Split</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-merge-prefix="zelle">Merge</button></div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-zelle-select-all" title="Select all"></th><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead>
+          <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-zelle-select-all" title="Select all"></th><th>Date</th><th>Description</th><th>Amount</th><th>Category</th><th>Linked</th></tr></thead>
           <tbody id="tx-zelle-tbody"></tbody>
         </table>
         <div class="empty-state" id="tx-zelle-empty" style="display:none;">No Zelle transactions in this range.</div>
@@ -482,7 +488,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
           <div class="tx-bulk-bar" id="other-bulk-bar" style="display:none;"><span id="other-selected-count"></span> selected <button type="button" class="btn-primary" style="margin-top:0;padding:6px 14px;font-size:0.8rem;" data-bulk-review-prefix="other">Mark selected as reviewed</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-split-prefix="other">Split</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-merge-prefix="other">Merge</button></div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-other-select-all" title="Select all"></th><th>Date</th><th>Description</th><th>Amount</th><th>Account Type</th><th>Category</th></tr></thead>
+          <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-other-select-all" title="Select all"></th><th>Date</th><th>Description</th><th>Amount</th><th>Account Type</th><th>Category</th><th>Linked</th></tr></thead>
           <tbody id="tx-other-tbody"></tbody>
         </table>
         <div class="empty-state" id="tx-other-empty" style="display:none;">No other transactions in this range.</div>
@@ -804,7 +810,23 @@ tr.series-row:hover td { background: var(--surface-soft); }
   </div>
 </div>
 
+<div class="modal-overlay" id="manage-attachments-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:440px;">
+    <div class="modal-header">
+      <h2>Linked records</h2>
+      <button class="modal-close" id="btn-close-manage-attachments">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="card-sub" style="margin-bottom:10px;">Optional — for your own accounting records only. Never required to send an invoice, mark something paid, or approve a reimbursement.</p>
+      <div id="attachment-existing-list"></div>
+      <div id="attachment-add-section" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);"></div>
+      <div class="result-box" id="attachment-result" style="display:none;margin-top:10px;"></div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="create-invoice-overlay" style="display:none;">
+
   <div class="modal-panel" style="max-width:480px;">
     <div class="modal-header" style="background:linear-gradient(135deg,var(--surface-soft),#fff);border-radius:var(--radius) var(--radius) 0 0;">
       <h2>🧾 Create invoice</h2>
@@ -1460,6 +1482,23 @@ function invoiceIconHtml(t) {
   else if (m) { cls = 'attached'; icon = '\ud83e\uddfe'; title = 'Linked to ' + escHtml(m.renterName) + '\'s booking — click to view or manage links'; }
   return '<button type="button" class="btn-invoice ' + cls + '" title="' + title + '" data-invoice-source="' + t.source + '" data-invoice-key="' + t.sourceKey + '" data-invoice-amount="' + (t.amount !== undefined ? t.amount : t.total) + '" data-invoice-date="' + (t.date || '') + '">' + icon + '</button>';
 }
+// Manual, optional attachment indicator — separate from the automatic
+// invoice-number match above. Credit transactions can attach an invoice;
+// debit transactions can attach a Drive receipt or a reimbursement.
+// Distinct icon per type so the two systems never look interchangeable.
+const ATTACHMENT_TYPE_ICON = { invoice: '\ud83e\uddfe', receipt_drive: '\ud83d\udcce', reimbursement: '\ud83d\udcb8' };
+function attachmentIndicatorHtml(t) {
+  const list = t.attachments || [];
+  const isCredit = t.amount >= 0;
+  const rowId = t.source + '|' + t.sourceKey;
+  if (!list.length) {
+    return '<button type="button" class="btn-attach-link" title="' + (isCredit ? 'Optionally attach a matching invoice' : 'Optionally attach a receipt or reimbursement') + '" data-manage-attachments="' + rowId + '" data-attach-amount="' + t.amount + '">+ Attach</button>';
+  }
+  const chips = list.map(function (a) {
+    return '<span class="attachment-chip" title="' + escHtml(a.label || a.type) + '">' + (ATTACHMENT_TYPE_ICON[a.type] || '\ud83d\udd17') + '</span>';
+  }).join('');
+  return '<button type="button" class="btn-attach-link has-attachments" data-manage-attachments="' + rowId + '" data-attach-amount="' + t.amount + '">' + chips + '</button>';
+}
 function renderGroup(prefix, items, rowFn, emptyMessage) {
   const tbody = document.getElementById(prefix + '-tbody');
   const emptyState = document.getElementById(prefix + '-empty');
@@ -1482,6 +1521,7 @@ function renderTxRow(t, includeInvoiceIcon, includeAccountType) {
     (includeAccountType ? '<td>' + (t.accountType === 'credit_card' ? 'Credit Card' : 'Bank') + '</td>' : '') +
     '<td>' + txCategorySelectHtml(t, rowId) + ' ' + txNoteBtnHtml(t) + ' ' + txReviewedCircleHtml(t, rowId) + '</td>' +
     (includeInvoiceIcon === false ? '' : '<td>' + invoiceIconHtml(t) + '</td>') +
+    '<td>' + attachmentIndicatorHtml(t) + '</td>' +
   '</tr>';
 }
 function renderRentalLineRow(t) {
@@ -1495,6 +1535,7 @@ function renderRentalLineRow(t) {
     '<td>' + renterCell + txUndoBtnHtml(t) + '</td>' +
     '<td class="amount">' + money(t.amount) + '</td>' +
     '<td>' + txCategorySelectHtml(t, rowId) + ' ' + txNoteBtnHtml(t) + ' ' + txReviewedCircleHtml(t, rowId) + '</td>' +
+    '<td>' + attachmentIndicatorHtml(t) + '</td>' +
   '</tr>';
 }
 function renderZeffyCampaignRow(t) {
@@ -2595,6 +2636,156 @@ document.querySelectorAll('#mark-paid-overlay [data-payment-method]').forEach(fu
     }
   });
 });
+
+// ── Manage attachments: optional invoice/receipt/reimbursement links ──
+// Credit (incoming) transactions can attach a matching invoice. Debit
+// (outgoing) transactions can attach either a Google Drive receipt link
+// or a matching reimbursement. Entirely optional, never gates any other
+// action — this modal is the one place to see and manage it, no
+// secondary windows.
+let attachmentContext = null; // { source, sourceKey, amount }
+async function openManageAttachmentsModal(source, sourceKey, amount) {
+  attachmentContext = { source: source, sourceKey: sourceKey, amount: amount };
+  document.getElementById('attachment-result').style.display = 'none';
+  document.getElementById('manage-attachments-overlay').style.display = 'flex';
+  await refreshAttachmentModal();
+}
+async function refreshAttachmentModal() {
+  if (!attachmentContext) return;
+  const existingList = document.getElementById('attachment-existing-list');
+  // Reuse the already-loaded TRANSACTIONS list (populated by loadTransactions)
+  // rather than re-fetching — it's refreshed after every attach/detach below.
+  const match = (TRANSACTIONS || []).find(function (t) { return t.source === attachmentContext.source && t.sourceKey === attachmentContext.sourceKey; });
+  renderExistingAttachments(match ? (match.attachments || []) : []);
+  renderAttachmentAddSection();
+}
+function renderExistingAttachments(attachments) {
+  const el = document.getElementById('attachment-existing-list');
+  if (!attachments.length) { el.innerHTML = '<p class="card-sub">No linked records yet.</p>'; return; }
+  const typeLabel = { invoice: 'Invoice', receipt_drive: 'Receipt (Drive)', reimbursement: 'Reimbursement' };
+  el.innerHTML = attachments.map(function (a) {
+    const detail = a.type === 'receipt_drive' && a.driveLink
+      ? '<a href="' + escHtml(a.driveLink) + '" target="_blank" rel="noopener">' + escHtml(a.label || 'Open in Drive') + '</a>'
+      : escHtml(a.label || typeLabel[a.type]);
+    return '<div class="attachment-detail-row">' +
+      '<span>' + (ATTACHMENT_TYPE_ICON[a.type] || '') + ' <strong>' + typeLabel[a.type] + '</strong> — ' + detail + (a.amount !== null ? ' (' + money(a.amount) + ')' : '') + '</span>' +
+      '<button type="button" class="btn-remove-attachment" data-remove-attachment-id="' + a.attachmentId + '">Remove</button>' +
+    '</div>';
+  }).join('');
+}
+function renderAttachmentAddSection() {
+  const el = document.getElementById('attachment-add-section');
+  const isCredit = attachmentContext.amount >= 0;
+  if (isCredit) {
+    el.innerHTML = '<label style="font-size:0.84rem;font-weight:700;display:block;margin-bottom:8px;">Attach a matching invoice</label>' +
+      '<div id="attach-invoice-candidates"><div class="empty-state">Loading matches…</div></div>';
+    loadInvoiceCandidatesForAttach();
+  } else {
+    el.innerHTML = '<label style="font-size:0.84rem;font-weight:700;display:block;margin-bottom:8px;">Attach a receipt or reimbursement</label>' +
+      '<div class="field-row" style="display:flex;gap:8px;margin-bottom:10px;">' +
+      '<input type="text" id="attach-drive-link" placeholder="Paste a Google Drive receipt link" style="flex:1;font-family:inherit;font-size:0.86rem;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;">' +
+      '<button type="button" class="btn-secondary" id="btn-attach-drive-link">Attach</button>' +
+      '</div>' +
+      '<div id="attach-reimbursement-candidates"><div class="empty-state">Loading matching reimbursements…</div></div>';
+    document.getElementById('btn-attach-drive-link').addEventListener('click', attachDriveLink);
+    loadReimbursementCandidatesForAttach();
+  }
+}
+async function loadInvoiceCandidatesForAttach() {
+  const el = document.getElementById('attach-invoice-candidates');
+  try {
+    const res = await authedFetch(API_BASE + '/finance/invoice-candidates?amount=' + Math.abs(attachmentContext.amount));
+    const candidates = await res.json();
+    if (!candidates.length) { el.innerHTML = '<div class="empty-state">No invoices found for ' + money(Math.abs(attachmentContext.amount)) + '.</div>'; return; }
+    el.innerHTML = candidates.map(function (c) {
+      return '<div class="exp-line-item" style="cursor:pointer;" data-pick-invoice-booking="' + c.bookingId + '" data-pick-invoice-label="' + escHtml(c.renterName) + '">' +
+        '<div class="exp-top-row"><span>' + escHtml(c.renterName) + (c.eventName ? ' \u2014 ' + escHtml(c.eventName) : '') + '</span><span>' + money(c.amount) + '</span></div>' +
+        '<div class="exp-date">' + formatDate(c.eventDate) + '</div>' +
+      '</div>';
+    }).join('');
+  } catch (err) {
+    el.innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
+  }
+}
+async function loadReimbursementCandidatesForAttach() {
+  const el = document.getElementById('attach-reimbursement-candidates');
+  try {
+    const res = await authedFetch(API_BASE + '/finance/reimbursement-candidates?amount=' + Math.abs(attachmentContext.amount));
+    const candidates = await res.json();
+    if (!candidates.length) { el.innerHTML = '<div class="empty-state">No paid reimbursements found for ' + money(Math.abs(attachmentContext.amount)) + '.</div>'; return; }
+    el.innerHTML = candidates.map(function (c) {
+      return '<div class="exp-line-item" style="cursor:pointer;" data-pick-reimbursement-id="' + c.lineItemId + '" data-pick-reimbursement-label="' + escHtml(c.description || c.submitterEmail) + '">' +
+        '<div class="exp-top-row"><span>' + escHtml(c.description || c.submitterEmail) + '</span><span>' + money(c.amount) + '</span></div>' +
+        '<div class="exp-date">' + formatDate(c.paidAt) + '</div>' +
+      '</div>';
+    }).join('');
+  } catch (err) {
+    el.innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
+  }
+}
+async function saveAttachment(payload) {
+  const resultEl = document.getElementById('attachment-result');
+  try {
+    const res = await authedFetch(API_BASE + '/finance/attach-transaction', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) { resultEl.className = 'result-box error'; resultEl.style.display = 'block'; resultEl.textContent = (data.errors || [data.error]).join(' ') || 'Could not attach.'; return; }
+    await refreshAttachmentModal();
+    await loadTransactions();
+  } catch (err) {
+    resultEl.className = 'result-box error'; resultEl.style.display = 'block'; resultEl.textContent = 'Could not reach the server: ' + err.message;
+  }
+}
+function attachDriveLink() {
+  const link = document.getElementById('attach-drive-link').value.trim();
+  if (!link) return;
+  saveAttachment({
+    source: attachmentContext.source, sourceKey: attachmentContext.sourceKey, attachmentType: 'receipt_drive',
+    driveLink: link, amount: attachmentContext.amount, label: 'Receipt'
+  });
+}
+document.getElementById('attachment-add-section').addEventListener('click', function (e) {
+  const invBtn = e.target.closest('[data-pick-invoice-booking]');
+  if (invBtn) {
+    saveAttachment({
+      source: attachmentContext.source, sourceKey: attachmentContext.sourceKey, attachmentType: 'invoice',
+      bookingId: invBtn.dataset.pickInvoiceBooking, amount: attachmentContext.amount, label: invBtn.dataset.pickInvoiceLabel
+    });
+    return;
+  }
+  const reimBtn = e.target.closest('[data-pick-reimbursement-id]');
+  if (reimBtn) {
+    saveAttachment({
+      source: attachmentContext.source, sourceKey: attachmentContext.sourceKey, attachmentType: 'reimbursement',
+      expenseLineItemId: reimBtn.dataset.pickReimbursementId, amount: attachmentContext.amount, label: reimBtn.dataset.pickReimbursementLabel
+    });
+  }
+});
+document.getElementById('attachment-existing-list').addEventListener('click', async function (e) {
+  const btn = e.target.closest('[data-remove-attachment-id]');
+  if (!btn) return;
+  if (!confirm('Remove this link? This only removes the accounting note — nothing else is affected.')) return;
+  try {
+    const res = await authedFetch(API_BASE + '/finance/detach-transaction', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ attachmentId: btn.dataset.removeAttachmentId })
+    });
+    if (!res.ok) { const data = await res.json(); alert((data.errors || [data.error]).join(' ') || 'Could not remove.'); return; }
+    await refreshAttachmentModal();
+    await loadTransactions();
+  } catch (err) {
+    alert('Could not reach the server: ' + err.message);
+  }
+});
+document.getElementById('btn-close-manage-attachments').addEventListener('click', function () { document.getElementById('manage-attachments-overlay').style.display = 'none'; });
+document.getElementById('manage-attachments-overlay').addEventListener('click', function (e) { if (e.target === this) this.style.display = 'none'; });
+document.addEventListener('click', function (e) {
+  const btn = e.target.closest('[data-manage-attachments]');
+  if (!btn) return;
+  const parts = btn.dataset.manageAttachments.split('|');
+  openManageAttachmentsModal(parts[0], parts.slice(1).join('|'), Number(btn.dataset.attachAmount));
+});
+
 async function promptSendReceipt(bookingId) {
   const sendNow = confirm('Send the receipt now? OK = send now, Cancel = send later.');
   if (!sendNow) { await loadInvoices(); return; }

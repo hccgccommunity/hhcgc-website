@@ -59,6 +59,10 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .sub-tab-panel.active { display: block; }
 
 .toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
+#global-loading-overlay { position: fixed; inset: 0; background: rgba(44,27,16,0.15); backdrop-filter: blur(1px); z-index: 999; display: none; align-items: center; justify-content: center; }
+#global-loading-overlay.visible { display: flex; }
+#global-loading-overlay .spinner { width: 44px; height: 44px; border: 4px solid rgba(255,255,255,0.5); border-top-color: var(--saffron-dark); border-radius: 50%; animation: gl-spin 0.7s linear infinite; }
+@keyframes gl-spin { to { transform: rotate(360deg); } }
 .pagination-bar { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 20px 0 50px; }
 .pagination-bar button { font-family: inherit; font-size: 0.84rem; padding: 7px 14px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; }
 .pagination-bar button:hover:not(:disabled) { background: var(--surface-soft); }
@@ -247,6 +251,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
 </head>
 <body>
 <div id="site-header"></div>
+<div id="global-loading-overlay"><div class="spinner"></div></div>
 
 <div id="gate">
   <div class="gate-card">
@@ -272,7 +277,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
       <li><button class="tab-btn" data-tab="transactions">Transactions</button></li>
       <li><button class="tab-btn" data-tab="statements">Statements</button></li>
       <li><button class="tab-btn" data-tab="reconciliation">Zeffy Reconciliation</button></li>
-      <li><button class="tab-btn active" data-tab="matching">Invoices</button></li>
+      <li><button class="tab-btn active" data-tab="matching">Invoices &amp; Receipts</button></li>
       <li><button class="tab-btn" data-tab="expenses">Expense Approvals</button></li>
     </ul>
   </div>
@@ -477,7 +482,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
           <div class="tx-bulk-bar" id="other-bulk-bar" style="display:none;"><span id="other-selected-count"></span> selected <button type="button" class="btn-primary" style="margin-top:0;padding:6px 14px;font-size:0.8rem;" data-bulk-review-prefix="other">Mark selected as reviewed</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-split-prefix="other">Split</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-merge-prefix="other">Merge</button></div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-other-select-all" title="Select all"></th><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead>
+          <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-other-select-all" title="Select all"></th><th>Date</th><th>Description</th><th>Amount</th><th>Account Type</th><th>Category</th></tr></thead>
           <tbody id="tx-other-tbody"></tbody>
         </table>
         <div class="empty-state" id="tx-other-empty" style="display:none;">No other transactions in this range.</div>
@@ -657,7 +662,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
           <th class="sortable-th" data-sort-key="invoiceSent">Invoice Sent <span class="sort-arrow" data-sort-arrow="invoiceSent"></span></th>
           <th class="sortable-th" data-sort-key="amount">Amount <span class="sort-arrow" data-sort-arrow="amount"></span></th>
           <th class="sortable-th" data-sort-key="status">Status <span class="sort-arrow" data-sort-arrow="status"></span></th>
-          <th>Linked Transaction</th><th>Notes</th><th>Invoice</th><th>Receipt</th><th>Payment</th>
+          <th>Notes</th><th>Invoice</th><th>Receipt</th><th>Payment</th>
         </tr></thead>
         <tbody id="inv-tbody"></tbody>
       </table>
@@ -781,15 +786,20 @@ tr.series-row:hover td { background: var(--surface-soft); }
   </div>
 </div>
 
-<div class="modal-overlay" id="link-txn-overlay" style="display:none;">
-  <div class="modal-panel" style="max-width:480px;">
+<div class="modal-overlay" id="mark-paid-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:360px;">
     <div class="modal-header">
-      <h2>Link a transaction</h2>
-      <button class="modal-close" id="btn-close-link-txn">&times;</button>
+      <h2>Mark as paid</h2>
+      <button class="modal-close" id="btn-close-mark-paid">&times;</button>
     </div>
     <div class="modal-body">
-      <p class="card-sub" style="margin-bottom:10px;">Transactions matching <strong id="link-txn-amount-label"></strong> exactly — click one to link it.</p>
-      <div id="link-txn-list"></div>
+      <p class="card-sub" style="margin-bottom:12px;">How was this paid?</p>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button type="button" class="btn-secondary" data-payment-method="zeffy" style="text-align:left;padding:10px 14px;">Zeffy</button>
+        <button type="button" class="btn-secondary" data-payment-method="zelle" style="text-align:left;padding:10px 14px;">Zelle</button>
+        <button type="button" class="btn-secondary" data-payment-method="check" style="text-align:left;padding:10px 14px;">Check</button>
+      </div>
+      <div class="result-box" id="mark-paid-result" style="display:none;margin-top:12px;"></div>
     </div>
   </div>
 </div>
@@ -944,13 +954,44 @@ tr.series-row:hover td { background: var(--surface-soft); }
 <script>
 const API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';
 
+// Global loading indicator — every authedFetch call (which is to say,
+// every database read or write this app makes) shows a spinner + dimmed
+// background automatically, since users had no way to tell whether an
+// action was in progress or had silently failed. Delay-gated so a fast
+// request (<150ms) doesn't cause a flash; anything slower than that
+// shows the overlay until every in-flight request completes (a counter,
+// not a boolean, since multiple requests can overlap).
+let __glPendingCount = 0;
+let __glShowTimer = null;
+function __glRequestStart() {
+  __glPendingCount++;
+  if (__glPendingCount === 1) {
+    __glShowTimer = setTimeout(function () {
+      var el = document.getElementById('global-loading-overlay');
+      if (el) el.classList.add('visible');
+    }, 150);
+  }
+}
+function __glRequestEnd() {
+  __glPendingCount = Math.max(0, __glPendingCount - 1);
+  if (__glPendingCount === 0) {
+    clearTimeout(__glShowTimer);
+    var el = document.getElementById('global-loading-overlay');
+    if (el) el.classList.remove('visible');
+  }
+}
 async function authedFetch(url, options) {
   options = options || {};
   var user = window.__hccgcFirebaseUser;
   if (!user) throw new Error('Not signed in.');
   var token = await user.getIdToken();
   options.headers = Object.assign({}, options.headers, { 'Authorization': 'Bearer ' + token });
-  return fetch(url, options);
+  __glRequestStart();
+  try {
+    return await fetch(url, options);
+  } finally {
+    __glRequestEnd();
+  }
 }
 function escHtml(str) { return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function formatDate(d) { if (!d) return '—'; return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
@@ -1383,7 +1424,7 @@ async function loadTransactions() {
     renderGroup('tx-zeffy-refunds', data.zeffyRefunds, function (t) { return renderTxRow(t, false); }, 'No Zeffy refunds in this range.');
     document.getElementById('zeffy-refunds-count').textContent = data.zeffyRefunds.length ? '(' + data.zeffyRefunds.length + ')' : '(none)';
     renderGroup('tx-zelle', data.zelle, function (t) { return renderTxRow(t, false); }, 'No Zelle transactions in this range.');
-    renderGroup('tx-other', data.other, function (t) { return renderTxRow(t, false); }, 'No other transactions in this range.');
+    renderGroup('tx-other', data.other, function (t) { return renderTxRow(t, false, true); }, 'No other transactions in this range.');
     populateCategorySelects();
   } catch (err) {
     ['tx-rental', 'tx-fundraising', 'tx-donations', 'tx-zeffy-refunds', 'tx-zelle', 'tx-other'].forEach(function (id) {
@@ -1431,13 +1472,14 @@ function txUndoBtnHtml(t) {
   if (t.mergeId) return ' <button type="button" class="btn-secondary" style="padding:1px 6px;font-size:0.68rem;" data-unmerge-id="' + t.mergeId + '" data-unmerge-source="' + t.source + '" title="Restore the original individual transactions">Unmerge</button>';
   return '';
 }
-function renderTxRow(t, includeInvoiceIcon) {
+function renderTxRow(t, includeInvoiceIcon, includeAccountType) {
   const rowId = t.source + '|' + t.sourceKey;
   return '<tr>' +
     '<td>' + txCheckboxHtml(rowId) + '</td>' +
     '<td>' + formatDate(t.date) + '</td>' +
     '<td>' + escHtml(t.description) + txUndoBtnHtml(t) + '</td>' +
     '<td class="amount">' + money(t.amount) + '</td>' +
+    (includeAccountType ? '<td>' + (t.accountType === 'credit_card' ? 'Credit Card' : 'Bank') + '</td>' : '') +
     '<td>' + txCategorySelectHtml(t, rowId) + ' ' + txNoteBtnHtml(t) + ' ' + txReviewedCircleHtml(t, rowId) + '</td>' +
     (includeInvoiceIcon === false ? '' : '<td>' + invoiceIconHtml(t) + '</td>') +
   '</tr>';
@@ -2311,12 +2353,9 @@ function renderInvoiceRow(inv, isSubRow, showFullActions) {
       '<td style="color:var(--muted);font-size:0.86rem;">' + formatDate(inv.eventDate) + '</td>' +
       '<td></td>' +
       '<td class="amount" style="color:var(--muted);">' + money(inv.amount) + '</td>' +
-      '<td colspan="6"></td>' +
+      '<td colspan="5"></td>' +
     '</tr>';
   }
-  const linkedTo = inv.matchSource
-    ? escHtml(inv.matchSource) + ' transaction \u2014 linked'
-    : '<span style="color:var(--muted);">Not linked</span>';
   const noteBtn = '<button type="button" class="btn-note' + (inv.notes ? ' has-content' : '') + '" title="' + (inv.notes ? 'Note: ' + escHtml(inv.notes) : 'Add a note') + '" data-invoice-note-booking="' + inv.bookingId + '">\ud83d\udcdd</button>';
   // Yellow until actually sent, green once it is — this is the default
   // state for every generated invoice now, not just an edge case.
@@ -2324,22 +2363,19 @@ function renderInvoiceRow(inv, isSubRow, showFullActions) {
     ? '<button type="button" class="btn-invoice sent" title="Invoice sent ' + formatTimestampDate(inv.invoiceSentAt) + ' — click to view or download" data-invoice-popup-booking="' + inv.bookingId + '">\ud83e\uddfe</button>'
     : '<button type="button" class="btn-invoice attached" title="Not sent yet — click to view, send, or download" data-invoice-popup-booking="' + inv.bookingId + '">\ud83e\uddfe</button>';
   const receiptIcon = '<button type="button" class="btn-receipt' + (inv.receiptSentAt ? ' sent' : '') + '"' + (inv.paymentStatus === 'paid' ? '' : ' disabled title="Confirm as paid first"') + (inv.paymentStatus === 'paid' ? ' data-receipt-popup-booking="' + inv.bookingId + '"' : '') + '>' + (inv.receiptSentAt ? '\ud83e\uddfe' : (inv.paymentStatus === 'paid' ? '\u2795' : '\u2014')) + '</button>';
-  // Payment column — link a matching transaction, which immediately
-  // prompts Mark Paid? Yes/No (see openLinkTransactionModal). No payment
-  // method selection anymore; it's derived from whichever transaction
-  // gets linked.
+  // Payment column — direct "Mark paid" action, no transaction linking
+  // required at all. Opens a small prompt for payment method only
+  // (Zeffy / Zelle / Check, in that order — the only three the org
+  // actually uses), then marks paid immediately.
   const paymentCell = inv.paymentStatus === 'paid'
-    ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid</span> <button type="button" class="btn-secondary" style="padding:2px 8px;font-size:0.72rem;margin-left:4px;" data-void-invoice-booking="' + inv.bookingId + '">Void</button>'
-    : (inv.matchSource
-        ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + inv.bookingId + '">Mark paid?</button> <button type="button" class="btn-secondary" style="padding:4px 8px;font-size:0.72rem;" data-unlink-booking="' + inv.bookingId + '">Unlink</button>'
-        : '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-link-txn-booking="' + inv.bookingId + '" data-link-txn-amount="' + inv.amount + '">Link transaction</button>');
+    ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid' + (inv.paymentMethod ? ' \u00b7 ' + escHtml(inv.paymentMethod) : '') + '</span> <button type="button" class="btn-secondary" style="padding:2px 8px;font-size:0.72rem;margin-left:4px;" data-void-invoice-booking="' + inv.bookingId + '">Void</button>'
+    : '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + inv.bookingId + '">Mark paid</button>';
   return '<tr' + (isSubRow ? ' class="sub-row"' : '') + '>' +
     '<td>' + (isSubRow ? '' : escHtml(inv.renterName)) + '</td>' +
     '<td>' + escHtml(inv.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(inv.eventDate) + '</div></td>' +
     '<td>' + (inv.invoiceSentAt ? formatTimestampDate(inv.invoiceSentAt) : '<span style="color:var(--muted);">Not sent</span>') + '</td>' +
     '<td class="amount">' + money(inv.amount) + '</td>' +
     '<td><span class="source-tag" style="' + (inv.paymentStatus === 'paid' ? 'color:var(--green);' : '') + '">' + escHtml(inv.paymentStatus) + '</span></td>' +
-    '<td style="font-size:0.82rem;">' + linkedTo + '</td>' +
     '<td>' + noteBtn + '</td>' +
     '<td>' + invoiceIcon + '</td>' +
     '<td>' + receiptIcon + '</td>' +
@@ -2415,7 +2451,7 @@ function renderInvoicesTable() {
       '<td>' + (item.invoiceSentAt ? formatTimestampDate(item.invoiceSentAt) + (isPerOccurrence ? ' (latest)' : '') : '<span style="color:var(--muted);">Not sent</span>') + '</td>' +
       '<td class="amount">' + money(item.amount) + ' <span class="method-tag">' + (isPerOccurrence ? 'sum of ' + item.occurrences.length : 'total') + '</span></td>' +
       '<td><span class="source-tag">' + (item.paymentStatus === 'mixed' ? item.paidCount + ' of ' + item.occurrences.length + ' paid' : escHtml(item.paymentStatus)) + '</span></td>' +
-      '<td colspan="5" style="text-align:right;color:var(--muted);font-size:0.8rem;">' + (isExpanded ? '\u25b2 Hide occurrences' : '\u25bc Show ' + item.occurrences.length + (isPerOccurrence ? ' individual invoices' : ' occurrences')) + '</td>' +
+      '<td colspan="4" style="text-align:right;color:var(--muted);font-size:0.8rem;">' + (isExpanded ? '\u25b2 Hide occurrences' : '\u25bc Show ' + item.occurrences.length + (isPerOccurrence ? ' individual invoices' : ' occurrences')) + '</td>' +
     '</tr>';
     const subRows = isExpanded ? item.occurrences.map(function (o) { return renderInvoiceRow(o, true, isPerOccurrence); }).join('') : '';
     return seriesRow + subRows;
@@ -2517,91 +2553,48 @@ document.getElementById('inv-tbody').addEventListener('click', async function (e
     openFinanceReceiptPopup(receiptPopupBtn.dataset.receiptPopupBooking);
     return;
   }
-  const linkBtn = e.target.closest('[data-link-txn-booking]');
-  if (linkBtn) {
-    openLinkTransactionModal(linkBtn.dataset.linkTxnBooking, Number(linkBtn.dataset.linkTxnAmount));
-    return;
-  }
   const markPaidBtn = e.target.closest('[data-mark-paid-booking]');
   if (markPaidBtn) {
     await promptMarkPaid(markPaidBtn.dataset.markPaidBooking);
     return;
   }
-  const unlinkBtn = e.target.closest('[data-unlink-booking]');
-  if (unlinkBtn) {
-    if (!confirm('Unlink this transaction from the invoice?')) return;
+});
+
+// ── Mark paid: pick a payment method directly, no transaction linking ──
+let markPaidBookingId = null;
+async function promptMarkPaid(bookingId) {
+  markPaidBookingId = bookingId;
+  document.getElementById('mark-paid-result').style.display = 'none';
+  document.getElementById('mark-paid-overlay').style.display = 'flex';
+}
+document.getElementById('btn-close-mark-paid').addEventListener('click', function () { document.getElementById('mark-paid-overlay').style.display = 'none'; });
+document.getElementById('mark-paid-overlay').addEventListener('click', function (e) { if (e.target === this) this.style.display = 'none'; });
+document.querySelectorAll('#mark-paid-overlay [data-payment-method]').forEach(function (btn) {
+  btn.addEventListener('click', async function () {
+    if (!markPaidBookingId) return;
+    const resultEl = document.getElementById('mark-paid-result');
     try {
-      const res = await authedFetch(API_BASE + '/finance/detach-invoice', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bookingId: unlinkBtn.dataset.unlinkBooking })
+      const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(markPaidBookingId) + '/mark-paid', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentMethod: btn.dataset.paymentMethod })
       });
       const data = await res.json();
-      if (!res.ok) { alert('Could not unlink: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+      if (!res.ok) {
+        resultEl.className = 'result-box error'; resultEl.style.display = 'block';
+        resultEl.textContent = (data.errors || [data.error]).join(' ') || 'Could not mark paid.';
+        return;
+      }
+      document.getElementById('mark-paid-overlay').style.display = 'none';
       await loadInvoices();
+      // Immediately follow with the receipt prompt, same as marking paid
+      // in the invoice popup itself.
+      await promptSendReceipt(markPaidBookingId);
     } catch (err) {
-      alert('Could not reach the server: ' + err.message);
+      resultEl.className = 'result-box error'; resultEl.style.display = 'block';
+      resultEl.textContent = 'Could not reach the server: ' + err.message;
     }
-    return;
-  }
+  });
 });
-
-// ── Link a matching transaction, then immediately offer Mark Paid ──
-let linkTxnContext = null;
-async function openLinkTransactionModal(bookingId, amount) {
-  linkTxnContext = { bookingId: bookingId, amount: amount };
-  const list = document.getElementById('link-txn-list');
-  list.innerHTML = '<div class="empty-state">Loading…</div>';
-  document.getElementById('link-txn-amount-label').textContent = money(amount);
-  document.getElementById('link-txn-overlay').style.display = 'flex';
-  try {
-    const res = await authedFetch(API_BASE + '/finance/transaction-candidates?amount=' + amount);
-    const candidates = await res.json();
-    if (!candidates.length) { list.innerHTML = '<div class="empty-state">No unlinked transactions found for ' + money(amount) + '.</div>'; return; }
-    list.innerHTML = candidates.map(function (c) {
-      return '<div class="exp-line-item" data-pick-txn-source="' + c.source + '" data-pick-txn-key="' + c.sourceKey + '" data-pick-txn-date="' + c.date + '">' +
-        '<div class="exp-top-row"><span>' + escHtml(c.description) + '</span><span>' + money(c.amount) + '</span></div>' +
-        '<div class="exp-date">' + formatDate(c.date) + ' \u00b7 ' + c.source + '</div>' +
-      '</div>';
-    }).join('');
-  } catch (err) {
-    list.innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
-  }
-}
-document.getElementById('btn-close-link-txn').addEventListener('click', function () { document.getElementById('link-txn-overlay').style.display = 'none'; });
-document.getElementById('link-txn-overlay').addEventListener('click', function (e) { if (e.target === this) this.style.display = 'none'; });
-document.getElementById('link-txn-list').addEventListener('click', async function (e) {
-  const row = e.target.closest('[data-pick-txn-source]');
-  if (!row || !linkTxnContext) return;
-  try {
-    const res = await authedFetch(API_BASE + '/finance/attach-invoice', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ source: row.dataset.pickTxnSource, sourceKey: row.dataset.pickTxnKey, bookingId: linkTxnContext.bookingId, amount: linkTxnContext.amount, date: row.dataset.pickTxnDate })
-    });
-    const data = await res.json();
-    if (!res.ok) { alert('Could not link: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
-    document.getElementById('link-txn-overlay').style.display = 'none';
-    await loadInvoices();
-    // Linking is immediately followed by the Mark Paid prompt — the
-    // whole point of linking is to record that payment arrived.
-    await promptMarkPaid(linkTxnContext.bookingId);
-  } catch (err) {
-    alert('Could not reach the server: ' + err.message);
-  }
-});
-
-async function promptMarkPaid(bookingId) {
-  if (!confirm('Mark this invoice as paid?')) return;
-  try {
-    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/mark-paid', { method: 'POST' });
-    const data = await res.json();
-    if (!res.ok) { alert('Could not mark paid: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
-    await loadInvoices();
-    // Immediately follow with the receipt prompt, same as marking paid
-    // in the invoice popup itself.
-    await promptSendReceipt(bookingId);
-  } catch (err) {
-    alert('Could not reach the server: ' + err.message);
-  }
-}
 async function promptSendReceipt(bookingId) {
   const sendNow = confirm('Send the receipt now? OK = send now, Cancel = send later.');
   if (!sendNow) { await loadInvoices(); return; }

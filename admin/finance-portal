@@ -2701,7 +2701,7 @@ async function loadInvoiceCandidatesForAttach() {
     el.innerHTML = candidates.map(function (c) {
       return '<div class="exp-line-item" style="cursor:pointer;" data-pick-invoice-booking="' + c.bookingId + '" data-pick-invoice-label="' + escHtml(c.renterName) + '">' +
         '<div class="exp-top-row"><span>' + escHtml(c.renterName) + (c.eventName ? ' \u2014 ' + escHtml(c.eventName) : '') + '</span><span>' + money(c.amount) + '</span></div>' +
-        '<div class="exp-date">' + formatDate(c.eventDate) + '</div>' +
+        '<div class="exp-date">' + formatDate(c.eventDate) + (c.renterEmail ? ' \u00b7 ' + escHtml(c.renterEmail) : '') + '</div>' +
       '</div>';
     }).join('');
   } catch (err) {

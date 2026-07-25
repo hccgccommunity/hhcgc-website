@@ -59,6 +59,18 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .sub-tab-panel.active { display: block; }
 
 .toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
+.pagination-bar { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 20px 0 50px; }
+.pagination-bar button { font-family: inherit; font-size: 0.84rem; padding: 7px 14px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; }
+.pagination-bar button:hover:not(:disabled) { background: var(--surface-soft); }
+.pagination-bar button:disabled { opacity: 0.4; cursor: default; }
+.pagination-bar .page-indicator { font-size: 0.84rem; color: var(--muted); }
+.contact-filter-wrap { position: relative; }
+.contact-filter-panel { position: absolute; top: calc(100% + 4px); left: 0; z-index: 40; background: #fff; border: 1.5px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); padding: 10px; width: 260px; max-height: 320px; overflow-y: auto; }
+.contact-filter-actions { display: flex; gap: 8px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.contact-filter-actions button { font-family: inherit; font-size: 0.76rem; font-weight: 700; color: var(--saffron-dark); background: none; border: none; cursor: pointer; padding: 2px 4px; }
+.contact-filter-row { display: flex; align-items: center; gap: 8px; padding: 5px 4px; font-size: 0.86rem; }
+.contact-filter-row input { flex-shrink: 0; }
+.contact-filter-row label { cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .gauge-track { background: var(--surface-soft); border-radius: 999px; height: 28px; overflow: hidden; position: relative; margin-bottom: 10px; }
 .gauge-fill { height: 100%; border-radius: 999px; transition: width 0.3s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; }
@@ -598,6 +610,16 @@ tr.series-row:hover td { background: var(--surface-soft); }
       <button type="button" class="btn-secondary" id="btn-review-ambiguous-series">Review now</button>
     </div>
     <div class="toolbar">
+      <div class="contact-filter-wrap">
+        <button type="button" class="btn-secondary" id="btn-inv-contact-filter-toggle">Contact: All <span id="contact-filter-count-inv"></span> &#9662;</button>
+        <div class="contact-filter-panel" id="inv-contact-filter-panel" style="display:none;">
+          <div class="contact-filter-actions">
+            <button type="button" id="btn-inv-contact-filter-all">Select all</button>
+            <button type="button" id="btn-inv-contact-filter-none">Clear</button>
+          </div>
+          <div id="inv-contact-filter-list"></div>
+        </div>
+      </div>
       <select id="inv-range-preset" class="range-preset-select">
         <option value="alltime" selected>All time</option>
         <option value="last3months">Last 3 months</option>
@@ -614,6 +636,13 @@ tr.series-row:hover td { background: var(--surface-soft); }
         <option value="">All</option>
         <option value="paid">Paid only</option>
         <option value="unpaid">Unpaid only</option>
+      </select>
+      <select id="inv-page-size-filter" style="font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; padding: 9px 10px; border: 1.5px solid var(--border); border-radius: 10px;">
+        <option value="10" selected>10 per page</option>
+        <option value="20">20 per page</option>
+        <option value="30">30 per page</option>
+        <option value="40">40 per page</option>
+        <option value="50">50 per page</option>
       </select>
       <button type="button" class="btn-secondary" id="btn-load-invoices">Refresh</button>
       <button type="button" class="btn-primary" id="btn-create-invoice" style="margin-top:0;">+ Create invoice</button>
@@ -634,6 +663,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
       </table>
       <div class="empty-state" id="inv-empty" style="display:none;">No invoices in this range.</div>
     </div>
+    <div class="pagination-bar" id="inv-pagination-bar"></div>
   </div>
 
   <!-- ── EXPENSE APPROVALS TAB ── -->
@@ -2184,6 +2214,8 @@ document.getElementById('btn-just-create-receipt').addEventListener('click', fun
 
 let INVOICES = [];
 let invSortKey = 'activity', invSortDir = 'desc';
+let invPageSize = 10, invPage = 1;
+let invContactFilter = undefined; // undefined = all contacts, Set = specific selection
 async function loadInvoices() {
   window.__matchingLoaded = true;
   checkAmbiguousInvoiceSeries();
@@ -2199,9 +2231,7 @@ async function loadInvoices() {
     if (status) params.set('status', status);
     const res = await authedFetch(API_BASE + '/finance/invoices?' + params.toString());
     INVOICES = await res.json();
-    document.getElementById('inv-count').textContent = INVOICES.length + ' invoice' + (INVOICES.length === 1 ? '' : 's');
-    if (!INVOICES.length) { tbody.innerHTML = ''; emptyState.style.display = 'block'; return; }
-    emptyState.style.display = 'none';
+    invPage = 1;
     renderInvoicesTable();
   } catch (err) {
     tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--red);padding:24px;">Could not load: ' + escHtml(err.message) + '</td></tr>';
@@ -2358,10 +2388,23 @@ function groupInvoicesIntoDisplayItems(list) {
   });
   return items;
 }
+function invContactNameFor(item) {
+  return item.type === 'single' ? item.invoice.renterName : item.renterName;
+}
 function renderInvoicesTable() {
   const tbody = document.getElementById('inv-tbody');
-  const items = groupInvoicesIntoDisplayItems(INVOICES);
-  tbody.innerHTML = items.map(function (item) {
+  const emptyState = document.getElementById('inv-empty');
+  let items = groupInvoicesIntoDisplayItems(INVOICES);
+  if (invContactFilter) items = items.filter(function (item) { return invContactFilter.has(invContactNameFor(item)); });
+  document.getElementById('inv-count').textContent = items.length + ' invoice' + (items.length === 1 ? '' : 's');
+  if (!items.length) { tbody.innerHTML = ''; emptyState.style.display = 'block'; renderInvoicesPaginationBar(1); return; }
+  emptyState.style.display = 'none';
+  const totalPages = Math.max(1, Math.ceil(items.length / invPageSize));
+  if (invPage > totalPages) invPage = totalPages;
+  if (invPage < 1) invPage = 1;
+  const pageStart = (invPage - 1) * invPageSize;
+  const pageItems = items.slice(pageStart, pageStart + invPageSize);
+  tbody.innerHTML = pageItems.map(function (item) {
     if (item.type === 'single') return renderInvoiceRow(item.invoice, false);
     const isExpanded = expandedInvoiceSeries.has(item.seriesId);
     const seriesRow = '<tr class="series-row" data-toggle-invoice-series="' + item.seriesId + '" style="cursor:pointer;">' +
@@ -2375,7 +2418,82 @@ function renderInvoicesTable() {
     const subRows = isExpanded ? item.occurrences.map(function (o) { return renderInvoiceRow(o, true); }).join('') : '';
     return seriesRow + subRows;
   }).join('');
+  renderInvoicesPaginationBar(totalPages);
 }
+function renderInvoicesPaginationBar(totalPages) {
+  const bar = document.getElementById('inv-pagination-bar');
+  if (!bar) return;
+  bar.innerHTML = totalPages <= 1 ? '' :
+    '<button ' + (invPage <= 1 ? 'disabled' : '') + ' onclick="goToInvoicesPage(' + (invPage - 1) + ')">&lsaquo; Prev</button>' +
+    '<span class="page-indicator">Page ' + invPage + ' of ' + totalPages + '</span>' +
+    '<button ' + (invPage >= totalPages ? 'disabled' : '') + ' onclick="goToInvoicesPage(' + (invPage + 1) + ')">Next &rsaquo;</button>';
+}
+function goToInvoicesPage(p) {
+  invPage = p;
+  renderInvoicesTable();
+}
+function populateInvoiceContactFilter() {
+  const names = new Set();
+  groupInvoicesIntoDisplayItems(INVOICES).forEach(function (item) { names.add(invContactNameFor(item)); });
+  const sorted = Array.from(names).sort(function (a, b) { return a.localeCompare(b); });
+  const list = document.getElementById('inv-contact-filter-list');
+  const checkedSet = invContactFilter;
+  list.innerHTML = sorted.map(function (name) {
+    const checked = !checkedSet || checkedSet.has(name);
+    const safeId = 'invcf-' + btoa(unescape(encodeURIComponent(name))).replace(/[^a-zA-Z0-9]/g, '');
+    return '<div class="contact-filter-row"><input type="checkbox" id="' + safeId + '" data-contact-name="' + escHtml(name) + '"' + (checked ? ' checked' : '') + '><label for="' + safeId + '">' + escHtml(name) + '</label></div>';
+  }).join('');
+  updateInvoiceContactFilterButtonLabel(sorted.length);
+}
+function updateInvoiceContactFilterButtonLabel(totalCount) {
+  const btn = document.getElementById('btn-inv-contact-filter-toggle');
+  const countSpan = document.getElementById('contact-filter-count-inv');
+  if (!invContactFilter) {
+    btn.firstChild.textContent = 'Contact: All ';
+    countSpan.textContent = '';
+  } else {
+    btn.firstChild.textContent = 'Contact: ';
+    countSpan.textContent = invContactFilter.size + ' of ' + totalCount;
+  }
+}
+document.getElementById('btn-inv-contact-filter-toggle').addEventListener('click', function (e) {
+  e.stopPropagation();
+  const panel = document.getElementById('inv-contact-filter-panel');
+  const willOpen = panel.style.display === 'none';
+  if (willOpen) populateInvoiceContactFilter();
+  panel.style.display = willOpen ? 'block' : 'none';
+});
+document.getElementById('inv-contact-filter-list').addEventListener('change', function (e) {
+  const checked = Array.from(document.querySelectorAll('#inv-contact-filter-list input:checked')).map(function (cb) { return cb.dataset.contactName; });
+  const all = Array.from(document.querySelectorAll('#inv-contact-filter-list input'));
+  invContactFilter = checked.length === all.length ? undefined : new Set(checked);
+  updateInvoiceContactFilterButtonLabel(all.length);
+  invPage = 1;
+  renderInvoicesTable();
+});
+document.getElementById('btn-inv-contact-filter-all').addEventListener('click', function () {
+  document.querySelectorAll('#inv-contact-filter-list input').forEach(function (cb) { cb.checked = true; });
+  invContactFilter = undefined;
+  updateInvoiceContactFilterButtonLabel(document.querySelectorAll('#inv-contact-filter-list input').length);
+  invPage = 1;
+  renderInvoicesTable();
+});
+document.getElementById('btn-inv-contact-filter-none').addEventListener('click', function () {
+  document.querySelectorAll('#inv-contact-filter-list input').forEach(function (cb) { cb.checked = false; });
+  invContactFilter = new Set();
+  updateInvoiceContactFilterButtonLabel(document.querySelectorAll('#inv-contact-filter-list input').length);
+  invPage = 1;
+  renderInvoicesTable();
+});
+document.addEventListener('click', function (e) {
+  const panel = document.getElementById('inv-contact-filter-panel');
+  if (panel.style.display !== 'none' && !panel.contains(e.target) && e.target.id !== 'btn-inv-contact-filter-toggle') panel.style.display = 'none';
+});
+document.getElementById('inv-page-size-filter').addEventListener('change', function (e) {
+  invPageSize = Number(e.target.value);
+  invPage = 1;
+  renderInvoicesTable();
+});
 document.getElementById('inv-tbody').addEventListener('click', async function (e) {
   const seriesToggle = e.target.closest('[data-toggle-invoice-series]');
   if (seriesToggle && !e.target.closest('button')) {

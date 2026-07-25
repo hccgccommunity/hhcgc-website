@@ -1229,7 +1229,7 @@ tbody input[type="text"], tbody input[type="number"] {
     <div class="modal-body" id="invoice-preview-body"></div>
     <div class="modal-footer">
       <button type="button" class="btn-secondary" id="btn-skip-invoice-2" onclick="document.getElementById('invoice-preview-overlay').style.display='none';">Close</button>
-      <a class="btn-primary" href="all-bookings" style="text-decoration:none;text-align:center;display:inline-block;">Review &amp; send invoice in All Bookings</a>
+      <button type="button" class="btn-primary" id="btn-go-to-all-bookings" style="margin-top:0;">Review &amp; send invoice in All Bookings</button>
     </div>
   </div>
   </div>
@@ -3983,6 +3983,10 @@ function escHtmlLocal(str) { return String(str || '').replace(/&/g, '&amp;').rep
 
 document.getElementById('btn-skip-invoice').addEventListener('click', function () {
   document.getElementById('invoice-preview-overlay').style.display = 'none';
+});
+document.getElementById('btn-go-to-all-bookings').addEventListener('click', function () {
+  document.getElementById('invoice-preview-overlay').style.display = 'none';
+  document.getElementById('nav-all-bookings').click();
 });
 document.getElementById('invoice-preview-overlay').addEventListener('click', function (e) {
   if (e.target === this) this.style.display = 'none';

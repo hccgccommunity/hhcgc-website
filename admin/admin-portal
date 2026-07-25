@@ -463,6 +463,20 @@ function isMobileDevice() {
   return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 }
 
+// signInWithRedirect navigates the whole window away to Google's sign-in
+// page and back. Inside an installed/standalone PWA, that trip falls
+// outside the app's defined scope, so iOS/Android hand the return trip to
+// a separate browser context instead of the original standalone window -
+// the redirect "succeeds" on Google's side but the app never sees the
+// result, which is exactly the loop back to the login screen. Firebase's
+// own documented fix for this is signInWithPopup, which never navigates
+// the main window away at all - detect standalone mode specifically and
+// use popup there, leaving normal (non-installed) mobile browsing
+// unchanged since that case doesn't have this problem.
+function isStandalonePwa() {
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
 document.getElementById("btn-signin").addEventListener("click", function () {
   var errorBox = document.getElementById("signin-error");
   errorBox.style.display = "none";
@@ -471,8 +485,12 @@ document.getElementById("btn-signin").addEventListener("click", function () {
   // is stored in localStorage on all browsers including mobile Safari,
   // which can default to sessionStorage in certain in-app browser contexts.
   setPersistence(auth, browserLocalPersistence).then(function () {
+    if (isStandalonePwa()) {
+      console.log("[HCCGC AUTH] Installed app — using popup sign-in (redirect breaks in standalone mode)...");
+      return signInWithPopup(auth, provider);
+    }
     if (isMobileDevice()) {
-      console.log("[HCCGC AUTH] Mobile — using redirect sign-in...");
+      console.log("[HCCGC AUTH] Mobile browser — using redirect sign-in...");
       return signInWithRedirect(auth, provider);
     }
     console.log("[HCCGC AUTH] Desktop — opening popup...");

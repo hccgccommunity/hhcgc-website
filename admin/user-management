@@ -388,7 +388,10 @@ var APP_REGISTRY = [
   { key: 'manage-pages', name: 'Manage Pages' },
   { key: 'marketing-assistant', name: 'Hey HCCGC' },
   { key: 'bookings-finance', name: 'Facility Booking' },
-  { key: 'org-communications', name: 'Communications' }
+  { key: 'org-finance', name: 'Finance' },
+  { key: 'org-communications', name: 'Communications' },
+  { key: 'issue-reporting', name: 'Issue Reporting' },
+  { key: 'logs-app', name: 'Logs' }
 ];
 
 var allUsers = [];

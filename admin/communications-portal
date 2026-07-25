@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,6 +59,10 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .sub-tab-panel.active { display: block; }
 
 .toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
+#global-loading-overlay { position: fixed; inset: 0; background: rgba(44,27,16,0.15); backdrop-filter: blur(1px); z-index: 999; display: none; align-items: center; justify-content: center; }
+#global-loading-overlay.visible { display: flex; }
+#global-loading-overlay .spinner { width: 44px; height: 44px; border: 4px solid rgba(255,255,255,0.5); border-top-color: var(--saffron-dark); border-radius: 50%; animation: gl-spin 0.7s linear infinite; }
+@keyframes gl-spin { to { transform: rotate(360deg); } }
 .pagination-bar { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 20px 0 50px; }
 .pagination-bar button { font-family: inherit; font-size: 0.84rem; padding: 7px 14px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; }
 .pagination-bar button:hover:not(:disabled) { background: var(--surface-soft); }
@@ -281,6 +286,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
 </head>
 <body>
 <div id="site-header"></div>
+<div id="global-loading-overlay"><div class="spinner"></div></div>
 
 <div id="gate">
   <div class="gate-card">
@@ -411,7 +417,23 @@ tr.series-row:hover td { background: var(--surface-soft); }
 
 <script>
 function loadPartial(id, url) {
-  fetch(url).then(function(r){return r.text();}).then(function(html){document.getElementById(id).innerHTML = html;});
+  var target = document.getElementById(id);
+  if (!target) return;
+  fetch(url).then(function(r){return r.text();}).then(function(html){
+    target.innerHTML = html;
+    if (id === 'site-header') fixHeaderLinksForSubfolder(target);
+  }).catch(function () {});
+}
+function fixHeaderLinksForSubfolder(headerEl) {
+  var logo = headerEl.querySelector('.brand-logo');
+  if (logo && logo.getAttribute('src') && !logo.getAttribute('src').startsWith('/') && !logo.getAttribute('src').startsWith('http')) {
+    logo.setAttribute('src', '/' + logo.getAttribute('src'));
+  }
+  headerEl.querySelectorAll('a[href]').forEach(function (link) {
+    var href = link.getAttribute('href');
+    if (!href || href.startsWith('http') || href.startsWith('/') || href.startsWith('#')) return;
+    link.setAttribute('href', '/' + href);
+  });
 }
 loadPartial('site-header', '/header.html');
 loadPartial('site-footer', '/footer.html');
@@ -420,10 +442,34 @@ loadPartial('site-footer', '/footer.html');
 <script>
 const API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';
 
+let __glPendingCount = 0;
+let __glShowTimer = null;
+function __glRequestStart() {
+  __glPendingCount++;
+  if (__glPendingCount === 1) {
+    __glShowTimer = setTimeout(function () {
+      var el = document.getElementById('global-loading-overlay');
+      if (el) el.classList.add('visible');
+    }, 150);
+  }
+}
+function __glRequestEnd() {
+  __glPendingCount = Math.max(0, __glPendingCount - 1);
+  if (__glPendingCount === 0) {
+    clearTimeout(__glShowTimer);
+    var el = document.getElementById('global-loading-overlay');
+    if (el) el.classList.remove('visible');
+  }
+}
 async function authedFetch(url, options) {
   options = options || {};
   options.headers = Object.assign({}, options.headers, { 'Authorization': 'Bearer ' + await window.__hccgcFirebaseUser.getIdToken() });
-  return fetch(url, options);
+  __glRequestStart();
+  try {
+    return await fetch(url, options);
+  } finally {
+    __glRequestEnd();
+  }
 }
 function escHtml(s) {
   return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');

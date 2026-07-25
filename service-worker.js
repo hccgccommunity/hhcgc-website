@@ -14,7 +14,7 @@
 // step, no risk of someone seeing stale content the way the admin-portal
 // tile list did earlier when a browser cache was suspected.
 
-const CACHE_NAME = 'hccgc-admin-runtime-v1';
+const CACHE_NAME = 'hccgc-admin-runtime-v2';
 const NETWORK_TIMEOUT_MS = 3000;
 
 self.addEventListener('install', function (event) {

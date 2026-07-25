@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Communications — HCCGC Admin Portal</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F5ZHQ4CDR9');</script>
+<style>
+:root {
+  --bg: #fff9f1; --surface: #ffffff; --surface-soft: #fff6ea; --border: rgba(121,62,17,0.14);
+  --text: #2c1b10; --muted: #6a5141; --saffron: #b55a18; --saffron-dark: #8d3e0d; --maroon: #7f2e16;
+  --green: #2e7d4f; --green-bg: #e8f5ec; --red: #b3382c; --red-bg: #fbe9e7;
+  --radius: 22px; --shadow: 0 18px 45px rgba(93,43,14,0.10);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%), radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%), var(--bg); color: var(--text); min-height: 100vh; }
+.container { width: min(calc(100% - 32px), 1300px); margin: 0 auto; }
+.site-header { position: sticky; top: 0; z-index: 50; background: rgba(255,249,241,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 92px; padding: 12px 0; }
+.site-header a.brand, .site-header a.brand:link, .site-header a.brand:visited { text-decoration: none; color: inherit; }
+.brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.brand-logo-wrap { background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 8px; box-shadow: var(--shadow); flex-shrink: 0; }
+.brand-logo { width: 88px; height: auto; border-radius: 12px; object-fit: contain; }
+.brand-text h1 { margin: 0; font-size: 1.2rem; line-height: 1.15; color: var(--maroon); }
+.site-header nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 18px; margin: 0; padding: 0; align-items: center; justify-content: flex-end; }
+.site-header nav a, .site-header nav a:link, .site-header nav a:visited { font-weight: 700; color: var(--text); font-size: 0.96rem; text-decoration: none; }
+.site-header nav a:hover { color: var(--saffron-dark); }
+.menu-toggle { display: none; border: 0; background: transparent; padding: 6px 0; cursor: pointer; color: #2c1b10; align-self: flex-end; }
+.menu-toggle .bar { display: block; width: 26px; height: 2px; margin: 5px 0; background: currentColor; }
+@media (max-width: 768px) {
+  .nav { flex-direction: column; align-items: stretch; gap: 8px; } .menu-toggle { display: inline-block; }
+  .site-header nav { display: none; width: 100%; background: rgba(255,249,241,0.95); padding: 10px 0; }
+  .site-header nav.is-open { display: block; } .site-header nav ul { flex-direction: column; gap: 14px; }
+}
+.page-hero { padding: 28px 0 22px; background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%); color: #fff; }
+.page-hero h1 { font-family: Georgia, "Times New Roman", serif; font-size: 1.9rem; color: #fff; margin-bottom: 6px; }
+.page-hero p { color: #ffffff; opacity: 0.9; font-size: 0.92rem; max-width: 620px; }
+.back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.85); text-decoration: none; margin-bottom: 14px; }
+.back-link:hover { color: #fff; text-decoration: underline; }
+
+.tab-nav { background: var(--surface); border-bottom: 1px solid var(--border); }
+.tab-nav ul { list-style: none; display: flex; gap: 4px; padding: 10px 0; flex-wrap: wrap; }
+.tab-nav button { display: inline-block; padding: 8px 16px; border-radius: 999px; font-size: 0.86rem; font-weight: 700; color: var(--muted); background: none; border: none; cursor: pointer; transition: background 0.15s, color 0.15s; font-family: inherit; }
+.tab-nav button.active { background: var(--surface-soft); color: var(--saffron-dark); }
+.tab-nav button:not(.active):hover { background: var(--surface-soft); }
+
+.tab-panel { display: none; padding: 24px 0 60px; }
+.tab-panel.active { display: block; }
+
+.sub-tab-nav { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 14px; }
+.sub-tab-btn { padding: 8px 16px; border-radius: 999px; font-size: 0.84rem; font-weight: 700; color: var(--muted); background: #fff; border: 1.5px solid var(--border); cursor: pointer; font-family: inherit; }
+.sub-tab-btn.active { background: var(--saffron-dark); color: #fff; border-color: var(--saffron-dark); }
+.sub-tab-panel { display: none; }
+.sub-tab-panel.active { display: block; }
+
+.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
+.pagination-bar { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 20px 0 50px; }
+.pagination-bar button { font-family: inherit; font-size: 0.84rem; padding: 7px 14px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; }
+.pagination-bar button:hover:not(:disabled) { background: var(--surface-soft); }
+.pagination-bar button:disabled { opacity: 0.4; cursor: default; }
+.pagination-bar .page-indicator { font-size: 0.84rem; color: var(--muted); }
+.contact-filter-wrap { position: relative; }
+.contact-filter-panel { position: absolute; top: calc(100% + 4px); left: 0; z-index: 40; background: #fff; border: 1.5px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); padding: 10px; width: 260px; max-height: 320px; overflow-y: auto; }
+.contact-filter-actions { display: flex; gap: 8px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.contact-filter-actions button { font-family: inherit; font-size: 0.76rem; font-weight: 700; color: var(--saffron-dark); background: none; border: none; cursor: pointer; padding: 2px 4px; }
+.contact-filter-row { display: flex; align-items: center; gap: 8px; padding: 5px 4px; font-size: 0.86rem; }
+.contact-filter-row input { flex-shrink: 0; }
+.contact-filter-row label { cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.gauge-track { background: var(--surface-soft); border-radius: 999px; height: 28px; overflow: hidden; position: relative; margin-bottom: 10px; }
+.gauge-fill { height: 100%; border-radius: 999px; transition: width 0.3s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; }
+.gauge-fill.positive { background: linear-gradient(90deg, var(--green), #4caf7d); }
+.gauge-fill.negative { background: linear-gradient(90deg, var(--red), #d9564a); }
+.gauge-marker { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--maroon); }
+.gauge-labels { display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--muted); }
+.gauge-stats { display: flex; gap: 24px; margin-top: 16px; flex-wrap: wrap; }
+.gauge-stat { flex: 1; min-width: 140px; }
+.gauge-stat .label { font-size: 0.76rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+.gauge-stat .value { font-size: 1.4rem; font-weight: 800; }
+.gauge-stat .value.positive { color: var(--green); }
+.gauge-stat .value.negative { color: var(--red); }
+
+.bar-chart-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.bar-chart-label { width: 190px; flex-shrink: 0; font-size: 0.86rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-chart-track { flex: 1; background: var(--surface-soft); border-radius: 8px; height: 26px; position: relative; overflow: hidden; }
+.bar-chart-fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, var(--saffron-dark), var(--saffron)); }
+.bar-chart-value { width: 110px; flex-shrink: 0; text-align: right; font-weight: 700; font-size: 0.88rem; }
+
+.pie-chart-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 8px 0; }
+.pie-chart-wrap svg { flex-shrink: 0; width: 100%; max-width: 260px; height: auto; }
+.pie-legend { width: 100%; max-width: 340px; }
+.pie-legend-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 0.84rem; }
+.pie-legend-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+.pie-legend-name { flex: 1; }
+.pie-legend-value { font-weight: 700; white-space: nowrap; }
+
+.stat-card-big { text-align: center; padding: 20px; }
+.stat-card-big .value { font-size: 2.2rem; font-weight: 800; color: var(--maroon); }
+.stat-card-big .sub { font-size: 0.86rem; color: var(--muted); margin-top: 6px; }
+
+.trend-chart { display: flex; align-items: flex-end; gap: 14px; height: 200px; padding: 10px 4px 0; overflow-x: auto; }
+.trend-month { display: flex; flex-direction: column; align-items: center; min-width: 64px; flex-shrink: 0; }
+.trend-bars { display: flex; align-items: flex-end; gap: 4px; height: 150px; }
+.trend-bar { width: 20px; border-radius: 4px 4px 0 0; position: relative; }
+.trend-bar.income-bar { background: linear-gradient(180deg, #4caf7d, var(--green)); }
+.trend-bar.expense-bar { background: linear-gradient(180deg, #d9564a, var(--red)); }
+.trend-month-label { font-size: 0.72rem; color: var(--muted); margin-top: 8px; white-space: nowrap; }
+.trend-legend { display: flex; gap: 18px; margin-bottom: 8px; font-size: 0.8rem; }
+.trend-legend span { display: flex; align-items: center; gap: 6px; }
+.trend-legend .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.trend-legend .dot.income { background: var(--green); }
+.trend-legend .dot.expense { background: var(--red); }
+
+.contributor-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 0.86rem; }
+.contributor-row:last-child { border-bottom: none; }
+.contributor-row .rank { width: 22px; color: var(--muted); font-weight: 700; }
+.contributor-row .name { flex: 1; }
+.contributor-row .meta { color: var(--muted); font-size: 0.76rem; }
+.contributor-row .amount { font-weight: 700; }
+
+.spinner {
+  display: inline-block; width: 18px; height: 18px; border: 2.5px solid var(--border);
+  border-top-color: var(--saffron-dark); border-radius: 50%; animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+#dash-content.is-loading { opacity: 0.4; pointer-events: none; filter: grayscale(0.4); transition: opacity 0.15s ease; }
+
+.annual-trend-chart { display: flex; align-items: flex-end; gap: 8px; height: 180px; padding: 10px 4px 0; position: relative; }
+.annual-trend-bar-wrap { display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 0; }
+.annual-trend-bars { display: flex; align-items: flex-end; height: 140px; width: 100%; justify-content: center; }
+.annual-trend-bar { width: 60%; border-radius: 4px 4px 0 0; }
+.annual-trend-bar.above { background: linear-gradient(180deg, #4caf7d, var(--green)); }
+.annual-trend-bar.below { background: linear-gradient(180deg, #d9564a, var(--red)); }
+.annual-trend-month-label { font-size: 0.68rem; color: var(--muted); margin-top: 8px; white-space: nowrap; }
+.annual-trend-threshold-line { position: absolute; left: 0; right: 0; border-top: 2px dashed var(--maroon); }
+.annual-trend-threshold-label { position: absolute; left: 4px; top: -18px; font-size: 0.7rem; color: var(--maroon); font-weight: 700; background: var(--surface); padding: 0 4px; }
+.toolbar input, .toolbar select {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; padding: 9px 14px;
+  border: 1.5px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text);
+}
+.toolbar .count { margin-left: auto; font-size: 0.82rem; color: var(--muted); }
+.btn-primary {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; font-weight: 700; color: #fff;
+  background: linear-gradient(135deg, var(--saffron-dark), var(--maroon)); border: none; border-radius: 10px;
+  padding: 10px 16px; cursor: pointer;
+}
+.btn-secondary {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; font-weight: 700; color: var(--text);
+  background: #fff; border: 1.5px solid var(--border); border-radius: 10px; padding: 9px 14px; cursor: pointer;
+}
+
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow-x: auto; box-shadow: var(--shadow); }
+table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+thead th { text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); background: var(--surface-soft); padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: rgba(217,138,30,0.04); }
+.amount { font-weight: 700; }
+.amount.income { color: var(--green); }
+.amount.expense { color: var(--red); }
+.source-tag { display: inline-block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--surface-soft); color: var(--saffron-dark); }
+tr.sub-row td { background: var(--surface-soft); }
+tr.sub-row td:first-child { padding-left: 22px; border-left: 3px solid var(--saffron-dark); }
+.method-tag { font-size: 0.72rem; color: var(--muted); display: block; margin-top: 2px; }
+tr.series-row:hover td { background: var(--surface-soft); }
+.sortable-th { cursor: pointer; user-select: none; }
+.sortable-th:hover { color: var(--saffron-dark); }
+.sort-arrow { font-size: 0.7rem; opacity: 0.5; }
+.sort-arrow.active { opacity: 1; color: var(--saffron-dark); }
+.cat-select { font-family: inherit; font-size: 0.82rem; padding: 6px 10px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; }
+.cat-select:disabled { background: var(--surface-soft); color: var(--muted); cursor: not-allowed; opacity: 0.85; }
+.confirm-paid-select { font-family: inherit; font-size: 0.8rem; padding: 6px 8px; border: 1.5px solid var(--saffron-dark); border-radius: 8px; background: #fff; color: var(--saffron-dark); font-weight: 700; }
+.cat-select.uncategorized { border-color: var(--red); background: var(--red-bg); }
+.tx-row-checkbox { width: 16px; height: 16px; cursor: pointer; }
+.tx-reviewed-circle { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border); background: #fff; cursor: pointer; font-size: 0.72rem; font-weight: 900; color: #fff; vertical-align: middle; line-height: 1; padding: 0; }
+.tx-reviewed-circle.is-reviewed { background: #1f6b3f; border-color: #1f6b3f; }
+.tx-reviewed-circle:hover:not(.is-reviewed) { border-color: var(--saffron-dark); }
+.tx-bulk-bar { display: flex; align-items: center; gap: 10px; font-size: 0.82rem; color: var(--muted); padding: 8px 4px; }
+.tx-loading-overlay { position: relative; }
+.tx-loading-overlay.is-loading::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0.6); backdrop-filter: blur(1px); z-index: 5; }
+.tx-spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--saffron-dark); border-radius: 50%; animation: tx-spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+@keyframes tx-spin { to { transform: rotate(360deg); } }
+.btn-note { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; vertical-align: middle; }
+.btn-note.has-content { background: #bdedcf; border: 2px solid #1f6b3f; }
+.invoice-action-btn { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1.5px solid var(--border); background: #fff; font-family: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer; text-align: left; }
+.invoice-action-btn:hover { background: var(--surface-soft); }
+.invoice-action-btn.primary { background: linear-gradient(135deg, var(--saffron-dark), var(--maroon)); color: #fff; border: none; }
+.btn-invoice { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; vertical-align: middle; }
+.btn-invoice.attached { background: #ffe4a3; border: 2px solid #c8890a; box-shadow: 0 0 0 1px rgba(200,137,10,0.25); }
+.btn-invoice.sent { background: #bdedcf; border: 2px solid #1f6b3f; box-shadow: 0 0 0 1px rgba(31,107,63,0.25); }
+.btn-invoice:hover:not(.sent) { filter: brightness(0.96); }
+.btn-receipt { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; vertical-align: middle; }
+.btn-receipt.sent { background: #bdedcf; border: 2px solid #1f6b3f; box-shadow: 0 0 0 1px rgba(31,107,63,0.25); }
+.btn-receipt:disabled { opacity: 0.4; cursor: default; }
+.btn-receipt:hover:not(:disabled):not(.sent) { filter: brightness(0.96); }
+.btn-note:hover { background: var(--surface-soft); }
+.collapsible-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 12px 0; }
+.collapsible-header .toggle-arrow { transition: transform 0.15s ease; }
+.collapsible-header.is-open .toggle-arrow { transform: rotate(90deg); }
+.collapsible-body { display: none; }
+.collapsible-body.is-open { display: block; }
+.empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; box-shadow: var(--shadow); margin-bottom: 20px; }
+.stmt-section-title { font-family: Georgia, "Times New Roman", serif; color: var(--maroon); font-size: 1.1rem; margin: 18px 0 8px; }
+.stmt-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 0.92rem; }
+.stmt-row .count { color: var(--muted); font-size: 0.78rem; margin-left: 6px; }
+.stmt-total { display: flex; justify-content: space-between; padding: 12px 0; font-weight: 800; font-size: 1rem; border-top: 2px solid var(--border); margin-top: 6px; }
+.stmt-net { display: flex; justify-content: space-between; padding: 16px 20px; border-radius: 14px; font-weight: 800; font-size: 1.2rem; margin-top: 16px; }
+.stmt-net.positive { background: var(--green-bg); color: var(--green); }
+.stmt-net.negative { background: var(--red-bg); color: var(--red); }
+
+.recon-week-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px 20px; margin-bottom: 12px; }
+.recon-week-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.recon-week-header .week-label { font-weight: 700; font-size: 0.94rem; }
+.recon-week-header .expected { color: var(--muted); font-size: 0.84rem; }
+.recon-candidate { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 10px; font-size: 0.86rem; margin-bottom: 6px; }
+.recon-candidate.match { background: var(--green-bg); }
+.recon-candidate.mismatch { background: var(--red-bg); }
+.recon-none { color: var(--muted); font-size: 0.84rem; font-style: italic; }
+.recon-week-card.recon-match-yes { border: 1.5px solid rgba(46,125,79,0.4); background: rgba(232,245,236,0.4); }
+.recon-week-card.recon-match-no { border: 1.5px solid rgba(179,56,44,0.4); background: rgba(251,233,231,0.4); }
+.recon-total-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; margin-top: 6px; border-top: 1px solid var(--border); font-weight: 700; font-size: 0.88rem; }
+.recon-match-badge { font-size: 0.82rem; }
+.recon-match-yes .recon-match-badge { color: var(--green); }
+.recon-match-no .recon-match-badge { color: var(--red); }
+
+.category-pill { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border: 1.5px solid var(--border); border-radius: 999px; font-size: 0.86rem; }
+.category-pill.inactive { opacity: 0.5; }
+.category-pill .type-dot { width: 8px; height: 8px; border-radius: 50%; }
+.category-pill .type-dot.income { background: var(--green); }
+.category-pill .type-dot.expense { background: var(--red); }
+.category-pill button { border: none; background: none; cursor: pointer; font-size: 0.76rem; font-weight: 700; color: var(--saffron-dark); padding: 0; margin-left: 4px; }
+.category-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+
+#gate{padding:60px 16px;display:flex;justify-content:center;}
+.gate-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow);}
+.gate-card h3{font-family:Georgia,serif;font-size:1.3rem;color:var(--maroon);margin-bottom:.5rem;}
+.gate-card p{color:var(--muted);font-size:.88rem;line-height:1.6;}
+.gate-card a{color:var(--saffron-dark);}
+</style>
+<style>
+.modal-overlay { position: fixed; inset: 0; background: rgba(44,27,16,0.5); z-index: 100; display: flex; align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto; }
+.modal-panel { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 22px 26px; border-bottom: 1px solid var(--border); }
+.modal-header h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.15rem; color: var(--maroon); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label { font-size: 0.78rem; font-weight: 700; color: var(--muted); }
+.field input[type="text"], .field input[type="email"], .field input[type="tel"], .field input[type="date"], .field input[type="time"], .field input[type="number"], .field select, .field textarea {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 10px; background: #fff; color: var(--text);
+  width: 100%; box-sizing: border-box; min-width: 0;
+}
+.field textarea { resize: vertical; min-height: 56px; }
+.modal-close { background: none; border: none; font-size: 1.4rem; color: var(--muted); cursor: pointer; line-height: 1; }
+.modal-body { padding: 22px 26px; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 18px 26px; border-top: 1px solid var(--border); }
+.exp-line-item { border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; cursor: pointer; }
+.exp-line-item:hover, .exp-line-item.active { border-color: var(--saffron-dark); background: var(--surface-soft); }
+.exp-line-item .exp-top-row { display: flex; justify-content: space-between; font-weight: 700; font-size: 0.9rem; margin-bottom: 4px; }
+.exp-line-item .exp-date { font-size: 0.78rem; color: var(--muted); margin-bottom: 8px; }
+.exp-submission-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+.exp-submission-card .exp-sub-info { font-size: 0.9rem; }
+.exp-submission-card .exp-sub-total { font-weight: 700; color: var(--maroon); font-size: 1rem; }
+.result-box.success { background: var(--green-bg); color: var(--green); border: 1px solid rgba(46,125,79,0.25); }
+.result-box.error { background: var(--red-bg); color: var(--red); border: 1px solid rgba(179,56,44,0.25); }
+.template-card { border: 1.5px solid var(--border); border-radius: 14px; padding: 16px; cursor: pointer; transition: border-color 0.15s; }
+.template-card:hover { border-color: var(--saffron); }
+.template-card.selected { border-color: var(--saffron-dark); background: var(--surface-soft); }
+.template-card h3 { font-size: 0.98rem; color: var(--maroon); margin-bottom: 4px; }
+.template-card p { font-size: 0.82rem; color: var(--muted); line-height: 1.4; }
+.template-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-bottom: 20px; }
+.email-preview-frame { border: 1.5px solid var(--border); border-radius: 14px; padding: 20px; background: #fff; max-height: 500px; overflow-y: auto; }
+.progress-bar-track { background: var(--surface-soft); border-radius: 999px; height: 20px; overflow: hidden; margin: 12px 0; }
+.progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--saffron-dark), var(--saffron)); transition: width 0.3s ease; }
+</style>
+</head>
+<body>
+<div id="site-header"></div>
+
+<div id="gate">
+  <div class="gate-card">
+    <h3>Checking access&hellip;</h3>
+    <p>Please sign in from the <a href="/admin/admin-portal">Admin Portal</a> first.</p>
+  </div>
+</div>
+
+<div id="app" style="display:none;">
+
+<div class="page-hero">
+  <div class="container">
+    <a class="back-link" href="https://hccgc.org/admin/admin-portal">&larr; Back to apps</a>
+    <h1>Communications</h1>
+    <p>See who your patrons are, how giving is trending, and send them something — all in one place.</p>
+  </div>
+</div>
+
+<div class="tab-nav">
+  <div class="container">
+    <ul>
+      <li><button class="tab-btn active" data-tab="dashboard">Dashboard</button></li>
+      <li><button class="tab-btn" data-tab="broadcast">Social Broadcast</button></li>
+      <li><button class="tab-btn" data-tab="mass-email">Mass Email</button></li>
+    </ul>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ── DASHBOARD TAB ── -->
+  <div class="tab-panel active" id="tab-dashboard">
+    <div class="card-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:20px;">
+      <div class="card stat-card-big"><div class="value" id="stat-total-patrons">&mdash;</div><div class="sub">Total patrons on file</div></div>
+      <div class="card stat-card-big"><div class="value" id="stat-unique-emails">&mdash;</div><div class="sub">Unique email addresses</div></div>
+      <div class="card stat-card-big"><div class="value" id="stat-unique-phones">&mdash;</div><div class="sub">Unique phone numbers</div></div>
+      <div class="card stat-card-big"><div class="value" id="stat-unique-addresses">&mdash;</div><div class="sub">Unique mailing addresses</div></div>
+      <div class="card stat-card-big"><div class="value" id="stat-repeat-patrons">&mdash;</div><div class="sub">Repeat donors (2+ months)</div></div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-bottom:4px;">Unique donors, last 7 months</h2>
+      <div class="card-sub" style="font-size:0.86rem;color:var(--muted);margin-bottom:8px;">Count of distinct donor email addresses giving each month.</div>
+      <div id="dash-mom-chart"></div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-bottom:4px;">Patron volume by campaign</h2>
+      <div class="card-sub" style="font-size:0.86rem;color:var(--muted);margin-bottom:8px;">Unique donors per campaign, all-time.</div>
+      <div id="dash-campaign-chart"></div>
+    </div>
+
+    <div class="card-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div class="card">
+        <h2 style="margin-bottom:8px;">Top 10 donors by value</h2>
+        <div id="dash-top-value"></div>
+      </div>
+      <div class="card">
+        <h2 style="margin-bottom:8px;">Top 10 donors by frequency</h2>
+        <div id="dash-top-frequency"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SOCIAL BROADCAST TAB ── -->
+  <div class="tab-panel" id="tab-broadcast">
+    <div class="card">
+      <h2 style="margin-bottom:8px;">Social Broadcast</h2>
+      <p style="font-size:0.92rem;color:var(--muted);line-height:1.6;max-width:640px;">
+        Not built yet — posting to Facebook, Instagram, and WhatsApp Business needs real API credentials
+        set up on the Meta side first (a Developer app, Page access token, and — for WhatsApp specifically —
+        pre-approved message templates, since Meta doesn't allow free-form broadcast messaging there).
+        Once that's in place, this tab is ready to be built out.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── MASS EMAIL TAB ── -->
+  <div class="tab-panel" id="tab-mass-email">
+    <div class="card">
+      <h2 style="margin-bottom:4px;">1. Choose a template</h2>
+      <div class="card-sub" style="font-size:0.86rem;color:var(--muted);margin-bottom:12px;">Pick the layout, then fill in your content below.</div>
+      <div class="template-grid" id="template-grid"></div>
+    </div>
+
+    <div class="card" id="email-content-card" style="display:none;">
+      <h2 style="margin-bottom:4px;">2. Write your message</h2>
+      <div class="field">
+        <label>Subject line</label>
+        <input type="text" id="em-subject" placeholder="What patrons will see in their inbox">
+      </div>
+      <div id="email-dynamic-fields"></div>
+      <div style="display:flex;gap:24px;margin-top:12px;">
+        <div style="flex:1;">
+          <label style="font-size:0.84rem;font-weight:700;display:block;margin-bottom:8px;">Live preview</label>
+          <div class="email-preview-frame" id="email-preview"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="email-recipients-card" style="display:none;">
+      <h2 style="margin-bottom:4px;">3. Choose recipients</h2>
+      <div class="card-sub" style="font-size:0.86rem;color:var(--muted);margin-bottom:12px;">Unsubscribed patrons are always excluded automatically.</div>
+      <div class="field" style="max-width:400px;">
+        <label>Search patrons (optional — leave blank to send to everyone eligible)</label>
+        <input type="text" id="em-patron-search" placeholder="Search by name or email">
+      </div>
+      <div id="em-recipient-summary" style="font-size:0.92rem;font-weight:700;color:var(--maroon);margin:8px 0;"></div>
+      <div id="em-recipient-list" style="max-height:240px;overflow-y:auto;border:1.5px solid var(--border);border-radius:12px;padding:10px;display:none;"></div>
+    </div>
+
+    <div class="card" id="email-send-card" style="display:none;">
+      <h2 style="margin-bottom:8px;">4. Send</h2>
+      <button type="button" class="btn-primary" id="btn-send-campaign">Send campaign</button>
+      <div id="em-send-progress" style="display:none;margin-top:16px;">
+        <div class="progress-bar-track"><div class="progress-bar-fill" id="em-progress-fill" style="width:0%;"></div></div>
+        <div id="em-progress-label" style="font-size:0.86rem;color:var(--muted);"></div>
+      </div>
+      <div id="em-send-result" style="margin-top:12px;"></div>
+    </div>
+  </div>
+
+</div>
+
+</div>
+
+<div id="site-footer"></div>
+
+<script>
+function loadPartial(id, url) {
+  fetch(url).then(function(r){return r.text();}).then(function(html){document.getElementById(id).innerHTML = html;});
+}
+loadPartial('site-header', '/header.html');
+loadPartial('site-footer', '/footer.html');
+</script>
+
+<script>
+const API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';
+
+async function authedFetch(url, options) {
+  options = options || {};
+  options.headers = Object.assign({}, options.headers, { 'Authorization': 'Bearer ' + await window.__hccgcFirebaseUser.getIdToken() });
+  return fetch(url, options);
+}
+function escHtml(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function moneyRound(n) { return '$' + Math.round(Number(n)).toLocaleString('en-US'); }
+
+// ── Dashboard ──
+async function loadCommunicationsDashboard() {
+  try {
+    const res = await authedFetch(API_BASE + '/communications/dashboard');
+    const data = await res.json();
+    if (!res.ok) throw new Error((data.errors || ['Server returned ' + res.status]).join(' '));
+
+    document.getElementById('stat-total-patrons').textContent = data.contactCounts.totalPatrons.toLocaleString();
+    document.getElementById('stat-unique-emails').textContent = data.contactCounts.uniqueEmails.toLocaleString();
+    document.getElementById('stat-unique-phones').textContent = data.contactCounts.uniquePhones.toLocaleString();
+    document.getElementById('stat-unique-addresses').textContent = data.contactCounts.uniqueAddresses.toLocaleString();
+    document.getElementById('stat-repeat-patrons').textContent = data.repeatPatrons.toLocaleString();
+
+    renderMomChart(data.monthOverMonth);
+    renderBarChart('dash-campaign-chart', data.campaignVolume.map(function (c) { return { name: c.campaign, total: c.uniquePatrons }; }), 'No campaign activity yet.');
+    renderDonorList('dash-top-value', data.topByValue, function (d) { return moneyRound(d.total); }, 'No donors yet.');
+    renderDonorList('dash-top-frequency', data.topByFrequency, function (d) { return d.giftCount + ' gift' + (d.giftCount === 1 ? '' : 's'); }, 'No donors yet.');
+  } catch (err) {
+    document.getElementById('dash-mom-chart').innerHTML = '<div class="empty-state" style="padding:20px;">Could not load: ' + escHtml(err.message) + '</div>';
+  }
+}
+function renderMomChart(monthOverMonth) {
+  const container = document.getElementById('dash-mom-chart');
+  if (!monthOverMonth.length) { container.innerHTML = '<div class="empty-state" style="padding:20px;">No donation activity in the last 7 months.</div>'; return; }
+  const max = Math.max.apply(null, monthOverMonth.map(function (m) { return m.uniquePatrons; })) || 1;
+  const bars = monthOverMonth.map(function (m) {
+    const h = Math.max(2, (m.uniquePatrons / max) * 150);
+    const label = new Date(m.month + '-02').toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+    return '<div class="trend-month"><div class="trend-bars"><div class="trend-bar income-bar" style="height:' + h + 'px;width:32px;" title="' + m.uniquePatrons + ' unique donors"></div></div>' +
+      '<div class="trend-month-label">' + label + '</div><div style="font-size:0.78rem;font-weight:700;color:var(--maroon);">' + m.uniquePatrons + '</div></div>';
+  }).join('');
+  container.innerHTML = '<div class="trend-chart">' + bars + '</div>';
+}
+function renderBarChart(containerId, items, emptyMessage) {
+  const container = document.getElementById(containerId);
+  if (!items.length) { container.innerHTML = '<div class="empty-state" style="padding:20px;">' + emptyMessage + '</div>'; return; }
+  const max = Math.max.apply(null, items.map(function (i) { return i.total; })) || 1;
+  container.innerHTML = items.map(function (i) {
+    const pct = max > 0 ? Math.max(2, (i.total / max) * 100) : 0;
+    return '<div class="bar-chart-row"><div class="bar-chart-label" title="' + escHtml(i.name) + '">' + escHtml(i.name) + '</div>' +
+      '<div class="bar-chart-track"><div class="bar-chart-fill" style="width:' + pct + '%;"></div></div>' +
+      '<div class="bar-chart-value">' + i.total.toLocaleString() + '</div></div>';
+  }).join('');
+}
+function renderDonorList(containerId, items, valueFormatter, emptyMessage) {
+  const container = document.getElementById(containerId);
+  if (!items.length) { container.innerHTML = '<div class="empty-state" style="padding:14px;">' + emptyMessage + '</div>'; return; }
+  container.innerHTML = items.map(function (item, i) {
+    return '<div class="contributor-row"><span class="rank">' + (i + 1) + '</span>' +
+      '<span class="name">' + escHtml(item.name) + '</span>' +
+      '<span class="meta">' + valueFormatter(item) + '</span></div>';
+  }).join('');
+}
+
+// ── Mass Email ──
+let EMAIL_TEMPLATES_CACHE = [];
+let selectedTemplateId = null;
+let recipientPreview = [];
+
+async function loadEmailTemplates() {
+  const res = await authedFetch(API_BASE + '/communications/templates');
+  EMAIL_TEMPLATES_CACHE = await res.json();
+  document.getElementById('template-grid').innerHTML = EMAIL_TEMPLATES_CACHE.map(function (t) {
+    return '<div class="template-card" data-template-id="' + t.id + '"><h3>' + escHtml(t.name) + '</h3><p>' + escHtml(t.description) + '</p></div>';
+  }).join('');
+  document.querySelectorAll('.template-card').forEach(function (card) {
+    card.addEventListener('click', function () { selectTemplate(card.dataset.templateId); });
+  });
+}
+const FIELD_LABELS = {
+  headline: 'Headline', bodyText: 'Message', imageUrl: 'Image URL', ctaText: 'Button text',
+  ctaUrl: 'Button link', eventDetails: 'Date / location line'
+};
+const FIELD_TYPES = { bodyText: 'textarea' };
+function selectTemplate(id) {
+  selectedTemplateId = id;
+  document.querySelectorAll('.template-card').forEach(function (c) { c.classList.toggle('selected', c.dataset.templateId === id); });
+  const template = EMAIL_TEMPLATES_CACHE.find(function (t) { return t.id === id; });
+  document.getElementById('email-content-card').style.display = 'block';
+  document.getElementById('email-recipients-card').style.display = 'block';
+  document.getElementById('email-send-card').style.display = 'block';
+  document.getElementById('email-dynamic-fields').innerHTML = template.fields.map(function (f) {
+    const type = FIELD_TYPES[f] || 'text';
+    return '<div class="field"><label>' + (FIELD_LABELS[f] || f) + '</label>' +
+      (type === 'textarea' ? '<textarea data-field="' + f + '"></textarea>' : '<input type="text" data-field="' + f + '">') +
+      '</div>';
+  }).join('');
+  document.querySelectorAll('#email-dynamic-fields [data-field]').forEach(function (el) {
+    el.addEventListener('input', updateEmailPreview);
+  });
+  updateEmailPreview();
+}
+function updateEmailPreview() {
+  if (!selectedTemplateId) return;
+  const template = EMAIL_TEMPLATES_CACHE.find(function (t) { return t.id === selectedTemplateId; });
+  const data = { subject: document.getElementById('em-subject').value };
+  document.querySelectorAll('#email-dynamic-fields [data-field]').forEach(function (el) { data[el.dataset.field] = el.value; });
+  // Client-side preview mirrors the server's render() logic closely enough
+  // for a visual check — the actual sent HTML is always built server-side
+  // at send time, this is preview only.
+  const esc = function (s) { return escHtml(s || ''); };
+  let html = '<div style="font-family:Arial,Helvetica,sans-serif;">';
+  if (data.imageUrl) html += '<img src="' + esc(data.imageUrl) + '" style="width:100%;border-radius:12px;" alt="">';
+  html += '<h1 style="color:#7f2e16;font-size:22px;margin-top:12px;">' + esc(data.headline || data.subject) + '</h1>';
+  if (data.eventDetails) html += '<p style="font-size:14px;color:#8d3e0d;font-weight:bold;">' + esc(data.eventDetails) + '</p>';
+  html += '<p style="font-size:15px;line-height:1.6;color:#2c1b10;white-space:pre-wrap;">' + esc(data.bodyText) + '</p>';
+  if (data.ctaUrl) html += '<p><a href="#" style="display:inline-block;background:#b55a18;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;">' + esc(data.ctaText || 'Learn more') + '</a></p>';
+  html += '<p style="font-size:11px;color:#999;margin-top:24px;">You are receiving this because you have supported or attended an HCCGC program. <a href="#">Unsubscribe</a>.</p></div>';
+  document.getElementById('email-preview').innerHTML = html;
+}
+document.getElementById('em-subject').addEventListener('input', updateEmailPreview);
+
+async function refreshRecipientPreview() {
+  const search = document.getElementById('em-patron-search').value;
+  const res = await authedFetch(API_BASE + '/communications/patrons?search=' + encodeURIComponent(search));
+  const patrons = await res.json();
+  recipientPreview = patrons.filter(function (p) { return !p.unsubscribed; });
+  const excluded = patrons.length - recipientPreview.length;
+  document.getElementById('em-recipient-summary').textContent = recipientPreview.length + ' will receive this' +
+    (excluded ? ' (' + excluded + ' excluded — unsubscribed)' : '');
+}
+document.getElementById('em-patron-search').addEventListener('input', debounce(refreshRecipientPreview, 300));
+function debounce(fn, ms) { let t; return function () { clearTimeout(t); const args = arguments; t = setTimeout(function () { fn.apply(null, args); }, ms); }; }
+
+document.getElementById('btn-send-campaign').addEventListener('click', async function () {
+  const subject = document.getElementById('em-subject').value.trim();
+  if (!selectedTemplateId) { alert('Choose a template first.'); return; }
+  if (!subject) { alert('Enter a subject line.'); return; }
+  if (!recipientPreview.length) { alert('No eligible recipients match — check your search filter.'); return; }
+  if (!confirm('Send this to ' + recipientPreview.length + ' patron' + (recipientPreview.length === 1 ? '' : 's') + '? This cannot be undone.')) return;
+
+  const btn = this;
+  btn.disabled = true;
+  const resultEl = document.getElementById('em-send-result');
+  resultEl.textContent = '';
+  try {
+    const startRes = await authedFetch(API_BASE + '/communications/start-campaign', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ templateId: selectedTemplateId, subject: subject, patronIds: recipientPreview.map(function (p) { return p.patronId; }) })
+    });
+    const startData = await startRes.json();
+    if (!startRes.ok) throw new Error((startData.errors || ['Could not start campaign']).join(' '));
+
+    const progressWrap = document.getElementById('em-send-progress');
+    const fill = document.getElementById('em-progress-fill');
+    const label = document.getElementById('em-progress-label');
+    progressWrap.style.display = 'block';
+    const total = startData.recipientCount;
+    let sentSoFar = 0, failedSoFar = 0, remaining = total;
+    while (remaining > 0) {
+      const batchRes = await authedFetch(API_BASE + '/communications/send-campaign-batch?campaignId=' + startData.campaignId + '&limit=20', { method: 'POST' });
+      const batchData = await batchRes.json();
+      if (!batchRes.ok) throw new Error((batchData.errors || ['Send batch failed']).join(' '));
+      sentSoFar += batchData.sent;
+      failedSoFar += batchData.failed;
+      remaining = batchData.remaining;
+      const pct = Math.round(((total - remaining) / total) * 100);
+      fill.style.width = pct + '%';
+      label.textContent = (total - remaining) + ' of ' + total + ' processed' + (failedSoFar ? ' (' + failedSoFar + ' failed)' : '');
+    }
+    resultEl.innerHTML = '<div style="color:var(--green);font-weight:700;">Done — ' + sentSoFar + ' sent' + (failedSoFar ? ', ' + failedSoFar + ' failed' : '') + '.</div>';
+  } catch (err) {
+    resultEl.innerHTML = '<div style="color:var(--red);font-weight:700;">' + escHtml(err.message) + '</div>';
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// ── Tabs ──
+document.querySelectorAll('.tab-btn').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+    document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'mass-email' && !window.__emailTabLoaded) { loadEmailTemplates(); refreshRecipientPreview(); window.__emailTabLoaded = true; }
+  });
+});
+</script>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js';
+import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
+
+var firebaseConfig = {
+  apiKey: 'AIzaSyA6IzLjWTg7Rq04HsTH-iA3eDmSzKI7xME',
+  authDomain: 'hccgc-a7a54.firebaseapp.com',
+  projectId: 'hccgc-a7a54',
+  storageBucket: 'hccgc-a7a54.firebasestorage.app',
+  messagingSenderId: '75757201418',
+  appId: '1:75757201418:web:c31e9361921242145717f3'
+};
+
+var ALLOWED_DOMAIN = 'hccgc.org';
+var REQUIRED_APP_KEY = 'org-communications';
+var PORTAL_URL = '/admin/admin-portal';
+
+var fbApp = initializeApp(firebaseConfig);
+var auth = getAuth(fbApp);
+var db = getFirestore(fbApp);
+
+function showGate(title, msg) {
+  document.getElementById('gate').querySelector('h3').textContent = title;
+  document.getElementById('gate').querySelector('p').innerHTML = msg;
+  document.getElementById('gate').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+onAuthStateChanged(auth, function(user) {
+  if (!user) { showGate('Sign in required', 'Please sign in from the <a href="'+PORTAL_URL+'">Admin Portal</a> first.'); return; }
+  var email = (user.email||'').toLowerCase();
+  window.__hccgcCurrentUser = { email: email };
+  window.__hccgcFirebaseUser = user;
+  if (!email.endsWith('@'+ALLOWED_DOMAIN)) { showGate('Access denied', 'Please use an @'+ALLOWED_DOMAIN+' account.'); return; }
+  getDoc(doc(db, 'portalUsers', email)).then(function(snap) {
+    var data = snap.exists() ? snap.data() : {};
+    if (!data.isAdmin && !(Array.isArray(data.allowedApps) && data.allowedApps.includes(REQUIRED_APP_KEY))) {
+      showGate('Access not granted', "You don't have access to Communications. Ask an admin to grant it.");
+      return;
+    }
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadCommunicationsDashboard();
+  }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });
+});
+</script>
+</body>
+</html>

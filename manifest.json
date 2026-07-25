@@ -1,0 +1,13 @@
+{
+  "name": "HCCGC Admin Portal",
+  "short_name": "HCCGC Admin",
+  "start_url": "/admin/admin-portal",
+  "scope": "/admin/",
+  "display": "standalone",
+  "background_color": "#fff9f1",
+  "theme_color": "#8d3e0d",
+  "icons": [
+    { "src": "/favicon-32x32.png", "sizes": "32x32", "type": "image/png" },
+    { "src": "/favicon-16x16.png", "sizes": "16x16", "type": "image/png" }
+  ]
+}

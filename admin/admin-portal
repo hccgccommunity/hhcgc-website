@@ -4,704 +4,726 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Communications — HCCGC Admin Portal</title>
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<title>HCCGC Admin Portal</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#8d3e0d">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' x='50%25' text-anchor='middle' font-size='82'%3E%E0%A5%90%3C/text%3E%3C/svg%3E">
+
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F5ZHQ4CDR9');</script>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-TPBF5VKB');</script>
+
 <style>
 :root {
-  --bg: #fff9f1; --surface: #ffffff; --surface-soft: #fff6ea; --border: rgba(121,62,17,0.14);
-  --text: #2c1b10; --muted: #6a5141; --saffron: #b55a18; --saffron-dark: #8d3e0d; --maroon: #7f2e16;
-  --green: #2e7d4f; --green-bg: #e8f5ec; --red: #b3382c; --red-bg: #fbe9e7;
-  --radius: 22px; --shadow: 0 18px 45px rgba(93,43,14,0.10);
+  --bg: #fff9f1;
+  --surface: #ffffff;
+  --surface-soft: #fff6ea;
+  --border: rgba(121,62,17,0.14);
+  --text: #2c1b10;
+  --muted: #6a5141;
+  --saffron: #b55a18;
+  --saffron-dark: #8d3e0d;
+  --maroon: #7f2e16;
+  --radius: 22px;
+  --shadow: 0 18px 45px rgba(93,43,14,0.10);
 }
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%), radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%), var(--bg); color: var(--text); min-height: 100vh; }
-.container { width: min(calc(100% - 32px), 1300px); margin: 0 auto; }
-.site-header { position: sticky; top: 0; z-index: 50; background: rgba(255,249,241,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
-.nav { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 92px; padding: 12px 0; }
-.site-header a.brand, .site-header a.brand:link, .site-header a.brand:visited { text-decoration: none; color: inherit; }
-.brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
-.brand-logo-wrap { background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 8px; box-shadow: var(--shadow); flex-shrink: 0; }
-.brand-logo { width: 88px; height: auto; border-radius: 12px; object-fit: contain; }
-.brand-text h1 { margin: 0; font-size: 1.2rem; line-height: 1.15; color: var(--maroon); }
-.site-header nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 18px; margin: 0; padding: 0; align-items: center; justify-content: flex-end; }
-.site-header nav a, .site-header nav a:link, .site-header nav a:visited { font-weight: 700; color: var(--text); font-size: 0.96rem; text-decoration: none; }
-.site-header nav a:hover { color: var(--saffron-dark); }
-.menu-toggle { display: none; border: 0; background: transparent; padding: 6px 0; cursor: pointer; color: #2c1b10; align-self: flex-end; }
-.menu-toggle .bar { display: block; width: 26px; height: 2px; margin: 5px 0; background: currentColor; }
-@media (max-width: 768px) {
-  .nav { flex-direction: column; align-items: stretch; gap: 8px; } .menu-toggle { display: inline-block; }
-  .site-header nav { display: none; width: 100%; background: rgba(255,249,241,0.95); padding: 10px 0; }
-  .site-header nav.is-open { display: block; } .site-header nav ul { flex-direction: column; gap: 14px; }
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%),
+    radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%),
+    var(--bg);
+  color: var(--text);
+  min-height: 100vh;
 }
-.page-hero { padding: 28px 0 22px; background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%); color: #fff; }
-.page-hero h1 { font-family: Georgia, "Times New Roman", serif; font-size: 1.9rem; color: #fff; margin-bottom: 6px; }
-.page-hero p { color: #ffffff; opacity: 0.9; font-size: 0.92rem; max-width: 620px; }
-.back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.85); text-decoration: none; margin-bottom: 14px; }
-.back-link:hover { color: #fff; text-decoration: underline; }
 
-.tab-nav { background: var(--surface); border-bottom: 1px solid var(--border); }
-.tab-nav ul { list-style: none; display: flex; gap: 4px; padding: 10px 0; flex-wrap: wrap; }
-.tab-nav button { display: inline-block; padding: 8px 16px; border-radius: 999px; font-size: 0.86rem; font-weight: 700; color: var(--muted); background: none; border: none; cursor: pointer; transition: background 0.15s, color 0.15s; font-family: inherit; }
-.tab-nav button.active { background: var(--surface-soft); color: var(--saffron-dark); }
-.tab-nav button:not(.active):hover { background: var(--surface-soft); }
+.container { width: min(calc(100% - 32px), 1100px); margin: 0 auto; }
 
-.tab-panel { display: none; padding: 24px 0 60px; }
-.tab-panel.active { display: block; }
+/* HERO */
+.page-hero {
+  padding: 48px 0 36px;
+  text-align: center;
+  background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%);
+  color: #fff;
+  position: relative;
+}
+.page-hero h1 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 2rem;
+  color: #fff;
+  margin-bottom: 10px;
+}
+.page-hero p {
+  color: #ffffff;
+  font-size: 0.95rem;
+  max-width: 480px;
+  margin: 0 auto;
+}
 
-.sub-tab-nav { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 14px; }
-.sub-tab-btn { padding: 8px 16px; border-radius: 999px; font-size: 0.84rem; font-weight: 700; color: var(--muted); background: #fff; border: 1.5px solid var(--border); cursor: pointer; font-family: inherit; }
-.sub-tab-btn.active { background: var(--saffron-dark); color: #fff; border-color: var(--saffron-dark); }
-.sub-tab-panel { display: none; }
-.sub-tab-panel.active { display: block; }
+/* GATE */
+#gate { padding: 40px 16px 80px; display: flex; justify-content: center; }
+.gate-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2.5rem 2rem;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.gate-card img.logo {
+  width: 90px; height: 90px;
+  object-fit: contain;
+  border-radius: 50%;
+  margin: 0 auto 1.25rem;
+  display: block;
+  border: 3px solid var(--border);
+}
+.gate-card h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.3rem;
+  color: var(--maroon);
+  margin-bottom: 0.5rem;
+}
+.gate-card > p { color: var(--muted); font-size: 0.86rem; line-height: 1.6; margin-bottom: 1.6rem; }
 
-.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
-#global-loading-overlay { position: fixed; inset: 0; background: rgba(44,27,16,0.15); backdrop-filter: blur(1px); z-index: 999; display: none; align-items: center; justify-content: center; }
-#global-loading-overlay.visible { display: flex; }
-#global-loading-overlay .spinner { width: 44px; height: 44px; border: 4px solid rgba(255,255,255,0.5); border-top-color: var(--saffron-dark); border-radius: 50%; animation: gl-spin 0.7s linear infinite; }
-@keyframes gl-spin { to { transform: rotate(360deg); } }
-.pagination-bar { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 20px 0 50px; }
-.pagination-bar button { font-family: inherit; font-size: 0.84rem; padding: 7px 14px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; }
-.pagination-bar button:hover:not(:disabled) { background: var(--surface-soft); }
-.pagination-bar button:disabled { opacity: 0.4; cursor: default; }
-.pagination-bar .page-indicator { font-size: 0.84rem; color: var(--muted); }
-.contact-filter-wrap { position: relative; }
-.contact-filter-panel { position: absolute; top: calc(100% + 4px); left: 0; z-index: 40; background: #fff; border: 1.5px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); padding: 10px; width: 260px; max-height: 320px; overflow-y: auto; }
-.contact-filter-actions { display: flex; gap: 8px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-.contact-filter-actions button { font-family: inherit; font-size: 0.76rem; font-weight: 700; color: var(--saffron-dark); background: none; border: none; cursor: pointer; padding: 2px 4px; }
-.contact-filter-row { display: flex; align-items: center; gap: 8px; padding: 5px 4px; font-size: 0.86rem; }
-.contact-filter-row input { flex-shrink: 0; }
-.contact-filter-row label { cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.btn-google {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 0.72rem 1rem; background: #fff;
+  border: 1.5px solid var(--border); border-radius: 10px;
+  font-size: 0.95rem; font-weight: 600; color: #3c4043;
+  cursor: pointer; transition: background 0.15s, box-shadow 0.15s;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.btn-google:hover { background: #f8f9fa; box-shadow: 0 1px 8px rgba(0,0,0,0.13); }
 
-.gauge-track { background: var(--surface-soft); border-radius: 999px; height: 28px; overflow: hidden; position: relative; margin-bottom: 10px; }
-.gauge-fill { height: 100%; border-radius: 999px; transition: width 0.3s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; }
-.gauge-fill.positive { background: linear-gradient(90deg, var(--green), #4caf7d); }
-.gauge-fill.negative { background: linear-gradient(90deg, var(--red), #d9564a); }
-.gauge-marker { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--maroon); }
-.gauge-labels { display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--muted); }
-.gauge-stats { display: flex; gap: 24px; margin-top: 16px; flex-wrap: wrap; }
-.gauge-stat { flex: 1; min-width: 140px; }
-.gauge-stat .label { font-size: 0.76rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
-.gauge-stat .value { font-size: 1.4rem; font-weight: 800; }
-.gauge-stat .value.positive { color: var(--green); }
-.gauge-stat .value.negative { color: var(--red); }
+#signin-error {
+  display: none;
+  color: #c0392b;
+  background: #fdecea;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  margin-top: 1rem;
+  text-align: left;
+}
 
-.bar-chart-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-.bar-chart-label { width: 190px; flex-shrink: 0; font-size: 0.86rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.bar-chart-track { flex: 1; background: var(--surface-soft); border-radius: 8px; height: 26px; position: relative; overflow: hidden; }
-.bar-chart-fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, var(--saffron-dark), var(--saffron)); }
-.bar-chart-value { width: 110px; flex-shrink: 0; text-align: right; font-weight: 700; font-size: 0.88rem; }
+.gate-note { margin-top: 1.2rem; font-size: 0.78rem; color: var(--muted); }
+.gate-note a { color: var(--saffron-dark); text-decoration: none; }
+.gate-note a:hover { text-decoration: underline; }
 
-.pie-chart-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 8px 0; }
-.pie-chart-wrap svg { flex-shrink: 0; width: 100%; max-width: 260px; height: auto; }
-.pie-legend { width: 100%; max-width: 340px; }
-.pie-legend-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 0.84rem; }
-.pie-legend-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
-.pie-legend-name { flex: 1; }
-.pie-legend-value { font-weight: 700; white-space: nowrap; }
+/* APP GRID */
+#app { display: none; }
 
-.stat-card-big { text-align: center; padding: 20px; }
-.stat-card-big .value { font-size: 2.2rem; font-weight: 800; color: var(--maroon); }
-.stat-card-big .sub { font-size: 0.86rem; color: var(--muted); margin-top: 6px; }
+.app-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+  padding: 8px 0 60px;
+}
 
-.trend-chart { display: flex; align-items: flex-end; gap: 14px; height: 200px; padding: 10px 4px 0; overflow-x: auto; }
-.trend-month { display: flex; flex-direction: column; align-items: center; min-width: 64px; flex-shrink: 0; }
-.trend-bars { display: flex; align-items: flex-end; gap: 4px; height: 150px; }
-.trend-bar { width: 20px; border-radius: 4px 4px 0 0; position: relative; }
-.trend-bar.income-bar { background: linear-gradient(180deg, #4caf7d, var(--green)); }
-.trend-bar.expense-bar { background: linear-gradient(180deg, #d9564a, var(--red)); }
-.trend-month-label { font-size: 0.72rem; color: var(--muted); margin-top: 8px; white-space: nowrap; }
-.trend-legend { display: flex; gap: 18px; margin-bottom: 8px; font-size: 0.8rem; }
-.trend-legend span { display: flex; align-items: center; gap: 6px; }
-.trend-legend .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
-.trend-legend .dot.income { background: var(--green); }
-.trend-legend .dot.expense { background: var(--red); }
+.app-tile {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 1.75rem 1.5rem;
+  text-decoration: none;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 4px 16px rgba(93,43,14,0.06);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.app-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(93,43,14,0.14);
+}
 
-.contributor-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 0.86rem; }
-.contributor-row:last-child { border-bottom: none; }
-.contributor-row .rank { width: 22px; color: var(--muted); font-weight: 700; }
-.contributor-row .name { flex: 1; }
-.contributor-row .meta { color: var(--muted); font-size: 0.76rem; }
-.contributor-row .amount { font-weight: 700; }
+.app-tile-icon {
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  background: var(--surface-soft);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--saffron-dark);
+}
+.app-tile-icon svg { width: 24px; height: 24px; }
 
+.app-tile h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.15rem;
+  color: var(--maroon);
+}
+.app-tile p {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.app-tile-badge {
+  align-self: flex-start;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--saffron-dark);
+  background: rgba(217,138,30,0.12);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.no-apps {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+  background: #fff;
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
 .spinner {
-  display: inline-block; width: 18px; height: 18px; border: 2.5px solid var(--border);
-  border-top-color: var(--saffron-dark); border-radius: 50%; animation: spin 0.7s linear infinite;
+  width: 20px; height: 20px;
+  border: 3px solid rgba(141,62,13,0.18);
+  border-top-color: var(--saffron-dark);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 12px;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-#dash-content.is-loading { opacity: 0.4; pointer-events: none; filter: grayscale(0.4); transition: opacity 0.15s ease; }
-
-.annual-trend-chart { display: flex; align-items: flex-end; gap: 8px; height: 180px; padding: 10px 4px 0; position: relative; }
-.annual-trend-bar-wrap { display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 0; }
-.annual-trend-bars { display: flex; align-items: flex-end; height: 140px; width: 100%; justify-content: center; }
-.annual-trend-bar { width: 60%; border-radius: 4px 4px 0 0; }
-.annual-trend-bar.above { background: linear-gradient(180deg, #4caf7d, var(--green)); }
-.annual-trend-bar.below { background: linear-gradient(180deg, #d9564a, var(--red)); }
-.annual-trend-month-label { font-size: 0.68rem; color: var(--muted); margin-top: 8px; white-space: nowrap; }
-.annual-trend-threshold-line { position: absolute; left: 0; right: 0; border-top: 2px dashed var(--maroon); }
-.annual-trend-threshold-label { position: absolute; left: 4px; top: -18px; font-size: 0.7rem; color: var(--maroon); font-weight: 700; background: var(--surface); padding: 0 4px; }
-.toolbar input, .toolbar select {
-  font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; padding: 9px 14px;
-  border: 1.5px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text);
+/* Header partial styling — required by header.html's markup.
+   Copied to match the rest of the site so header.html renders
+   identically here as it does everywhere else. */
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(255, 249, 241, 0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
 }
-.toolbar .count { margin-left: auto; font-size: 0.82rem; color: var(--muted); }
-.btn-primary {
-  font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; font-weight: 700; color: #fff;
-  background: linear-gradient(135deg, var(--saffron-dark), var(--maroon)); border: none; border-radius: 10px;
-  padding: 10px 16px; cursor: pointer;
+.nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    min-height: 92px;
+    padding: 12px 0;
 }
-.btn-secondary {
-  font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; font-weight: 700; color: var(--text);
-  background: #fff; border: 1.5px solid var(--border); border-radius: 10px; padding: 9px 14px; cursor: pointer;
+.site-header a.brand,
+.site-header a.brand:link,
+.site-header a.brand:visited {
+  text-decoration: none;
+  color: inherit;
+}
+.brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.brand-logo-wrap {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 8px;
+    box-shadow: var(--shadow);
+    flex-shrink: 0;
+}
+.brand-logo { width: 88px; height: auto; border-radius: 12px; object-fit: contain; }
+.brand-text h1 { margin: 0; font-size: 1.2rem; line-height: 1.15; color: var(--maroon); }
+.site-header nav ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+    justify-content: flex-end;
+}
+.site-header nav a,
+.site-header nav a:link,
+.site-header nav a:visited { font-weight: 700; color: var(--text); font-size: 0.96rem; text-decoration: none; }
+.site-header nav a:hover { color: var(--saffron-dark); }
+.menu-toggle {
+    display: none;
+    border: 0;
+    background: transparent;
+    padding: 6px 0;
+    cursor: pointer;
+    color: #2c1b10;
+    align-self: flex-end;
+}
+.menu-toggle .bar { display: block; width: 26px; height: 2px; margin: 5px 0; background: currentColor; }
+@media (max-width: 768px) {
+    .nav { flex-direction: column; align-items: stretch; gap: 8px; }
+    .menu-toggle { display: inline-block; }
+    .site-header nav {
+        display: none;
+        width: 100%;
+        background: rgba(255, 249, 241, 0.95);
+        padding: 10px 0;
+    }
+    .site-header nav.is-open { display: block; }
+    .site-header nav ul { flex-direction: column; gap: 14px; }
 }
 
-.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow-x: auto; box-shadow: var(--shadow); }
-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
-thead th { text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); background: var(--surface-soft); padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
-tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-tbody tr:last-child td { border-bottom: none; }
-tbody tr:hover { background: rgba(217,138,30,0.04); }
-.amount { font-weight: 700; }
-.amount.income { color: var(--green); }
-.amount.expense { color: var(--red); }
-.source-tag { display: inline-block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--surface-soft); color: var(--saffron-dark); }
-tr.sub-row td { background: var(--surface-soft); }
-tr.sub-row td:first-child { padding-left: 22px; border-left: 3px solid var(--saffron-dark); }
-.method-tag { font-size: 0.72rem; color: var(--muted); display: block; margin-top: 2px; }
-tr.series-row:hover td { background: var(--surface-soft); }
-.sortable-th { cursor: pointer; user-select: none; }
-.sortable-th:hover { color: var(--saffron-dark); }
-.sort-arrow { font-size: 0.7rem; opacity: 0.5; }
-.sort-arrow.active { opacity: 1; color: var(--saffron-dark); }
-.cat-select { font-family: inherit; font-size: 0.82rem; padding: 6px 10px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; }
-.cat-select:disabled { background: var(--surface-soft); color: var(--muted); cursor: not-allowed; opacity: 0.85; }
-.confirm-paid-select { font-family: inherit; font-size: 0.8rem; padding: 6px 8px; border: 1.5px solid var(--saffron-dark); border-radius: 8px; background: #fff; color: var(--saffron-dark); font-weight: 700; }
-.cat-select.uncategorized { border-color: var(--red); background: var(--red-bg); }
-.tx-row-checkbox { width: 16px; height: 16px; cursor: pointer; }
-.tx-reviewed-circle { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border); background: #fff; cursor: pointer; font-size: 0.72rem; font-weight: 900; color: #fff; vertical-align: middle; line-height: 1; padding: 0; }
-.tx-reviewed-circle.is-reviewed { background: #1f6b3f; border-color: #1f6b3f; }
-.tx-reviewed-circle:hover:not(.is-reviewed) { border-color: var(--saffron-dark); }
-.tx-bulk-bar { display: flex; align-items: center; gap: 10px; font-size: 0.82rem; color: var(--muted); padding: 8px 4px; }
-.tx-loading-overlay { position: relative; }
-.tx-loading-overlay.is-loading::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0.6); backdrop-filter: blur(1px); z-index: 5; }
-.tx-spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--saffron-dark); border-radius: 50%; animation: tx-spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
-@keyframes tx-spin { to { transform: rotate(360deg); } }
-.btn-note { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; vertical-align: middle; }
-.btn-note.has-content { background: #bdedcf; border: 2px solid #1f6b3f; }
-.invoice-action-btn { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1.5px solid var(--border); background: #fff; font-family: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer; text-align: left; }
-.invoice-action-btn:hover { background: var(--surface-soft); }
-.invoice-action-btn.primary { background: linear-gradient(135deg, var(--saffron-dark), var(--maroon)); color: #fff; border: none; }
-.btn-invoice { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; vertical-align: middle; }
-.btn-invoice.attached { background: #ffe4a3; border: 2px solid #c8890a; box-shadow: 0 0 0 1px rgba(200,137,10,0.25); }
-.btn-invoice.sent { background: #bdedcf; border: 2px solid #1f6b3f; box-shadow: 0 0 0 1px rgba(31,107,63,0.25); }
-.btn-invoice:hover:not(.sent) { filter: brightness(0.96); }
-.btn-receipt { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; vertical-align: middle; }
-.btn-receipt.sent { background: #bdedcf; border: 2px solid #1f6b3f; box-shadow: 0 0 0 1px rgba(31,107,63,0.25); }
-.btn-receipt:disabled { opacity: 0.4; cursor: default; }
-.btn-receipt:hover:not(:disabled):not(.sent) { filter: brightness(0.96); }
-.btn-note:hover { background: var(--surface-soft); }
-.collapsible-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 12px 0; }
-.collapsible-header .toggle-arrow { transition: transform 0.15s ease; }
-.collapsible-header.is-open .toggle-arrow { transform: rotate(90deg); }
-.collapsible-body { display: none; }
-.collapsible-body.is-open { display: block; }
-.empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
-
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; box-shadow: var(--shadow); margin-bottom: 20px; }
-.stmt-section-title { font-family: Georgia, "Times New Roman", serif; color: var(--maroon); font-size: 1.1rem; margin: 18px 0 8px; }
-.stmt-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 0.92rem; }
-.stmt-row .count { color: var(--muted); font-size: 0.78rem; margin-left: 6px; }
-.stmt-total { display: flex; justify-content: space-between; padding: 12px 0; font-weight: 800; font-size: 1rem; border-top: 2px solid var(--border); margin-top: 6px; }
-.stmt-net { display: flex; justify-content: space-between; padding: 16px 20px; border-radius: 14px; font-weight: 800; font-size: 1.2rem; margin-top: 16px; }
-.stmt-net.positive { background: var(--green-bg); color: var(--green); }
-.stmt-net.negative { background: var(--red-bg); color: var(--red); }
-
-.recon-week-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px 20px; margin-bottom: 12px; }
-.recon-week-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.recon-week-header .week-label { font-weight: 700; font-size: 0.94rem; }
-.recon-week-header .expected { color: var(--muted); font-size: 0.84rem; }
-.recon-candidate { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 10px; font-size: 0.86rem; margin-bottom: 6px; }
-.recon-candidate.match { background: var(--green-bg); }
-.recon-candidate.mismatch { background: var(--red-bg); }
-.recon-none { color: var(--muted); font-size: 0.84rem; font-style: italic; }
-.recon-week-card.recon-match-yes { border: 1.5px solid rgba(46,125,79,0.4); background: rgba(232,245,236,0.4); }
-.recon-week-card.recon-match-no { border: 1.5px solid rgba(179,56,44,0.4); background: rgba(251,233,231,0.4); }
-.recon-total-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; margin-top: 6px; border-top: 1px solid var(--border); font-weight: 700; font-size: 0.88rem; }
-.recon-match-badge { font-size: 0.82rem; }
-.recon-match-yes .recon-match-badge { color: var(--green); }
-.recon-match-no .recon-match-badge { color: var(--red); }
-
-.category-pill { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border: 1.5px solid var(--border); border-radius: 999px; font-size: 0.86rem; }
-.category-pill.inactive { opacity: 0.5; }
-.category-pill .type-dot { width: 8px; height: 8px; border-radius: 50%; }
-.category-pill .type-dot.income { background: var(--green); }
-.category-pill .type-dot.expense { background: var(--red); }
-.category-pill button { border: none; background: none; cursor: pointer; font-size: 0.76rem; font-weight: 700; color: var(--saffron-dark); padding: 0; margin-left: 4px; }
-.category-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
-
-#gate{padding:60px 16px;display:flex;justify-content:center;}
-.gate-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow);}
-.gate-card h3{font-family:Georgia,serif;font-size:1.3rem;color:var(--maroon);margin-bottom:.5rem;}
-.gate-card p{color:var(--muted);font-size:.88rem;line-height:1.6;}
-.gate-card a{color:var(--saffron-dark);}
-</style>
-<style>
-.modal-overlay { position: fixed; inset: 0; background: rgba(44,27,16,0.5); z-index: 100; display: flex; align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto; }
-.modal-panel { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); }
-.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 22px 26px; border-bottom: 1px solid var(--border); }
-.modal-header h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.15rem; color: var(--maroon); }
-.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
-.field label { font-size: 0.78rem; font-weight: 700; color: var(--muted); }
-.field input[type="text"], .field input[type="email"], .field input[type="tel"], .field input[type="date"], .field input[type="time"], .field input[type="number"], .field select, .field textarea {
-  font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 10px; background: #fff; color: var(--text);
-  width: 100%; box-sizing: border-box; min-width: 0;
+/* Simple signed-in status row (replaces a custom topbar so the page
+   keeps the standard site header/footer instead of its own chrome) */
+.user-status-row {
+  display: none;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.85);
+  position: absolute;
+  top: 14px;
+  right: 0;
 }
-.field textarea { resize: vertical; min-height: 56px; }
-.modal-close { background: none; border: none; font-size: 1.4rem; color: var(--muted); cursor: pointer; line-height: 1; }
-.modal-body { padding: 22px 26px; }
-.modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 18px 26px; border-top: 1px solid var(--border); }
-.exp-line-item { border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; cursor: pointer; }
-.exp-line-item:hover, .exp-line-item.active { border-color: var(--saffron-dark); background: var(--surface-soft); }
-.exp-line-item .exp-top-row { display: flex; justify-content: space-between; font-weight: 700; font-size: 0.9rem; margin-bottom: 4px; }
-.exp-line-item .exp-date { font-size: 0.78rem; color: var(--muted); margin-bottom: 8px; }
-.exp-submission-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-.exp-submission-card .exp-sub-info { font-size: 0.9rem; }
-.exp-submission-card .exp-sub-total { font-weight: 700; color: var(--maroon); font-size: 1rem; }
-.result-box.success { background: var(--green-bg); color: var(--green); border: 1px solid rgba(46,125,79,0.25); }
-.result-box.error { background: var(--red-bg); color: var(--red); border: 1px solid rgba(179,56,44,0.25); }
-.template-card { border: 1.5px solid var(--border); border-radius: 14px; padding: 16px; cursor: pointer; transition: border-color 0.15s; }
-.template-card:hover { border-color: var(--saffron); }
-.template-card.selected { border-color: var(--saffron-dark); background: var(--surface-soft); }
-.template-card h3 { font-size: 0.98rem; color: var(--maroon); margin-bottom: 4px; }
-.template-card p { font-size: 0.82rem; color: var(--muted); line-height: 1.4; }
-.template-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-bottom: 20px; }
-.email-preview-frame { border: 1.5px solid var(--border); border-radius: 14px; padding: 20px; background: #fff; max-height: 500px; overflow-y: auto; }
-.progress-bar-track { background: var(--surface-soft); border-radius: 999px; height: 20px; overflow: hidden; margin: 12px 0; }
-.progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--saffron-dark), var(--saffron)); transition: width 0.3s ease; }
+.user-status-row.show { display: flex; }
+@media (max-width: 640px) {
+  /* On narrow screens the h1 wraps to two lines, and absolute positioning
+     anchored to the container's top doesn't move with that wrap - it just
+     sits on top of whatever text ends up there. Switching to normal flow
+     here means the status row pushes the title down instead of
+     overlapping it. */
+  .user-status-row {
+    position: static;
+    justify-content: flex-start;
+    margin-bottom: 14px;
+  }
+}
+.user-status-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(255,255,255,0.2);
+  border: 1.5px solid rgba(255,255,255,0.4);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+.user-status-avatar img { width: 100%; height: 100%; object-fit: cover; }
+#status-name {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  min-width: 0; max-width: 180px;
+}
+@media (max-width: 480px) {
+  #status-name { max-width: 110px; }
+}
+.btn-signout-inline {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  font-size: 0.76rem;
+  cursor: pointer;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-family: Arial, Helvetica, sans-serif;
+  transition: background 0.15s;
+}
+.btn-signout-inline:hover { background: rgba(255,255,255,0.25); }
 </style>
 </head>
 <body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TPBF5VKB" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
 <div id="site-header"></div>
-<div id="global-loading-overlay"><div class="spinner"></div></div>
+
+<div class="page-hero">
+  <div class="container" style="position:relative;">
+    <div class="user-status-row" id="user-status-row">
+      <div class="user-status-avatar" id="status-avatar">?</div>
+      <span id="status-name"></span>
+      <button class="btn-signout-inline" id="btn-signout">Sign out</button>
+    </div>
+    <h1>Welcome to the Admin Portal</h1>
+    <p>Sign in with your HCCGC Google account to access the tools you've been granted.</p>
+  </div>
+</div>
 
 <div id="gate">
   <div class="gate-card">
-    <h3>Checking access&hellip;</h3>
-    <p>Please sign in from the <a href="/admin/admin-portal">Admin Portal</a> first.</p>
+    <img class="logo" src="../hccgc-logo.jpeg" alt="HCCGC Logo">
+    <h3>Sign in to continue</h3>
+    <p>This portal is for authorized HCCGC members only.</p>
+    <button class="btn-google" id="btn-signin">
+      <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <path d="M19.6 10.23c0-.68-.06-1.36-.17-2H10v3.77h5.4a4.63 4.63 0 01-2.01 3.04v2.52h3.25c1.9-1.75 3-4.33 3-7.33z" fill="#4285F4"/>
+        <path d="M10 20c2.7 0 4.97-.9 6.63-2.44l-3.25-2.52c-.9.6-2.05.96-3.38.96-2.6 0-4.8-1.75-5.59-4.11H1.07v2.6A10 10 0 0010 20z" fill="#34A853"/>
+        <path d="M4.41 11.89A5.98 5.98 0 014.1 10c0-.65.11-1.29.31-1.89V5.51H1.07A10 10 0 000 10c0 1.61.38 3.13 1.07 4.49l3.34-2.6z" fill="#FBBC05"/>
+        <path d="M10 3.98c1.46 0 2.77.5 3.8 1.49l2.85-2.85C14.96.99 12.7 0 10 0A10 10 0 001.07 5.51l3.34 2.6C5.2 5.73 7.4 3.98 10 3.98z" fill="#EA4335"/>
+      </svg>
+      Sign in with Google
+    </button>
+    <div id="signin-error"></div>
+    <p class="gate-note">Need access? Contact <a href="mailto:admin@hccgc.org">admin@hccgc.org</a></p>
   </div>
 </div>
 
-<div id="app" style="display:none;">
-
-<div class="page-hero">
+<div id="app">
   <div class="container">
-    <a class="back-link" href="https://hccgc.org/admin/admin-portal">&larr; Back to apps</a>
-    <h1>Communications</h1>
-    <p>See who your patrons are, how giving is trending, and send them something — all in one place.</p>
-  </div>
-</div>
-
-<div class="tab-nav">
-  <div class="container">
-    <ul>
-      <li><button class="tab-btn active" data-tab="dashboard">Dashboard</button></li>
-      <li><button class="tab-btn" data-tab="broadcast">Social Broadcast</button></li>
-      <li><button class="tab-btn" data-tab="mass-email">Mass Email</button></li>
-    </ul>
-  </div>
-</div>
-
-<div class="container">
-
-  <!-- ── DASHBOARD TAB ── -->
-  <div class="tab-panel active" id="tab-dashboard">
-    <div class="card-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:20px;">
-      <div class="card stat-card-big"><div class="value" id="stat-total-patrons">&mdash;</div><div class="sub">Total patrons on file</div></div>
-      <div class="card stat-card-big"><div class="value" id="stat-unique-emails">&mdash;</div><div class="sub">Unique email addresses</div></div>
-      <div class="card stat-card-big"><div class="value" id="stat-unique-phones">&mdash;</div><div class="sub">Unique phone numbers</div></div>
-      <div class="card stat-card-big"><div class="value" id="stat-unique-addresses">&mdash;</div><div class="sub">Unique mailing addresses</div></div>
-      <div class="card stat-card-big"><div class="value" id="stat-repeat-patrons">&mdash;</div><div class="sub">Repeat donors (2+ months)</div></div>
-    </div>
-
-    <div class="card">
-      <h2 style="margin-bottom:4px;">Unique donors, last 7 months</h2>
-      <div class="card-sub" style="font-size:0.86rem;color:var(--muted);margin-bottom:8px;">Count of distinct donor email addresses giving each month.</div>
-      <div id="dash-mom-chart"></div>
-    </div>
-
-    <div class="card">
-      <h2 style="margin-bottom:4px;">Patron volume by campaign</h2>
-      <div class="card-sub" style="font-size:0.86rem;color:var(--muted);margin-bottom:8px;">Unique donors per campaign, all-time.</div>
-      <div id="dash-campaign-chart"></div>
-    </div>
-
-    <div class="card-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-      <div class="card">
-        <h2 style="margin-bottom:8px;">Top 10 donors by value</h2>
-        <div id="dash-top-value"></div>
-      </div>
-      <div class="card">
-        <h2 style="margin-bottom:8px;">Top 10 donors by frequency</h2>
-        <div id="dash-top-frequency"></div>
-      </div>
+    <div id="apps-container" class="loading-state">
+      <div class="spinner"></div>
+      Loading your apps&hellip;
     </div>
   </div>
-
-  <!-- ── SOCIAL BROADCAST TAB ── -->
-  <div class="tab-panel" id="tab-broadcast">
-    <div class="card">
-      <h2 style="margin-bottom:8px;">Social Broadcast</h2>
-      <p style="font-size:0.92rem;color:var(--muted);line-height:1.6;max-width:640px;">
-        Not built yet — posting to Facebook, Instagram, and WhatsApp Business needs real API credentials
-        set up on the Meta side first (a Developer app, Page access token, and — for WhatsApp specifically —
-        pre-approved message templates, since Meta doesn't allow free-form broadcast messaging there).
-        Once that's in place, this tab is ready to be built out.
-      </p>
-    </div>
-  </div>
-
-  <!-- ── MASS EMAIL TAB ── -->
-  <div class="tab-panel" id="tab-mass-email">
-    <div class="card">
-      <h2 style="margin-bottom:4px;">1. Choose a template</h2>
-      <div class="card-sub" style="font-size:0.86rem;color:var(--muted);margin-bottom:12px;">Pick the layout, then fill in your content below.</div>
-      <div class="template-grid" id="template-grid"></div>
-    </div>
-
-    <div class="card" id="email-content-card" style="display:none;">
-      <h2 style="margin-bottom:4px;">2. Write your message</h2>
-      <div class="field">
-        <label>Subject line</label>
-        <input type="text" id="em-subject" placeholder="What patrons will see in their inbox">
-      </div>
-      <div id="email-dynamic-fields"></div>
-      <div style="display:flex;gap:24px;margin-top:12px;">
-        <div style="flex:1;">
-          <label style="font-size:0.84rem;font-weight:700;display:block;margin-bottom:8px;">Live preview</label>
-          <div class="email-preview-frame" id="email-preview"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card" id="email-recipients-card" style="display:none;">
-      <h2 style="margin-bottom:4px;">3. Choose recipients</h2>
-      <div class="card-sub" style="font-size:0.86rem;color:var(--muted);margin-bottom:12px;">Unsubscribed patrons are always excluded automatically.</div>
-      <div class="field" style="max-width:400px;">
-        <label>Search patrons (optional — leave blank to send to everyone eligible)</label>
-        <input type="text" id="em-patron-search" placeholder="Search by name or email">
-      </div>
-      <div id="em-recipient-summary" style="font-size:0.92rem;font-weight:700;color:var(--maroon);margin:8px 0;"></div>
-      <div id="em-recipient-list" style="max-height:240px;overflow-y:auto;border:1.5px solid var(--border);border-radius:12px;padding:10px;display:none;"></div>
-    </div>
-
-    <div class="card" id="email-send-card" style="display:none;">
-      <h2 style="margin-bottom:8px;">4. Send</h2>
-      <button type="button" class="btn-primary" id="btn-send-campaign">Send campaign</button>
-      <div id="em-send-progress" style="display:none;margin-top:16px;">
-        <div class="progress-bar-track"><div class="progress-bar-fill" id="em-progress-fill" style="width:0%;"></div></div>
-        <div id="em-progress-label" style="font-size:0.86rem;color:var(--muted);"></div>
-      </div>
-      <div id="em-send-result" style="margin-top:12px;"></div>
-    </div>
-  </div>
-
-</div>
-
 </div>
 
 <div id="site-footer"></div>
 
+<!-- App registry: every app available in the portal lives here.
+     "key" must match an entry in each user's allowedApps array in Firestore. -->
+<script id="app-registry" type="application/json">
+[
+  {
+    "key": "website-management",
+    "name": "Website Management",
+    "description": "Analytics, homepage content, events, and pages — all in one place.",
+    "url": "website-management",
+    "icon": "globe"
+  },
+  {
+    "key": "marketing-assistant",
+    "name": "Hey HCCGC",
+    "description": "Your AI marketing assistant — generate flyers, WhatsApp announcements, emails, and social posts. Opens in ChatGPT.",
+    "url": "https://chatgpt.com/g/g-6a4517d567ec8191998bc6c43891728a-hey-hccgc",
+    "icon": "sparkles",
+    "external": true
+  },
+  {
+    "key": "user-management",
+    "name": "User Management",
+    "description": "Grant or revoke portal access for HCCGC members. Admins only.",
+    "url": "user-management",
+    "icon": "users"
+  },
+  {
+    "key": "bookings-finance",
+    "name": "Facility Bookings",
+    "description": "Book facility rentals and HCCGC events, manage rooms/rates, and log Zelle/cash transactions.",
+    "url": "facility-rental-portal",
+    "icon": "calendar"
+  },
+  {
+    "key": "org-finance",
+    "name": "Finance",
+    "description": "Categorize transactions, reconcile Zeffy payouts, and generate the Statement of Activities.",
+    "url": "finance-portal",
+    "icon": "dollar"
+  },
+  {
+    "key": "org-communications",
+    "name": "Communications",
+    "description": "See patron and donation trends, and send mass email campaigns.",
+    "url": "communications-portal",
+    "icon": "mail"
+  },
+  {
+    "key": "issue-reporting",
+    "name": "Issue Reporting",
+    "description": "Report a problem with screenshots and priority — get notified once it's resolved.",
+    "url": "issue-reporting",
+    "icon": "flag"
+  },
+  {
+    "key": "logs-app",
+    "name": "Logs",
+    "description": "Activity across Facility Rental and Finance — filterable by date, app, and sub-page.",
+    "url": "logs",
+    "icon": "list"
+  }
+]
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import {
+  getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect,
+  getRedirectResult, browserLocalPersistence, setPersistence,
+  signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA6IzLjWTg7Rq04HsTH-iA3eDmSzKI7xME",
+  authDomain: "hccgc-a7a54.firebaseapp.com",
+  projectId: "hccgc-a7a54",
+  storageBucket: "hccgc-a7a54.firebasestorage.app",
+  messagingSenderId: "75757201418",
+  appId: "1:75757201418:web:c31e9361921242145717f3",
+  measurementId: "G-F9K6GVD5CS"
+};
+
+const ALLOWED_DOMAIN = "hccgc.org";
+const USERS_COLLECTION = "portalUsers";
+
+const fbApp = initializeApp(firebaseConfig);
+const auth = getAuth(fbApp);
+const db = getFirestore(fbApp);
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ hd: ALLOWED_DOMAIN });
+
+// Set once here, at module load, rather than inside the click handler.
+// Popup windows must be opened synchronously, directly inside the click
+// event, or browsers silently block them as not being a direct result of
+// user interaction — no error, the click just appears to do nothing.
+// Awaiting setPersistence() before calling signInWithPopup broke that
+// synchronous chain.
+setPersistence(auth, browserLocalPersistence).catch(function (err) {
+  console.error("[HCCGC AUTH] Could not set persistence:", err.code, err.message);
+});
+
+window.__hccgcPortal = { auth, db, doc, getDoc, setDoc, serverTimestamp, USERS_COLLECTION, ALLOWED_DOMAIN };
+
+function isMobileDevice() {
+  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+}
+
+// signInWithRedirect navigates the whole window away to Google's sign-in
+// page and back. Inside an installed/standalone PWA, that trip falls
+// outside the app's defined scope, so iOS/Android hand the return trip to
+// a separate browser context instead of the original standalone window -
+// the redirect "succeeds" on Google's side but the app never sees the
+// result, which is exactly the loop back to the login screen. Firebase's
+// own documented fix for this is signInWithPopup, which never navigates
+// the main window away at all - detect standalone mode specifically and
+// use popup there, leaving normal (non-installed) mobile browsing
+// unchanged since that case doesn't have this problem.
+function isStandalonePwa() {
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
+document.getElementById("btn-signin").addEventListener("click", function () {
+  var errorBox = document.getElementById("signin-error");
+  errorBox.style.display = "none";
+
+  // Called directly, synchronously, inside the click handler - no promise
+  // chain in front of it - so the browser still recognizes this as a
+  // direct result of the user's click and won't block the popup.
+  var signInPromise;
+  if (isStandalonePwa()) {
+    console.log("[HCCGC AUTH] Installed app — using popup sign-in (redirect breaks in standalone mode)...");
+    signInPromise = signInWithPopup(auth, provider);
+  } else if (isMobileDevice()) {
+    console.log("[HCCGC AUTH] Mobile browser — using redirect sign-in...");
+    signInPromise = signInWithRedirect(auth, provider);
+  } else {
+    console.log("[HCCGC AUTH] Desktop — opening popup...");
+    signInPromise = signInWithPopup(auth, provider);
+  }
+  signInPromise.catch(function (err) {
+    console.error("[HCCGC AUTH] Sign-in failed:", err.code, err.message);
+    if (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request") return;
+    errorBox.textContent = "Sign-in failed. Please try again.";
+    errorBox.style.display = "block";
+  });
+});
+
+// Belt-and-suspenders: attempt to pick up the redirect result directly,
+// in case onAuthStateChanged fires before Firebase fully restores the session.
+getRedirectResult(auth).then(function (result) {
+  if (result && result.user) {
+    console.log("[HCCGC AUTH] getRedirectResult caught session:", result.user.email);
+  }
+}).catch(function (err) {
+  if (err.code !== "auth/no-current-user") {
+    console.error("[HCCGC AUTH] getRedirectResult error:", err.code);
+  }
+});
+
+document.getElementById("btn-signout").addEventListener("click", function () {
+  signOut(auth);
+});
+
+onAuthStateChanged(auth, function (user) {
+  var errorBox = document.getElementById("signin-error");
+
+  if (!user) {
+    document.getElementById("app").style.display = "none";
+    document.getElementById("gate").style.display = "flex";
+    document.getElementById("user-status-row").classList.remove("show");
+    return;
+  }
+
+  var email = (user.email || "").toLowerCase();
+  if (!email.endsWith("@" + ALLOWED_DOMAIN)) {
+    errorBox.textContent = "Please sign in with your @" + ALLOWED_DOMAIN + " account.";
+    errorBox.style.display = "block";
+    signOut(auth);
+    return;
+  }
+
+  document.getElementById("gate").style.display = "none";
+  document.getElementById("app").style.display = "block";
+
+  var statusRow = document.getElementById("user-status-row");
+  statusRow.classList.add("show");
+  var statusNameEl = document.getElementById("status-name");
+  statusNameEl.textContent = user.displayName || email;
+  statusNameEl.title = user.displayName ? user.displayName + " (" + email + ")" : email;
+  var avatarEl = document.getElementById("status-avatar");
+  if (user.photoURL) {
+    avatarEl.innerHTML = '<img src="' + user.photoURL + '" alt="">';
+  } else {
+    avatarEl.textContent = (user.displayName || email).charAt(0).toUpperCase();
+  }
+
+  window.dispatchEvent(new CustomEvent("hccgc-portal-signed-in", { detail: { user: user } }));
+});
+</script>
+
 <script>
-function loadPartial(id, url) {
+var ICONS = {
+  calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  sparkles: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>',
+  users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',
+  globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+  dollar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+  mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>',
+  flag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="3"/></svg>',
+  list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
+  default: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>'
+};
+
+function escHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function getAppRegistry() {
+  var el = document.getElementById('app-registry');
+  try {
+    return JSON.parse(el.textContent);
+  } catch (e) {
+    console.error('Could not parse app registry', e);
+    return [];
+  }
+}
+
+window.addEventListener('hccgc-portal-signed-in', function (e) {
+  loadUserApps(e.detail.user);
+});
+
+function loadUserApps(user) {
+  var fb = window.__hccgcPortal;
+  var container = document.getElementById('apps-container');
+
+  fb.getDoc(fb.doc(fb.db, fb.USERS_COLLECTION, user.email.toLowerCase()))
+    .then(function (snap) {
+      var allowedApps = [];
+      var isAdmin = false;
+
+      if (snap.exists()) {
+        var data = snap.data();
+        allowedApps = Array.isArray(data.allowedApps) ? data.allowedApps : [];
+        isAdmin = !!data.isAdmin;
+      } else {
+        // First-time sign-in: create a record with no app access yet.
+        // An existing admin will need to grant access via User Management.
+        fb.setDoc(fb.doc(fb.db, fb.USERS_COLLECTION, user.email.toLowerCase()), {
+          email: user.email,
+          name: user.displayName || '',
+          allowedApps: [],
+          isAdmin: false,
+          createdAt: fb.serverTimestamp(),
+          lastSignIn: fb.serverTimestamp()
+        });
+      }
+
+      renderApps(allowedApps, isAdmin);
+    })
+    .catch(function (err) {
+      console.error(err);
+      container.innerHTML = '<div class="no-apps">Could not load your apps. Please try refreshing.</div>';
+    });
+}
+
+function renderApps(allowedApps, isAdmin) {
+  var container = document.getElementById('apps-container');
+  var registry = getAppRegistry();
+
+  var visibleApps = registry.filter(function (app) {
+    if (app.key === 'user-management') return isAdmin;
+    return isAdmin || allowedApps.indexOf(app.key) !== -1;
+  });
+
+  if (visibleApps.length === 0) {
+    container.innerHTML =
+      '<div class="no-apps">' +
+        "<p>You're signed in, but don't have access to any tools yet.</p>" +
+        '<p style="margin-top:8px; font-size:0.8rem;">Contact <a href="mailto:admin@hccgc.org" style="color:var(--saffron-dark)">admin@hccgc.org</a> to request access.</p>' +
+      '</div>';
+    return;
+  }
+
+  var html = '<div class="app-grid">';
+  visibleApps.forEach(function (app) {
+    var icon = ICONS[app.icon] || ICONS.default;
+    html +=
+      '<a class="app-tile" href="' + escHtml(app.url) + '"' + (app.external ? ' target="_blank" rel="noopener noreferrer"' : '') + '>' +
+        (app.key === 'user-management' ? '<span class="app-tile-badge">Admin</span>' : '') +
+        '<div class="app-tile-icon">' + icon + '</div>' +
+        '<h3>' + escHtml(app.name) + '</h3>' +
+        '<p>' + escHtml(app.description) + '</p>' +
+      '</a>';
+  });
+  html += '</div>';
+
+  container.className = '';
+  container.innerHTML = html;
+}
+
+function loadPartial(id, file) {
   var target = document.getElementById(id);
   if (!target) return;
-  fetch(url).then(function(r){return r.text();}).then(function(html){
-    target.innerHTML = html;
-    if (id === 'site-header') fixHeaderLinksForSubfolder(target);
-  }).catch(function () {});
+  fetch(file)
+    .then(function (r) { return r.text(); })
+    .then(function (html) {
+      target.innerHTML = html;
+      if (id === 'site-header') {
+        fixHeaderLinksForSubfolder(target);
+      }
+    })
+    .catch(function () {});
 }
+
+// header.html uses paths that are relative to the page calling it
+// (e.g. src="hccgc-logo.jpeg", href="index.html#about"). That works fine
+// for pages at the site root, but breaks when header.html is loaded from
+// a subfolder like /admin/. Rather than edit the shared header.html file
+// itself, we patch the loaded copy here so it points to the right place.
 function fixHeaderLinksForSubfolder(headerEl) {
   var logo = headerEl.querySelector('.brand-logo');
   if (logo && logo.getAttribute('src') && !logo.getAttribute('src').startsWith('/') && !logo.getAttribute('src').startsWith('http')) {
     logo.setAttribute('src', '/' + logo.getAttribute('src'));
   }
-  headerEl.querySelectorAll('a[href]').forEach(function (link) {
+
+  var links = headerEl.querySelectorAll('a[href]');
+  links.forEach(function (link) {
     var href = link.getAttribute('href');
-    if (!href || href.startsWith('http') || href.startsWith('/') || href.startsWith('#')) return;
+    if (!href) return;
+    // Leave absolute URLs (http/https) and already-root-relative links alone.
+    if (href.startsWith('http') || href.startsWith('/') || href.startsWith('#')) return;
     link.setAttribute('href', '/' + href);
   });
 }
+
 loadPartial('site-header', '/header.html');
 loadPartial('site-footer', '/footer.html');
-</script>
-
-<script>
-const API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';
-
-let __glPendingCount = 0;
-let __glShowTimer = null;
-function __glRequestStart() {
-  __glPendingCount++;
-  if (__glPendingCount === 1) {
-    __glShowTimer = setTimeout(function () {
-      var el = document.getElementById('global-loading-overlay');
-      if (el) el.classList.add('visible');
-    }, 150);
-  }
-}
-function __glRequestEnd() {
-  __glPendingCount = Math.max(0, __glPendingCount - 1);
-  if (__glPendingCount === 0) {
-    clearTimeout(__glShowTimer);
-    var el = document.getElementById('global-loading-overlay');
-    if (el) el.classList.remove('visible');
-  }
-}
-async function authedFetch(url, options) {
-  options = options || {};
-  options.headers = Object.assign({}, options.headers, { 'Authorization': 'Bearer ' + await window.__hccgcFirebaseUser.getIdToken() });
-  __glRequestStart();
-  try {
-    return await fetch(url, options);
-  } finally {
-    __glRequestEnd();
-  }
-}
-function escHtml(s) {
-  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-function moneyRound(n) { return '$' + Math.round(Number(n)).toLocaleString('en-US'); }
-
-// ── Dashboard ──
-async function loadCommunicationsDashboard() {
-  try {
-    const res = await authedFetch(API_BASE + '/communications/dashboard');
-    const data = await res.json();
-    if (!res.ok) throw new Error((data.errors || ['Server returned ' + res.status]).join(' '));
-
-    document.getElementById('stat-total-patrons').textContent = data.contactCounts.totalPatrons.toLocaleString();
-    document.getElementById('stat-unique-emails').textContent = data.contactCounts.uniqueEmails.toLocaleString();
-    document.getElementById('stat-unique-phones').textContent = data.contactCounts.uniquePhones.toLocaleString();
-    document.getElementById('stat-unique-addresses').textContent = data.contactCounts.uniqueAddresses.toLocaleString();
-    document.getElementById('stat-repeat-patrons').textContent = data.repeatPatrons.toLocaleString();
-
-    renderMomChart(data.monthOverMonth);
-    renderBarChart('dash-campaign-chart', data.campaignVolume.map(function (c) { return { name: c.campaign, total: c.uniquePatrons }; }), 'No campaign activity yet.');
-    renderDonorList('dash-top-value', data.topByValue, function (d) { return moneyRound(d.total); }, 'No donors yet.');
-    renderDonorList('dash-top-frequency', data.topByFrequency, function (d) { return d.giftCount + ' gift' + (d.giftCount === 1 ? '' : 's'); }, 'No donors yet.');
-  } catch (err) {
-    document.getElementById('dash-mom-chart').innerHTML = '<div class="empty-state" style="padding:20px;">Could not load: ' + escHtml(err.message) + '</div>';
-  }
-}
-function renderMomChart(monthOverMonth) {
-  const container = document.getElementById('dash-mom-chart');
-  if (!monthOverMonth.length) { container.innerHTML = '<div class="empty-state" style="padding:20px;">No donation activity in the last 7 months.</div>'; return; }
-  const max = Math.max.apply(null, monthOverMonth.map(function (m) { return m.uniquePatrons; })) || 1;
-  const bars = monthOverMonth.map(function (m) {
-    const h = Math.max(2, (m.uniquePatrons / max) * 150);
-    const label = new Date(m.month + '-02').toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
-    return '<div class="trend-month"><div class="trend-bars"><div class="trend-bar income-bar" style="height:' + h + 'px;width:32px;" title="' + m.uniquePatrons + ' unique donors"></div></div>' +
-      '<div class="trend-month-label">' + label + '</div><div style="font-size:0.78rem;font-weight:700;color:var(--maroon);">' + m.uniquePatrons + '</div></div>';
-  }).join('');
-  container.innerHTML = '<div class="trend-chart">' + bars + '</div>';
-}
-function renderBarChart(containerId, items, emptyMessage) {
-  const container = document.getElementById(containerId);
-  if (!items.length) { container.innerHTML = '<div class="empty-state" style="padding:20px;">' + emptyMessage + '</div>'; return; }
-  const max = Math.max.apply(null, items.map(function (i) { return i.total; })) || 1;
-  container.innerHTML = items.map(function (i) {
-    const pct = max > 0 ? Math.max(2, (i.total / max) * 100) : 0;
-    return '<div class="bar-chart-row"><div class="bar-chart-label" title="' + escHtml(i.name) + '">' + escHtml(i.name) + '</div>' +
-      '<div class="bar-chart-track"><div class="bar-chart-fill" style="width:' + pct + '%;"></div></div>' +
-      '<div class="bar-chart-value">' + i.total.toLocaleString() + '</div></div>';
-  }).join('');
-}
-function renderDonorList(containerId, items, valueFormatter, emptyMessage) {
-  const container = document.getElementById(containerId);
-  if (!items.length) { container.innerHTML = '<div class="empty-state" style="padding:14px;">' + emptyMessage + '</div>'; return; }
-  container.innerHTML = items.map(function (item, i) {
-    return '<div class="contributor-row"><span class="rank">' + (i + 1) + '</span>' +
-      '<span class="name">' + escHtml(item.name) + '</span>' +
-      '<span class="meta">' + valueFormatter(item) + '</span></div>';
-  }).join('');
-}
-
-// ── Mass Email ──
-let EMAIL_TEMPLATES_CACHE = [];
-let selectedTemplateId = null;
-let recipientPreview = [];
-
-async function loadEmailTemplates() {
-  const res = await authedFetch(API_BASE + '/communications/templates');
-  EMAIL_TEMPLATES_CACHE = await res.json();
-  document.getElementById('template-grid').innerHTML = EMAIL_TEMPLATES_CACHE.map(function (t) {
-    return '<div class="template-card" data-template-id="' + t.id + '"><h3>' + escHtml(t.name) + '</h3><p>' + escHtml(t.description) + '</p></div>';
-  }).join('');
-  document.querySelectorAll('.template-card').forEach(function (card) {
-    card.addEventListener('click', function () { selectTemplate(card.dataset.templateId); });
-  });
-}
-const FIELD_LABELS = {
-  headline: 'Headline', bodyText: 'Message', imageUrl: 'Image URL', ctaText: 'Button text',
-  ctaUrl: 'Button link', eventDetails: 'Date / location line'
-};
-const FIELD_TYPES = { bodyText: 'textarea' };
-function selectTemplate(id) {
-  selectedTemplateId = id;
-  document.querySelectorAll('.template-card').forEach(function (c) { c.classList.toggle('selected', c.dataset.templateId === id); });
-  const template = EMAIL_TEMPLATES_CACHE.find(function (t) { return t.id === id; });
-  document.getElementById('email-content-card').style.display = 'block';
-  document.getElementById('email-recipients-card').style.display = 'block';
-  document.getElementById('email-send-card').style.display = 'block';
-  document.getElementById('email-dynamic-fields').innerHTML = template.fields.map(function (f) {
-    const type = FIELD_TYPES[f] || 'text';
-    return '<div class="field"><label>' + (FIELD_LABELS[f] || f) + '</label>' +
-      (type === 'textarea' ? '<textarea data-field="' + f + '"></textarea>' : '<input type="text" data-field="' + f + '">') +
-      '</div>';
-  }).join('');
-  document.querySelectorAll('#email-dynamic-fields [data-field]').forEach(function (el) {
-    el.addEventListener('input', updateEmailPreview);
-  });
-  updateEmailPreview();
-}
-function updateEmailPreview() {
-  if (!selectedTemplateId) return;
-  const template = EMAIL_TEMPLATES_CACHE.find(function (t) { return t.id === selectedTemplateId; });
-  const data = { subject: document.getElementById('em-subject').value };
-  document.querySelectorAll('#email-dynamic-fields [data-field]').forEach(function (el) { data[el.dataset.field] = el.value; });
-  // Client-side preview mirrors the server's render() logic closely enough
-  // for a visual check — the actual sent HTML is always built server-side
-  // at send time, this is preview only.
-  const esc = function (s) { return escHtml(s || ''); };
-  let html = '<div style="font-family:Arial,Helvetica,sans-serif;">';
-  if (data.imageUrl) html += '<img src="' + esc(data.imageUrl) + '" style="width:100%;border-radius:12px;" alt="">';
-  html += '<h1 style="color:#7f2e16;font-size:22px;margin-top:12px;">' + esc(data.headline || data.subject) + '</h1>';
-  if (data.eventDetails) html += '<p style="font-size:14px;color:#8d3e0d;font-weight:bold;">' + esc(data.eventDetails) + '</p>';
-  html += '<p style="font-size:15px;line-height:1.6;color:#2c1b10;white-space:pre-wrap;">' + esc(data.bodyText) + '</p>';
-  if (data.ctaUrl) html += '<p><a href="#" style="display:inline-block;background:#b55a18;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;">' + esc(data.ctaText || 'Learn more') + '</a></p>';
-  html += '<p style="font-size:11px;color:#999;margin-top:24px;">You are receiving this because you have supported or attended an HCCGC program. <a href="#">Unsubscribe</a>.</p></div>';
-  document.getElementById('email-preview').innerHTML = html;
-}
-document.getElementById('em-subject').addEventListener('input', updateEmailPreview);
-
-async function refreshRecipientPreview() {
-  const search = document.getElementById('em-patron-search').value;
-  const res = await authedFetch(API_BASE + '/communications/patrons?search=' + encodeURIComponent(search));
-  const patrons = await res.json();
-  recipientPreview = patrons.filter(function (p) { return !p.unsubscribed; });
-  const excluded = patrons.length - recipientPreview.length;
-  document.getElementById('em-recipient-summary').textContent = recipientPreview.length + ' will receive this' +
-    (excluded ? ' (' + excluded + ' excluded — unsubscribed)' : '');
-}
-document.getElementById('em-patron-search').addEventListener('input', debounce(refreshRecipientPreview, 300));
-function debounce(fn, ms) { let t; return function () { clearTimeout(t); const args = arguments; t = setTimeout(function () { fn.apply(null, args); }, ms); }; }
-
-document.getElementById('btn-send-campaign').addEventListener('click', async function () {
-  const subject = document.getElementById('em-subject').value.trim();
-  if (!selectedTemplateId) { alert('Choose a template first.'); return; }
-  if (!subject) { alert('Enter a subject line.'); return; }
-  if (!recipientPreview.length) { alert('No eligible recipients match — check your search filter.'); return; }
-  if (!confirm('Send this to ' + recipientPreview.length + ' patron' + (recipientPreview.length === 1 ? '' : 's') + '? This cannot be undone.')) return;
-
-  const btn = this;
-  btn.disabled = true;
-  const resultEl = document.getElementById('em-send-result');
-  resultEl.textContent = '';
-  try {
-    const startRes = await authedFetch(API_BASE + '/communications/start-campaign', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ templateId: selectedTemplateId, subject: subject, patronIds: recipientPreview.map(function (p) { return p.patronId; }) })
-    });
-    const startData = await startRes.json();
-    if (!startRes.ok) throw new Error((startData.errors || ['Could not start campaign']).join(' '));
-
-    const progressWrap = document.getElementById('em-send-progress');
-    const fill = document.getElementById('em-progress-fill');
-    const label = document.getElementById('em-progress-label');
-    progressWrap.style.display = 'block';
-    const total = startData.recipientCount;
-    let sentSoFar = 0, failedSoFar = 0, remaining = total;
-    while (remaining > 0) {
-      const batchRes = await authedFetch(API_BASE + '/communications/send-campaign-batch?campaignId=' + startData.campaignId + '&limit=20', { method: 'POST' });
-      const batchData = await batchRes.json();
-      if (!batchRes.ok) throw new Error((batchData.errors || ['Send batch failed']).join(' '));
-      sentSoFar += batchData.sent;
-      failedSoFar += batchData.failed;
-      remaining = batchData.remaining;
-      const pct = Math.round(((total - remaining) / total) * 100);
-      fill.style.width = pct + '%';
-      label.textContent = (total - remaining) + ' of ' + total + ' processed' + (failedSoFar ? ' (' + failedSoFar + ' failed)' : '');
-    }
-    resultEl.innerHTML = '<div style="color:var(--green);font-weight:700;">Done — ' + sentSoFar + ' sent' + (failedSoFar ? ', ' + failedSoFar + ' failed' : '') + '.</div>';
-  } catch (err) {
-    resultEl.innerHTML = '<div style="color:var(--red);font-weight:700;">' + escHtml(err.message) + '</div>';
-  } finally {
-    btn.disabled = false;
-  }
-});
-
-// ── Tabs ──
-document.querySelectorAll('.tab-btn').forEach(function (btn) {
-  btn.addEventListener('click', function () {
-    document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
-    document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
-    btn.classList.add('active');
-    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-    if (btn.dataset.tab === 'mass-email' && !window.__emailTabLoaded) { loadEmailTemplates(); refreshRecipientPreview(); window.__emailTabLoaded = true; }
-  });
-});
-</script>
-
-<script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js';
-import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
-
-var firebaseConfig = {
-  apiKey: 'AIzaSyA6IzLjWTg7Rq04HsTH-iA3eDmSzKI7xME',
-  authDomain: 'hccgc-a7a54.firebaseapp.com',
-  projectId: 'hccgc-a7a54',
-  storageBucket: 'hccgc-a7a54.firebasestorage.app',
-  messagingSenderId: '75757201418',
-  appId: '1:75757201418:web:c31e9361921242145717f3'
-};
-
-var ALLOWED_DOMAIN = 'hccgc.org';
-var REQUIRED_APP_KEY = 'org-communications';
-var PORTAL_URL = '/admin/admin-portal';
-
-var fbApp = initializeApp(firebaseConfig);
-var auth = getAuth(fbApp);
-var db = getFirestore(fbApp);
-
-function showGate(title, msg) {
-  document.getElementById('gate').querySelector('h3').textContent = title;
-  document.getElementById('gate').querySelector('p').innerHTML = msg;
-  document.getElementById('gate').style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
-}
-
-onAuthStateChanged(auth, function(user) {
-  if (!user) { showGate('Sign in required', 'Please sign in from the <a href="'+PORTAL_URL+'">Admin Portal</a> first.'); return; }
-  var email = (user.email||'').toLowerCase();
-  window.__hccgcCurrentUser = { email: email };
-  window.__hccgcFirebaseUser = user;
-  if (!email.endsWith('@'+ALLOWED_DOMAIN)) { showGate('Access denied', 'Please use an @'+ALLOWED_DOMAIN+' account.'); return; }
-  getDoc(doc(db, 'portalUsers', email)).then(function(snap) {
-    var data = snap.exists() ? snap.data() : {};
-    if (!data.isAdmin && !(Array.isArray(data.allowedApps) && data.allowedApps.includes(REQUIRED_APP_KEY))) {
-      showGate('Access not granted', "You don't have access to Communications. Ask an admin to grant it.");
-      return;
-    }
-    document.getElementById('gate').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    loadCommunicationsDashboard();
-  }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });
-});
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/service-worker.js').catch(function () {});
 </script>
 </body>
 </html>

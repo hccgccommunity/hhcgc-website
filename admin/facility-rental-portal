@@ -853,17 +853,26 @@ tbody input[type="text"], tbody input[type="number"] {
         <div id="status-filter-list"></div>
       </div>
     </div>
-    <div style="position:relative;">
-      <button type="button" class="btn-secondary" id="btn-month-filter" style="padding:9px 14px;font-size:0.86rem;"></button>
-      <div class="month-calendar-panel" id="month-calendar-panel" style="display:none;"></div>
-    </div>
+    <select id="ab-range-preset" class="range-preset-select">
+      <option value="alltime" selected>All time</option>
+      <option value="last3months">Last 3 months</option>
+      <option value="thismonth">This month</option>
+      <option value="thisquarter">This quarter</option>
+      <option value="lastmonth">Last month</option>
+      <option value="lastquarter">Last quarter</option>
+      <option value="thisyear">This year</option>
+      <option value="custom">Custom</option>
+    </select>
+    <input type="date" id="ab-start-date" style="display:none;">
+    <input type="date" id="ab-end-date" style="display:none;">
+    <button type="button" class="btn-secondary" id="btn-refresh-bookings">Refresh</button>
     <div style="position:relative;">
       <button type="button" class="btn-secondary" id="btn-columns" style="padding:9px 14px;font-size:0.86rem;">Columns</button>
       <div class="columns-panel" id="columns-panel" style="display:none;"></div>
     </div>
     <select id="page-size-filter" style="font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; padding: 9px 10px; border: 1.5px solid var(--border); border-radius: 10px;">
-      <option value="10">10 per page</option>
-      <option value="20" selected>20 per page</option>
+      <option value="10" selected>10 per page</option>
+      <option value="20">20 per page</option>
       <option value="30">30 per page</option>
       <option value="40">40 per page</option>
       <option value="50">50 per page</option>
@@ -1543,7 +1552,7 @@ document.getElementById('pending-requests-list').addEventListener('click', funct
   }
 });
 
-let state = { contactFilter: undefined, statusFilter: undefined, room: '', month: 'thisyear', sortKey: 'updated_display', sortDir: 'desc', pageSize: 20, page: 1 };
+let state = { contactFilter: undefined, statusFilter: undefined, room: '', startDate: '2000-01-01', endDate: (new Date().getFullYear() + 1) + '-12-31', sortKey: 'updated_display', sortDir: 'desc', pageSize: 10, page: 1 };
 
 // ---- Column configurator ----
 // Contact Name and Actions are always shown — everything else is
@@ -1662,21 +1671,6 @@ function isWholeFacility(b) {
   return ALL_ROOM_NAMES.every(function (r) { return b.rooms.includes(r); });
 }
 
-function monthRangeFor(monthValue) {
-  const today = new Date(); today.setDate(1); today.setHours(0, 0, 0, 0);
-  if (monthValue === 'all') return null;
-  if (monthValue === 'thisyear') {
-    return { start: new Date(today.getFullYear(), 0, 1), end: new Date(today.getFullYear() + 1, 0, 1) };
-  }
-  if (monthValue === 'default3') {
-    const start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-    const end = new Date(today.getFullYear(), today.getMonth() + 2, 1); // exclusive, i.e. end of next month
-    return { start, end };
-  }
-  const [y, m] = monthValue.split('-').map(Number);
-  return { start: new Date(y, m - 1, 1), end: new Date(y, m, 1) };
-}
-
 const STATUS_CATEGORIES = ['requested', 'needs-attention', 'pending', 'paid', 'internal', 'cancelled', 'rejected'];
 function matchesStatusCategory(b, category) {
   if (category === 'needs-attention') return b.payment_status === 'invoiced' || b.payment_status === 'pending';
@@ -1695,11 +1689,8 @@ function matchesFilters(b) {
   if (state.room === '__whole_facility__' && !isWholeFacility(b)) return false;
   if (state.room && state.room !== '__whole_facility__' && !b.rooms.includes(state.room)) return false;
   if (state.statusFilter && !STATUS_CATEGORIES.some(function (cat) { return state.statusFilter.has(cat) && matchesStatusCategory(b, cat); })) return false;
-  const range = monthRangeFor(state.month);
-  if (range) {
-    const d = new Date(b.event_date + 'T00:00:00');
-    if (d < range.start || d >= range.end) return false;
-  }
+  if (state.startDate && b.event_date < state.startDate) return false;
+  if (state.endDate && b.event_date > state.endDate) return false;
   return true;
 }
 
@@ -3262,67 +3253,40 @@ document.getElementById('page-size-filter').addEventListener('change', function 
   render();
 });
 
-// Month filter — a real popup calendar (quick picks + a navigable
-// year/month grid) rather than a long flat dropdown list.
-const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-const MONTH_NAMES_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-let monthCalendarViewYear = new Date().getFullYear();
-
-function monthFilterLabel(value) {
-  if (value === 'default3') return 'This, last & next month';
-  if (value === 'thisyear') return 'This year';
-  if (value === 'all') return 'All time';
-  const [y, m] = value.split('-').map(Number);
-  return MONTH_NAMES[m - 1] + ' ' + y;
+// Date range filter — same preset pattern as the Invoices page, applied
+// client-side here since All Bookings loads its full dataset once rather
+// than re-fetching per range.
+function computePresetRange(preset) {
+  const now = new Date();
+  const fmt = d => d.toISOString().slice(0, 10);
+  const y = now.getFullYear(), m = now.getMonth();
+  if (preset === 'alltime') return { start: '2000-01-01', end: fmt(new Date(y + 1, 11, 31)) };
+  if (preset === 'thismonth') return { start: fmt(new Date(y, m, 1)), end: fmt(new Date(y, m + 1, 0)) };
+  if (preset === 'lastmonth') return { start: fmt(new Date(y, m - 1, 1)), end: fmt(new Date(y, m, 0)) };
+  if (preset === 'thisquarter') { const qStart = Math.floor(m / 3) * 3; return { start: fmt(new Date(y, qStart, 1)), end: fmt(new Date(y, qStart + 3, 0)) }; }
+  if (preset === 'lastquarter') { const qStart = Math.floor(m / 3) * 3 - 3; return { start: fmt(new Date(y, qStart, 1)), end: fmt(new Date(y, qStart + 3, 0)) }; }
+  if (preset === 'thisyear') return { start: fmt(new Date(y, 0, 1)), end: fmt(new Date(y, 11, 31)) };
+  return { start: fmt(new Date(y, m - 2, 1)), end: fmt(new Date(y, m + 1, 0)) }; // last3months
 }
-
-function renderMonthCalendarPanel() {
-  const panel = document.getElementById('month-calendar-panel');
-  const selectedIsSpecificMonth = /^\d{4}-\d{2}$/.test(state.month);
-  const selectedYear = selectedIsSpecificMonth ? Number(state.month.split('-')[0]) : null;
-
-  let html = '<div class="month-calendar-quick">' +
-    '<button class="' + (state.month === 'default3' ? 'active' : '') + '" onclick="selectMonthFilter(\'default3\')">This, last &amp; next month</button>' +
-    '<button class="' + (state.month === 'thisyear' ? 'active' : '') + '" onclick="selectMonthFilter(\'thisyear\')">This year</button>' +
-    '<button class="' + (state.month === 'all' ? 'active' : '') + '" onclick="selectMonthFilter(\'all\')">All time</button>' +
-    '</div>';
-  html += '<div class="month-calendar-year-nav">' +
-    '<button onclick="shiftMonthCalendarYear(-1)">&lsaquo;</button>' +
-    '<span>' + monthCalendarViewYear + '</span>' +
-    '<button onclick="shiftMonthCalendarYear(1)">&rsaquo;</button>' +
-    '</div>';
-  html += '<div class="month-calendar-grid">' +
-    MONTH_NAMES_SHORT.map(function (name, i) {
-      const value = monthCalendarViewYear + '-' + String(i + 1).padStart(2, '0');
-      const isActive = selectedIsSpecificMonth && selectedYear === monthCalendarViewYear && Number(state.month.split('-')[1]) === i + 1;
-      return '<button class="' + (isActive ? 'active' : '') + '" onclick="selectMonthFilter(\'' + value + '\')">' + name + '</button>';
-    }).join('') +
-    '</div>';
-  panel.innerHTML = html;
-}
-function shiftMonthCalendarYear(delta) {
-  monthCalendarViewYear += delta;
-  renderMonthCalendarPanel();
-}
-function selectMonthFilter(value) {
-  state.month = value;
+document.getElementById('ab-range-preset').addEventListener('change', function () {
+  const preset = this.value;
+  const customInputs = [document.getElementById('ab-start-date'), document.getElementById('ab-end-date')];
+  if (preset === 'custom') {
+    customInputs.forEach(function (el) { el.style.display = 'inline-block'; });
+    return;
+  }
+  customInputs.forEach(function (el) { el.style.display = 'none'; });
+  const range = computePresetRange(preset);
+  state.startDate = range.start;
+  state.endDate = range.end;
+  document.getElementById('ab-start-date').value = range.start;
+  document.getElementById('ab-end-date').value = range.end;
   state.page = 1;
-  document.getElementById('btn-month-filter').textContent = monthFilterLabel(value);
-  document.getElementById('month-calendar-panel').style.display = 'none';
   render();
-}
-document.getElementById('btn-month-filter').textContent = monthFilterLabel(state.month);
-document.getElementById('btn-month-filter').addEventListener('click', function (e) {
-  e.stopPropagation();
-  const panel = document.getElementById('month-calendar-panel');
-  const willOpen = panel.style.display === 'none';
-  if (willOpen) renderMonthCalendarPanel();
-  panel.style.display = willOpen ? 'block' : 'none';
 });
-document.addEventListener('click', function (e) {
-  const panel = document.getElementById('month-calendar-panel');
-  if (panel.style.display !== 'none' && !panel.contains(e.target) && e.target.id !== 'btn-month-filter') panel.style.display = 'none';
-});
+document.getElementById('ab-start-date').addEventListener('change', function () { state.startDate = this.value; state.page = 1; render(); });
+document.getElementById('ab-end-date').addEventListener('change', function () { state.endDate = this.value; state.page = 1; render(); });
+document.getElementById('btn-refresh-bookings').addEventListener('click', function () { loadBookings(); });
 // loadBookings() is intentionally NOT called here — moved into the auth
 // gate's success handler below, since it needs a valid sign-in token first.
 

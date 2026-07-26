@@ -835,6 +835,21 @@ tr.series-row:hover td { background: var(--surface-soft); }
   </div>
 </div>
 
+<div class="modal-overlay" id="document-viewer-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:800px;width:92vw;">
+    <div class="modal-header">
+      <h2 id="document-viewer-title">Document</h2>
+      <button class="modal-close" id="btn-close-document-viewer">&times;</button>
+    </div>
+    <div class="modal-body" style="padding:0;">
+      <iframe id="document-viewer-frame" style="width:100%;height:70vh;border:none;display:block;"></iframe>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-document-viewer-download">Download</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="mark-paid-overlay" style="display:none;">
   <div class="modal-panel" style="max-width:400px;">
     <div class="modal-header">
@@ -3103,6 +3118,7 @@ document.getElementById('receipt-action-overlay').addEventListener('click', func
 // Same implementation as All Bookings — invoices/receipts are only ever
 // generated in the Facility Rental Portal, but Finance can still view and
 // download them read-only.
+let documentViewerContext = null;
 async function viewDocument(bookingId, kind) {
   try {
     const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/' + kind + '-preview');
@@ -3114,12 +3130,25 @@ async function viewDocument(bookingId, kind) {
     const html = await res.text();
     const blob = new Blob([html], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
-    setTimeout(function () { URL.revokeObjectURL(url); }, 30000);
+    documentViewerContext = { url: url, bookingId: bookingId, kind: kind };
+    document.getElementById('document-viewer-title').textContent = kind === 'receipt' ? 'Receipt' : 'Invoice';
+    document.getElementById('document-viewer-frame').src = url;
+    document.getElementById('document-viewer-overlay').style.display = 'flex';
   } catch (err) {
     alert('Could not reach the booking system: ' + err.message);
   }
 }
+document.getElementById('btn-close-document-viewer').addEventListener('click', closeDocumentViewer);
+document.getElementById('document-viewer-overlay').addEventListener('click', function (e) { if (e.target === this) closeDocumentViewer(); });
+function closeDocumentViewer() {
+  document.getElementById('document-viewer-overlay').style.display = 'none';
+  document.getElementById('document-viewer-frame').src = 'about:blank';
+  if (documentViewerContext) { URL.revokeObjectURL(documentViewerContext.url); documentViewerContext = null; }
+}
+document.getElementById('btn-document-viewer-download').addEventListener('click', function () {
+  if (!documentViewerContext) return;
+  downloadDocument(documentViewerContext.bookingId, documentViewerContext.kind);
+});
 async function downloadDocument(bookingId, kind) {
   try {
     const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/' + kind + '-preview');

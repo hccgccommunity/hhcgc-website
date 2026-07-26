@@ -209,7 +209,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
 .invoice-action-btn { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1.5px solid var(--border); background: #fff; font-family: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer; text-align: left; }
 .invoice-action-btn:hover { background: var(--surface-soft); }
 .invoice-action-btn.primary { background: linear-gradient(135deg, var(--saffron-dark), var(--maroon)); color: #fff; border: none; }
-.btn-invoice { border: 1.5px solid var(--border); background: #fff; border-radius: 50%; width: 27px; height: 27px; cursor: pointer; font-size: 0.78rem; vertical-align: middle; transition: transform 0.1s; }
+.btn-invoice { display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid var(--border); background: #fff; border-radius: 50%; width: 27px; height: 27px; cursor: pointer; font-size: 0.78rem; vertical-align: middle; line-height: 1; transition: transform 0.1s; }
 .btn-attach-link { border: 1.5px dashed var(--border); background: #fff; border-radius: 8px; padding: 3px 8px; cursor: pointer; font-size: 0.72rem; color: var(--muted); }
 .btn-attach-link:hover { border-color: var(--saffron); color: var(--saffron-dark); }
 .btn-attach-link.has-attachments { border: 1.5px solid var(--saffron-dark); background: var(--surface-soft); padding: 3px 6px; }
@@ -220,7 +220,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
 .btn-invoice.attached { background: #fff4d9; border-color: #dda520; box-shadow: 0 1px 4px rgba(221,165,32,0.35); }
 .btn-invoice.sent { background: #e2f6e9; border-color: #2e9e5b; box-shadow: 0 1px 4px rgba(46,158,91,0.35); }
 .btn-invoice:hover:not(.sent) { transform: scale(1.08); }
-.btn-receipt { border: 1.5px solid var(--border); background: #fff; border-radius: 50%; width: 27px; height: 27px; cursor: pointer; font-size: 0.78rem; vertical-align: middle; transition: transform 0.1s; }
+.btn-receipt { display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid var(--border); background: #fff; border-radius: 50%; width: 27px; height: 27px; cursor: pointer; font-size: 0.78rem; vertical-align: middle; line-height: 1; transition: transform 0.1s; }
 .btn-receipt.greyed { background: #f2efe9; border-color: #ddd6c8; opacity: 0.55; }
 .btn-receipt.attached { background: #fff4d9; border-color: #dda520; box-shadow: 0 1px 4px rgba(221,165,32,0.35); }
 .btn-receipt.sent { background: #e2f6e9; border-color: #2e9e5b; box-shadow: 0 1px 4px rgba(46,158,91,0.35); }
@@ -791,24 +791,6 @@ tr.series-row:hover td { background: var(--surface-soft); }
     </div>
     <div class="modal-footer">
       <button type="button" class="btn-secondary" id="btn-close-ambiguous-series-2">Close</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="void-invoice-overlay" style="display:none;">
-  <div class="modal-panel" style="max-width:460px;">
-    <div class="modal-header">
-      <h2>Void invoice &amp; receipt</h2>
-      <button class="modal-close" id="btn-close-void-invoice">&times;</button>
-    </div>
-    <div class="modal-body">
-      <p class="card-sub" style="margin-bottom:10px;">Use this when a payment was reversed or refunded directly at the bank (outside this system). This voids the invoice and receipt, removes any linked transaction, and automatically emails the customer — the note below is included in that email, so write it as you'd want them to read it.</p>
-      <textarea id="void-invoice-note" rows="4" placeholder="Note to include in the email to the customer (required)" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></textarea>
-      <div class="result-box" id="void-invoice-result" style="display:none;margin-top:10px;"></div>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn-secondary" id="btn-cancel-void-invoice">Cancel</button>
-      <button type="button" class="btn-primary" id="btn-confirm-void-invoice" style="margin-top:0;">Void &amp; email customer</button>
     </div>
   </div>
 </div>
@@ -2329,13 +2311,24 @@ let INVOICES = [];
 let invSortKey = 'activity', invSortDir = 'desc';
 let invPageSize = 10, invPage = 1;
 let invContactFilter = undefined; // undefined = all contacts, Set = specific selection
-const INV_STATUS_CATEGORIES = ['invoiced', 'pending', 'paid', 'cancelled'];
-const INV_STATUS_LABELS = { invoiced: 'Invoiced (generated or sent)', pending: 'Pending (not yet invoiced)', paid: 'Paid', cancelled: 'Cancelled' };
+const INV_STATUS_CATEGORIES = ['requested', 'invoiced', 'pending', 'paid', 'internal', 'cancelled', 'rejected'];
+const INV_STATUS_LABELS = {
+  requested: 'Requested — awaiting review',
+  invoiced: 'Invoiced (generated or sent)',
+  pending: 'Pending (not yet invoiced)',
+  paid: 'Paid',
+  internal: 'Internal / No charge',
+  cancelled: 'Cancelled',
+  rejected: 'Rejected'
+};
 function matchesInvStatusCategory(r, category) {
   if (category === 'invoiced') return r.paymentStatus === 'invoiced' || r.paymentStatus === 'pending';
-  if (category === 'pending') return r.paymentStatus === 'pending';
   if (category === 'paid') return r.paymentStatus === 'paid';
+  if (category === 'pending') return r.paymentStatus === 'pending';
   if (category === 'cancelled') return r.paymentStatus === 'cancelled';
+  if (category === 'internal') return r.paymentStatus === 'n/a';
+  if (category === 'requested') return r.paymentStatus === 'requested';
+  if (category === 'rejected') return r.paymentStatus === 'rejected';
   return false;
 }
 let invStatusFilter = undefined; // undefined = everything except cancelled (set on first populate)
@@ -2455,7 +2448,7 @@ function renderInvoiceRow(inv, isSubRow, showFullActions) {
   const paymentCell = inv.paymentStatus === 'cancelled'
     ? '<span style="color:var(--muted);font-size:0.8rem;">&mdash;</span>'
     : (inv.paymentStatus === 'paid'
-        ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid' + (inv.paymentMethod ? ' \u00b7 ' + escHtml(inv.paymentMethod) : '') + '</span> <button type="button" class="btn-secondary" style="padding:2px 8px;font-size:0.72rem;margin-left:4px;" data-void-invoice-booking="' + inv.bookingId + '">Void</button>'
+        ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid' + (inv.paymentMethod ? ' \u00b7 ' + escHtml(inv.paymentMethod) : '') + '</span>'
         : (inv.invoiceSentAt
             ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + inv.bookingId + '">Mark paid</button>'
             : '<span style="color:var(--muted);font-size:0.78rem;" title="Send the invoice first">&mdash;</span>'));
@@ -2521,7 +2514,7 @@ function renderInvoicesTable() {
   const emptyState = document.getElementById('inv-empty');
   let items = groupInvoicesIntoDisplayItems(INVOICES);
   if (invContactFilter) items = items.filter(function (item) { return invContactFilter.has(invContactNameFor(item)); });
-  if (invStatusFilter === undefined) invStatusFilter = new Set(INV_STATUS_CATEGORIES.filter(function (c) { return c !== 'cancelled'; }));
+  if (invStatusFilter === undefined) invStatusFilter = new Set(INV_STATUS_CATEGORIES.filter(function (c) { return c !== 'cancelled' && c !== 'rejected'; }));
   if (invStatusFilter.size < INV_STATUS_CATEGORIES.length) {
     items = items.filter(function (item) {
       const records = item.type === 'single' ? [item.invoice] : item.occurrences;
@@ -2571,7 +2564,7 @@ function renderInvoicesTable() {
             ? '<button type="button" class="btn-receipt attached" title="Not sent yet — click to view, send, or download" data-receipt-popup-booking="' + repOcc.bookingId + '">\ud83e\uddfe</button>'
             : '<button type="button" class="btn-receipt greyed" disabled title="Confirm as paid first">\ud83e\uddfe</button>');
       const paymentCell = repOcc.paymentStatus === 'paid'
-        ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid' + (repOcc.paymentMethod ? ' \u00b7 ' + escHtml(repOcc.paymentMethod) : '') + '</span> <button type="button" class="btn-secondary" style="padding:2px 8px;font-size:0.72rem;margin-left:4px;" data-void-invoice-booking="' + repOcc.bookingId + '">Void</button>'
+        ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid' + (repOcc.paymentMethod ? ' \u00b7 ' + escHtml(repOcc.paymentMethod) : '') + '</span>'
         : (repOcc.invoiceSentAt
             ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + repOcc.bookingId + '">Mark paid</button>'
             : '<span style="color:var(--muted);font-size:0.78rem;" title="Send the invoice first">&mdash;</span>');
@@ -2656,7 +2649,7 @@ document.getElementById('btn-inv-contact-filter-none').addEventListener('click',
   renderInvoicesTable();
 });
 function populateInvStatusFilter() {
-  if (invStatusFilter === undefined) invStatusFilter = new Set(INV_STATUS_CATEGORIES.filter(function (c) { return c !== 'cancelled'; }));
+  if (invStatusFilter === undefined) invStatusFilter = new Set(INV_STATUS_CATEGORIES.filter(function (c) { return c !== 'cancelled' && c !== 'rejected'; }));
   const list = document.getElementById('inv-status-filter-list');
   const checkedSet = invStatusFilter;
   list.innerHTML = INV_STATUS_CATEGORIES.map(function (cat) {
@@ -3065,45 +3058,6 @@ async function downloadDocument(bookingId, kind) {
     alert('Could not reach the booking system: ' + err.message);
   }
 }
-
-// ── Void invoice & receipt ──
-// Used when a payment was reversed or refunded directly at the bank,
-// outside this system — reconciliation itself happens against the bank
-// account now, not through Finance's own matching UI.
-let voidInvoiceBookingId = null;
-document.getElementById('inv-tbody').addEventListener('click', function (e) {
-  const btn = e.target.closest('[data-void-invoice-booking]');
-  if (!btn) return;
-  voidInvoiceBookingId = btn.dataset.voidInvoiceBooking;
-  document.getElementById('void-invoice-note').value = '';
-  document.getElementById('void-invoice-result').style.display = 'none';
-  document.getElementById('void-invoice-overlay').style.display = 'flex';
-});
-document.getElementById('btn-close-void-invoice').addEventListener('click', function () { document.getElementById('void-invoice-overlay').style.display = 'none'; });
-document.getElementById('btn-cancel-void-invoice').addEventListener('click', function () { document.getElementById('void-invoice-overlay').style.display = 'none'; });
-document.getElementById('void-invoice-overlay').addEventListener('click', function (e) { if (e.target === this) this.style.display = 'none'; });
-document.getElementById('btn-confirm-void-invoice').addEventListener('click', async function () {
-  if (!voidInvoiceBookingId) return;
-  const note = document.getElementById('void-invoice-note').value.trim();
-  const resultBox = document.getElementById('void-invoice-result');
-  if (!note) { resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = 'A note is required — it will be included in the email to the customer.'; return; }
-  if (!confirm('Void this invoice and receipt, and email the customer now? This cannot be undone from here.')) return;
-  const btn = this;
-  btn.disabled = true; btn.textContent = 'Voiding…';
-  try {
-    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(voidInvoiceBookingId) + '/void', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ note })
-    });
-    const data = await res.json();
-    if (!res.ok) { resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = (data.errors || [data.error]).join(' ') || 'unknown error'; return; }
-    document.getElementById('void-invoice-overlay').style.display = 'none';
-    await loadInvoices();
-  } catch (err) {
-    resultBox.style.display = 'block'; resultBox.className = 'result-box error'; resultBox.textContent = 'Could not reach the server: ' + err.message;
-  } finally {
-    btn.disabled = false; btn.textContent = 'Void & email customer';
-  }
-});
 
 let notesModalBookingId = null;
 function openInvoiceNotesModal(bookingId) {

@@ -137,7 +137,7 @@ tr.cancelled-row .renter-name, tr.cancelled-row .amount { text-decoration: line-
 }
 .badge-paid { background: var(--green-bg); color: var(--green); }
 .badge-needs-confirm { background: var(--amber-bg); color: var(--amber); }
-.btn-invoice { border: 1.5px solid var(--border); background: #fff; border-radius: 50%; width: 27px; height: 27px; cursor: default; font-size: 0.78rem; vertical-align: middle; }
+.btn-invoice { display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid var(--border); background: #fff; border-radius: 50%; width: 27px; height: 27px; cursor: default; font-size: 0.78rem; vertical-align: middle; line-height: 1; }
 .btn-invoice.greyed { background: #f2efe9; border-color: #ddd6c8; opacity: 0.55; }
 .btn-invoice.attached { background: #fff4d9; border-color: #dda520; box-shadow: 0 1px 4px rgba(221,165,32,0.35); }
 .btn-invoice.sent { background: #e2f6e9; border-color: #2e9e5b; box-shadow: 0 1px 4px rgba(46,158,91,0.35); }
@@ -145,7 +145,7 @@ tr.cancelled-row .renter-name, tr.cancelled-row .amount { text-decoration: line-
 .btn-icon-action { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; }
 .btn-icon-action.has-content { background: #bdedcf; border: 2px solid #1f6b3f; }
 .btn-icon-action:hover { filter: brightness(0.96); }
-.btn-receipt { border: 1.5px solid var(--border); background: #fff; border-radius: 50%; width: 27px; height: 27px; cursor: default; font-size: 0.78rem; }
+.btn-receipt { display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid var(--border); background: #fff; border-radius: 50%; width: 27px; height: 27px; cursor: default; font-size: 0.78rem; line-height: 1; }
 .btn-receipt.greyed { background: #f2efe9; border-color: #ddd6c8; opacity: 0.55; }
 .btn-receipt.attached { background: #fff4d9; border-color: #dda520; box-shadow: 0 1px 4px rgba(221,165,32,0.35); }
 .btn-receipt.sent { background: #e2f6e9; border-color: #2e9e5b; box-shadow: 0 1px 4px rgba(46,158,91,0.35); }

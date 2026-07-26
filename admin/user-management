@@ -1146,12 +1146,13 @@ async function loadTestPayments() {
     if (!res.ok) { listEl.innerHTML = '<div class="field-hint">' + ((data.errors || [data.error]).join(' ') || 'Could not load.') + '</div>'; return; }
     if (!data.length) { listEl.innerHTML = '<div class="field-hint" style="color:var(--muted);">No test payments yet.</div>'; return; }
     listEl.innerHTML = data.map(function (p) {
+      var actions = p.key
+        ? '<button type="button" class="tp-edit-btn" data-key="' + p.key + '" data-date="' + p.date + '" data-amount="' + p.amount + '" data-email="' + escHtml(p.email) + '" data-note="' + escHtml(p.note) + '" style="margin-right:8px;">Edit</button>' +
+          '<button type="button" class="tp-delete-btn" data-key="' + p.key + '" style="color:var(--red, #b3382c);">Delete</button>'
+        : '<span style="color:var(--muted);" title="This test payment was created before edit/delete existed and needs a one-time database update to enable it — see backfill-test-payment-keys.sql">Not editable yet</span>';
       return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.86rem;">' +
         '<span>' + p.date + ' — $' + Number(p.amount).toFixed(2) + ' — ' + escHtml(p.description) + '</span>' +
-        '<span style="white-space:nowrap;">' +
-        '<button type="button" class="tp-edit-btn" data-key="' + p.key + '" data-date="' + p.date + '" data-amount="' + p.amount + '" data-email="' + escHtml(p.email) + '" data-note="' + escHtml(p.note) + '" style="margin-right:8px;">Edit</button>' +
-        '<button type="button" class="tp-delete-btn" data-key="' + p.key + '" style="color:var(--red, #b3382c);">Delete</button>' +
-        '</span></div>';
+        '<span style="white-space:nowrap;">' + actions + '</span></div>';
     }).join('');
   } catch (err) {
     listEl.innerHTML = '<div class="field-hint">Could not reach the server: ' + err.message + '</div>';

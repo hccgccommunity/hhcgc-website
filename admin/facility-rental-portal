@@ -720,6 +720,9 @@ tbody input[type="text"], tbody input[type="number"] {
 .tab-nav button { display: inline-block; padding: 8px 16px; border-radius: 999px; font-size: 0.86rem; font-weight: 700; color: var(--muted); background: none; border: none; cursor: pointer; transition: background 0.15s, color 0.15s; font-family: inherit; }
 .tab-nav button.active { background: var(--surface-soft); color: var(--saffron-dark); }
 .tab-nav button:not(.active):hover { background: var(--surface-soft); }
+.sub-tab-btn { font-family: inherit; padding: 8px 16px; border-radius: 999px; font-size: 0.84rem; font-weight: 700; color: var(--muted); background: #fff; border: 1.5px solid var(--border); cursor: pointer; }
+.sub-tab-btn.active { background: var(--saffron-dark); color: #fff; border-color: var(--saffron-dark); }
+.sub-tab-btn:not(.active):hover { border-color: var(--saffron); }
 .tab-panel { display: none; padding: 24px 0 60px; }
 .tab-panel.active { display: block; }
 
@@ -1367,6 +1370,14 @@ tbody input[type="text"], tbody input[type="number"] {
     <div class="field"><label>Email body (HTML)</label><textarea id="et-body" rows="16" style="width:100%;font-family:monospace;font-size:0.84rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></textarea></div>
 
     <div class="field-hint" id="et-merge-fields" style="margin-bottom:16px;"></div>
+
+    <div id="et-reminder-timing-section" style="display:none;margin-bottom:16px;padding:14px 16px;background:var(--surface-soft);border-radius:10px;">
+      <div class="field" style="margin-bottom:0;">
+        <label for="et-reminder-hours">Send this reminder how many hours before the event?</label>
+        <input type="number" id="et-reminder-hours" min="1" max="720" step="1" style="width:140px;font-family:inherit;font-size:0.92rem;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;">
+        <div class="field-hint" style="margin-top:4px;">The scheduled job checks hourly, so treat this as roughly accurate, not exact. 48 hours = 2 days. Max 720 hours (30 days).</div>
+      </div>
+    </div>
 
     <div id="et-attachment-section" style="display:none;margin-bottom:16px;padding:14px 16px;background:var(--surface-soft);border-radius:10px;">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
@@ -4434,6 +4445,14 @@ function showEmailTemplate(type) {
   } else {
     attachmentSection.style.display = 'none';
   }
+
+  const reminderTimingSection = document.getElementById('et-reminder-timing-section');
+  if (type === 'reminder') {
+    reminderTimingSection.style.display = 'block';
+    document.getElementById('et-reminder-hours').value = emailTemplatesData.reminderHoursBefore || 48;
+  } else {
+    reminderTimingSection.style.display = 'none';
+  }
 }
 
 document.querySelectorAll('#tab-email-templates .sub-tab-btn').forEach(function (btn) {
@@ -4476,6 +4495,9 @@ document.getElementById('btn-save-template').addEventListener('click', async fun
         reader.readAsDataURL(fileInput.files[0]);
       });
     }
+  }
+  if (currentTemplateType === 'reminder') {
+    payload.reminderHoursBefore = Number(document.getElementById('et-reminder-hours').value);
   }
   try {
     const res = await authedFetch(API_BASE + '/admin/email-templates', {

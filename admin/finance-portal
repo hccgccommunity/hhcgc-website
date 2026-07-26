@@ -2934,7 +2934,7 @@ async function loadInvoiceCandidatesForAttach() {
     const emailParam = attachmentContext.payerEmail ? '&email=' + encodeURIComponent(attachmentContext.payerEmail) : '';
     const res = await authedFetch(API_BASE + '/finance/invoice-candidates?amount=' + Math.abs(attachmentContext.amount) + emailParam);
     const candidates = await res.json();
-    if (!candidates.length) { el.innerHTML = '<div class="empty-state">No invoices found for ' + money(Math.abs(attachmentContext.amount)) + '.</div>'; return; }
+    if (!candidates.length) { el.innerHTML = '<div class="empty-state">No sent invoices found for ' + money(Math.abs(attachmentContext.amount)) + '. Only invoices that have actually been sent show up here — a generated-but-unsent one won\'t match.</div>'; return; }
     el.innerHTML = candidates.map(function (c) {
       const isEmailMatch = attachmentContext.payerEmail && c.renterEmail && c.renterEmail.toLowerCase() === attachmentContext.payerEmail.toLowerCase();
       return '<div class="exp-line-item" style="cursor:pointer;' + (isEmailMatch ? 'border-color:var(--green);background:#f0faf3;' : '') + '" data-pick-invoice-booking="' + c.bookingId + '" data-pick-invoice-label="' + escHtml(c.renterName) + '">' +

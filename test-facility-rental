@@ -1195,7 +1195,7 @@
         </div>
 
         <div class="request-form-card" id="requestFormCard">
-          <form id="requestForm">
+          <form id="requestForm" novalidate>
             <div class="request-section-title">Let's get started</div>
             <div class="request-field">
               <label>Email <span class="req-star">*</span></label>
@@ -1291,9 +1291,32 @@
 
             <div class="request-field">
               <label>Date(s) &amp; time(s) <span class="req-star">*</span></label>
-              <p class="card-sub" style="margin:0 0 8px;font-size:0.82rem;color:var(--muted);">Add more than one row for a multi-day event or a repeating booking.</p>
+              <p class="card-sub" style="margin:0 0 8px;font-size:0.82rem;color:var(--muted);">Add more than one row for a multi-day event, or use "This repeats" below to generate a recurring set of dates automatically.</p>
               <div id="rf-dates-list"></div>
               <button type="button" class="request-add-date-btn" id="rf-add-date-btn">+ Add another date</button>
+
+              <div style="display:flex;align-items:center;gap:8px;margin-top:16px;">
+                <input type="checkbox" id="rf-recurring-enabled" style="width:auto;">
+                <label for="rf-recurring-enabled" style="margin:0;">This repeats</label>
+              </div>
+              <div id="rf-recurring-fields" style="display:none;margin-top:10px;">
+                <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
+                  <div class="request-field" style="flex:1;min-width:160px;margin-bottom:0;">
+                    <label>Repeats</label>
+                    <select id="rf-recur-frequency"><option value="daily">Daily</option><option value="weekly" selected>Weekly</option><option value="biweekly">Every 2 weeks</option><option value="monthly">Monthly</option></select>
+                  </div>
+                  <div class="request-field" style="flex:1;min-width:160px;margin-bottom:0;">
+                    <label>Ends</label>
+                    <select id="rf-recur-end-type"><option value="count">After a number of times</option><option value="until">On a specific date</option></select>
+                  </div>
+                </div>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
+                  <div class="request-field" id="rf-recur-count-field" style="flex:1;min-width:160px;margin-bottom:0;"><label>Number of occurrences</label><input type="number" id="rf-recur-count" min="2" value="8"></div>
+                  <div class="request-field" id="rf-recur-until-field" style="flex:1;min-width:160px;margin-bottom:0;display:none;"><label>Last occurrence date</label><input type="date" id="rf-recur-until"></div>
+                </div>
+                <button type="button" class="request-submit-btn" id="rf-generate-dates-btn" style="max-width:200px;">Generate dates</button>
+                <p class="card-sub" style="margin:8px 0 0;font-size:0.82rem;color:var(--muted);">Uses the first row's date and times as the starting point — fill that in first, then generate the rest. Each generated date can still be edited or removed individually below.</p>
+              </div>
             </div>
 
             <div class="request-field" id="rf-live-estimate" style="display:none;background:var(--surface-soft,#fff6ea);border-radius:14px;padding:16px 20px;">
@@ -1944,6 +1967,64 @@
     document.getElementById('rf-add-date-btn').addEventListener('click', addDateRow);
     addDateRow(); // start with one row
 
+    // ── Recurring pattern generator (matches New Booking's "This repeats" behavior) ──
+    function addDays(dateStr, n) {
+      const d = new Date(dateStr + 'T00:00:00');
+      d.setDate(d.getDate() + n);
+      return d.toISOString().slice(0, 10);
+    }
+    function addMonths(dateStr, n) {
+      const d = new Date(dateStr + 'T00:00:00');
+      d.setMonth(d.getMonth() + n);
+      return d.toISOString().slice(0, 10);
+    }
+    document.getElementById('rf-recurring-enabled').addEventListener('change', function () {
+      document.getElementById('rf-recurring-fields').style.display = this.checked ? 'block' : 'none';
+    });
+    document.getElementById('rf-recur-end-type').addEventListener('change', function () {
+      document.getElementById('rf-recur-count-field').style.display = this.value === 'count' ? 'block' : 'none';
+      document.getElementById('rf-recur-until-field').style.display = this.value === 'until' ? 'block' : 'none';
+    });
+    document.getElementById('rf-generate-dates-btn').addEventListener('click', function () {
+      const firstRow = document.querySelector('.rf-date-row');
+      const firstDate = firstRow.querySelector('.rf-date-input').value;
+      const startTime = firstRow.querySelector('.rf-start-input').value;
+      const endTime = firstRow.querySelector('.rf-end-input').value;
+      if (!firstDate || !startTime || !endTime) {
+        showRequestResult('Fill in the first date row (date, start, and end time) before generating the rest.');
+        return;
+      }
+      const frequency = document.getElementById('rf-recur-frequency').value;
+      const endType = document.getElementById('rf-recur-end-type').value;
+      const count = endType === 'count' ? parseInt(document.getElementById('rf-recur-count').value, 10) : null;
+      const until = endType === 'until' ? document.getElementById('rf-recur-until').value : null;
+
+      const dates = [firstDate];
+      let cur = firstDate;
+      let guard = 0;
+      while (guard++ < 366) {
+        if (count && dates.length >= count) break;
+        cur = frequency === 'daily' ? addDays(cur, 1)
+            : frequency === 'weekly' ? addDays(cur, 7)
+            : frequency === 'biweekly' ? addDays(cur, 14)
+            : addMonths(cur, 1);
+        if (until && cur > until) break;
+        if (!count && !until) break;
+        dates.push(cur);
+      }
+
+      document.getElementById('rf-dates-list').innerHTML = '';
+      dates.forEach(function (d, i) {
+        addDateRow();
+        const rows = document.querySelectorAll('.rf-date-row');
+        const row = rows[rows.length - 1];
+        row.querySelector('.rf-date-input').value = d;
+        row.querySelector('.rf-start-input').value = startTime;
+        row.querySelector('.rf-end-input').value = endTime;
+      });
+      updateLiveEstimate();
+    });
+
     // ── Live estimate for the actual request being submitted — same
     // rates and discount rules as the standalone estimator above, but
     // applied per-occurrence (each date checked individually for the
@@ -2000,6 +2081,7 @@
     document.getElementById('requestForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('rf-submit-btn');
+      try {
 
       const rooms = selectedRoomValues();
       if (!rooms.length) { showRequestResult('Please select at least one room.'); return; }
@@ -2058,25 +2140,24 @@
       }
 
       btn.disabled = true; btn.textContent = 'Submitting…';
-      try {
-        const res = await fetch(API_BASE + '/public/facility-request', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          showRequestResult((data.errors || [data.error || 'Something went wrong. Please try again.']).join(' '));
-          btn.disabled = false; btn.textContent = 'Submit request';
-        } else {
-          document.getElementById('requestForm').style.display = 'none';
-          document.getElementById('rf-success-panel').style.display = 'block';
-          if (!isHccgcEventPath && data.estimatedTotal !== undefined) {
-            document.getElementById('rf-success-estimate').style.display = 'block';
-            document.getElementById('rf-success-estimate-amount').textContent = '$' + Number(data.estimatedTotal).toFixed(2);
-          }
+      const res = await fetch(API_BASE + '/public/facility-request', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showRequestResult((data.errors || [data.error || 'Something went wrong. Please try again.']).join(' '));
+        btn.disabled = false; btn.textContent = 'Submit request';
+      } else {
+        document.getElementById('requestForm').style.display = 'none';
+        document.getElementById('rf-success-panel').style.display = 'block';
+        if (!isHccgcEventPath && data.estimatedTotal !== undefined) {
+          document.getElementById('rf-success-estimate').style.display = 'block';
+          document.getElementById('rf-success-estimate-amount').textContent = '$' + Number(data.estimatedTotal).toFixed(2);
         }
+      }
       } catch (err) {
         showRequestResult('Could not reach the server: ' + err.message);
-        btn.disabled = false; btn.textContent = 'Submit request';
+        if (btn) { btn.disabled = false; btn.textContent = 'Submit request'; }
       }
     });
 

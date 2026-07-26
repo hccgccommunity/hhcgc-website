@@ -3260,10 +3260,11 @@ function renderOccTable() {
   const tbody = document.getElementById('occ-tbody');
   const invoiceModeField = document.getElementById('invoice-mode-field');
   const isRecurring = document.getElementById('f-recurring-enabled').checked;
+  const isInternal = document.getElementById('f-internal-enabled').checked;
   if (!isRecurring || occurrences.length <= 1) { table.style.display = 'none'; invoiceModeField.style.display = 'none'; recalc(); return; }
 
   table.style.display = 'table';
-  invoiceModeField.style.display = 'block';
+  invoiceModeField.style.display = isInternal ? 'none' : 'block';
   tbody.innerHTML = occurrences.map(function (occ, i) {
     return '<tr>' +
       '<td><input type="date" value="' + occ.date + '" data-i="' + i + '" data-f="date"' + (window.__hccgcCurrentUser && window.__hccgcCurrentUser.email !== 'tech-admin@hccgc.org' ? ' min="' + new Date().toISOString().slice(0, 10) + '"' : '') + '></td>' +
@@ -3335,6 +3336,7 @@ document.getElementById('f-internal-enabled').addEventListener('change', functio
     document.getElementById('f-hccg-rep').value = '';
   }
   recalc();
+  renderOccTable();
 });
 
 document.getElementById('adjustment-toggle').addEventListener('click', function (e) {
@@ -3434,8 +3436,8 @@ const AVAIL_ROOM_COLORS = { 'Surya Hall': '#d9720c', 'Patanjali Hall': '#6b3fa0'
 // the midnight boundary into a different column. Hours before 9 AM are
 // still real bookings, just displayed in the lower portion of the SAME
 // calendar day's column, treated as hour+24 for positioning purposes.
-const AVAIL_DAY_START_HOUR = 0;
-const AVAIL_DAY_END_HOUR = 24; // midnight to midnight - no wrap-around, so no boundary hour can silently drop a booking that spans it
+const AVAIL_DAY_START_HOUR = 6;
+const AVAIL_DAY_END_HOUR = 29; // 6am to 5am the next day (23-hour visible window) - the wrap-safe logic below means a booking starting before 6am clips to the top of its column instead of silently dropping, the same safety property the previous 0-24 range had
 let availWeekOffset = 0;
 let availMonthOffset = 0;
 const expandedMonthDays = new Set();
@@ -3567,7 +3569,15 @@ async function loadAvailabilityCalendar() {
     dayBookings.forEach(function (bk) {
       const startHM = getEasternHourMinute(bk.start);
       const endHM = getEasternHourMinute(bk.end);
-      const startHour24 = startHM.hour < AVAIL_DAY_START_HOUR ? startHM.hour + 24 : startHM.hour;
+      // Start never wraps forward — a booking starting before this window's
+      // start hour (e.g. 5am with a 6am window) simply produces a negative
+      // fraction, which the clamp below correctly pins to the top of the
+      // column. Wrapping it forward instead (the old approach) is exactly
+      // what caused the original bug: an 8am event with a 9am window start
+      // got pushed past its own 5pm end, making start > end and silently
+      // dropping the whole booking. This can't happen anymore since start
+      // is never artificially inflated past end.
+      const startHour24 = startHM.hour;
       // If the event genuinely crosses midnight (end clock-time is earlier
       // than start clock-time), clip it to the end of this visible day
       // rather than silently dropping it — a partial block is a far safer
@@ -3578,7 +3588,7 @@ async function loadAvailabilityCalendar() {
       const endFrac = (crossesMidnight ? totalHours : (endHour24 + endHM.minute / 60 - AVAIL_DAY_START_HOUR)) / totalHours;
       const clampedStart = Math.max(0, Math.min(1, startFrac));
       const clampedEnd = Math.max(0, Math.min(1, endFrac));
-      if (clampedEnd <= clampedStart) return;
+      if (clampedEnd < clampedStart) return;
       const topPx = clampedStart * bodyHeight;
       const heightPx = Math.max(15, (clampedEnd - clampedStart) * bodyHeight);
       const widthPct = 100 / bk.totalLanes;

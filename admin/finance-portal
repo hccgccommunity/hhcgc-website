@@ -401,7 +401,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
   <div class="tab-panel" id="tab-accounting">
     <div class="accounting-layout">
       <div class="accounting-sidenav">
-        <button type="button" class="acct-subtab-btn active" data-acct-tab="transactions">Transactions</button>
+        <button type="button" class="acct-subtab-btn active" data-acct-tab="transactions">Transaction Categorization</button>
         <button type="button" class="acct-subtab-btn" data-acct-tab="statements">Statements</button>
         <button type="button" class="acct-subtab-btn" data-acct-tab="reconciliation">Zeffy Reconciliation</button>
         <button type="button" class="acct-subtab-btn" data-acct-tab="cc-reconciliation">Credit Card Reconciliation</button>
@@ -506,7 +506,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
           <div class="tx-bulk-bar" id="zeffy-refunds-bulk-bar" style="display:none;"><span id="zeffy-refunds-selected-count"></span> selected <button type="button" class="btn-primary" style="margin-top:0;padding:6px 14px;font-size:0.8rem;" data-bulk-review-prefix="zeffy-refunds">Mark selected as reviewed</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-split-prefix="zeffy-refunds">Split</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-merge-prefix="zeffy-refunds">Merge</button></div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-zeffy-refunds-select-all" title="Select all"></th><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead>
+              <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-zeffy-refunds-select-all" title="Select all"></th><th>Date</th><th style="max-width:220px;">Description</th><th>Amount</th><th>Category</th></tr></thead>
               <tbody id="tx-zeffy-refunds-tbody"></tbody>
             </table>
             <div class="empty-state" id="tx-zeffy-refunds-empty" style="display:none;">No Zeffy refunds in this range.</div>
@@ -519,7 +519,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
           <div class="tx-bulk-bar" id="zelle-bulk-bar" style="display:none;"><span id="zelle-selected-count"></span> selected <button type="button" class="btn-primary" style="margin-top:0;padding:6px 14px;font-size:0.8rem;" data-bulk-review-prefix="zelle">Mark selected as reviewed</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-split-prefix="zelle">Split</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-merge-prefix="zelle">Merge</button></div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-zelle-select-all" title="Select all"></th><th>Date</th><th>Description</th><th>Amount</th><th>Category</th><th>Linked</th></tr></thead>
+          <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-zelle-select-all" title="Select all"></th><th>Date</th><th style="max-width:220px;">Description</th><th>Amount</th><th>Category</th></tr></thead>
           <tbody id="tx-zelle-tbody"></tbody>
         </table>
         <div class="empty-state" id="tx-zelle-empty" style="display:none;">No Zelle transactions in this range.</div>
@@ -530,7 +530,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
           <div class="tx-bulk-bar" id="other-bulk-bar" style="display:none;"><span id="other-selected-count"></span> selected <button type="button" class="btn-primary" style="margin-top:0;padding:6px 14px;font-size:0.8rem;" data-bulk-review-prefix="other">Mark selected as reviewed</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-split-prefix="other">Split</button> <button type="button" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;" data-bulk-merge-prefix="other">Merge</button></div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-other-select-all" title="Select all"></th><th>Date</th><th>Description</th><th>Amount</th><th>Account Type</th><th>Category</th><th>Linked</th></tr></thead>
+          <thead><tr><th style="width:30px;"><input type="checkbox" id="tx-other-select-all" title="Select all"></th><th>Date</th><th style="max-width:220px;">Description</th><th>Amount</th><th>Account Type</th><th>Category</th></tr></thead>
           <tbody id="tx-other-tbody"></tbody>
         </table>
         <div class="empty-state" id="tx-other-empty" style="display:none;">No other transactions in this range.</div>
@@ -1581,12 +1581,12 @@ function attachmentIndicatorHtml(t) {
   const isCredit = t.amount >= 0;
   const rowId = t.source + '|' + t.sourceKey;
   if (!list.length) {
-    return '<button type="button" class="btn-attach-link" title="' + (isCredit ? 'Optionally attach a matching invoice' : 'Optionally attach a receipt or reimbursement') + '" data-manage-attachments="' + rowId + '" data-attach-amount="' + t.amount + '">+ Attach</button>';
+    return '<button type="button" class="btn-attach-link" title="' + (isCredit ? 'Optionally attach a matching invoice' : 'Optionally attach a receipt or reimbursement') + '" data-manage-attachments="' + rowId + '" data-attach-amount="' + t.amount + '" data-attach-description="' + escHtml(t.description || '') + '">+ Attach</button>';
   }
   const chips = list.map(function (a) {
     return '<span class="attachment-chip" title="' + escHtml(a.label || a.type) + '">' + (ATTACHMENT_TYPE_ICON[a.type] || '\ud83d\udd17') + '</span>';
   }).join('');
-  return '<button type="button" class="btn-attach-link has-attachments" data-manage-attachments="' + rowId + '" data-attach-amount="' + t.amount + '">' + chips + '</button>';
+  return '<button type="button" class="btn-attach-link has-attachments" data-manage-attachments="' + rowId + '" data-attach-amount="' + t.amount + '" data-attach-description="' + escHtml(t.description || '') + '">' + chips + '</button>';
 }
 function renderGroup(prefix, items, rowFn, emptyMessage) {
   const tbody = document.getElementById(prefix + '-tbody');
@@ -1605,12 +1605,16 @@ function renderTxRow(t, includeInvoiceIcon, includeAccountType) {
   return '<tr>' +
     '<td>' + txCheckboxHtml(rowId) + '</td>' +
     '<td>' + formatDate(t.date) + '</td>' +
-    '<td>' + escHtml(t.description) + txUndoBtnHtml(t) + '</td>' +
+    '<td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + escHtml(t.description) + '">' + escHtml(t.description) + txUndoBtnHtml(t) + '</td>' +
     '<td class="amount">' + money(t.amount) + '</td>' +
     (includeAccountType ? '<td>' + (t.accountType === 'credit_card' ? 'Credit Card' : 'Bank') + '</td>' : '') +
-    '<td>' + txCategorySelectHtml(t, rowId) + ' ' + txNoteBtnHtml(t) + ' ' + txReviewedCircleHtml(t, rowId) + '</td>' +
-    (includeInvoiceIcon === false ? '' : '<td>' + invoiceIconHtml(t) + '</td>') +
-    '<td>' + attachmentIndicatorHtml(t) + '</td>' +
+    '<td>' + txCategorySelectHtml(t, rowId) +
+      '<div style="display:flex;align-items:center;gap:6px;margin-top:6px;">' +
+        txNoteBtnHtml(t) + txReviewedCircleHtml(t, rowId) +
+        (includeInvoiceIcon === false ? '' : invoiceIconHtml(t)) +
+        attachmentIndicatorHtml(t) +
+      '</div>' +
+    '</td>' +
   '</tr>';
 }
 function renderRentalLineRow(t) {
@@ -2871,9 +2875,14 @@ document.querySelectorAll('#mark-paid-overlay [data-payment-method]').forEach(fu
 // or a matching reimbursement. Entirely optional, never gates any other
 // action — this modal is the one place to see and manage it, no
 // secondary windows.
-let attachmentContext = null; // { source, sourceKey, amount }
-async function openManageAttachmentsModal(source, sourceKey, amount) {
-  attachmentContext = { source: source, sourceKey: sourceKey, amount: amount };
+let attachmentContext = null; // { source, sourceKey, amount, payerEmail }
+async function openManageAttachmentsModal(source, sourceKey, amount, description) {
+  // Best-effort email extraction from whatever description text is
+  // available — covers a real Zeffy donor email showing up in the
+  // description, and a test payment's embedded email (see
+  // testPaymentDescription on the backend) the same way.
+  const emailMatch = String(description || '').match(/[\w.+-]+@[\w-]+\.[\w.-]+/);
+  attachmentContext = { source: source, sourceKey: sourceKey, amount: amount, payerEmail: emailMatch ? emailMatch[0] : null };
   document.getElementById('attachment-result').style.display = 'none';
   document.getElementById('manage-attachments-overlay').style.display = 'flex';
   await refreshAttachmentModal();
@@ -2922,12 +2931,14 @@ function renderAttachmentAddSection() {
 async function loadInvoiceCandidatesForAttach() {
   const el = document.getElementById('attach-invoice-candidates');
   try {
-    const res = await authedFetch(API_BASE + '/finance/invoice-candidates?amount=' + Math.abs(attachmentContext.amount));
+    const emailParam = attachmentContext.payerEmail ? '&email=' + encodeURIComponent(attachmentContext.payerEmail) : '';
+    const res = await authedFetch(API_BASE + '/finance/invoice-candidates?amount=' + Math.abs(attachmentContext.amount) + emailParam);
     const candidates = await res.json();
     if (!candidates.length) { el.innerHTML = '<div class="empty-state">No invoices found for ' + money(Math.abs(attachmentContext.amount)) + '.</div>'; return; }
     el.innerHTML = candidates.map(function (c) {
-      return '<div class="exp-line-item" style="cursor:pointer;" data-pick-invoice-booking="' + c.bookingId + '" data-pick-invoice-label="' + escHtml(c.renterName) + '">' +
-        '<div class="exp-top-row"><span>' + escHtml(c.renterName) + (c.eventName ? ' \u2014 ' + escHtml(c.eventName) : '') + '</span><span>' + money(c.amount) + '</span></div>' +
+      const isEmailMatch = attachmentContext.payerEmail && c.renterEmail && c.renterEmail.toLowerCase() === attachmentContext.payerEmail.toLowerCase();
+      return '<div class="exp-line-item" style="cursor:pointer;' + (isEmailMatch ? 'border-color:var(--green);background:#f0faf3;' : '') + '" data-pick-invoice-booking="' + c.bookingId + '" data-pick-invoice-label="' + escHtml(c.renterName) + '">' +
+        '<div class="exp-top-row"><span>' + escHtml(c.renterName) + (c.eventName ? ' \u2014 ' + escHtml(c.eventName) : '') + (isEmailMatch ? ' <span style="color:var(--green);font-weight:700;">\u2713 Email match</span>' : '') + '</span><span>' + money(c.amount) + '</span></div>' +
         '<div class="exp-date">' + formatDate(c.eventDate) + (c.renterEmail ? ' \u00b7 ' + escHtml(c.renterEmail) : '') + '</div>' +
       '</div>';
     }).join('');
@@ -2953,6 +2964,7 @@ async function loadReimbursementCandidatesForAttach() {
 }
 async function saveAttachment(payload) {
   const resultEl = document.getElementById('attachment-result');
+  resultEl.style.display = 'none';
   try {
     const res = await authedFetch(API_BASE + '/finance/attach-transaction', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
@@ -2961,6 +2973,7 @@ async function saveAttachment(payload) {
     if (!res.ok) { resultEl.className = 'result-box error'; resultEl.style.display = 'block'; resultEl.textContent = (data.errors || [data.error]).join(' ') || 'Could not attach.'; return; }
     await refreshAttachmentModal();
     await loadTransactions();
+    resultEl.className = 'result-box success'; resultEl.style.display = 'block'; resultEl.textContent = 'Linked.';
   } catch (err) {
     resultEl.className = 'result-box error'; resultEl.style.display = 'block'; resultEl.textContent = 'Could not reach the server: ' + err.message;
   }
@@ -2994,15 +3007,19 @@ document.getElementById('attachment-existing-list').addEventListener('click', as
   const btn = e.target.closest('[data-remove-attachment-id]');
   if (!btn) return;
   if (!confirm('Remove this link? This only removes the accounting note — nothing else is affected.')) return;
+  const resultEl = document.getElementById('attachment-result');
+  resultEl.style.display = 'none';
   try {
     const res = await authedFetch(API_BASE + '/finance/detach-transaction', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ attachmentId: btn.dataset.removeAttachmentId })
     });
-    if (!res.ok) { const data = await res.json(); alert((data.errors || [data.error]).join(' ') || 'Could not remove.'); return; }
+    const data = await res.json();
+    if (!res.ok) { resultEl.className = 'result-box error'; resultEl.style.display = 'block'; resultEl.textContent = (data.errors || [data.error]).join(' ') || 'Could not remove.'; return; }
     await refreshAttachmentModal();
     await loadTransactions();
+    resultEl.className = 'result-box success'; resultEl.style.display = 'block'; resultEl.textContent = 'Unlinked.';
   } catch (err) {
-    alert('Could not reach the server: ' + err.message);
+    resultEl.className = 'result-box error'; resultEl.style.display = 'block'; resultEl.textContent = 'Could not reach the server: ' + err.message;
   }
 });
 document.getElementById('btn-close-manage-attachments').addEventListener('click', function () { document.getElementById('manage-attachments-overlay').style.display = 'none'; });
@@ -3011,7 +3028,7 @@ document.addEventListener('click', function (e) {
   const btn = e.target.closest('[data-manage-attachments]');
   if (!btn) return;
   const parts = btn.dataset.manageAttachments.split('|');
-  openManageAttachmentsModal(parts[0], parts.slice(1).join('|'), Number(btn.dataset.attachAmount));
+  openManageAttachmentsModal(parts[0], parts.slice(1).join('|'), Number(btn.dataset.attachAmount), btn.dataset.attachDescription);
 });
 
 async function promptSendReceipt(bookingId) {

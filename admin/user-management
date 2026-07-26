@@ -1149,33 +1149,23 @@ async function loadTestPayments() {
       return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.86rem;">' +
         '<span>' + p.date + ' — $' + Number(p.amount).toFixed(2) + ' — ' + escHtml(p.description) + '</span>' +
         '<span style="white-space:nowrap;">' +
-        '<button type="button" class="tp-edit-btn" data-key="' + p.ingestionTimestamp + '" style="margin-right:8px;">Edit</button>' +
-        '<button type="button" class="tp-delete-btn" data-key="' + p.ingestionTimestamp + '" style="color:var(--red, #b3382c);">Delete</button>' +
+        '<button type="button" class="tp-edit-btn" data-key="' + p.key + '" data-date="' + p.date + '" data-amount="' + p.amount + '" data-email="' + escHtml(p.email) + '" data-note="' + escHtml(p.note) + '" style="margin-right:8px;">Edit</button>' +
+        '<button type="button" class="tp-delete-btn" data-key="' + p.key + '" style="color:var(--red, #b3382c);">Delete</button>' +
         '</span></div>';
     }).join('');
   } catch (err) {
     listEl.innerHTML = '<div class="field-hint">Could not reach the server: ' + err.message + '</div>';
   }
 }
-function extractTestPaymentParts(description) {
-  // description looks like "TEST PAYMENT - email@x.com - optional note"
-  var parts = String(description || '').split(' - ');
-  return { email: parts[1] || '', note: parts.slice(2).join(' - ') || '' };
-}
 document.getElementById('tp-list').addEventListener('click', async function (e) {
   var editBtn = e.target.closest('.tp-edit-btn');
   var deleteBtn = e.target.closest('.tp-delete-btn');
   if (editBtn) {
-    var res = await authedFetch(API_BASE + '/admin/test-payments');
-    var data = await res.json();
-    var row = data.find(function (p) { return p.ingestionTimestamp === editBtn.dataset.key; });
-    if (!row) return;
-    var parts = extractTestPaymentParts(row.description);
-    document.getElementById('tp-date').value = row.date;
-    document.getElementById('tp-amount').value = row.amount;
-    document.getElementById('tp-email').value = parts.email;
-    document.getElementById('tp-note').value = parts.note;
-    document.getElementById('tp-editing-key').value = row.ingestionTimestamp;
+    document.getElementById('tp-date').value = editBtn.dataset.date;
+    document.getElementById('tp-amount').value = editBtn.dataset.amount;
+    document.getElementById('tp-email').value = editBtn.dataset.email;
+    document.getElementById('tp-note').value = editBtn.dataset.note;
+    document.getElementById('tp-editing-key').value = editBtn.dataset.key;
     document.getElementById('btn-save-test-payment').textContent = 'Update test payment';
     document.getElementById('btn-cancel-edit-test-payment').style.display = 'inline-block';
     document.getElementById('tp-save-result').textContent = '';
@@ -1185,7 +1175,7 @@ document.getElementById('tp-list').addEventListener('click', async function (e) 
     var resultEl = document.getElementById('tp-save-result');
     try {
       var delRes = await authedFetch(API_BASE + '/admin/test-payments/delete', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ingestionTimestamp: deleteBtn.dataset.key })
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: deleteBtn.dataset.key })
       });
       var delData = await delRes.json();
       if (!delRes.ok) { resultEl.style.color = 'var(--red, #b3382c)'; resultEl.textContent = (delData.errors || [delData.error]).join(' ') || 'Could not delete.'; return; }
@@ -1226,7 +1216,7 @@ document.getElementById('btn-save-test-payment').addEventListener('click', async
   var isEditing = !!editingKey;
   var url = API_BASE + '/admin/test-payments/' + (isEditing ? 'update' : 'create');
   var payload = { date: date, amount: amount, email: email, note: note };
-  if (isEditing) payload.ingestionTimestamp = editingKey;
+  if (isEditing) payload.key = editingKey;
   try {
     var res = await authedFetch(url, {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)

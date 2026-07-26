@@ -51,6 +51,18 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .tab-nav button:not(.active):hover { background: var(--surface-soft); }
 
 .tab-panel { display: none; padding: 24px 0 60px; }
+.accounting-layout { display: flex; gap: 24px; align-items: flex-start; }
+.accounting-sidenav { display: flex; flex-direction: column; gap: 2px; width: 210px; flex-shrink: 0; position: sticky; top: 16px; }
+.acct-subtab-btn { display: block; width: 100%; text-align: left; font-family: inherit; padding: 10px 14px; border-radius: 10px; font-size: 0.88rem; font-weight: 700; color: var(--muted); background: none; border: none; cursor: pointer; transition: background 0.15s, color 0.15s; }
+.acct-subtab-btn.active { background: var(--surface-soft); color: var(--saffron-dark); }
+.acct-subtab-btn:not(.active):hover { background: var(--surface-soft); }
+.accounting-content { flex: 1; min-width: 0; }
+.acct-subtab-panel { display: none; }
+.acct-subtab-panel.active { display: block; }
+@media (max-width: 720px) {
+  .accounting-layout { flex-direction: column; }
+  .accounting-sidenav { flex-direction: row; overflow-x: auto; width: 100%; position: static; gap: 6px; }
+}
 .tab-panel.active { display: block; }
 
 .sub-tab-nav { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 14px; }
@@ -298,9 +310,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
   <div class="container">
     <ul>
       <li><button class="tab-btn" data-tab="dashboard">Dashboard</button></li>
-      <li><button class="tab-btn" data-tab="transactions">Transactions</button></li>
-      <li><button class="tab-btn" data-tab="statements">Statements</button></li>
-      <li><button class="tab-btn" data-tab="reconciliation">Zeffy Reconciliation</button></li>
+      <li><button class="tab-btn" data-tab="accounting">Accounting</button></li>
       <li><button class="tab-btn active" data-tab="matching">Invoices &amp; Receipts</button></li>
       <li><button class="tab-btn" data-tab="expenses">Expense Approvals</button></li>
     </ul>
@@ -388,7 +398,16 @@ tr.series-row:hover td { background: var(--surface-soft); }
     </div>
   </div>
 
-  <div class="tab-panel" id="tab-transactions">
+  <div class="tab-panel" id="tab-accounting">
+    <div class="accounting-layout">
+      <div class="accounting-sidenav">
+        <button type="button" class="acct-subtab-btn active" data-acct-tab="transactions">Transactions</button>
+        <button type="button" class="acct-subtab-btn" data-acct-tab="statements">Statements</button>
+        <button type="button" class="acct-subtab-btn" data-acct-tab="reconciliation">Zeffy Reconciliation</button>
+        <button type="button" class="acct-subtab-btn" data-acct-tab="cc-reconciliation">Credit Card Reconciliation</button>
+      </div>
+      <div class="accounting-content">
+  <div class="acct-subtab-panel active" id="tab-transactions">
     <div class="card" style="margin-bottom:16px;">
       <p style="font-size:0.86rem;color:var(--muted);line-height:1.6;margin:0;">Zeffy revenue is shown at the campaign level, summed straight from Zeffy's own records — not tied to when the weekly payout actually lands in the bank, so nothing here depends on guessing which deposit covers which activity. Zelle and everything else comes straight from bank transactions. The weekly Zeffy payout deposit itself is intentionally left out below, since its content is already represented by the campaign totals — showing both would double-count it.</p>
     </div>
@@ -416,6 +435,11 @@ tr.series-row:hover td { background: var(--surface-soft); }
         <option value="">All</option>
         <option value="uncategorized">Uncategorized only</option>
         <option value="categorized">Categorized only</option>
+      </select>
+      <select id="tx-linked-filter" title="Applies to Facility Rental, Zelle, and Other — the sections with linkable invoice/receipt records">
+        <option value="">Linked: Both</option>
+        <option value="linked">Linked only</option>
+        <option value="unlinked">Non-linked only</option>
       </select>
       <button type="button" class="btn-secondary" id="btn-load-tx">Refresh</button>
       <span class="count" id="tx-count"></span>
@@ -537,7 +561,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
   </div>
 
   <!-- ── STATEMENT OF ACTIVITIES TAB ── -->
-  <div class="tab-panel" id="tab-statements">
+  <div class="acct-subtab-panel" id="tab-statements">
     <div class="sub-tab-nav">
       <button class="sub-tab-btn active" data-subtab="income-statement">Income Statement (P&amp;L)</button>
       <button class="sub-tab-btn" data-subtab="balance-sheet-sub">Balance Sheet</button>
@@ -622,11 +646,22 @@ tr.series-row:hover td { background: var(--surface-soft); }
   </div>
 
   <!-- ── RECONCILIATION TAB ── -->
-  <div class="tab-panel" id="tab-reconciliation">
+  <div class="acct-subtab-panel" id="tab-reconciliation">
     <div class="card" style="margin-bottom:20px;">
       <p style="font-size:0.88rem;color:var(--muted);line-height:1.6;">Zeffy pays out once a week (Mondays) as one lump deposit, covering all the individual transactions logged that week. This compares each week's expected payout (sum of that week's Zeffy transactions) against the bank deposits that showed up around the same time — review and confirm the match yourself, nothing here links automatically.</p>
     </div>
     <div id="reconciliation-list"></div>
+  </div>
+
+  <div class="acct-subtab-panel" id="tab-cc-reconciliation">
+    <div class="card" style="padding:40px;text-align:center;">
+      <h2 style="margin-bottom:8px;">Credit Card Reconciliation</h2>
+      <p style="color:var(--muted);max-width:480px;margin:0 auto;">Not built yet — this will follow the same weekly-comparison pattern as Zeffy Reconciliation once credit card transaction import exists.</p>
+    </div>
+  </div>
+
+      </div>
+    </div>
   </div>
 
   <!-- ── INVOICE MATCHING TAB ── -->
@@ -659,6 +694,11 @@ tr.series-row:hover td { background: var(--surface-soft); }
           <div id="inv-status-filter-list"></div>
         </div>
       </div>
+      <select id="inv-linked-filter">
+        <option value="">Linked: Both</option>
+        <option value="linked">Linked only</option>
+        <option value="unlinked">Non-linked only</option>
+      </select>
       <select id="inv-range-preset" class="range-preset-select">
         <option value="alltime" selected>All time</option>
         <option value="last3months">Last 3 months</option>
@@ -689,7 +729,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
           <th class="sortable-th" data-sort-key="renter">Customer <span class="sort-arrow" data-sort-arrow="renter"></span></th>
           <th class="sortable-th" data-sort-key="event">Event <span class="sort-arrow" data-sort-arrow="event"></span></th>
           <th class="sortable-th" data-sort-key="amount">Amount <span class="sort-arrow" data-sort-arrow="amount"></span></th>
-          <th>Notes</th><th>Invoice</th><th>Receipt</th><th>Payment</th>
+          <th>Notes</th><th>Invoice</th><th>Receipt</th><th>Payment</th><th>Linked</th>
         </tr></thead>
         <tbody id="inv-tbody"></tbody>
       </table>
@@ -1067,11 +1107,20 @@ document.querySelectorAll('.tab-btn').forEach(function (btn) {
     btn.classList.add('active');
     document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
     if (btn.dataset.tab === 'dashboard' && !window.__dashboardLoaded) { loadDashboard(); loadAnnualTrendChart(); }
-    if (btn.dataset.tab === 'transactions' && !window.__txLoaded) { loadTransactions(); window.__txLoaded = true; }
-    if (btn.dataset.tab === 'reconciliation' && !window.__reconLoaded) loadReconciliation();
+    if (btn.dataset.tab === 'accounting' && !window.__txLoaded) { loadTransactions(); window.__txLoaded = true; }
     if (btn.dataset.tab === 'matching' && !window.__matchingLoaded) loadInvoices();
-    if (btn.dataset.tab === 'statements' && !window.__bsItemsLoaded) loadBalanceSheetItems();
     if (btn.dataset.tab === 'expenses') loadExpenseSubmissions();
+  });
+});
+document.querySelectorAll('.acct-subtab-btn').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('.acct-subtab-btn').forEach(function (b) { b.classList.remove('active'); });
+    document.querySelectorAll('.acct-subtab-panel').forEach(function (p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.acctTab).classList.add('active');
+    if (btn.dataset.acctTab === 'transactions' && !window.__txLoaded) { loadTransactions(); window.__txLoaded = true; }
+    if (btn.dataset.acctTab === 'reconciliation' && !window.__reconLoaded) loadReconciliation();
+    if (btn.dataset.acctTab === 'statements' && !window.__bsItemsLoaded) loadBalanceSheetItems();
   });
 });
 document.querySelectorAll('.sub-tab-btn').forEach(function (btn) {
@@ -1450,16 +1499,28 @@ async function loadTransactions() {
     const totalCount = TRANSACTIONS.length;
     document.getElementById('tx-count').textContent = totalCount + ' entries';
 
-    renderGroup('tx-rental', data.facilityRental, renderRentalLineRow, 'No Facility Rental activity in this range.');
-    document.getElementById('rental-count').textContent = data.facilityRental.length ? '(' + data.facilityRental.length + ')' : '(none)';
+    const linkedFilter = document.getElementById('tx-linked-filter').value;
+    const applyLinkedFilter = function (list) {
+      if (!linkedFilter) return list;
+      return list.filter(function (t) {
+        const hasLink = t.attachments && t.attachments.length > 0;
+        return linkedFilter === 'linked' ? hasLink : !hasLink;
+      });
+    };
+    const filteredRental = applyLinkedFilter(data.facilityRental);
+    const filteredZelle = applyLinkedFilter(data.zelle);
+    const filteredOther = applyLinkedFilter(data.other);
+
+    renderGroup('tx-rental', filteredRental, renderRentalLineRow, 'No Facility Rental activity in this range.');
+    document.getElementById('rental-count').textContent = filteredRental.length ? '(' + filteredRental.length + ')' : '(none)';
     renderGroup('tx-fundraising', data.fundraising, renderZeffyCampaignRow, 'No Fundraising activity in this range.');
     document.getElementById('fundraising-count').textContent = data.fundraising.length ? '(' + data.fundraising.length + ')' : '(none)';
     renderGroup('tx-donations', data.donations, renderZeffyCampaignRow, 'No donation activity in this range.');
     document.getElementById('donations-count').textContent = data.donations.length ? '(' + data.donations.length + ')' : '(none)';
     renderGroup('tx-zeffy-refunds', data.zeffyRefunds, function (t) { return renderTxRow(t, false); }, 'No Zeffy refunds in this range.');
     document.getElementById('zeffy-refunds-count').textContent = data.zeffyRefunds.length ? '(' + data.zeffyRefunds.length + ')' : '(none)';
-    renderGroup('tx-zelle', data.zelle, function (t) { return renderTxRow(t, false); }, 'No Zelle transactions in this range.');
-    renderGroup('tx-other', data.other, function (t) { return renderTxRow(t, false, true); }, 'No other transactions in this range.');
+    renderGroup('tx-zelle', filteredZelle, function (t) { return renderTxRow(t, false); }, 'No Zelle transactions in this range.');
+    renderGroup('tx-other', filteredOther, function (t) { return renderTxRow(t, false, true); }, 'No other transactions in this range.');
     populateCategorySelects();
   } catch (err) {
     ['tx-rental', 'tx-fundraising', 'tx-donations', 'tx-zeffy-refunds', 'tx-zelle', 'tx-other'].forEach(function (id) {
@@ -2339,7 +2400,7 @@ async function loadInvoices() {
   const end = document.getElementById('inv-end-date').value;
   const tbody = document.getElementById('inv-tbody');
   const emptyState = document.getElementById('inv-empty');
-  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px;">Loading…</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px;">Loading…</td></tr>';
   setTabLoading('tab-matching', true);
   try {
     const params = new URLSearchParams({ startDate: start, endDate: end, sort: invSortKey, dir: invSortDir });
@@ -2348,7 +2409,7 @@ async function loadInvoices() {
     invPage = 1;
     renderInvoicesTable();
   } catch (err) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--red);padding:24px;">Could not load: ' + escHtml(err.message) + '</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--red);padding:24px;">Could not load: ' + escHtml(err.message) + '</td></tr>';
   } finally {
     setTabLoading('tab-matching', false);
   }
@@ -2424,7 +2485,7 @@ function renderInvoiceRow(inv, isSubRow, showFullActions) {
       '<td></td>' +
       '<td style="color:var(--muted);font-size:0.86rem;">' + formatDate(inv.eventDate) + '</td>' +
       '<td class="amount" style="color:var(--muted);">' + money(inv.amount) + '</td>' +
-      '<td colspan="4"></td>' +
+      '<td colspan="5"></td>' +
     '</tr>';
   }
   const noteBtn = '<button type="button" class="btn-note' + (inv.notes ? ' has-content' : '') + '" title="' + (inv.notes ? 'Note: ' + escHtml(inv.notes) : 'Add a note') + '" data-invoice-note-booking="' + inv.bookingId + '">\ud83d\udcdd</button>';
@@ -2453,6 +2514,9 @@ function renderInvoiceRow(inv, isSubRow, showFullActions) {
             ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + inv.bookingId + '">Mark paid</button>'
             : '<span style="color:var(--muted);font-size:0.78rem;" title="Send the invoice first">&mdash;</span>'));
   const cancelledTag = inv.paymentStatus === 'cancelled' ? ' <span class="method-tag" style="color:var(--red);">Cancelled</span>' : '';
+  const linkedIndicator = inv.linkedToTransaction
+    ? '<span title="Linked to a transaction" style="color:var(--green);font-size:0.85rem;">\ud83d\udd17 Linked</span>'
+    : '<span title="Not linked to any transaction" style="color:var(--muted);font-size:0.85rem;">Not linked</span>';
   return '<tr' + (isSubRow ? ' class="sub-row"' : (inv.paymentStatus === 'cancelled' ? ' class="cancelled-row"' : '')) + '>' +
     '<td>' + (isSubRow ? '' : escHtml(inv.renterName)) + '</td>' +
     '<td>' + escHtml(inv.eventName || '') + cancelledTag + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(inv.eventDate) + '</div></td>' +
@@ -2461,6 +2525,7 @@ function renderInvoiceRow(inv, isSubRow, showFullActions) {
     '<td>' + invoiceIcon + '</td>' +
     '<td>' + receiptIcon + '</td>' +
     '<td>' + paymentCell + '</td>' +
+    '<td>' + linkedIndicator + '</td>' +
   '</tr>';
 }
 // Same grouping pattern as All Bookings — occurrences sharing a
@@ -2523,6 +2588,14 @@ function renderInvoicesTable() {
       });
     });
   }
+  const linkedFilterValue = document.getElementById('inv-linked-filter').value;
+  if (linkedFilterValue) {
+    items = items.filter(function (item) {
+      const records = item.type === 'single' ? [item.invoice] : item.occurrences;
+      const hasLink = records.some(function (r) { return r.linkedToTransaction; });
+      return linkedFilterValue === 'linked' ? hasLink : !hasLink;
+    });
+  }
   document.getElementById('inv-count').textContent = items.length + ' invoice' + (items.length === 1 ? '' : 's');
   if (!items.length) { tbody.innerHTML = ''; emptyState.style.display = 'block'; renderInvoicesPaginationBar(1); return; }
   emptyState.style.display = 'none';
@@ -2543,12 +2616,16 @@ function renderInvoicesTable() {
       // toggle to expand into the individually-actionable occurrences.
       const repOcc = item.occurrences[0];
       const noteBtn = '<button type="button" class="btn-note' + (repOcc.notes ? ' has-content' : '') + '" title="' + (repOcc.notes ? 'Note: ' + escHtml(repOcc.notes) : 'Add a note') + '" data-invoice-note-booking="' + repOcc.bookingId + '">\ud83d\udcdd</button>';
+      const linkedIndicator = item.occurrences.some(function (o) { return o.linkedToTransaction; })
+        ? '<span title="At least one occurrence is linked to a transaction" style="color:var(--green);font-size:0.85rem;">\ud83d\udd17 Linked</span>'
+        : '<span title="Not linked to any transaction" style="color:var(--muted);font-size:0.85rem;">Not linked</span>';
       seriesRow = '<tr class="series-row">' +
         nameCell +
         '<td>' + escHtml(item.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(item.eventDate) + ' \u2013 ' + formatDate(item.eventDateLast) + ' \u00b7 ' + escHtml(item.recurrenceSummary) + '</div></td>' +
         '<td class="amount">' + money(item.amount) + ' <span class="method-tag">sum of ' + item.occurrences.length + '</span></td>' +
         '<td>' + noteBtn + '</td>' +
         '<td colspan="3"></td>' +
+        '<td>' + linkedIndicator + '</td>' +
       '</tr>';
     } else {
       // Combined billing - the group IS the invoice, using the first
@@ -2576,6 +2653,9 @@ function renderInvoicesTable() {
         '<td>' + invoiceIcon + '</td>' +
         '<td>' + receiptIcon + '</td>' +
         '<td>' + paymentCell + '</td>' +
+        '<td>' + (repOcc.linkedToTransaction
+          ? '<span title="Linked to a transaction" style="color:var(--green);font-size:0.85rem;">\ud83d\udd17 Linked</span>'
+          : '<span title="Not linked to any transaction" style="color:var(--muted);font-size:0.85rem;">Not linked</span>') + '</td>' +
       '</tr>';
     }
     const subRows = isExpanded ? item.occurrences.map(function (o) { return renderInvoiceRow(o, true, isPerOccurrence); }).join('') : '';
@@ -2693,6 +2773,10 @@ document.getElementById('btn-inv-status-filter-all').addEventListener('click', f
 document.getElementById('btn-inv-status-filter-none').addEventListener('click', function () {
   invStatusFilter = new Set();
   populateInvStatusFilter();
+  invPage = 1;
+  renderInvoicesTable();
+});
+document.getElementById('inv-linked-filter').addEventListener('change', function () {
   invPage = 1;
   renderInvoicesTable();
 });

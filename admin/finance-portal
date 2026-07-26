@@ -182,6 +182,7 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 tr.sub-row td { background: var(--surface-soft); }
 tr.sub-row td:first-child { padding-left: 22px; border-left: 3px solid var(--saffron-dark); }
 .method-tag { font-size: 0.72rem; color: var(--muted); display: block; margin-top: 2px; }
+.discount-chip { display: inline-block; font-size: 0.68rem; font-weight: 700; color: var(--saffron-dark); background: var(--surface-soft); border-radius: 999px; padding: 2px 8px; }
 tr.series-row:hover td { background: var(--surface-soft); }
 .sortable-th { cursor: pointer; user-select: none; }
 .sortable-th:hover { color: var(--saffron-dark); }
@@ -2536,7 +2537,7 @@ function renderInvoicesTable() {
     if (item.type === 'single') return renderInvoiceRow(item.invoice, false);
     const isExpanded = expandedInvoiceSeries.has(item.seriesId);
     const isPerOccurrence = item.invoiceMode === 'per_occurrence';
-    const toggleLabel = (isExpanded ? '\u25b2' : '\u25bc') + ' ' + item.occurrences.length + (isPerOccurrence ? ' individual invoices' : ' occurrences');
+    const nameCell = '<td onclick="toggleInvoiceSeries(\'' + item.seriesId + '\')" style="cursor:pointer;"><div class="renter-name">' + (isExpanded ? '&#9660; ' : '&#9654; ') + escHtml(item.renterName) + ' <span class="discount-chip" style="margin-left:4px;">' + item.occurrences.length + ' occurrences</span></div></td>';
     let seriesRow;
     if (isPerOccurrence) {
       // Each occurrence bills independently - the group row itself has
@@ -2544,12 +2545,12 @@ function renderInvoicesTable() {
       // toggle to expand into the individually-actionable occurrences.
       const repOcc = item.occurrences[0];
       const noteBtn = '<button type="button" class="btn-note' + (repOcc.notes ? ' has-content' : '') + '" title="' + (repOcc.notes ? 'Note: ' + escHtml(repOcc.notes) : 'Add a note') + '" data-invoice-note-booking="' + repOcc.bookingId + '">\ud83d\udcdd</button>';
-      seriesRow = '<tr class="series-row" data-toggle-invoice-series="' + item.seriesId + '" style="cursor:pointer;">' +
-        '<td><div class="renter-name">' + escHtml(item.renterName) + ' <span class="method-tag">' + item.occurrences.length + ' occ.</span></div></td>' +
+      seriesRow = '<tr class="series-row">' +
+        nameCell +
         '<td>' + escHtml(item.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(item.eventDate) + ' \u2013 ' + formatDate(item.eventDateLast) + ' \u00b7 ' + escHtml(item.recurrenceSummary) + '</div></td>' +
         '<td class="amount">' + money(item.amount) + ' <span class="method-tag">sum of ' + item.occurrences.length + '</span></td>' +
         '<td>' + noteBtn + '</td>' +
-        '<td colspan="3" style="text-align:right;color:var(--muted);font-size:0.8rem;">' + toggleLabel + '</td>' +
+        '<td colspan="3"></td>' +
       '</tr>';
     } else {
       // Combined billing - the group IS the invoice, using the first
@@ -2567,9 +2568,9 @@ function renderInvoicesTable() {
       const paymentCell = repOcc.paymentStatus === 'paid'
         ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid' + (repOcc.paymentMethod ? ' \u00b7 ' + escHtml(repOcc.paymentMethod) : '') + '</span> <button type="button" class="btn-secondary" style="padding:2px 8px;font-size:0.72rem;margin-left:4px;" data-void-invoice-booking="' + repOcc.bookingId + '">Void</button>'
         : '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + repOcc.bookingId + '">Mark paid</button>';
-      seriesRow = '<tr class="series-row" data-toggle-invoice-series="' + item.seriesId + '" style="cursor:pointer;">' +
-        '<td><div class="renter-name">' + escHtml(item.renterName) + ' <span class="method-tag">' + item.occurrences.length + ' occ.</span></div></td>' +
-        '<td>' + escHtml(item.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(item.eventDate) + ' \u2013 ' + formatDate(item.eventDateLast) + ' \u00b7 ' + toggleLabel + '</div></td>' +
+      seriesRow = '<tr class="series-row">' +
+        nameCell +
+        '<td>' + escHtml(item.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(item.eventDate) + ' \u2013 ' + formatDate(item.eventDateLast) + ' \u00b7 ' + escHtml(item.recurrenceSummary) + '</div></td>' +
         '<td class="amount">' + money(item.amount) + ' <span class="method-tag">total</span></td>' +
         '<td>' + noteBtn + '</td>' +
         '<td>' + invoiceIcon + '</td>' +
@@ -2677,11 +2678,6 @@ document.getElementById('inv-page-size-filter').addEventListener('change', funct
   renderInvoicesTable();
 });
 document.getElementById('inv-tbody').addEventListener('click', async function (e) {
-  const seriesToggle = e.target.closest('[data-toggle-invoice-series]');
-  if (seriesToggle && !e.target.closest('button')) {
-    toggleInvoiceSeries(seriesToggle.dataset.toggleInvoiceSeries);
-    return;
-  }
   const noteBtn = e.target.closest('[data-invoice-note-booking]');
   if (noteBtn) {
     openInvoiceNotesModal(noteBtn.dataset.invoiceNoteBooking);

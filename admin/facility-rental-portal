@@ -1393,6 +1393,16 @@ tbody input[type="text"], tbody input[type="number"] {
       <button type="button" class="btn-secondary" id="btn-reset-template">Reset to default</button>
     </div>
     <div class="result-box" id="et-result" style="display:none;margin-top:12px;"></div>
+
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+      <label style="font-weight:700;font-size:0.88rem;display:block;margin-bottom:8px;">Send a test email</label>
+      <p class="card-sub" style="margin-bottom:10px;">Sends exactly what's in the editor above — saved or not — filled in with sample data, so you can see how it actually looks in an inbox before saving.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <input type="email" id="et-test-email" placeholder="you@hccgc.org" style="flex:1;min-width:220px;font-family:inherit;font-size:0.88rem;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;">
+        <button type="button" class="btn-secondary" id="btn-send-test-template">Send test</button>
+      </div>
+      <div class="result-box" id="et-test-result" style="display:none;margin-top:10px;"></div>
+    </div>
   </div>
 </div>
 
@@ -4430,6 +4440,10 @@ async function loadEmailTemplates() {
 function showEmailTemplate(type) {
   currentTemplateType = type;
   document.getElementById('et-result').style.display = 'none';
+  document.getElementById('et-test-result').style.display = 'none';
+  if (!document.getElementById('et-test-email').value && window.__hccgcFirebaseUser) {
+    document.getElementById('et-test-email').value = window.__hccgcFirebaseUser.email || '';
+  }
   if (!emailTemplatesData) return;
   const t = emailTemplatesData.templates[type];
   document.getElementById('et-subject').value = t.subject;
@@ -4509,6 +4523,46 @@ document.getElementById('btn-save-template').addEventListener('click', async fun
     await loadEmailTemplates();
   } catch (err) {
     resultEl.className = 'result-box error'; resultEl.style.display = 'block'; resultEl.textContent = 'Could not reach the server: ' + err.message;
+  }
+});
+
+document.getElementById('btn-send-test-template').addEventListener('click', async function () {
+  const resultEl = document.getElementById('et-test-result');
+  const testEmail = document.getElementById('et-test-email').value.trim();
+  resultEl.style.display = 'none';
+  if (!testEmail) {
+    resultEl.className = 'result-box error'; resultEl.style.display = 'block'; resultEl.textContent = 'Enter an email address to send the test to.';
+    return;
+  }
+  const payload = {
+    type: currentTemplateType,
+    subject: document.getElementById('et-subject').value,
+    body: document.getElementById('et-body').value,
+    to: testEmail
+  };
+  if (currentTemplateType === 'receipt') {
+    payload.attachmentEnabled = document.getElementById('et-attachment-enabled').checked;
+    payload.attachmentFilename = document.getElementById('et-attachment-filename').value;
+    // Note: a newly-chosen-but-unsaved PDF replacement isn't included in
+    // the test send — only a saved attachment or the built-in default is.
+    // Save the template first if testing a specific new PDF matters.
+  }
+  if (currentTemplateType === 'reminder') {
+    payload.reminderHoursBefore = Number(document.getElementById('et-reminder-hours').value);
+  }
+  const btn = this;
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    const res = await authedFetch(API_BASE + '/admin/email-templates/test', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) { resultEl.className = 'result-box error'; resultEl.style.display = 'block'; resultEl.textContent = (data.errors || [data.error]).join(' ') || 'Could not send.'; return; }
+    resultEl.className = 'result-box success'; resultEl.style.display = 'block'; resultEl.textContent = 'Test email sent to ' + data.sentTo + '.';
+  } catch (err) {
+    resultEl.className = 'result-box error'; resultEl.style.display = 'block'; resultEl.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Send test';
   }
 });
 

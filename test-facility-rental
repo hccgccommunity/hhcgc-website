@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1932,8 +1931,8 @@
       row.dataset.rowId = id;
       row.innerHTML =
         '<div class="request-field"><label>Date</label><input type="date" class="rf-date-input" required></div>' +
-        '<div class="request-field"><label>Start time</label><input type="time" class="rf-start-input" required></div>' +
-        '<div class="request-field"><label>End time</label><input type="time" class="rf-end-input" required></div>' +
+        '<div class="request-field"><label>Start time</label><input type="time" class="rf-start-input" value="14:00" required></div>' +
+        '<div class="request-field"><label>End time</label><input type="time" class="rf-end-input" value="16:00" required></div>' +
         '<div class="rf-remove-date-wrap"><button type="button" class="rf-remove-date" title="Remove this date">&times;</button></div>';
       row.querySelector('.rf-remove-date').addEventListener('click', () => {
         if (document.querySelectorAll('.rf-date-row').length === 1) return; // keep at least one row

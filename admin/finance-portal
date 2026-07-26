@@ -61,6 +61,16 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 
 .toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
 #global-loading-overlay { position: fixed; inset: 0; background: rgba(44,27,16,0.15); backdrop-filter: blur(1px); z-index: 999; display: none; align-items: center; justify-content: center; }
+.payment-method-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.payment-method-card {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  font-family: inherit; padding: 16px 8px; border: 1.5px solid var(--border); border-radius: 12px;
+  background: #fff; cursor: pointer; transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+.payment-method-card:hover { border-color: var(--saffron); background: var(--surface-soft); transform: translateY(-1px); }
+.payment-method-card:active { transform: translateY(0); }
+.payment-method-icon { font-size: 1.6rem; line-height: 1; }
+.payment-method-label { font-size: 0.86rem; font-weight: 700; color: var(--text); }
 #global-loading-overlay.visible { display: flex; }
 #global-loading-overlay .spinner { width: 44px; height: 44px; border: 4px solid rgba(255,255,255,0.5); border-top-color: var(--saffron-dark); border-radius: 50%; animation: gl-spin 0.7s linear infinite; }
 @keyframes gl-spin { to { transform: rotate(360deg); } }
@@ -794,19 +804,28 @@ tr.series-row:hover td { background: var(--surface-soft); }
 </div>
 
 <div class="modal-overlay" id="mark-paid-overlay" style="display:none;">
-  <div class="modal-panel" style="max-width:360px;">
+  <div class="modal-panel" style="max-width:400px;">
     <div class="modal-header">
       <h2>Mark as paid</h2>
       <button class="modal-close" id="btn-close-mark-paid">&times;</button>
     </div>
     <div class="modal-body">
-      <p class="card-sub" style="margin-bottom:12px;">How was this paid?</p>
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <button type="button" class="btn-secondary" data-payment-method="zeffy" style="text-align:left;padding:10px 14px;">Zeffy</button>
-        <button type="button" class="btn-secondary" data-payment-method="zelle" style="text-align:left;padding:10px 14px;">Zelle</button>
-        <button type="button" class="btn-secondary" data-payment-method="check" style="text-align:left;padding:10px 14px;">Check</button>
+      <p class="card-sub" style="margin-bottom:16px;">How was this paid?</p>
+      <div class="payment-method-grid">
+        <button type="button" class="payment-method-card" data-payment-method="zeffy">
+          <span class="payment-method-icon">💳</span>
+          <span class="payment-method-label">Zeffy</span>
+        </button>
+        <button type="button" class="payment-method-card" data-payment-method="zelle">
+          <span class="payment-method-icon">📱</span>
+          <span class="payment-method-label">Zelle</span>
+        </button>
+        <button type="button" class="payment-method-card" data-payment-method="check">
+          <span class="payment-method-icon">🧾</span>
+          <span class="payment-method-label">Check</span>
+        </button>
       </div>
-      <div class="result-box" id="mark-paid-result" style="display:none;margin-top:12px;"></div>
+      <div class="result-box" id="mark-paid-result" style="display:none;margin-top:14px;"></div>
     </div>
   </div>
 </div>
@@ -1021,6 +1040,7 @@ function formatDate(d) { if (!d) return '—'; return new Date(d + 'T00:00:00').
 function formatTimestampDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
 function money(n) { return '$' + Number(n).toFixed(2); }
 function moneyRound(n) { return '$' + Math.round(Number(n)).toLocaleString('en-US'); }
+function capitalizeStatus(s) { s = String(s || ''); return s.charAt(0).toUpperCase() + s.slice(1); }
 
 // Shared CSV export — every statement download uses this so the format
 // (statement name, org name, date range, then line items) stays consistent.
@@ -2417,7 +2437,7 @@ function renderInvoiceRow(inv, isSubRow, showFullActions) {
     '<td>' + escHtml(inv.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(inv.eventDate) + '</div></td>' +
     '<td>' + (inv.invoiceSentAt ? formatTimestampDate(inv.invoiceSentAt) : '<span style="color:var(--muted);">Not sent</span>') + '</td>' +
     '<td class="amount">' + money(inv.amount) + '</td>' +
-    '<td><span class="source-tag" style="' + (inv.paymentStatus === 'paid' ? 'color:var(--green);' : '') + '">' + escHtml(inv.paymentStatus) + '</span></td>' +
+    '<td><span class="source-tag" style="' + (inv.paymentStatus === 'paid' ? 'color:var(--green);' : '') + '">' + escHtml(capitalizeStatus(inv.paymentStatus)) + '</span></td>' +
     '<td>' + noteBtn + '</td>' +
     '<td>' + invoiceIcon + '</td>' +
     '<td>' + receiptIcon + '</td>' +
@@ -2492,7 +2512,7 @@ function renderInvoicesTable() {
       '<td>' + escHtml(item.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(item.eventDate) + ' \u2013 ' + formatDate(item.eventDateLast) + ' \u00b7 ' + escHtml(item.recurrenceSummary) + '</div></td>' +
       '<td>' + (item.invoiceSentAt ? formatTimestampDate(item.invoiceSentAt) + (isPerOccurrence ? ' (latest)' : '') : '<span style="color:var(--muted);">Not sent</span>') + '</td>' +
       '<td class="amount">' + money(item.amount) + ' <span class="method-tag">' + (isPerOccurrence ? 'sum of ' + item.occurrences.length : 'total') + '</span></td>' +
-      '<td><span class="source-tag">' + (item.paymentStatus === 'mixed' ? item.paidCount + ' of ' + item.occurrences.length + ' paid' : escHtml(item.paymentStatus)) + '</span></td>' +
+      '<td><span class="source-tag">' + (item.paymentStatus === 'mixed' ? item.paidCount + ' of ' + item.occurrences.length + ' paid' : escHtml(capitalizeStatus(item.paymentStatus))) + '</span></td>' +
       '<td colspan="4" style="text-align:right;color:var(--muted);font-size:0.8rem;">' + (isExpanded ? '\u25b2 Hide occurrences' : '\u25bc Show ' + item.occurrences.length + (isPerOccurrence ? ' individual invoices' : ' occurrences')) + '</td>' +
     '</tr>';
     const subRows = isExpanded ? item.occurrences.map(function (o) { return renderInvoiceRow(o, true, isPerOccurrence); }).join('') : '';

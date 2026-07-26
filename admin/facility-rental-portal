@@ -1193,12 +1193,10 @@ tbody input[type="text"], tbody input[type="number"] {
   <div class="modal-panel">
     <div class="modal-header">
       <h2>Booking created</h2>
-      <button class="modal-close" id="btn-skip-invoice">&times;</button>
     </div>
     <div class="modal-body" id="invoice-preview-body"></div>
     <div class="modal-footer">
-      <button type="button" class="btn-secondary" id="btn-skip-invoice-2" onclick="document.getElementById('invoice-preview-overlay').style.display='none';">Close</button>
-      <button type="button" class="btn-primary" id="btn-go-to-all-bookings" style="margin-top:0;">Review &amp; send invoice in All Bookings</button>
+      <button type="button" class="btn-primary" id="btn-skip-invoice-2" style="margin-top:0;" onclick="document.getElementById('invoice-preview-overlay').style.display='none';">Okay</button>
     </div>
   </div>
   </div>
@@ -1690,10 +1688,10 @@ function statusBadge(b) {
     return '<span class="badge badge-paid"><span class="badge-dot"></span>Paid</span><span class="method-tag">' + methodLabel + '</span>';
   }
   if (b.invoice_sent_at) {
-    const label = isPastDue(b) ? 'Invoice sent · past due' : 'Invoice Sent';
+    const label = isPastDue(b) ? 'Invoiced · past due' : 'Invoiced';
     return '<span class="badge badge-needs-confirm"><span class="badge-dot"></span>' + label + '</span><span class="method-tag">' + formatDateTime(b.invoice_sent_at) + '</span>';
   }
-  return '<span class="badge badge-draft"><span class="badge-dot"></span>Booked</span>';
+  return '<span class="badge badge-draft"><span class="badge-dot"></span>Pending</span>';
 }
 
 function notesButtonHtml(b) {
@@ -2031,6 +2029,53 @@ document.getElementById('btn-columns').addEventListener('click', function (e) {
 document.addEventListener('click', function (e) {
   const panel = document.getElementById('columns-panel');
   if (panel.style.display !== 'none' && !panel.contains(e.target) && e.target.id !== 'btn-columns') panel.style.display = 'none';
+});
+
+// Notes editing — this modal existed but had no click handler wired to
+// it at all, so the notes button did nothing when clicked.
+let editingNotesBookingId = null;
+document.addEventListener('click', function (e) {
+  const btn = e.target.closest('[data-notes-booking]');
+  if (!btn) return;
+  editingNotesBookingId = btn.dataset.notesBooking;
+  const booking = BOOKINGS.find(function (b) { return b.booking_id === editingNotesBookingId; });
+  document.getElementById('notes-edit-textarea').value = (booking && booking.notes) || '';
+  document.getElementById('notes-edit-result').style.display = 'none';
+  document.getElementById('notes-edit-overlay').style.display = 'flex';
+});
+document.getElementById('btn-close-notes-edit').addEventListener('click', function () {
+  document.getElementById('notes-edit-overlay').style.display = 'none';
+});
+document.getElementById('btn-cancel-notes-edit').addEventListener('click', function () {
+  document.getElementById('notes-edit-overlay').style.display = 'none';
+});
+document.getElementById('notes-edit-overlay').addEventListener('click', function (e) {
+  if (e.target === this) this.style.display = 'none';
+});
+document.getElementById('btn-save-notes-edit').addEventListener('click', async function () {
+  if (!editingNotesBookingId) return;
+  const resultEl = document.getElementById('notes-edit-result');
+  const btn = this;
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(editingNotesBookingId) + '/notes', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notes: document.getElementById('notes-edit-textarea').value })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      resultEl.className = 'result-box error'; resultEl.style.display = 'block';
+      resultEl.textContent = (data.errors || [data.error]).join(' ') || 'Could not save.';
+      return;
+    }
+    document.getElementById('notes-edit-overlay').style.display = 'none';
+    await loadBookings();
+  } catch (err) {
+    resultEl.className = 'result-box error'; resultEl.style.display = 'block';
+    resultEl.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save';
+  }
 });
 
 function render() {
@@ -3701,6 +3746,10 @@ document.getElementById('btn-generate').addEventListener('click', async function
         : (data.eventListingError ? (' Note: could not add to Manage Events (' + data.eventListingError + ') — add it there manually if needed.') : '');
       const statusNote = data.isInternal ? ' No charge — internal booking.' : ' Marked as Pending until invoiced.';
       nbShowResult('success', occText + '.' + statusNote + syncWarning + eventNote);
+      // Refresh All Bookings now, not on next visit — otherwise switching
+      // tabs right after creating a booking shows stale data until a
+      // manual refresh, which reads as the booking not having worked.
+      loadBookings();
       if (!isInternal && data.bookingIds && data.bookingIds.length) {
         openInvoicePreview(data.bookingIds[0], payload, data);
       }
@@ -3726,30 +3775,14 @@ function nbShowResult(type, message) {
 // backend actually generates and sends — good enough for the admin to
 // sanity-check before committing to sending it. ----
 function openInvoicePreview(bookingId, payload, createResult) {
-  const renterOption = Array.from(document.getElementById('f-renter-select').options).find(function (o) { return o.value === payload.renterId; });
-  const renterLabel = renterOption ? renterOption.textContent : '';
-  const total = createResult.occurrenceCount > 1 ? createResult.totalAcrossAllOccurrences : Number(document.getElementById('s-final').textContent.replace(/[^0-9.]/g, ''));
-  const firstOcc = payload.occurrences[0];
-
   const overlay = document.getElementById('invoice-preview-overlay');
   document.getElementById('invoice-preview-body').innerHTML =
-    '<div class="field"><label>To</label><div style="padding:9px 0;font-weight:700;">' + escHtmlLocal(renterLabel) + '</div></div>' +
-    '<div class="field"><label>Event</label><div style="padding:9px 0;">' + escHtmlLocal(payload.eventName) + '</div></div>' +
-    '<div class="field"><label>Rooms</label><div style="padding:9px 0;">' + escHtmlLocal(payload.rooms.join(', ')) + '</div></div>' +
-    '<div class="field"><label>Date' + (payload.occurrences.length > 1 ? ' (first of ' + payload.occurrences.length + ')' : '') + '</label><div style="padding:9px 0;">' + escHtmlLocal(firstOcc.date) + ', ' + escHtmlLocal(firstOcc.startTime) + '–' + escHtmlLocal(firstOcc.endTime) + '</div></div>' +
-    '<div class="field"><label>Amount due</label><div style="padding:9px 0;font-weight:700;font-size:1.1rem;color:var(--maroon);">$' + total.toFixed(2) + '</div></div>' +
-    '<div class="card-sub">Once created, review and send the invoice from All Bookings.</div>';
+    '<p style="text-align:center;padding:10px 0 4px;font-size:0.98rem;">The new booking was created successfully.</p>' +
+    '<p style="text-align:center;color:var(--muted);font-size:0.9rem;">You can review and send the invoice in <strong>Finance &rarr; Invoices &amp; Receipts</strong>.</p>';
   overlay.style.display = 'flex';
 }
 function escHtmlLocal(str) { return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
-document.getElementById('btn-skip-invoice').addEventListener('click', function () {
-  document.getElementById('invoice-preview-overlay').style.display = 'none';
-});
-document.getElementById('btn-go-to-all-bookings').addEventListener('click', function () {
-  document.getElementById('invoice-preview-overlay').style.display = 'none';
-  document.getElementById('nav-all-bookings').click();
-});
 document.getElementById('invoice-preview-overlay').addEventListener('click', function (e) {
   if (e.target === this) this.style.display = 'none';
 });

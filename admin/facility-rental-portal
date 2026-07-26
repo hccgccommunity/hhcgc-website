@@ -137,21 +137,19 @@ tr.cancelled-row .renter-name, tr.cancelled-row .amount { text-decoration: line-
 }
 .badge-paid { background: var(--green-bg); color: var(--green); }
 .badge-needs-confirm { background: var(--amber-bg); color: var(--amber); }
-.btn-invoice { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; vertical-align: middle; }
-.btn-invoice.greyed { background: #f1ede6; border: 2px solid var(--border); opacity: 0.6; }
-.btn-invoice.attached { background: #ffe4a3; border: 2px solid #c8890a; box-shadow: 0 0 0 1px rgba(200,137,10,0.25); }
-.btn-invoice.sent { background: #bdedcf; border: 2px solid #1f6b3f; box-shadow: 0 0 0 1px rgba(31,107,63,0.25); cursor: default; }
-.btn-invoice:hover:not(.sent) { filter: brightness(0.96); }
+.btn-invoice { border: 1.5px solid var(--border); background: #fff; border-radius: 50%; width: 27px; height: 27px; cursor: default; font-size: 0.78rem; vertical-align: middle; }
+.btn-invoice.greyed { background: #f2efe9; border-color: #ddd6c8; opacity: 0.55; }
+.btn-invoice.attached { background: #fff4d9; border-color: #dda520; box-shadow: 0 1px 4px rgba(221,165,32,0.35); }
+.btn-invoice.sent { background: #e2f6e9; border-color: #2e9e5b; box-shadow: 0 1px 4px rgba(46,158,91,0.35); }
 .action-icons { display: flex; align-items: center; gap: 4px; }
 .btn-icon-action { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; }
 .btn-icon-action.has-content { background: #bdedcf; border: 2px solid #1f6b3f; }
 .btn-icon-action:hover { filter: brightness(0.96); }
-.btn-receipt { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; }
-.btn-receipt.greyed { background: #f1ede6; border: 2px solid var(--border); opacity: 0.6; }
-.btn-receipt.attached { background: #ffe4a3; border: 2px solid #c8890a; box-shadow: 0 0 0 1px rgba(200,137,10,0.25); }
-.btn-receipt.sent { background: #bdedcf; border: 2px solid #1f6b3f; box-shadow: 0 0 0 1px rgba(31,107,63,0.25); cursor: default; }
+.btn-receipt { border: 1.5px solid var(--border); background: #fff; border-radius: 50%; width: 27px; height: 27px; cursor: default; font-size: 0.78rem; }
+.btn-receipt.greyed { background: #f2efe9; border-color: #ddd6c8; opacity: 0.55; }
+.btn-receipt.attached { background: #fff4d9; border-color: #dda520; box-shadow: 0 1px 4px rgba(221,165,32,0.35); }
+.btn-receipt.sent { background: #e2f6e9; border-color: #2e9e5b; box-shadow: 0 1px 4px rgba(46,158,91,0.35); }
 .btn-receipt:disabled { cursor: default; }
-.btn-receipt:hover:not(:disabled):not(.sent) { filter: brightness(0.96); }
 .invoice-action-btn { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1.5px solid var(--border); background: #fff; font-family: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer; text-align: left; }
 .invoice-action-btn:hover { background: var(--surface-soft); }
 .invoice-action-btn.primary { background: linear-gradient(135deg, var(--saffron-dark), var(--maroon)); color: #fff; border: none; }
@@ -851,14 +849,6 @@ tbody input[type="text"], tbody input[type="number"] {
         <div id="contact-filter-list"></div>
       </div>
     </div>
-    <select id="room-filter">
-      <option value="">All rooms</option>
-      <option value="Surya Hall">Surya Hall</option>
-      <option value="Patanjali Hall">Patanjali Hall</option>
-      <option value="Nataraj Room">Nataraj Room</option>
-      <option value="Ganesh Room">Ganesh Room</option>
-      <option value="__whole_facility__">Whole Facility</option>
-    </select>
     <div class="contact-filter-wrap">
       <button type="button" class="btn-secondary" id="btn-status-filter-toggle">Status <span id="status-filter-count"></span> &#9662;</button>
       <div class="contact-filter-panel" id="status-filter-panel" style="display:none;">
@@ -881,6 +871,14 @@ tbody input[type="text"], tbody input[type="number"] {
     </select>
     <input type="date" id="ab-start-date" style="display:none;">
     <input type="date" id="ab-end-date" style="display:none;">
+    <select id="room-filter">
+      <option value="">All rooms</option>
+      <option value="Surya Hall">Surya Hall</option>
+      <option value="Patanjali Hall">Patanjali Hall</option>
+      <option value="Nataraj Room">Nataraj Room</option>
+      <option value="Ganesh Room">Ganesh Room</option>
+      <option value="__whole_facility__">Whole Facility</option>
+    </select>
     <button type="button" class="btn-secondary" id="btn-refresh-bookings">Refresh</button>
     <div style="position:relative;">
       <button type="button" class="btn-secondary" id="btn-columns" style="padding:9px 14px;font-size:0.86rem;">Columns</button>
@@ -1705,8 +1703,8 @@ function notesButtonHtml(b) {
 function actionIcons(b) {
   if (b.is_internal) return '';
   const invoiceIcon = b.invoice_sent_at
-    ? '<span class="btn-invoice sent" title="Invoice sent ' + formatTimestampDate(b.invoice_sent_at) + ' — manage in Finance &rarr; Invoices &amp; Receipts">\ud83e\uddfe</span>'
-    : '<span class="btn-invoice attached" title="Not sent yet — manage in Finance &rarr; Invoices &amp; Receipts">\ud83e\uddfe</span>';
+    ? '<span class="btn-invoice sent" title="Invoice sent ' + formatTimestampDate(b.invoice_sent_at) + ' — manage in Finance &rarr; Invoices &amp; Receipts">\ud83d\udcc4</span>'
+    : '<span class="btn-invoice attached" title="Not sent yet — manage in Finance &rarr; Invoices &amp; Receipts">\ud83d\udcc4</span>';
   const receiptIcon = b.receipt_sent_at
     ? '<span class="btn-receipt sent" title="Receipt sent ' + formatTimestampDate(b.receipt_sent_at) + ' — manage in Finance &rarr; Invoices &amp; Receipts">\ud83e\uddfe</span>'
     : (b.payment_status === 'paid'
@@ -1719,9 +1717,9 @@ function isWholeFacility(b) {
   return ALL_ROOM_NAMES.every(function (r) { return b.rooms.includes(r); });
 }
 
-const STATUS_CATEGORIES = ['requested', 'needs-attention', 'pending', 'paid', 'internal', 'cancelled', 'rejected'];
+const STATUS_CATEGORIES = ['requested', 'invoiced', 'pending', 'paid', 'internal', 'cancelled', 'rejected'];
 function matchesStatusCategory(b, category) {
-  if (category === 'needs-attention') return b.payment_status === 'invoiced' || b.payment_status === 'pending';
+  if (category === 'invoiced') return b.payment_status === 'invoiced' || b.payment_status === 'pending';
   if (category === 'paid') return b.payment_status === 'paid';
   if (category === 'pending') return b.payment_status === 'pending';
   if (category === 'cancelled') return b.payment_status === 'cancelled';
@@ -2987,7 +2985,7 @@ document.getElementById('room-filter').addEventListener('change', function (e) {
 });
 const STATUS_LABELS = {
   requested: 'Requested — awaiting review',
-  'needs-attention': 'Needs attention',
+  invoiced: 'Invoiced (generated or sent)',
   pending: 'Pending (not yet invoiced)',
   paid: 'Paid',
   internal: 'Internal / No charge',

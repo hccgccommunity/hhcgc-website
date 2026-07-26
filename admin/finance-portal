@@ -209,23 +209,23 @@ tr.series-row:hover td { background: var(--surface-soft); }
 .invoice-action-btn { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1.5px solid var(--border); background: #fff; font-family: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer; text-align: left; }
 .invoice-action-btn:hover { background: var(--surface-soft); }
 .invoice-action-btn.primary { background: linear-gradient(135deg, var(--saffron-dark), var(--maroon)); color: #fff; border: none; }
-.btn-invoice { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; vertical-align: middle; }
+.btn-invoice { border: 1.5px solid var(--border); background: #fff; border-radius: 50%; width: 27px; height: 27px; cursor: pointer; font-size: 0.78rem; vertical-align: middle; transition: transform 0.1s; }
 .btn-attach-link { border: 1.5px dashed var(--border); background: #fff; border-radius: 8px; padding: 3px 8px; cursor: pointer; font-size: 0.72rem; color: var(--muted); }
 .btn-attach-link:hover { border-color: var(--saffron); color: var(--saffron-dark); }
 .btn-attach-link.has-attachments { border: 1.5px solid var(--saffron-dark); background: var(--surface-soft); padding: 3px 6px; }
 .attachment-chip { font-size: 0.9rem; margin-right: 2px; }
 .attachment-detail-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 6px; font-size: 0.86rem; }
 .attachment-detail-row .btn-remove-attachment { font-family: inherit; font-size: 0.72rem; color: var(--red); background: none; border: none; cursor: pointer; }
-.btn-invoice.greyed { background: #f1ede6; border: 2px solid var(--border); opacity: 0.6; }
-.btn-invoice.attached { background: #ffe4a3; border: 2px solid #c8890a; box-shadow: 0 0 0 1px rgba(200,137,10,0.25); }
-.btn-invoice.sent { background: #bdedcf; border: 2px solid #1f6b3f; box-shadow: 0 0 0 1px rgba(31,107,63,0.25); }
-.btn-invoice:hover:not(.sent) { filter: brightness(0.96); }
-.btn-receipt { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; vertical-align: middle; }
-.btn-receipt.greyed { background: #f1ede6; border: 2px solid var(--border); opacity: 0.6; }
-.btn-receipt.attached { background: #ffe4a3; border: 2px solid #c8890a; box-shadow: 0 0 0 1px rgba(200,137,10,0.25); }
-.btn-receipt.sent { background: #bdedcf; border: 2px solid #1f6b3f; box-shadow: 0 0 0 1px rgba(31,107,63,0.25); }
+.btn-invoice.greyed { background: #f2efe9; border-color: #ddd6c8; opacity: 0.55; }
+.btn-invoice.attached { background: #fff4d9; border-color: #dda520; box-shadow: 0 1px 4px rgba(221,165,32,0.35); }
+.btn-invoice.sent { background: #e2f6e9; border-color: #2e9e5b; box-shadow: 0 1px 4px rgba(46,158,91,0.35); }
+.btn-invoice:hover:not(.sent) { transform: scale(1.08); }
+.btn-receipt { border: 1.5px solid var(--border); background: #fff; border-radius: 50%; width: 27px; height: 27px; cursor: pointer; font-size: 0.78rem; vertical-align: middle; transition: transform 0.1s; }
+.btn-receipt.greyed { background: #f2efe9; border-color: #ddd6c8; opacity: 0.55; }
+.btn-receipt.attached { background: #fff4d9; border-color: #dda520; box-shadow: 0 1px 4px rgba(221,165,32,0.35); }
+.btn-receipt.sent { background: #e2f6e9; border-color: #2e9e5b; box-shadow: 0 1px 4px rgba(46,158,91,0.35); }
 .btn-receipt:disabled { cursor: default; }
-.btn-receipt:hover:not(:disabled):not(.sent) { filter: brightness(0.96); }
+.btn-receipt:hover:not(:disabled):not(.sent) { transform: scale(1.08); }
 .btn-note:hover { background: var(--surface-soft); }
 .collapsible-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 12px 0; }
 .collapsible-header .toggle-arrow { transition: transform 0.15s ease; }
@@ -650,19 +650,15 @@ tr.series-row:hover td { background: var(--surface-soft); }
         </div>
       </div>
       <div class="contact-filter-wrap">
-        <button type="button" class="btn-secondary" id="btn-inv-icon-filter-toggle">Status: All <span id="icon-filter-count-inv"></span> &#9662;</button>
-        <div class="contact-filter-panel" id="inv-icon-filter-panel" style="display:none;min-width:200px;">
-          <div id="inv-icon-filter-list">
-            <label style="display:flex;align-items:center;gap:8px;padding:6px 4px;font-size:0.86rem;cursor:pointer;"><input type="checkbox" value="invoiced" checked> Invoiced <span style="color:#c8890a;">🧾</span></label>
-            <label style="display:flex;align-items:center;gap:8px;padding:6px 4px;font-size:0.86rem;cursor:pointer;"><input type="checkbox" value="invoice_sent" checked> Invoice Sent <span style="color:#1f6b3f;">🧾</span></label>
-            <label style="display:flex;align-items:center;gap:8px;padding:6px 4px;font-size:0.86rem;cursor:pointer;"><input type="checkbox" value="receipt" checked> Receipt <span style="color:#c8890a;">🧾</span></label>
-            <label style="display:flex;align-items:center;gap:8px;padding:6px 4px;font-size:0.86rem;cursor:pointer;"><input type="checkbox" value="receipt_sent" checked> Receipt Sent <span style="color:#1f6b3f;">🧾</span></label>
+        <button type="button" class="btn-secondary" id="btn-inv-status-filter-toggle">Status <span id="inv-status-filter-count"></span> &#9662;</button>
+        <div class="contact-filter-panel" id="inv-status-filter-panel" style="display:none;">
+          <div class="contact-filter-actions">
+            <button type="button" id="btn-inv-status-filter-all">Select all</button>
+            <button type="button" id="btn-inv-status-filter-none">Clear</button>
           </div>
+          <div id="inv-status-filter-list"></div>
         </div>
       </div>
-      <label style="display:flex;align-items:center;gap:6px;font-size:0.86rem;color:var(--muted);cursor:pointer;white-space:nowrap;">
-        <input type="checkbox" id="inv-show-cancelled"> Show cancelled
-      </label>
       <select id="inv-range-preset" class="range-preset-select">
         <option value="alltime" selected>All time</option>
         <option value="last3months">Last 3 months</option>
@@ -675,11 +671,6 @@ tr.series-row:hover td { background: var(--surface-soft); }
       </select>
       <input type="date" id="inv-start-date" style="display:none;">
       <input type="date" id="inv-end-date" style="display:none;">
-      <select id="inv-paid-filter">
-        <option value="">All</option>
-        <option value="paid">Paid only</option>
-        <option value="unpaid">Unpaid only</option>
-      </select>
       <select id="inv-page-size-filter" style="font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; padding: 9px 10px; border: 1.5px solid var(--border); border-radius: 10px;">
         <option value="10" selected>10 per page</option>
         <option value="20">20 per page</option>
@@ -2126,7 +2117,6 @@ async function loadReconciliation() {
 
 // ── Invoice Matching ──
 setupRangePreset('inv-range-preset', 'inv-start-date', 'inv-end-date', loadInvoices);
-document.getElementById('inv-paid-filter').addEventListener('change', loadInvoices);
 document.getElementById('btn-load-invoices').addEventListener('click', loadInvoices);
 document.querySelectorAll('.sortable-th').forEach(function (th) {
   th.addEventListener('click', function () {
@@ -2339,20 +2329,27 @@ let INVOICES = [];
 let invSortKey = 'activity', invSortDir = 'desc';
 let invPageSize = 10, invPage = 1;
 let invContactFilter = undefined; // undefined = all contacts, Set = specific selection
-let invIconFilter = new Set(['invoiced', 'invoice_sent', 'receipt', 'receipt_sent']);
+const INV_STATUS_CATEGORIES = ['invoiced', 'pending', 'paid', 'cancelled'];
+const INV_STATUS_LABELS = { invoiced: 'Invoiced (generated or sent)', pending: 'Pending (not yet invoiced)', paid: 'Paid', cancelled: 'Cancelled' };
+function matchesInvStatusCategory(r, category) {
+  if (category === 'invoiced') return r.paymentStatus === 'invoiced' || r.paymentStatus === 'pending';
+  if (category === 'pending') return r.paymentStatus === 'pending';
+  if (category === 'paid') return r.paymentStatus === 'paid';
+  if (category === 'cancelled') return r.paymentStatus === 'cancelled';
+  return false;
+}
+let invStatusFilter = undefined; // undefined = everything except cancelled (set on first populate)
 async function loadInvoices() {
   window.__matchingLoaded = true;
   checkAmbiguousInvoiceSeries();
   const start = document.getElementById('inv-start-date').value;
   const end = document.getElementById('inv-end-date').value;
-  const status = document.getElementById('inv-paid-filter').value;
   const tbody = document.getElementById('inv-tbody');
   const emptyState = document.getElementById('inv-empty');
   tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px;">Loading…</td></tr>';
   setTabLoading('tab-matching', true);
   try {
     const params = new URLSearchParams({ startDate: start, endDate: end, sort: invSortKey, dir: invSortDir });
-    if (status) params.set('status', status);
     const res = await authedFetch(API_BASE + '/finance/invoices?' + params.toString());
     INVOICES = await res.json();
     invPage = 1;
@@ -2444,8 +2441,8 @@ function renderInvoiceRow(inv, isSubRow, showFullActions) {
   // grey. A receipt genuinely can't exist until payment is confirmed, so
   // it has a real grey state — no more "+" sign, just the same icon dimmed.
   const invoiceIcon = inv.invoiceSentAt
-    ? '<button type="button" class="btn-invoice sent" title="Invoice sent ' + formatTimestampDate(inv.invoiceSentAt) + ' — click to view or download" data-invoice-popup-booking="' + inv.bookingId + '">\ud83e\uddfe</button>'
-    : '<button type="button" class="btn-invoice attached" title="Not sent yet — click to view, send, or download" data-invoice-popup-booking="' + inv.bookingId + '">\ud83e\uddfe</button>';
+    ? '<button type="button" class="btn-invoice sent" title="Invoice sent ' + formatTimestampDate(inv.invoiceSentAt) + ' — click to view or download" data-invoice-popup-booking="' + inv.bookingId + '">\ud83d\udcc4</button>'
+    : '<button type="button" class="btn-invoice attached" title="Not sent yet — click to view, send, or download" data-invoice-popup-booking="' + inv.bookingId + '">\ud83d\udcc4</button>';
   const receiptIcon = inv.receiptSentAt
     ? '<button type="button" class="btn-receipt sent" title="Receipt sent ' + formatTimestampDate(inv.receiptSentAt) + ' — click to view or download" data-receipt-popup-booking="' + inv.bookingId + '">\ud83e\uddfe</button>'
     : (inv.paymentStatus === 'paid'
@@ -2459,7 +2456,9 @@ function renderInvoiceRow(inv, isSubRow, showFullActions) {
     ? '<span style="color:var(--muted);font-size:0.8rem;">&mdash;</span>'
     : (inv.paymentStatus === 'paid'
         ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid' + (inv.paymentMethod ? ' \u00b7 ' + escHtml(inv.paymentMethod) : '') + '</span> <button type="button" class="btn-secondary" style="padding:2px 8px;font-size:0.72rem;margin-left:4px;" data-void-invoice-booking="' + inv.bookingId + '">Void</button>'
-        : '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + inv.bookingId + '">Mark paid</button>');
+        : (inv.invoiceSentAt
+            ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + inv.bookingId + '">Mark paid</button>'
+            : '<span style="color:var(--muted);font-size:0.78rem;" title="Send the invoice first">&mdash;</span>'));
   const cancelledTag = inv.paymentStatus === 'cancelled' ? ' <span class="method-tag" style="color:var(--red);">Cancelled</span>' : '';
   return '<tr' + (isSubRow ? ' class="sub-row"' : (inv.paymentStatus === 'cancelled' ? ' class="cancelled-row"' : '')) + '>' +
     '<td>' + (isSubRow ? '' : escHtml(inv.renterName)) + '</td>' +
@@ -2521,26 +2520,13 @@ function renderInvoicesTable() {
   const tbody = document.getElementById('inv-tbody');
   const emptyState = document.getElementById('inv-empty');
   let items = groupInvoicesIntoDisplayItems(INVOICES);
-  const showCancelled = document.getElementById('inv-show-cancelled').checked;
-  if (!showCancelled) {
-    items = items.filter(function (item) {
-      if (item.type === 'single') return item.invoice.paymentStatus !== 'cancelled';
-      // A series with any non-cancelled occurrence still shows (those
-      // occurrences are real, active billing) - only fully-cancelled
-      // series are hidden by this filter.
-      return item.occurrences.some(function (o) { return o.paymentStatus !== 'cancelled'; });
-    });
-  }
   if (invContactFilter) items = items.filter(function (item) { return invContactFilter.has(invContactNameFor(item)); });
-  if (invIconFilter && invIconFilter.size < 4) {
+  if (invStatusFilter === undefined) invStatusFilter = new Set(INV_STATUS_CATEGORIES.filter(function (c) { return c !== 'cancelled'; }));
+  if (invStatusFilter.size < INV_STATUS_CATEGORIES.length) {
     items = items.filter(function (item) {
       const records = item.type === 'single' ? [item.invoice] : item.occurrences;
       return records.some(function (r) {
-        if (invIconFilter.has('invoiced') && !r.invoiceSentAt) return true;
-        if (invIconFilter.has('invoice_sent') && r.invoiceSentAt) return true;
-        if (invIconFilter.has('receipt') && !r.receiptSentAt && r.paymentStatus === 'paid') return true;
-        if (invIconFilter.has('receipt_sent') && r.receiptSentAt) return true;
-        return false;
+        return INV_STATUS_CATEGORIES.some(function (cat) { return invStatusFilter.has(cat) && matchesInvStatusCategory(r, cat); });
       });
     });
   }
@@ -2577,8 +2563,8 @@ function renderInvoicesTable() {
       const repOcc = { ...item.occurrences[0], amount: item.amount, invoiceSentAt: item.invoiceSentAt, paymentStatus: item.paymentStatus === 'mixed' ? item.occurrences[0].paymentStatus : item.paymentStatus };
       const noteBtn = '<button type="button" class="btn-note' + (repOcc.notes ? ' has-content' : '') + '" title="' + (repOcc.notes ? 'Note: ' + escHtml(repOcc.notes) : 'Add a note') + '" data-invoice-note-booking="' + repOcc.bookingId + '">\ud83d\udcdd</button>';
       const invoiceIcon = repOcc.invoiceSentAt
-        ? '<button type="button" class="btn-invoice sent" title="Invoice sent ' + formatTimestampDate(repOcc.invoiceSentAt) + ' — click to view or download" data-invoice-popup-booking="' + repOcc.bookingId + '">\ud83e\uddfe</button>'
-        : '<button type="button" class="btn-invoice attached" title="Not sent yet — click to view, send, or download" data-invoice-popup-booking="' + repOcc.bookingId + '">\ud83e\uddfe</button>';
+        ? '<button type="button" class="btn-invoice sent" title="Invoice sent ' + formatTimestampDate(repOcc.invoiceSentAt) + ' — click to view or download" data-invoice-popup-booking="' + repOcc.bookingId + '">\ud83d\udcc4</button>'
+        : '<button type="button" class="btn-invoice attached" title="Not sent yet — click to view, send, or download" data-invoice-popup-booking="' + repOcc.bookingId + '">\ud83d\udcc4</button>';
       const receiptIcon = repOcc.receiptSentAt
         ? '<button type="button" class="btn-receipt sent" title="Receipt sent ' + formatTimestampDate(repOcc.receiptSentAt) + ' — click to view or download" data-receipt-popup-booking="' + repOcc.bookingId + '">\ud83e\uddfe</button>'
         : (repOcc.paymentStatus === 'paid'
@@ -2586,7 +2572,9 @@ function renderInvoicesTable() {
             : '<button type="button" class="btn-receipt greyed" disabled title="Confirm as paid first">\ud83e\uddfe</button>');
       const paymentCell = repOcc.paymentStatus === 'paid'
         ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid' + (repOcc.paymentMethod ? ' \u00b7 ' + escHtml(repOcc.paymentMethod) : '') + '</span> <button type="button" class="btn-secondary" style="padding:2px 8px;font-size:0.72rem;margin-left:4px;" data-void-invoice-booking="' + repOcc.bookingId + '">Void</button>'
-        : '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + repOcc.bookingId + '">Mark paid</button>';
+        : (repOcc.invoiceSentAt
+            ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + repOcc.bookingId + '">Mark paid</button>'
+            : '<span style="color:var(--muted);font-size:0.78rem;" title="Send the invoice first">&mdash;</span>');
       seriesRow = '<tr class="series-row">' +
         nameCell +
         '<td>' + escHtml(item.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(item.eventDate) + ' \u2013 ' + formatDate(item.eventDateLast) + ' \u00b7 ' + escHtml(item.recurrenceSummary) + '</div></td>' +
@@ -2667,33 +2655,59 @@ document.getElementById('btn-inv-contact-filter-none').addEventListener('click',
   invPage = 1;
   renderInvoicesTable();
 });
-document.getElementById('inv-show-cancelled').addEventListener('change', function () {
+function populateInvStatusFilter() {
+  if (invStatusFilter === undefined) invStatusFilter = new Set(INV_STATUS_CATEGORIES.filter(function (c) { return c !== 'cancelled'; }));
+  const list = document.getElementById('inv-status-filter-list');
+  const checkedSet = invStatusFilter;
+  list.innerHTML = INV_STATUS_CATEGORIES.map(function (cat) {
+    const checked = !checkedSet || checkedSet.has(cat);
+    return '<div class="contact-filter-row"><input type="checkbox" id="isf-' + cat + '" data-status-cat="' + cat + '"' + (checked ? ' checked' : '') + '><label for="isf-' + cat + '">' + escHtml(INV_STATUS_LABELS[cat]) + '</label></div>';
+  }).join('');
+  updateInvStatusFilterButtonLabel();
+}
+function updateInvStatusFilterButtonLabel() {
+  const btn = document.getElementById('btn-inv-status-filter-toggle');
+  const countSpan = document.getElementById('inv-status-filter-count');
+  if (!invStatusFilter || invStatusFilter.size === INV_STATUS_CATEGORIES.length) {
+    btn.firstChild.textContent = 'Status: All ';
+    countSpan.textContent = '';
+  } else {
+    btn.firstChild.textContent = 'Status: ';
+    countSpan.textContent = invStatusFilter.size + ' of ' + INV_STATUS_CATEGORIES.length;
+  }
+}
+document.getElementById('btn-inv-status-filter-toggle').addEventListener('click', function (e) {
+  e.stopPropagation();
+  const panel = document.getElementById('inv-status-filter-panel');
+  const willOpen = panel.style.display === 'none';
+  if (willOpen) populateInvStatusFilter();
+  panel.style.display = willOpen ? 'block' : 'none';
+});
+document.getElementById('inv-status-filter-list').addEventListener('change', function (e) {
+  if (!invStatusFilter) invStatusFilter = new Set(INV_STATUS_CATEGORIES);
+  if (e.target.checked) invStatusFilter.add(e.target.dataset.statusCat);
+  else invStatusFilter.delete(e.target.dataset.statusCat);
+  updateInvStatusFilterButtonLabel();
   invPage = 1;
   renderInvoicesTable();
 });
-document.getElementById('btn-inv-icon-filter-toggle').addEventListener('click', function (e) {
-  e.stopPropagation();
-  const panel = document.getElementById('inv-icon-filter-panel');
-  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+document.getElementById('btn-inv-status-filter-all').addEventListener('click', function () {
+  invStatusFilter = new Set(INV_STATUS_CATEGORIES);
+  populateInvStatusFilter();
+  invPage = 1;
+  renderInvoicesTable();
 });
-function updateInvIconFilterLabel() {
-  const btn = document.getElementById('btn-inv-icon-filter-toggle');
-  const countLabel = document.getElementById('icon-filter-count-inv');
-  if (invIconFilter.size === 4) { btn.firstChild.textContent = 'Status: All '; countLabel.textContent = ''; }
-  else { btn.firstChild.textContent = 'Status: '; countLabel.textContent = invIconFilter.size + ' selected'; }
-}
-document.getElementById('inv-icon-filter-list').addEventListener('change', function () {
-  const checked = Array.from(document.querySelectorAll('#inv-icon-filter-list input:checked')).map(function (cb) { return cb.value; });
-  invIconFilter = new Set(checked);
-  updateInvIconFilterLabel();
+document.getElementById('btn-inv-status-filter-none').addEventListener('click', function () {
+  invStatusFilter = new Set();
+  populateInvStatusFilter();
   invPage = 1;
   renderInvoicesTable();
 });
 document.addEventListener('click', function (e) {
   const panel = document.getElementById('inv-contact-filter-panel');
   if (panel.style.display !== 'none' && !panel.contains(e.target) && e.target.id !== 'btn-inv-contact-filter-toggle') panel.style.display = 'none';
-  const iconPanel = document.getElementById('inv-icon-filter-panel');
-  if (iconPanel.style.display !== 'none' && !iconPanel.contains(e.target) && e.target.id !== 'btn-inv-icon-filter-toggle') iconPanel.style.display = 'none';
+  const statusPanel = document.getElementById('inv-status-filter-panel');
+  if (statusPanel.style.display !== 'none' && !statusPanel.contains(e.target) && e.target.id !== 'btn-inv-status-filter-toggle') statusPanel.style.display = 'none';
 });
 document.getElementById('inv-page-size-filter').addEventListener('change', function (e) {
   invPageSize = Number(e.target.value);

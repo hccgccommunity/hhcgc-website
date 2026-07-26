@@ -284,7 +284,7 @@ input:focus { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 3px
       <ul>
         <li><button class="tab-btn active" data-tab="users">User Management</button></li>
         <li><button class="tab-btn" data-tab="settings">System Settings</button></li>
-        <li><button class="tab-btn" data-tab="delete-renter">Delete Renter Data</button></li>
+        <li><button class="tab-btn" data-tab="delete-renter">Data Management</button></li>
       </ul>
     </div>
   </div>
@@ -333,14 +333,77 @@ input:focus { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 3px
 
       <div id="dr-preview" style="display:none;margin-top:16px;">
         <div class="field-hint" id="dr-preview-summary" style="margin-bottom:10px;"></div>
+        <div class="field-hint" style="margin-bottom:8px;">Check specific bookings to delete just those and keep the renter, or leave all checked and use "Delete renter & all bookings" below to remove everything.</div>
         <div id="dr-bookings-list" style="max-height:240px;overflow-y:auto;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:0.86rem;"></div>
 
         <div class="form-group">
           <label for="dr-confirm-name">Type the renter's name exactly to confirm: <strong id="dr-confirm-target"></strong></label>
           <input type="text" id="dr-confirm-name" placeholder="Type name here">
         </div>
-        <button class="btn-add" id="btn-delete-renter" style="background:var(--red, #b3382c);margin-top:8px;">Permanently delete renter &amp; all bookings</button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn-add" id="btn-delete-selected-bookings" style="background:var(--red, #b3382c);margin-top:8px;">Delete selected booking(s) only</button>
+          <button class="btn-add" id="btn-delete-renter" style="background:var(--red, #b3382c);margin-top:8px;">Permanently delete renter &amp; all bookings</button>
+        </div>
         <div class="field-hint" id="dr-delete-result" style="margin-top:10px;"></div>
+      </div>
+    </div>
+
+    <div class="user-table" style="padding:20px;margin-top:28px;">
+      <p class="field-hint" style="margin:0 0 16px;color:var(--red, #b3382c);font-weight:700;">Admin only. Deletes an internal HCCGC event/program — no renter is attached to these, so they're selected here separately. If the event recurs, every occurrence in the series is deleted together. There is no undo.</p>
+
+      <div class="form-group">
+        <label for="di-event-select">Internal event</label>
+        <select id="di-event-select">
+          <option value="">Select an internal event&hellip;</option>
+        </select>
+      </div>
+
+      <div id="di-preview" style="display:none;margin-top:16px;">
+        <div class="field-hint" id="di-preview-summary" style="margin-bottom:10px;"></div>
+        <div id="di-bookings-list" style="max-height:240px;overflow-y:auto;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:0.86rem;"></div>
+
+        <div class="form-group">
+          <label for="di-confirm-name">Type the event's name exactly to confirm: <strong id="di-confirm-target"></strong></label>
+          <input type="text" id="di-confirm-name" placeholder="Type name here">
+        </div>
+        <button class="btn-add" id="btn-delete-internal" style="background:var(--red, #b3382c);margin-top:8px;">Permanently delete this internal event</button>
+        <div class="field-hint" id="di-delete-result" style="margin-top:10px;"></div>
+      </div>
+    </div>
+
+    <div class="user-table" style="padding:20px;margin-top:28px;border:2px solid var(--red, #b3382c);">
+      <h2 style="font-size:1.1rem;margin:0 0 10px;color:var(--red, #b3382c);">Delete All Data</h2>
+      <p class="field-hint" style="margin:0 0 16px;color:var(--red, #b3382c);font-weight:700;">Admin only. Wipes every renter and every booking in the entire system — not one record, all of them. There is no undo, no backup taken here. Only use this if you intend to fully reload from a Picktime export immediately after.</p>
+      <div class="field-hint" id="da-counts" style="margin-bottom:12px;">Loading current counts&hellip;</div>
+      <div class="form-group">
+        <label for="da-confirm-phrase">Type <strong>DELETE ALL DATA</strong> exactly to confirm</label>
+        <input type="text" id="da-confirm-phrase" placeholder="DELETE ALL DATA">
+      </div>
+      <button class="btn-add" id="btn-delete-all-data" style="background:var(--red, #b3382c);margin-top:8px;">Permanently delete all renters &amp; bookings</button>
+      <div class="field-hint" id="da-result" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="user-table" style="padding:20px;margin-top:28px;">
+      <h2 style="font-size:1.1rem;margin:0 0 10px;">Picktime Import</h2>
+      <p class="field-hint" style="margin:0 0 16px;">Upload a Picktime export (CSV). Nothing is written to the database until you review the preview below and separately confirm — column matching is a best guess (Picktime's exact export format hasn't been verified against a real file), so check the preview carefully before importing, especially the first time.</p>
+      <div class="form-group">
+        <label for="pi-file-input">Picktime export file (CSV)</label>
+        <input type="file" id="pi-file-input" accept=".csv">
+      </div>
+      <button class="btn-add" id="btn-parse-picktime" style="margin-top:8px;">Parse &amp; preview</button>
+      <div class="field-hint" id="pi-parse-result" style="margin-top:10px;"></div>
+
+      <div id="pi-preview" style="display:none;margin-top:20px;">
+        <div class="field-hint" id="pi-preview-summary" style="margin-bottom:10px;font-weight:700;"></div>
+        <div id="pi-warnings" style="margin-bottom:12px;"></div>
+        <div id="pi-rows-table" style="max-height:320px;overflow-y:auto;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:0.82rem;"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+          <input type="checkbox" id="pi-skip-duplicates" checked style="width:18px;height:18px;">
+          <label for="pi-skip-duplicates" style="font-weight:700;">Skip rows already imported (incremental load)</label>
+        </div>
+        <p class="field-hint" style="margin:0 0 14px;">Uncheck this only right after Delete All Data, when there's nothing to skip — otherwise duplicates will be created.</p>
+        <button class="btn-add" id="btn-commit-picktime" style="margin-top:0;">Import these bookings</button>
+        <div class="field-hint" id="pi-commit-result" style="margin-top:10px;"></div>
       </div>
     </div>
   </div>
@@ -731,7 +794,7 @@ document.querySelectorAll('.tab-btn').forEach(function (btn) {
     document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
     btn.classList.add('active');
     document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-    if (btn.dataset.tab === 'delete-renter' && !window.__drLoaded) { window.__drLoaded = true; loadRentersForDelete(); }
+    if (btn.dataset.tab === 'delete-renter' && !window.__drLoaded) { window.__drLoaded = true; loadRentersForDelete(); loadInternalEventsForDelete(); loadDeleteAllCounts(); }
   });
 });
 
@@ -771,7 +834,10 @@ document.getElementById('dr-renter-select').addEventListener('change', async fun
       (data.renter.email ? ' (' + data.renter.email + ')' : '') + ' and ' + data.bookingCount + ' booking' + (data.bookingCount === 1 ? '' : 's') + '.';
     document.getElementById('dr-bookings-list').innerHTML = data.bookings.length
       ? data.bookings.map(function (b) {
-          return '<div style="padding:4px 0;border-bottom:1px solid var(--border);">' + (b.eventName || 'Untitled event') + ' — ' + (b.eventDate || '') + ' <span style="color:var(--muted);">(' + b.paymentStatus + ')</span></div>';
+          return '<div style="padding:4px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;">' +
+            '<input type="checkbox" class="dr-booking-checkbox" value="' + b.bookingId + '" checked>' +
+            '<span>' + (b.eventName || 'Untitled event') + ' — ' + (b.eventDate || '') + ' <span style="color:var(--muted);">(' + b.paymentStatus + ')</span></span>' +
+            '</div>';
         }).join('')
       : '<div style="color:var(--muted);">No bookings on file for this renter.</div>';
     preview.style.display = 'block';
@@ -810,7 +876,236 @@ document.getElementById('btn-delete-renter').addEventListener('click', async fun
     btn.disabled = false; btn.textContent = 'Permanently delete renter & all bookings';
   }
 });
+document.getElementById('btn-delete-selected-bookings').addEventListener('click', async function () {
+  if (!drSelectedRenterId) return;
+  var checkedBoxes = Array.from(document.querySelectorAll('.dr-booking-checkbox:checked'));
+  var bookingIds = checkedBoxes.map(function (cb) { return cb.value; });
+  var confirmName = document.getElementById('dr-confirm-name').value.trim();
+  var resultEl = document.getElementById('dr-delete-result');
+  if (!bookingIds.length) { resultEl.style.color = 'var(--red, #b3382c)'; resultEl.textContent = 'Check at least one booking to delete.'; return; }
+  if (!confirmName) { resultEl.style.color = 'var(--red, #b3382c)'; resultEl.textContent = 'Type the renter\'s name to confirm first.'; return; }
+  if (!confirm('This is permanent and cannot be undone. Delete ' + bookingIds.length + ' selected booking(s) now? The renter record itself will stay.')) return;
+  var btn = this;
+  btn.disabled = true; btn.textContent = 'Deleting…';
+  try {
+    var res = await authedFetch(API_BASE + '/renters/' + encodeURIComponent(drSelectedRenterId) + '/delete-bookings', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bookingIds: bookingIds, confirmName: confirmName })
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      resultEl.style.color = 'var(--red, #b3382c)';
+      resultEl.textContent = (data.errors || [data.error]).join(' ') || 'Could not delete.';
+      return;
+    }
+    resultEl.style.color = 'var(--green, #2e7d4f)';
+    resultEl.textContent = 'Deleted ' + data.bookingsDeleted + ' booking(s) — the renter record was kept.';
+    document.getElementById('dr-renter-select').dispatchEvent(new Event('change'));
+  } catch (err) {
+    resultEl.style.color = 'var(--red, #b3382c)';
+    resultEl.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Delete selected booking(s) only';
+  }
+});
 
+// ── Delete Internal Event ──
+async function loadInternalEventsForDelete() {
+  var select = document.getElementById('di-event-select');
+  try {
+    var res = await authedFetch(API_BASE + '/bookings/internal-list');
+    var events = await res.json();
+    select.innerHTML = '<option value="">Select an internal event&hellip;</option>' + events.map(function (e) {
+      return '<option value="' + e.key + '">' + (e.eventName || 'Untitled event') + ' — ' + e.eventDate + (e.isSeries ? ' (recurring series)' : '') + '</option>';
+    }).join('');
+  } catch (err) {
+    select.innerHTML = '<option value="">Could not load internal events</option>';
+  }
+}
+var diSelectedKey = null;
+document.getElementById('di-event-select').addEventListener('change', async function () {
+  var key = this.value;
+  var preview = document.getElementById('di-preview');
+  diSelectedKey = null;
+  document.getElementById('di-delete-result').textContent = '';
+  document.getElementById('di-confirm-name').value = '';
+  if (!key) { preview.style.display = 'none'; return; }
+  try {
+    var res = await authedFetch(API_BASE + '/bookings/internal-delete-preview?key=' + encodeURIComponent(key));
+    var data = await res.json();
+    if (!res.ok) {
+      preview.style.display = 'block';
+      document.getElementById('di-preview-summary').textContent = (data.errors || [data.error]).join(' ') || 'Could not load this event.';
+      document.getElementById('di-bookings-list').innerHTML = '';
+      return;
+    }
+    diSelectedKey = key;
+    document.getElementById('di-confirm-target').textContent = data.eventName;
+    document.getElementById('di-preview-summary').textContent = 'This will permanently delete ' + data.eventName + ' — ' + data.bookingCount + ' occurrence' + (data.bookingCount === 1 ? '' : 's') + '.';
+    document.getElementById('di-bookings-list').innerHTML = data.bookings.map(function (b) {
+      return '<div style="padding:4px 0;border-bottom:1px solid var(--border);">' + (b.eventDate || '') + ' <span style="color:var(--muted);">(' + b.paymentStatus + ')</span></div>';
+    }).join('');
+    preview.style.display = 'block';
+  } catch (err) {
+    preview.style.display = 'block';
+    document.getElementById('di-preview-summary').textContent = 'Could not reach the server: ' + err.message;
+  }
+});
+document.getElementById('btn-delete-internal').addEventListener('click', async function () {
+  if (!diSelectedKey) return;
+  var confirmName = document.getElementById('di-confirm-name').value.trim();
+  var resultEl = document.getElementById('di-delete-result');
+  if (!confirmName) { resultEl.style.color = 'var(--red, #b3382c)'; resultEl.textContent = 'Type the event\'s name to confirm first.'; return; }
+  if (!confirm('This is permanent and cannot be undone. Delete this internal event and all its occurrences now?')) return;
+  var btn = this;
+  btn.disabled = true; btn.textContent = 'Deleting…';
+  try {
+    var res = await authedFetch(API_BASE + '/bookings/internal-delete', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: diSelectedKey, confirmName: confirmName })
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      resultEl.style.color = 'var(--red, #b3382c)';
+      resultEl.textContent = (data.errors || [data.error]).join(' ') || 'Could not delete.';
+      return;
+    }
+    resultEl.style.color = 'var(--green, #2e7d4f)';
+    resultEl.textContent = 'Deleted — ' + data.bookingsDeleted + ' occurrence(s) removed.';
+    document.getElementById('di-preview').style.display = 'none';
+    document.getElementById('di-event-select').value = '';
+    loadInternalEventsForDelete();
+  } catch (err) {
+    resultEl.style.color = 'var(--red, #b3382c)';
+    resultEl.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Permanently delete this internal event';
+  }
+});
+
+// ── Delete All Data ──
+async function loadDeleteAllCounts() {
+  var el = document.getElementById('da-counts');
+  try {
+    var res = await authedFetch(API_BASE + '/admin/delete-all-preview');
+    var data = await res.json();
+    if (!res.ok) { el.textContent = (data.errors || [data.error]).join(' ') || 'Could not load counts.'; return; }
+    el.innerHTML = 'Currently in the system: <strong>' + data.renterCount + ' renter(s)</strong>, <strong>' + data.bookingCount + ' booking(s)</strong>.';
+  } catch (err) {
+    el.textContent = 'Could not reach the server: ' + err.message;
+  }
+}
+document.getElementById('btn-delete-all-data').addEventListener('click', async function () {
+  var phrase = document.getElementById('da-confirm-phrase').value.trim();
+  var resultEl = document.getElementById('da-result');
+  if (phrase !== 'DELETE ALL DATA') {
+    resultEl.style.color = 'var(--red, #b3382c)';
+    resultEl.textContent = 'Type the exact phrase "DELETE ALL DATA" to confirm.';
+    return;
+  }
+  if (!confirm('This deletes every renter and every booking in the entire system, permanently, with no way back. Are you completely sure?')) return;
+  if (!confirm('Really sure? This cannot be undone.')) return;
+  var btn = this;
+  btn.disabled = true; btn.textContent = 'Deleting everything…';
+  try {
+    var res = await authedFetch(API_BASE + '/admin/delete-all-data', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ confirmPhrase: phrase })
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      resultEl.style.color = 'var(--red, #b3382c)';
+      resultEl.textContent = (data.errors || [data.error]).join(' ') || 'Could not delete.';
+      return;
+    }
+    resultEl.style.color = 'var(--green, #2e7d4f)';
+    resultEl.textContent = 'Deleted ' + data.rentersDeleted + ' renter(s) and ' + data.bookingsDeleted + ' booking(s).';
+    document.getElementById('da-confirm-phrase').value = '';
+    loadDeleteAllCounts();
+  } catch (err) {
+    resultEl.style.color = 'var(--red, #b3382c)';
+    resultEl.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Permanently delete all renters & bookings';
+  }
+});
+
+// ── Picktime Import ──
+var piParsedRows = [];
+document.getElementById('btn-parse-picktime').addEventListener('click', async function () {
+  var fileInput = document.getElementById('pi-file-input');
+  var resultEl = document.getElementById('pi-parse-result');
+  var preview = document.getElementById('pi-preview');
+  preview.style.display = 'none';
+  if (!fileInput.files || !fileInput.files[0]) {
+    resultEl.style.color = 'var(--red, #b3382c)';
+    resultEl.textContent = 'Choose a CSV file first.';
+    return;
+  }
+  var btn = this;
+  btn.disabled = true; btn.textContent = 'Parsing…';
+  resultEl.style.color = ''; resultEl.textContent = '';
+  try {
+    var text = await fileInput.files[0].text();
+    var res = await authedFetch(API_BASE + '/admin/parse-picktime-csv', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ csvText: text })
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      resultEl.style.color = 'var(--red, #b3382c)';
+      resultEl.textContent = (data.errors || [data.error]).join(' ') || 'Could not parse this file.';
+      return;
+    }
+    piParsedRows = data.preview;
+    document.getElementById('pi-preview-summary').textContent =
+      data.parsedCount + ' of ' + data.totalRows + ' rows parsed \u2014 ' + data.duplicateCount + ' already imported, ' + data.newRenterCount + ' new renter(s) would be created.';
+    document.getElementById('pi-warnings').innerHTML = data.warnings.length
+      ? '<div style="color:var(--red, #b3382c);font-size:0.82rem;">' + data.warnings.map(function (w) { return escHtml(w); }).join('<br>') + '</div>'
+      : '';
+    document.getElementById('pi-rows-table').innerHTML = piParsedRows.map(function (r) {
+      return '<div style="padding:4px 0;border-bottom:1px solid var(--border);' + (r.isDuplicate ? 'color:var(--muted);' : '') + '">' +
+        escHtml(r.customerName) + ' \u2014 ' + escHtml(r.date) + (r.room ? ' \u2014 ' + escHtml(r.room) : '') +
+        (r.amount ? ' \u2014 ' + escHtml(r.amount) : '') +
+        (r.isDuplicate ? ' <span style="color:var(--red, #b3382c);">(already imported)</span>' : '') +
+        (r.isNewRenter ? ' <span style="color:var(--saffron-dark);">(new renter)</span>' : '') +
+        '</div>';
+    }).join('') || '<div style="color:var(--muted);">No rows parsed.</div>';
+    preview.style.display = 'block';
+  } catch (err) {
+    resultEl.style.color = 'var(--red, #b3382c)';
+    resultEl.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Parse & preview';
+  }
+});
+document.getElementById('btn-commit-picktime').addEventListener('click', async function () {
+  var resultEl = document.getElementById('pi-commit-result');
+  var skipDuplicates = document.getElementById('pi-skip-duplicates').checked;
+  if (!piParsedRows.length) return;
+  if (!confirm('Import ' + piParsedRows.length + ' row(s) now' + (skipDuplicates ? ' (already-imported rows will be skipped)' : ' (including anything marked already imported \u2014 this can create duplicates)') + '?')) return;
+  var btn = this;
+  btn.disabled = true; btn.textContent = 'Importing…';
+  try {
+    var res = await authedFetch(API_BASE + '/admin/commit-picktime-import', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rows: piParsedRows, skipDuplicates: skipDuplicates })
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      resultEl.style.color = 'var(--red, #b3382c)';
+      resultEl.textContent = (data.errors || [data.error]).join(' ') || 'Could not import.';
+      return;
+    }
+    resultEl.style.color = 'var(--green, #2e7d4f)';
+    resultEl.textContent = 'Imported ' + data.bookingsInserted + ' booking(s), created ' + data.rentersCreated + ' new renter(s)' + (data.bookingsSkipped ? ', skipped ' + data.bookingsSkipped + ' already-imported row(s)' : '') + '.';
+    document.getElementById('pi-preview').style.display = 'none';
+    document.getElementById('pi-file-input').value = '';
+    piParsedRows = [];
+    loadDeleteAllCounts();
+  } catch (err) {
+    resultEl.style.color = 'var(--red, #b3382c)';
+    resultEl.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Import these bookings';
+  }
+});
 loadPartial('site-header', '/header.html');
 loadPartial('site-footer', '/footer.html');
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/service-worker.js').catch(function () {});

@@ -181,6 +181,9 @@ tbody tr:hover { background: rgba(217,138,30,0.04); }
 .source-tag { display: inline-block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--surface-soft); color: var(--saffron-dark); }
 tr.sub-row td { background: var(--surface-soft); }
 tr.sub-row td:first-child { padding-left: 22px; border-left: 3px solid var(--saffron-dark); }
+tr.cancelled-row { background: #fdf1ef; }
+tr.cancelled-row td { color: var(--muted); }
+tr.cancelled-row .renter-name, tr.cancelled-row .amount { text-decoration: line-through; text-decoration-color: var(--red); }
 .method-tag { font-size: 0.72rem; color: var(--muted); display: block; margin-top: 2px; }
 .discount-chip { display: inline-block; font-size: 0.68rem; font-weight: 700; color: var(--saffron-dark); background: var(--surface-soft); border-radius: 999px; padding: 2px 8px; }
 tr.series-row:hover td { background: var(--surface-soft); }
@@ -657,6 +660,9 @@ tr.series-row:hover td { background: var(--surface-soft); }
           </div>
         </div>
       </div>
+      <label style="display:flex;align-items:center;gap:6px;font-size:0.86rem;color:var(--muted);cursor:pointer;white-space:nowrap;">
+        <input type="checkbox" id="inv-show-cancelled"> Show cancelled
+      </label>
       <select id="inv-range-preset" class="range-preset-select">
         <option value="alltime" selected>All time</option>
         <option value="last3months">Last 3 months</option>
@@ -2449,12 +2455,15 @@ function renderInvoiceRow(inv, isSubRow, showFullActions) {
   // required at all. Opens a small prompt for payment method only
   // (Zeffy / Zelle / Check, in that order — the only three the org
   // actually uses), then marks paid immediately.
-  const paymentCell = inv.paymentStatus === 'paid'
-    ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid' + (inv.paymentMethod ? ' \u00b7 ' + escHtml(inv.paymentMethod) : '') + '</span> <button type="button" class="btn-secondary" style="padding:2px 8px;font-size:0.72rem;margin-left:4px;" data-void-invoice-booking="' + inv.bookingId + '">Void</button>'
-    : '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + inv.bookingId + '">Mark paid</button>';
-  return '<tr' + (isSubRow ? ' class="sub-row"' : '') + '>' +
+  const paymentCell = inv.paymentStatus === 'cancelled'
+    ? '<span style="color:var(--muted);font-size:0.8rem;">&mdash;</span>'
+    : (inv.paymentStatus === 'paid'
+        ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid' + (inv.paymentMethod ? ' \u00b7 ' + escHtml(inv.paymentMethod) : '') + '</span> <button type="button" class="btn-secondary" style="padding:2px 8px;font-size:0.72rem;margin-left:4px;" data-void-invoice-booking="' + inv.bookingId + '">Void</button>'
+        : '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + inv.bookingId + '">Mark paid</button>');
+  const cancelledTag = inv.paymentStatus === 'cancelled' ? ' <span class="method-tag" style="color:var(--red);">Cancelled</span>' : '';
+  return '<tr' + (isSubRow ? ' class="sub-row"' : (inv.paymentStatus === 'cancelled' ? ' class="cancelled-row"' : '')) + '>' +
     '<td>' + (isSubRow ? '' : escHtml(inv.renterName)) + '</td>' +
-    '<td>' + escHtml(inv.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(inv.eventDate) + '</div></td>' +
+    '<td>' + escHtml(inv.eventName || '') + cancelledTag + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(inv.eventDate) + '</div></td>' +
     '<td class="amount">' + money(inv.amount) + '</td>' +
     '<td>' + noteBtn + '</td>' +
     '<td>' + invoiceIcon + '</td>' +
@@ -2512,6 +2521,16 @@ function renderInvoicesTable() {
   const tbody = document.getElementById('inv-tbody');
   const emptyState = document.getElementById('inv-empty');
   let items = groupInvoicesIntoDisplayItems(INVOICES);
+  const showCancelled = document.getElementById('inv-show-cancelled').checked;
+  if (!showCancelled) {
+    items = items.filter(function (item) {
+      if (item.type === 'single') return item.invoice.paymentStatus !== 'cancelled';
+      // A series with any non-cancelled occurrence still shows (those
+      // occurrences are real, active billing) - only fully-cancelled
+      // series are hidden by this filter.
+      return item.occurrences.some(function (o) { return o.paymentStatus !== 'cancelled'; });
+    });
+  }
   if (invContactFilter) items = items.filter(function (item) { return invContactFilter.has(invContactNameFor(item)); });
   if (invIconFilter && invIconFilter.size < 4) {
     items = items.filter(function (item) {
@@ -2645,6 +2664,10 @@ document.getElementById('btn-inv-contact-filter-none').addEventListener('click',
   document.querySelectorAll('#inv-contact-filter-list input').forEach(function (cb) { cb.checked = false; });
   invContactFilter = new Set();
   updateInvoiceContactFilterButtonLabel(document.querySelectorAll('#inv-contact-filter-list input').length);
+  invPage = 1;
+  renderInvoicesTable();
+});
+document.getElementById('inv-show-cancelled').addEventListener('change', function () {
   invPage = 1;
   renderInvoicesTable();
 });

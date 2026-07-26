@@ -108,6 +108,9 @@ tr.series-summary-row { cursor: pointer; background: var(--surface-soft); }
 tr.series-summary-row:hover { background: rgba(217,138,30,0.10); }
 tr.sub-row td { background: var(--surface-soft); }
 tr.sub-row td:first-child { padding-left: 22px; border-left: 3px solid var(--saffron-dark); }
+tr.cancelled-row { background: #fdf1ef; }
+tr.cancelled-row td { color: var(--muted); }
+tr.cancelled-row .renter-name, tr.cancelled-row .amount { text-decoration: line-through; text-decoration-color: var(--red); }
 .btn-expand-series {
   font-family: Arial, Helvetica, sans-serif; font-size: 0.7rem; font-weight: 700;
   padding: 5px 8px; border-radius: 7px; border: 1.5px solid var(--saffron-dark);
@@ -1821,7 +1824,6 @@ function getColumnCellHtml(columnKey, data, isSubRow) {
       return '<td>' + data.hours + '</td>';
     case 'final_total': {
       let amt = '$' + Number(data.final_total).toFixed(2);
-      if (!isSeries && !isSubRow && data.manual_adjustment_type) amt += '<span class="adjusted-tag" title="' + escHtml(data.manual_adjustment_reason || '') + '">Adjusted</span>';
       if (isSeries) amt += ' <span class="method-tag">total</span>';
       return '<td class="amount">' + amt + '</td>';
     }
@@ -1858,19 +1860,23 @@ function isHistoricallyLocked(b) {
   return isBookingPast(b) || isPicktimeHistoricalPaid(b);
 }
 
-function renderBookingRow(b, isSubRow, seriesIsMixed) {
+function renderBookingRow(b, isSubRow, seriesPerOccurrenceMode) {
   const rowClasses = (b.payment_status === 'cancelled' || b.payment_status === 'rejected' ? 'cancelled-row ' : '') + (isSubRow ? 'sub-row' : '');
   // Per-occurrence invoicing means each occurrence really is its own
   // independent billing unit — same as a standalone booking — so it gets
   // full status and actions even though it's a sub-row. Combined
   // invoicing (the default) is the only case where sub-rows stay
   // info-only, since the group above is the actual billing unit there.
-  // A series showing mixed payment status (some occurrences paid,
-  // others not) gets the same independent treatment regardless of
-  // invoice_mode — that mix could only happen if occurrences were
-  // actually operated on individually, most often historical series
-  // that predate this setting existing at all.
-  const actsIndependently = isSubRow && (b.invoice_mode === 'per_occurrence' || seriesIsMixed);
+  //
+  // Critically, this decision is made ONCE per series (by the caller,
+  // from the representative/first occurrence) and passed in here — it is
+  // NOT re-derived from this row's own b.invoice_mode. Checking each
+  // occurrence's own field independently is exactly what caused Finance
+  // Portal (which always makes this decision once, group-level) and All
+  // Bookings (which was re-checking per-row) to disagree on the same
+  // series whenever the underlying data had even one occurrence with an
+  // inconsistent invoice_mode value.
+  const actsIndependently = isSubRow && seriesPerOccurrenceMode;
   const treatAsSubRow = isSubRow && !actsIndependently;
 
   // A public booking request awaiting review is a totally different case
@@ -1919,7 +1925,7 @@ function renderBookingRow(b, isSubRow, seriesIsMixed) {
 function renderSeriesSummaryRow(item) {
   const isExpanded = expandedSeries.has(item.seriesId);
   const repOcc = item.occurrences[0];
-  const perOccurrenceMode = repOcc && (repOcc.invoice_mode === 'per_occurrence' || item.payment_status === 'mixed');
+  const perOccurrenceMode = repOcc && repOcc.invoice_mode === 'per_occurrence';
 
   if (item.payment_status === 'requested' || item.payment_status === 'rejected') {
     const actions = item.payment_status === 'requested'
@@ -2099,7 +2105,8 @@ function render() {
     if (item.type === 'single') return renderBookingRow(item.booking, false);
     const summary = renderSeriesSummaryRow(item);
     if (!expandedSeries.has(item.seriesId)) return summary;
-    return summary + item.occurrences.map(function (occ) { return renderBookingRow(occ, true, item.payment_status === 'mixed'); }).join('');
+    const seriesPerOccurrenceMode = item.occurrences[0] && item.occurrences[0].invoice_mode === 'per_occurrence';
+    return summary + item.occurrences.map(function (occ) { return renderBookingRow(occ, true, seriesPerOccurrenceMode); }).join('');
   }).join('');
 }
 
@@ -2988,11 +2995,11 @@ const STATUS_LABELS = {
   rejected: 'Rejected'
 };
 function populateStatusFilter() {
-  // Default: everything checked except Rejected — rejected bookings are
-  // usually noise once you're past reviewing them, so they stay hidden
-  // until someone deliberately asks to see them.
+  // Default: everything checked except Rejected and Cancelled — both are
+  // usually noise once you're past reviewing/cancelling them, so they
+  // stay hidden until someone deliberately asks to see them.
   if (state.statusFilter === undefined) {
-    state.statusFilter = new Set(STATUS_CATEGORIES.filter(function (c) { return c !== 'rejected'; }));
+    state.statusFilter = new Set(STATUS_CATEGORIES.filter(function (c) { return c !== 'rejected' && c !== 'cancelled'; }));
   }
   const list = document.getElementById('status-filter-list');
   const checkedSet = state.statusFilter;

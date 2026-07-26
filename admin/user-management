@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>User Management – HCCGC Admin Portal</title>
+<title>Admin of Admin – HCCGC Admin Portal</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -136,6 +136,13 @@ body {
 #app { display: none; }
 
 .page-header { padding: 40px 0 20px; }
+.tab-nav { background: var(--surface); border-bottom: 1px solid var(--border); }
+.tab-nav ul { list-style: none; display: flex; gap: 4px; padding: 10px 0; flex-wrap: wrap; }
+.tab-nav button { display: inline-block; padding: 8px 16px; border-radius: 999px; font-size: 0.86rem; font-weight: 700; color: var(--muted); background: none; border: none; cursor: pointer; transition: background 0.15s, color 0.15s; font-family: inherit; }
+.tab-nav button.active { background: var(--surface-soft); color: var(--saffron-dark); }
+.tab-nav button:not(.active):hover { background: var(--surface-soft); }
+.tab-panel { display: none; padding: 24px 0 60px; }
+.tab-panel.active { display: block; }
 .page-header h1 { font-family: Georgia, "Times New Roman", serif; font-size: 1.8rem; color: var(--maroon); margin-bottom: 8px; }
 .page-header p { color: var(--muted); font-size: 0.9rem; }
 
@@ -267,10 +274,24 @@ input:focus { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 3px
 <div id="app">
   <div class="container">
     <div class="page-header">
-      <h1>User Management</h1>
-      <p>Grant or revoke access to portal apps for HCCGC members.</p>
+      <h1>Admin of Admin</h1>
+      <p>User access, system settings, and admin-only data management for HCCGC staff.</p>
     </div>
+  </div>
 
+  <div class="tab-nav">
+    <div class="container">
+      <ul>
+        <li><button class="tab-btn active" data-tab="users">User Management</button></li>
+        <li><button class="tab-btn" data-tab="settings">System Settings</button></li>
+        <li><button class="tab-btn" data-tab="delete-renter">Delete Renter Data</button></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container">
+
+  <div class="tab-panel active" id="tab-users">
     <div class="status-bar" id="status-bar"></div>
 
     <button class="btn-add" id="btn-add-user">
@@ -281,10 +302,9 @@ input:focus { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 3px
     <div class="user-table" id="user-table">
       <div class="empty-state">Loading users&hellip;</div>
     </div>
+  </div>
 
-    <div class="page-header" style="margin-top:36px;">
-      <h1 style="font-size:1.3rem;">System Settings</h1>
-    </div>
+  <div class="tab-panel" id="tab-settings">
     <div class="user-table" style="padding:20px;">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
         <input type="checkbox" id="setting-test-mode" style="width:18px;height:18px;">
@@ -299,7 +319,35 @@ input:focus { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 3px
       <div class="field-hint" id="settings-save-result" style="margin-top:10px;"></div>
     </div>
   </div>
+
+  <div class="tab-panel" id="tab-delete-renter">
+    <div class="user-table" style="padding:20px;">
+      <p class="field-hint" style="margin:0 0 16px;color:var(--red, #b3382c);font-weight:700;">Admin only. This permanently deletes a renter and every one of their bookings — invoices, receipts, payment history, all of it. There is no undo. Intended for cleaning up test or duplicate records, not real customer data.</p>
+
+      <div class="form-group">
+        <label for="dr-renter-select">Renter</label>
+        <select id="dr-renter-select">
+          <option value="">Select a renter&hellip;</option>
+        </select>
+      </div>
+
+      <div id="dr-preview" style="display:none;margin-top:16px;">
+        <div class="field-hint" id="dr-preview-summary" style="margin-bottom:10px;"></div>
+        <div id="dr-bookings-list" style="max-height:240px;overflow-y:auto;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:0.86rem;"></div>
+
+        <div class="form-group">
+          <label for="dr-confirm-name">Type the renter's name exactly to confirm: <strong id="dr-confirm-target"></strong></label>
+          <input type="text" id="dr-confirm-name" placeholder="Type name here">
+        </div>
+        <button class="btn-add" id="btn-delete-renter" style="background:var(--red, #b3382c);margin-top:8px;">Permanently delete renter &amp; all bookings</button>
+        <div class="field-hint" id="dr-delete-result" style="margin-top:10px;"></div>
+      </div>
+    </div>
+  </div>
+
+  </div>
 </div>
+
 
 <div id="site-footer"></div>
 
@@ -676,6 +724,92 @@ function fixHeaderLinksForSubfolder(headerEl) {
     link.setAttribute('href', '/' + href);
   });
 }
+
+document.querySelectorAll('.tab-btn').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+    document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'delete-renter' && !window.__drLoaded) { window.__drLoaded = true; loadRentersForDelete(); }
+  });
+});
+
+var drSelectedRenterId = null;
+async function loadRentersForDelete() {
+  var select = document.getElementById('dr-renter-select');
+  try {
+    var res = await authedFetch(API_BASE + '/renters?all=true');
+    var renters = await res.json();
+    renters.sort(function (a, b) { return (a.contact_name || '').localeCompare(b.contact_name || ''); });
+    select.innerHTML = '<option value="">Select a renter&hellip;</option>' + renters.map(function (r) {
+      return '<option value="' + r.renter_id + '">' + (r.contact_name || 'Unnamed') + (r.email ? ' (' + r.email + ')' : '') + '</option>';
+    }).join('');
+  } catch (err) {
+    select.innerHTML = '<option value="">Could not load renters</option>';
+  }
+}
+document.getElementById('dr-renter-select').addEventListener('change', async function () {
+  var renterId = this.value;
+  var preview = document.getElementById('dr-preview');
+  drSelectedRenterId = null;
+  document.getElementById('dr-delete-result').textContent = '';
+  document.getElementById('dr-confirm-name').value = '';
+  if (!renterId) { preview.style.display = 'none'; return; }
+  try {
+    var res = await authedFetch(API_BASE + '/renters/' + encodeURIComponent(renterId) + '/delete-preview');
+    var data = await res.json();
+    if (!res.ok) {
+      preview.style.display = 'block';
+      document.getElementById('dr-preview-summary').textContent = (data.errors || [data.error]).join(' ') || 'Could not load this renter.';
+      document.getElementById('dr-bookings-list').innerHTML = '';
+      return;
+    }
+    drSelectedRenterId = renterId;
+    document.getElementById('dr-confirm-target').textContent = data.renter.contactName;
+    document.getElementById('dr-preview-summary').textContent = 'This will permanently delete ' + data.renter.contactName +
+      (data.renter.email ? ' (' + data.renter.email + ')' : '') + ' and ' + data.bookingCount + ' booking' + (data.bookingCount === 1 ? '' : 's') + '.';
+    document.getElementById('dr-bookings-list').innerHTML = data.bookings.length
+      ? data.bookings.map(function (b) {
+          return '<div style="padding:4px 0;border-bottom:1px solid var(--border);">' + (b.eventName || 'Untitled event') + ' — ' + (b.eventDate || '') + ' <span style="color:var(--muted);">(' + b.paymentStatus + ')</span></div>';
+        }).join('')
+      : '<div style="color:var(--muted);">No bookings on file for this renter.</div>';
+    preview.style.display = 'block';
+  } catch (err) {
+    preview.style.display = 'block';
+    document.getElementById('dr-preview-summary').textContent = 'Could not reach the server: ' + err.message;
+  }
+});
+document.getElementById('btn-delete-renter').addEventListener('click', async function () {
+  if (!drSelectedRenterId) return;
+  var confirmName = document.getElementById('dr-confirm-name').value.trim();
+  var resultEl = document.getElementById('dr-delete-result');
+  if (!confirmName) { resultEl.style.color = 'var(--red, #b3382c)'; resultEl.textContent = 'Type the renter\'s name to confirm first.'; return; }
+  if (!confirm('This is permanent and cannot be undone. Delete this renter and all their bookings now?')) return;
+  var btn = this;
+  btn.disabled = true; btn.textContent = 'Deleting…';
+  try {
+    var res = await authedFetch(API_BASE + '/renters/' + encodeURIComponent(drSelectedRenterId) + '/delete', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ confirmName: confirmName })
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      resultEl.style.color = 'var(--red, #b3382c)';
+      resultEl.textContent = (data.errors || [data.error]).join(' ') || 'Could not delete.';
+      return;
+    }
+    resultEl.style.color = 'var(--green, #2e7d4f)';
+    resultEl.textContent = 'Deleted — ' + data.bookingsDeleted + ' booking(s) removed along with the renter.';
+    document.getElementById('dr-preview').style.display = 'none';
+    document.getElementById('dr-renter-select').value = '';
+    loadRentersForDelete();
+  } catch (err) {
+    resultEl.style.color = 'var(--red, #b3382c)';
+    resultEl.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Permanently delete renter & all bookings';
+  }
+});
 
 loadPartial('site-header', '/header.html');
 loadPartial('site-footer', '/footer.html');

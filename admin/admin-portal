@@ -403,8 +403,8 @@ body {
   },
   {
     "key": "user-management",
-    "name": "User Management",
-    "description": "Grant or revoke portal access for HCCGC members. Admins only.",
+    "name": "Admin of Admin",
+    "description": "User access, system settings, and admin-only data management. Admins only.",
     "url": "user-management",
     "icon": "users"
   },

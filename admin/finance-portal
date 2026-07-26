@@ -2507,14 +2507,49 @@ function renderInvoicesTable() {
     if (item.type === 'single') return renderInvoiceRow(item.invoice, false);
     const isExpanded = expandedInvoiceSeries.has(item.seriesId);
     const isPerOccurrence = item.invoiceMode === 'per_occurrence';
-    const seriesRow = '<tr class="series-row" data-toggle-invoice-series="' + item.seriesId + '" style="cursor:pointer;">' +
-      '<td>' + escHtml(item.renterName) + '</td>' +
-      '<td>' + escHtml(item.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(item.eventDate) + ' \u2013 ' + formatDate(item.eventDateLast) + ' \u00b7 ' + escHtml(item.recurrenceSummary) + '</div></td>' +
-      '<td>' + (item.invoiceSentAt ? formatTimestampDate(item.invoiceSentAt) + (isPerOccurrence ? ' (latest)' : '') : '<span style="color:var(--muted);">Not sent</span>') + '</td>' +
-      '<td class="amount">' + money(item.amount) + ' <span class="method-tag">' + (isPerOccurrence ? 'sum of ' + item.occurrences.length : 'total') + '</span></td>' +
-      '<td><span class="source-tag">' + (item.paymentStatus === 'mixed' ? item.paidCount + ' of ' + item.occurrences.length + ' paid' : escHtml(capitalizeStatus(item.paymentStatus))) + '</span></td>' +
-      '<td colspan="4" style="text-align:right;color:var(--muted);font-size:0.8rem;">' + (isExpanded ? '\u25b2 Hide occurrences' : '\u25bc Show ' + item.occurrences.length + (isPerOccurrence ? ' individual invoices' : ' occurrences')) + '</td>' +
-    '</tr>';
+    const toggleLabel = (isExpanded ? '\u25b2' : '\u25bc') + ' ' + item.occurrences.length + (isPerOccurrence ? ' individual invoices' : ' occurrences');
+    let seriesRow;
+    if (isPerOccurrence) {
+      // Each occurrence bills independently - the group row itself has
+      // no single invoice/receipt/payment action, just notes plus the
+      // toggle to expand into the individually-actionable occurrences.
+      const repOcc = item.occurrences[0];
+      const noteBtn = '<button type="button" class="btn-note' + (repOcc.notes ? ' has-content' : '') + '" title="' + (repOcc.notes ? 'Note: ' + escHtml(repOcc.notes) : 'Add a note') + '" data-invoice-note-booking="' + repOcc.bookingId + '">\ud83d\udcdd</button>';
+      seriesRow = '<tr class="series-row" data-toggle-invoice-series="' + item.seriesId + '" style="cursor:pointer;">' +
+        '<td><div class="renter-name">' + escHtml(item.renterName) + ' <span class="method-tag">' + item.occurrences.length + ' occ.</span></div></td>' +
+        '<td>' + escHtml(item.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(item.eventDate) + ' \u2013 ' + formatDate(item.eventDateLast) + ' \u00b7 ' + escHtml(item.recurrenceSummary) + '</div></td>' +
+        '<td>' + (item.invoiceSentAt ? formatTimestampDate(item.invoiceSentAt) + ' (latest)' : '<span style="color:var(--muted);">Not sent</span>') + '</td>' +
+        '<td class="amount">' + money(item.amount) + ' <span class="method-tag">sum of ' + item.occurrences.length + '</span></td>' +
+        '<td><span class="source-tag">' + (item.paymentStatus === 'mixed' ? item.paidCount + ' of ' + item.occurrences.length + ' paid' : escHtml(capitalizeStatus(item.paymentStatus))) + '</span></td>' +
+        '<td>' + noteBtn + '</td>' +
+        '<td colspan="3" style="text-align:right;color:var(--muted);font-size:0.8rem;">' + toggleLabel + '</td>' +
+      '</tr>';
+    } else {
+      // Combined billing - the group IS the invoice, using the first
+      // occurrence as the representative record. This is the row that
+      // was previously missing invoice/receipt/payment icons entirely,
+      // making a combined-mode series impossible to invoice at all.
+      const repOcc = { ...item.occurrences[0], amount: item.amount, invoiceSentAt: item.invoiceSentAt, paymentStatus: item.paymentStatus === 'mixed' ? item.occurrences[0].paymentStatus : item.paymentStatus };
+      const noteBtn = '<button type="button" class="btn-note' + (repOcc.notes ? ' has-content' : '') + '" title="' + (repOcc.notes ? 'Note: ' + escHtml(repOcc.notes) : 'Add a note') + '" data-invoice-note-booking="' + repOcc.bookingId + '">\ud83d\udcdd</button>';
+      const invoiceIcon = repOcc.invoiceSentAt
+        ? '<button type="button" class="btn-invoice sent" title="Invoice sent ' + formatTimestampDate(repOcc.invoiceSentAt) + ' — click to view or download" data-invoice-popup-booking="' + repOcc.bookingId + '">\ud83e\uddfe</button>'
+        : '<button type="button" class="btn-invoice attached" title="Not sent yet — click to view, send, or download" data-invoice-popup-booking="' + repOcc.bookingId + '">\ud83e\uddfe</button>';
+      const receiptIcon = '<button type="button" class="btn-receipt' + (repOcc.receiptSentAt ? ' sent' : '') + '"' + (repOcc.paymentStatus === 'paid' ? '' : ' disabled title="Confirm as paid first"') + (repOcc.paymentStatus === 'paid' ? ' data-receipt-popup-booking="' + repOcc.bookingId + '"' : '') + '>' + (repOcc.receiptSentAt ? '\ud83e\uddfe' : (repOcc.paymentStatus === 'paid' ? '\u2795' : '\u2014')) + '</button>';
+      const paymentCell = repOcc.paymentStatus === 'paid'
+        ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid' + (repOcc.paymentMethod ? ' \u00b7 ' + escHtml(repOcc.paymentMethod) : '') + '</span> <button type="button" class="btn-secondary" style="padding:2px 8px;font-size:0.72rem;margin-left:4px;" data-void-invoice-booking="' + repOcc.bookingId + '">Void</button>'
+        : '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + repOcc.bookingId + '">Mark paid</button>';
+      seriesRow = '<tr class="series-row" data-toggle-invoice-series="' + item.seriesId + '" style="cursor:pointer;">' +
+        '<td><div class="renter-name">' + escHtml(item.renterName) + ' <span class="method-tag">' + item.occurrences.length + ' occ.</span></div></td>' +
+        '<td>' + escHtml(item.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(item.eventDate) + ' \u2013 ' + formatDate(item.eventDateLast) + ' \u00b7 ' + toggleLabel + '</div></td>' +
+        '<td>' + (item.invoiceSentAt ? formatTimestampDate(item.invoiceSentAt) : '<span style="color:var(--muted);">Not sent</span>') + '</td>' +
+        '<td class="amount">' + money(item.amount) + ' <span class="method-tag">total</span></td>' +
+        '<td><span class="source-tag">' + escHtml(capitalizeStatus(item.paymentStatus)) + '</span></td>' +
+        '<td>' + noteBtn + '</td>' +
+        '<td>' + invoiceIcon + '</td>' +
+        '<td>' + receiptIcon + '</td>' +
+        '<td>' + paymentCell + '</td>' +
+      '</tr>';
+    }
     const subRows = isExpanded ? item.occurrences.map(function (o) { return renderInvoiceRow(o, true, isPerOccurrence); }).join('') : '';
     return seriesRow + subRows;
   }).join('');
@@ -2825,21 +2860,38 @@ async function promptSendReceipt(bookingId) {
 function openFinanceInvoicePopup(bookingId) {
   const inv = INVOICES.find(function (i) { return i.bookingId === bookingId; });
   if (!inv) return;
+  const alreadySent = !!inv.invoiceSentAt;
   const body = document.getElementById('invoice-action-body');
-  body.innerHTML =
-    '<button type="button" class="invoice-action-btn" data-fin-inv-action="view">View invoice</button>' +
-    '<button type="button" class="invoice-action-btn" data-fin-inv-action="download">Download invoice</button>' +
-    '<p class="card-sub" style="margin:6px 0 0;">Sent ' + formatTimestampDate(inv.invoiceSentAt) + '. Invoices can only be edited or sent from the Facility Rental Portal.</p>';
+  let html = '<button type="button" class="invoice-action-btn" data-fin-inv-action="view">View invoice</button>';
+  html += '<button type="button" class="invoice-action-btn primary" data-fin-inv-action="send">' + (alreadySent ? 'Resend invoice' : 'Send invoice') + '</button>';
+  html += '<button type="button" class="invoice-action-btn" data-fin-inv-action="download">Download invoice</button>';
+  html += alreadySent
+    ? '<p class="card-sub" style="margin:6px 0 0;">Sent ' + formatTimestampDate(inv.invoiceSentAt) + '.</p>'
+    : '<p class="card-sub" style="margin:6px 0 0;">Not sent yet.</p>';
+  body.innerHTML = html;
   body.dataset.bookingId = bookingId;
   document.getElementById('invoice-action-overlay').style.display = 'flex';
 }
-document.getElementById('invoice-action-body').addEventListener('click', function (e) {
+document.getElementById('invoice-action-body').addEventListener('click', async function (e) {
   const btn = e.target.closest('[data-fin-inv-action]');
   if (!btn) return;
   const bookingId = this.dataset.bookingId;
-  document.getElementById('invoice-action-overlay').style.display = 'none';
-  if (btn.dataset.finInvAction === 'view') viewDocument(bookingId, 'invoice');
-  else if (btn.dataset.finInvAction === 'download') downloadDocument(bookingId, 'invoice');
+  if (btn.dataset.finInvAction === 'view') { document.getElementById('invoice-action-overlay').style.display = 'none'; viewDocument(bookingId, 'invoice'); return; }
+  if (btn.dataset.finInvAction === 'download') { document.getElementById('invoice-action-overlay').style.display = 'none'; downloadDocument(bookingId, 'invoice'); return; }
+  if (btn.dataset.finInvAction === 'send') {
+    const inv = INVOICES.find(function (i) { return i.bookingId === bookingId; });
+    const isResend = inv && inv.invoiceSentAt;
+    if (!confirm((isResend ? 'Resend' : 'Send') + ' the invoice to ' + (inv ? inv.renterName : 'the customer') + ' now?')) return;
+    document.getElementById('invoice-action-overlay').style.display = 'none';
+    try {
+      const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/send-invoice', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) { alert('Could not send invoice: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+      await loadInvoices();
+    } catch (err) {
+      alert('Could not reach the server: ' + err.message);
+    }
+  }
 });
 document.getElementById('btn-close-invoice-action').addEventListener('click', function () {
   document.getElementById('invoice-action-overlay').style.display = 'none';

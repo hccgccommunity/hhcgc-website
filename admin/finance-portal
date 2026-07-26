@@ -212,12 +212,15 @@ tr.series-row:hover td { background: var(--surface-soft); }
 .attachment-chip { font-size: 0.9rem; margin-right: 2px; }
 .attachment-detail-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 6px; font-size: 0.86rem; }
 .attachment-detail-row .btn-remove-attachment { font-family: inherit; font-size: 0.72rem; color: var(--red); background: none; border: none; cursor: pointer; }
+.btn-invoice.greyed { background: #f1ede6; border: 2px solid var(--border); opacity: 0.6; }
 .btn-invoice.attached { background: #ffe4a3; border: 2px solid #c8890a; box-shadow: 0 0 0 1px rgba(200,137,10,0.25); }
 .btn-invoice.sent { background: #bdedcf; border: 2px solid #1f6b3f; box-shadow: 0 0 0 1px rgba(31,107,63,0.25); }
 .btn-invoice:hover:not(.sent) { filter: brightness(0.96); }
 .btn-receipt { border: 1px solid var(--border); background: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-size: 0.76rem; vertical-align: middle; }
+.btn-receipt.greyed { background: #f1ede6; border: 2px solid var(--border); opacity: 0.6; }
+.btn-receipt.attached { background: #ffe4a3; border: 2px solid #c8890a; box-shadow: 0 0 0 1px rgba(200,137,10,0.25); }
 .btn-receipt.sent { background: #bdedcf; border: 2px solid #1f6b3f; box-shadow: 0 0 0 1px rgba(31,107,63,0.25); }
-.btn-receipt:disabled { opacity: 0.4; cursor: default; }
+.btn-receipt:disabled { cursor: default; }
 .btn-receipt:hover:not(:disabled):not(.sent) { filter: brightness(0.96); }
 .btn-note:hover { background: var(--surface-soft); }
 .collapsible-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 12px 0; }
@@ -642,6 +645,17 @@ tr.series-row:hover td { background: var(--surface-soft); }
           <div id="inv-contact-filter-list"></div>
         </div>
       </div>
+      <div class="contact-filter-wrap">
+        <button type="button" class="btn-secondary" id="btn-inv-icon-filter-toggle">Status: All <span id="icon-filter-count-inv"></span> &#9662;</button>
+        <div class="contact-filter-panel" id="inv-icon-filter-panel" style="display:none;min-width:200px;">
+          <div id="inv-icon-filter-list">
+            <label style="display:flex;align-items:center;gap:8px;padding:6px 4px;font-size:0.86rem;cursor:pointer;"><input type="checkbox" value="invoiced" checked> Invoiced <span style="color:#c8890a;">🧾</span></label>
+            <label style="display:flex;align-items:center;gap:8px;padding:6px 4px;font-size:0.86rem;cursor:pointer;"><input type="checkbox" value="invoice_sent" checked> Invoice Sent <span style="color:#1f6b3f;">🧾</span></label>
+            <label style="display:flex;align-items:center;gap:8px;padding:6px 4px;font-size:0.86rem;cursor:pointer;"><input type="checkbox" value="receipt" checked> Receipt <span style="color:#c8890a;">🧾</span></label>
+            <label style="display:flex;align-items:center;gap:8px;padding:6px 4px;font-size:0.86rem;cursor:pointer;"><input type="checkbox" value="receipt_sent" checked> Receipt Sent <span style="color:#1f6b3f;">🧾</span></label>
+          </div>
+        </div>
+      </div>
       <select id="inv-range-preset" class="range-preset-select">
         <option value="alltime" selected>All time</option>
         <option value="last3months">Last 3 months</option>
@@ -676,9 +690,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
         <thead><tr>
           <th class="sortable-th" data-sort-key="renter">Customer <span class="sort-arrow" data-sort-arrow="renter"></span></th>
           <th class="sortable-th" data-sort-key="event">Event <span class="sort-arrow" data-sort-arrow="event"></span></th>
-          <th class="sortable-th" data-sort-key="invoiceSent">Invoice Sent <span class="sort-arrow" data-sort-arrow="invoiceSent"></span></th>
           <th class="sortable-th" data-sort-key="amount">Amount <span class="sort-arrow" data-sort-arrow="amount"></span></th>
-          <th class="sortable-th" data-sort-key="status">Status <span class="sort-arrow" data-sort-arrow="status"></span></th>
           <th>Notes</th><th>Invoice</th><th>Receipt</th><th>Payment</th>
         </tr></thead>
         <tbody id="inv-tbody"></tbody>
@@ -2320,6 +2332,7 @@ let INVOICES = [];
 let invSortKey = 'activity', invSortDir = 'desc';
 let invPageSize = 10, invPage = 1;
 let invContactFilter = undefined; // undefined = all contacts, Set = specific selection
+let invIconFilter = new Set(['invoiced', 'invoice_sent', 'receipt', 'receipt_sent']);
 async function loadInvoices() {
   window.__matchingLoaded = true;
   checkAmbiguousInvoiceSeries();
@@ -2328,7 +2341,7 @@ async function loadInvoices() {
   const status = document.getElementById('inv-paid-filter').value;
   const tbody = document.getElementById('inv-tbody');
   const emptyState = document.getElementById('inv-empty');
-  tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px;">Loading…</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px;">Loading…</td></tr>';
   setTabLoading('tab-matching', true);
   try {
     const params = new URLSearchParams({ startDate: start, endDate: end, sort: invSortKey, dir: invSortDir });
@@ -2338,7 +2351,7 @@ async function loadInvoices() {
     invPage = 1;
     renderInvoicesTable();
   } catch (err) {
-    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--red);padding:24px;">Could not load: ' + escHtml(err.message) + '</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--red);padding:24px;">Could not load: ' + escHtml(err.message) + '</td></tr>';
   } finally {
     setTabLoading('tab-matching', false);
   }
@@ -2413,18 +2426,24 @@ function renderInvoiceRow(inv, isSubRow, showFullActions) {
     return '<tr class="sub-row">' +
       '<td></td>' +
       '<td style="color:var(--muted);font-size:0.86rem;">' + formatDate(inv.eventDate) + '</td>' +
-      '<td></td>' +
       '<td class="amount" style="color:var(--muted);">' + money(inv.amount) + '</td>' +
-      '<td colspan="5"></td>' +
+      '<td colspan="4"></td>' +
     '</tr>';
   }
   const noteBtn = '<button type="button" class="btn-note' + (inv.notes ? ' has-content' : '') + '" title="' + (inv.notes ? 'Note: ' + escHtml(inv.notes) : 'Add a note') + '" data-invoice-note-booking="' + inv.bookingId + '">\ud83d\udcdd</button>';
-  // Yellow until actually sent, green once it is — this is the default
-  // state for every generated invoice now, not just an edge case.
+  // Three consistent states across both icons: grey (not yet available),
+  // yellow (available/ready but not sent), green (sent). Every invoice in
+  // this table is always ready to generate, so it's yellow-or-green, never
+  // grey. A receipt genuinely can't exist until payment is confirmed, so
+  // it has a real grey state — no more "+" sign, just the same icon dimmed.
   const invoiceIcon = inv.invoiceSentAt
     ? '<button type="button" class="btn-invoice sent" title="Invoice sent ' + formatTimestampDate(inv.invoiceSentAt) + ' — click to view or download" data-invoice-popup-booking="' + inv.bookingId + '">\ud83e\uddfe</button>'
     : '<button type="button" class="btn-invoice attached" title="Not sent yet — click to view, send, or download" data-invoice-popup-booking="' + inv.bookingId + '">\ud83e\uddfe</button>';
-  const receiptIcon = '<button type="button" class="btn-receipt' + (inv.receiptSentAt ? ' sent' : '') + '"' + (inv.paymentStatus === 'paid' ? '' : ' disabled title="Confirm as paid first"') + (inv.paymentStatus === 'paid' ? ' data-receipt-popup-booking="' + inv.bookingId + '"' : '') + '>' + (inv.receiptSentAt ? '\ud83e\uddfe' : (inv.paymentStatus === 'paid' ? '\u2795' : '\u2014')) + '</button>';
+  const receiptIcon = inv.receiptSentAt
+    ? '<button type="button" class="btn-receipt sent" title="Receipt sent ' + formatTimestampDate(inv.receiptSentAt) + ' — click to view or download" data-receipt-popup-booking="' + inv.bookingId + '">\ud83e\uddfe</button>'
+    : (inv.paymentStatus === 'paid'
+        ? '<button type="button" class="btn-receipt attached" title="Not sent yet — click to view, send, or download" data-receipt-popup-booking="' + inv.bookingId + '">\ud83e\uddfe</button>'
+        : '<button type="button" class="btn-receipt greyed" disabled title="Confirm as paid first">\ud83e\uddfe</button>');
   // Payment column — direct "Mark paid" action, no transaction linking
   // required at all. Opens a small prompt for payment method only
   // (Zeffy / Zelle / Check, in that order — the only three the org
@@ -2435,9 +2454,7 @@ function renderInvoiceRow(inv, isSubRow, showFullActions) {
   return '<tr' + (isSubRow ? ' class="sub-row"' : '') + '>' +
     '<td>' + (isSubRow ? '' : escHtml(inv.renterName)) + '</td>' +
     '<td>' + escHtml(inv.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(inv.eventDate) + '</div></td>' +
-    '<td>' + (inv.invoiceSentAt ? formatTimestampDate(inv.invoiceSentAt) : '<span style="color:var(--muted);">Not sent</span>') + '</td>' +
     '<td class="amount">' + money(inv.amount) + '</td>' +
-    '<td><span class="source-tag" style="' + (inv.paymentStatus === 'paid' ? 'color:var(--green);' : '') + '">' + escHtml(capitalizeStatus(inv.paymentStatus)) + '</span></td>' +
     '<td>' + noteBtn + '</td>' +
     '<td>' + invoiceIcon + '</td>' +
     '<td>' + receiptIcon + '</td>' +
@@ -2495,6 +2512,18 @@ function renderInvoicesTable() {
   const emptyState = document.getElementById('inv-empty');
   let items = groupInvoicesIntoDisplayItems(INVOICES);
   if (invContactFilter) items = items.filter(function (item) { return invContactFilter.has(invContactNameFor(item)); });
+  if (invIconFilter && invIconFilter.size < 4) {
+    items = items.filter(function (item) {
+      const records = item.type === 'single' ? [item.invoice] : item.occurrences;
+      return records.some(function (r) {
+        if (invIconFilter.has('invoiced') && !r.invoiceSentAt) return true;
+        if (invIconFilter.has('invoice_sent') && r.invoiceSentAt) return true;
+        if (invIconFilter.has('receipt') && !r.receiptSentAt && r.paymentStatus === 'paid') return true;
+        if (invIconFilter.has('receipt_sent') && r.receiptSentAt) return true;
+        return false;
+      });
+    });
+  }
   document.getElementById('inv-count').textContent = items.length + ' invoice' + (items.length === 1 ? '' : 's');
   if (!items.length) { tbody.innerHTML = ''; emptyState.style.display = 'block'; renderInvoicesPaginationBar(1); return; }
   emptyState.style.display = 'none';
@@ -2518,32 +2547,30 @@ function renderInvoicesTable() {
       seriesRow = '<tr class="series-row" data-toggle-invoice-series="' + item.seriesId + '" style="cursor:pointer;">' +
         '<td><div class="renter-name">' + escHtml(item.renterName) + ' <span class="method-tag">' + item.occurrences.length + ' occ.</span></div></td>' +
         '<td>' + escHtml(item.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(item.eventDate) + ' \u2013 ' + formatDate(item.eventDateLast) + ' \u00b7 ' + escHtml(item.recurrenceSummary) + '</div></td>' +
-        '<td>' + (item.invoiceSentAt ? formatTimestampDate(item.invoiceSentAt) + ' (latest)' : '<span style="color:var(--muted);">Not sent</span>') + '</td>' +
         '<td class="amount">' + money(item.amount) + ' <span class="method-tag">sum of ' + item.occurrences.length + '</span></td>' +
-        '<td><span class="source-tag">' + (item.paymentStatus === 'mixed' ? item.paidCount + ' of ' + item.occurrences.length + ' paid' : escHtml(capitalizeStatus(item.paymentStatus))) + '</span></td>' +
         '<td>' + noteBtn + '</td>' +
         '<td colspan="3" style="text-align:right;color:var(--muted);font-size:0.8rem;">' + toggleLabel + '</td>' +
       '</tr>';
     } else {
       // Combined billing - the group IS the invoice, using the first
-      // occurrence as the representative record. This is the row that
-      // was previously missing invoice/receipt/payment icons entirely,
-      // making a combined-mode series impossible to invoice at all.
+      // occurrence as the representative record.
       const repOcc = { ...item.occurrences[0], amount: item.amount, invoiceSentAt: item.invoiceSentAt, paymentStatus: item.paymentStatus === 'mixed' ? item.occurrences[0].paymentStatus : item.paymentStatus };
       const noteBtn = '<button type="button" class="btn-note' + (repOcc.notes ? ' has-content' : '') + '" title="' + (repOcc.notes ? 'Note: ' + escHtml(repOcc.notes) : 'Add a note') + '" data-invoice-note-booking="' + repOcc.bookingId + '">\ud83d\udcdd</button>';
       const invoiceIcon = repOcc.invoiceSentAt
         ? '<button type="button" class="btn-invoice sent" title="Invoice sent ' + formatTimestampDate(repOcc.invoiceSentAt) + ' — click to view or download" data-invoice-popup-booking="' + repOcc.bookingId + '">\ud83e\uddfe</button>'
         : '<button type="button" class="btn-invoice attached" title="Not sent yet — click to view, send, or download" data-invoice-popup-booking="' + repOcc.bookingId + '">\ud83e\uddfe</button>';
-      const receiptIcon = '<button type="button" class="btn-receipt' + (repOcc.receiptSentAt ? ' sent' : '') + '"' + (repOcc.paymentStatus === 'paid' ? '' : ' disabled title="Confirm as paid first"') + (repOcc.paymentStatus === 'paid' ? ' data-receipt-popup-booking="' + repOcc.bookingId + '"' : '') + '>' + (repOcc.receiptSentAt ? '\ud83e\uddfe' : (repOcc.paymentStatus === 'paid' ? '\u2795' : '\u2014')) + '</button>';
+      const receiptIcon = repOcc.receiptSentAt
+        ? '<button type="button" class="btn-receipt sent" title="Receipt sent ' + formatTimestampDate(repOcc.receiptSentAt) + ' — click to view or download" data-receipt-popup-booking="' + repOcc.bookingId + '">\ud83e\uddfe</button>'
+        : (repOcc.paymentStatus === 'paid'
+            ? '<button type="button" class="btn-receipt attached" title="Not sent yet — click to view, send, or download" data-receipt-popup-booking="' + repOcc.bookingId + '">\ud83e\uddfe</button>'
+            : '<button type="button" class="btn-receipt greyed" disabled title="Confirm as paid first">\ud83e\uddfe</button>');
       const paymentCell = repOcc.paymentStatus === 'paid'
         ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid' + (repOcc.paymentMethod ? ' \u00b7 ' + escHtml(repOcc.paymentMethod) : '') + '</span> <button type="button" class="btn-secondary" style="padding:2px 8px;font-size:0.72rem;margin-left:4px;" data-void-invoice-booking="' + repOcc.bookingId + '">Void</button>'
         : '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + repOcc.bookingId + '">Mark paid</button>';
       seriesRow = '<tr class="series-row" data-toggle-invoice-series="' + item.seriesId + '" style="cursor:pointer;">' +
         '<td><div class="renter-name">' + escHtml(item.renterName) + ' <span class="method-tag">' + item.occurrences.length + ' occ.</span></div></td>' +
         '<td>' + escHtml(item.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(item.eventDate) + ' \u2013 ' + formatDate(item.eventDateLast) + ' \u00b7 ' + toggleLabel + '</div></td>' +
-        '<td>' + (item.invoiceSentAt ? formatTimestampDate(item.invoiceSentAt) : '<span style="color:var(--muted);">Not sent</span>') + '</td>' +
         '<td class="amount">' + money(item.amount) + ' <span class="method-tag">total</span></td>' +
-        '<td><span class="source-tag">' + escHtml(capitalizeStatus(item.paymentStatus)) + '</span></td>' +
         '<td>' + noteBtn + '</td>' +
         '<td>' + invoiceIcon + '</td>' +
         '<td>' + receiptIcon + '</td>' +
@@ -2620,9 +2647,29 @@ document.getElementById('btn-inv-contact-filter-none').addEventListener('click',
   invPage = 1;
   renderInvoicesTable();
 });
+document.getElementById('btn-inv-icon-filter-toggle').addEventListener('click', function (e) {
+  e.stopPropagation();
+  const panel = document.getElementById('inv-icon-filter-panel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+});
+function updateInvIconFilterLabel() {
+  const btn = document.getElementById('btn-inv-icon-filter-toggle');
+  const countLabel = document.getElementById('icon-filter-count-inv');
+  if (invIconFilter.size === 4) { btn.firstChild.textContent = 'Status: All '; countLabel.textContent = ''; }
+  else { btn.firstChild.textContent = 'Status: '; countLabel.textContent = invIconFilter.size + ' selected'; }
+}
+document.getElementById('inv-icon-filter-list').addEventListener('change', function () {
+  const checked = Array.from(document.querySelectorAll('#inv-icon-filter-list input:checked')).map(function (cb) { return cb.value; });
+  invIconFilter = new Set(checked);
+  updateInvIconFilterLabel();
+  invPage = 1;
+  renderInvoicesTable();
+});
 document.addEventListener('click', function (e) {
   const panel = document.getElementById('inv-contact-filter-panel');
   if (panel.style.display !== 'none' && !panel.contains(e.target) && e.target.id !== 'btn-inv-contact-filter-toggle') panel.style.display = 'none';
+  const iconPanel = document.getElementById('inv-icon-filter-panel');
+  if (iconPanel.style.display !== 'none' && !iconPanel.contains(e.target) && e.target.id !== 'btn-inv-icon-filter-toggle') iconPanel.style.display = 'none';
 });
 document.getElementById('inv-page-size-filter').addEventListener('change', function (e) {
   invPageSize = Number(e.target.value);

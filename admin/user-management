@@ -318,7 +318,7 @@ input:focus { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 3px
 
       <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border, #eee2d3);">
         <div style="font-weight:700;margin-bottom:4px;">User-based test mode</div>
-        <div class="field-hint" style="margin:0 0 14px;">Different from test mode above: while checked for a user, nothing they trigger — creating a booking, editing one, cancelling one, approving/rejecting a request, sending an invoice or receipt — sends any email at all, internal or external. Everyone else's actions keep sending normally, unaffected.</div>
+        <div class="field-hint" style="margin:0 0 14px;">Different from test mode above: while checked for a user, nothing they trigger — creating a booking, editing one, cancelling one, approving/rejecting a request, sending an invoice or receipt — reaches the real external or internal recipient. It redirects to that user's own inbox instead, so they can see exactly what would have gone out. Everyone else's actions keep sending normally, unaffected.</div>
         <div id="user-test-mode-list"></div>
       </div>
 

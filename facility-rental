@@ -1236,27 +1236,62 @@
               </div>
 
               <div id="rf-standard-only-section">
-                <div class="request-section-title" style="margin-top:20px;">Your contact info</div>
-                <div id="rf-contact-fields">
-                  <div class="request-field-row">
-                    <div class="request-field"><label>First name <span class="req-star">*</span></label><input type="text" id="rf-first-name" required></div>
-                    <div class="request-field"><label>Last name <span class="req-star">*</span></label><input type="text" id="rf-last-name" required></div>
-                  </div>
-                  <div class="request-field-row">
-                    <div class="request-field"><label>Phone number <span class="req-star">*</span></label><input type="tel" id="rf-phone" required></div>
-                    <div class="request-field">
-                      <label>Is your organization a nonprofit? <span class="req-star">*</span></label>
-                      <select id="rf-is-nonprofit">
-                        <option value="no" selected>No</option>
-                        <option value="yes">Yes</option>
-                      </select>
+                <!-- New (unknown email) renter: name/phone always shown, organization name is optional and progressively reveals nonprofit/EIN. -->
+                <div id="rf-new-contact-section">
+                  <div class="request-section-title" style="margin-top:20px;">Your contact info</div>
+                  <div id="rf-contact-fields">
+                    <div class="request-field-row">
+                      <div class="request-field"><label>First name <span class="req-star">*</span></label><input type="text" id="rf-first-name" required></div>
+                      <div class="request-field"><label>Last name <span class="req-star">*</span></label><input type="text" id="rf-last-name" required></div>
+                    </div>
+                    <div class="request-field-row">
+                      <div class="request-field"><label>Phone number <span class="req-star">*</span></label><input type="tel" id="rf-phone" required></div>
                     </div>
                   </div>
                   <div class="request-field-row">
                     <div class="request-field"><label id="rf-org-label">Organization name (optional)</label><input type="text" id="rf-org"></div>
                     <div class="request-field" id="rf-website-field" style="display:none;"><label>Organization website</label><input type="url" id="rf-website" placeholder="https://"></div>
                   </div>
+                </div>
 
+                <!-- Known (existing email) renter: organization picker drives everything from here. -->
+                <div class="request-field" id="rf-org-picker-field" style="display:none;">
+                  <label>Which organization is this booking for? <span class="req-star">*</span></label>
+                  <select id="rf-org-picker">
+                    <option value="">Select…</option>
+                    <option value="__new__">+ Create a new organization</option>
+                  </select>
+                </div>
+
+                <!-- Existing organization picked: address shown greyed-out with an Edit button, then straight to Your Event. -->
+                <div id="rf-existing-org-summary" style="display:none;margin-bottom:16px;padding:12px 14px;background:var(--surface-soft);border-radius:10px;font-size:0.86rem;"></div>
+                <div class="request-field" id="rf-existing-address-field" style="display:none;">
+                  <label>Address on file <button type="button" id="rf-edit-existing-address-btn" style="margin-left:8px;font-family:inherit;font-size:0.78rem;font-weight:700;padding:3px 10px;border-radius:6px;border:1.5px solid var(--saffron-dark);background:#fff;color:var(--saffron-dark);cursor:pointer;">Edit</button></label>
+                  <div id="rf-existing-address-display" style="padding:10px 14px;background:var(--surface-soft);border-radius:10px;color:var(--muted);"></div>
+                </div>
+
+                <!-- New organization (either a known renter choosing "create new", or a new renter who typed an organization name): nonprofit is mandatory to answer, EIN mandatory if yes, address mandatory. -->
+                <div id="rf-new-org-fields" style="display:none;">
+                  <div class="request-field-row" id="rf-new-org-name-row" style="display:none;">
+                    <div class="request-field"><label>Organization name <span class="req-star">*</span></label><input type="text" id="rf-org-known-path"></div>
+                  </div>
+                  <div class="request-field-row">
+                    <div class="request-field">
+                      <label>Is this organization a nonprofit? <span class="req-star">*</span></label>
+                      <select id="rf-is-nonprofit">
+                        <option value="" selected>Select…</option>
+                        <option value="no">No</option>
+                        <option value="yes">Yes</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="request-field-row">
+                    <div class="request-field" id="rf-ein-field" style="display:none;"><label>EIN (Employer Identification Number) <span class="req-star">*</span></label><input type="text" id="rf-ein" placeholder="XX-XXXXXXX"></div>
+                  </div>
+                </div>
+
+                <!-- Address: shown for a new renter always, and for a known renter only once an organization choice (existing or new) has actually been made. -->
+                <div id="rf-address-section" style="display:block;">
                   <div class="request-field" style="position:relative;">
                     <label>Billing address — street <span class="req-star">*</span></label>
                     <input type="text" id="rf-street" placeholder="Start typing an address…" autocomplete="off" required>
@@ -1272,8 +1307,10 @@
                   </div>
                 </div>
 
-                <div class="request-section-title">Your event</div>
-                <div class="request-field"><label>Tell us more about your event <span class="req-star">*</span></label><textarea id="rf-event-details" placeholder="What's the occasion? Approximate number of guests, any special requirements, etc." required></textarea></div>
+                <div id="rf-your-event-section" style="display:block;">
+                  <div class="request-section-title">Your event</div>
+                  <div class="request-field"><label>Tell us more about your event <span class="req-star">*</span></label><textarea id="rf-event-details" placeholder="What's the occasion? Approximate number of guests, any special requirements, etc." required></textarea></div>
+                </div>
               </div>
 
               <div class="request-field" style="position:relative;">
@@ -1760,28 +1797,88 @@
 
     // ── Email-first lookup: auto-fill for a returning renter ──
     let knownRenter = null;
+    let knownOrganizations = [];
     document.getElementById('rf-is-nonprofit').addEventListener('change', function () {
       const isNonprofit = this.value === 'yes';
       document.getElementById('rf-website-field').style.display = isNonprofit ? 'flex' : 'none';
-      const orgLabel = document.getElementById('rf-org-label');
-      const orgInput = document.getElementById('rf-org');
-      if (isNonprofit) {
-        orgLabel.innerHTML = 'Organization name <span class="req-star">*</span>';
-        orgInput.required = true;
-      } else {
-        orgLabel.textContent = 'Organization name (optional)';
-        orgInput.required = false;
+      document.getElementById('rf-ein-field').style.display = isNonprofit ? 'flex' : 'none';
+      document.getElementById('rf-ein').required = isNonprofit;
+    });
+    function escapeHtmlLocal(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+    // New renter path: organization name is optional. Typing something in
+    // reveals the nonprofit question right away; clearing it hides
+    // everything again, since no organization means nothing more to ask.
+    document.getElementById('rf-org').addEventListener('input', function () {
+      const hasOrgName = this.value.trim().length > 0;
+      document.getElementById('rf-new-org-fields').style.display = hasOrgName ? 'block' : 'none';
+      if (!hasOrgName) {
+        document.getElementById('rf-is-nonprofit').value = '';
+        document.getElementById('rf-ein').value = '';
+        document.getElementById('rf-ein-field').style.display = 'none';
+        document.getElementById('rf-website').value = '';
+        document.getElementById('rf-website-field').style.display = 'none';
       }
     });
-    const CONTACT_FIELD_IDS = ['rf-first-name', 'rf-last-name', 'rf-phone', 'rf-org', 'rf-website', 'rf-street', 'rf-suite', 'rf-city', 'rf-state', 'rf-zip'];
 
-    function setContactFieldsLocked(locked) {
-      CONTACT_FIELD_IDS.forEach((id) => {
-        const el = document.getElementById(id);
-        el.readOnly = locked;
-        el.style.background = locked ? 'var(--surface-soft, #fff6ea)' : '#fff';
-      });
+    // Known renter path: organization picker drives address and Your
+    // Event visibility - nothing below appears until a choice is made.
+    function populateOrgPicker() {
+      const picker = document.getElementById('rf-org-picker');
+      picker.innerHTML = '<option value="">Select…</option>' +
+        knownOrganizations.map(function (o) { return '<option value="' + o.organization_id + '">' + escapeHtmlLocal(o.organization_name) + (o.is_nonprofit ? ' (nonprofit)' : '') + '</option>'; }).join('') +
+        '<option value="__new__">+ Create a new organization</option>';
     }
+    document.getElementById('rf-org-picker').addEventListener('change', function () {
+      const val = this.value;
+      document.getElementById('rf-existing-org-summary').style.display = 'none';
+      document.getElementById('rf-existing-address-field').style.display = 'none';
+      document.getElementById('rf-new-org-fields').style.display = 'none';
+      document.getElementById('rf-new-org-name-row').style.display = 'none';
+      document.getElementById('rf-org-known-path').required = false;
+
+      if (!val) {
+        document.getElementById('rf-address-section').style.display = 'none';
+        document.getElementById('rf-your-event-section').style.display = 'none';
+      } else if (val === '__new__') {
+        document.getElementById('rf-new-org-fields').style.display = 'block';
+        document.getElementById('rf-new-org-name-row').style.display = 'flex';
+        document.getElementById('rf-org-known-path').required = true;
+        document.getElementById('rf-org-known-path').value = '';
+        document.getElementById('rf-is-nonprofit').value = '';
+        document.getElementById('rf-is-nonprofit').dispatchEvent(new Event('change'));
+        document.getElementById('rf-ein').value = '';
+        // A new organization's address is asked fresh, not pre-filled from
+        // the renter's own address on file - it may well be different.
+        document.getElementById('rf-street').value = '';
+        document.getElementById('rf-suite').value = '';
+        document.getElementById('rf-city').value = '';
+        document.getElementById('rf-state').value = '';
+        document.getElementById('rf-zip').value = '';
+        document.getElementById('rf-address-section').style.display = 'block';
+        document.getElementById('rf-your-event-section').style.display = 'block';
+      } else {
+        const org = knownOrganizations.find(function (o) { return o.organization_id === val; });
+        const summary = document.getElementById('rf-existing-org-summary');
+        summary.style.display = 'block';
+        summary.innerHTML = '<strong>' + escapeHtmlLocal(org ? org.organization_name : '') + '</strong>' +
+          (org && org.is_nonprofit ? ' — nonprofit on file (EIN ' + escapeHtmlLocal(org.ein || 'not on file') + ')' : ' — not marked as a nonprofit');
+        // Greyed-out address on file, editable via the Edit button rather
+        // than shown as an open field by default.
+        document.getElementById('rf-street').value = knownRenter.address || '';
+        document.getElementById('rf-suite').value = ''; document.getElementById('rf-city').value = '';
+        document.getElementById('rf-state').value = ''; document.getElementById('rf-zip').value = '';
+        document.getElementById('rf-existing-address-display').textContent = knownRenter.address || '(none on file)';
+        document.getElementById('rf-existing-address-field').style.display = 'block';
+        document.getElementById('rf-address-section').style.display = 'none';
+        document.getElementById('rf-your-event-section').style.display = 'block';
+      }
+      updateLiveEstimate();
+    });
+    document.getElementById('rf-edit-existing-address-btn').addEventListener('click', function () {
+      document.getElementById('rf-existing-address-field').style.display = 'none';
+      document.getElementById('rf-address-section').style.display = 'block';
+    });
 
     async function checkEmailAndProceed() {
       const emailInput = document.getElementById('rf-email');
@@ -1817,34 +1914,54 @@
 
         if (data.found) {
           knownRenter = data.renter;
+          knownOrganizations = data.organizations || [];
           banner.style.display = 'block';
           document.getElementById('rf-known-renter-name').textContent = data.renter.contact_name;
           const nameParts = (data.renter.contact_name || '').split(' ');
           document.getElementById('rf-first-name').value = nameParts[0] || '';
           document.getElementById('rf-last-name').value = nameParts.slice(1).join(' ') || '';
           document.getElementById('rf-phone').value = data.renter.phone || '';
-          document.getElementById('rf-org').value = data.renter.organization_name || '';
-          document.getElementById('rf-is-nonprofit').value = data.renter.is_nonprofit ? 'yes' : 'no';
-          document.getElementById('rf-website').value = data.renter.website || '';
-          document.getElementById('rf-is-nonprofit').dispatchEvent(new Event('change'));
-          document.getElementById('rf-street').value = data.renter.address || '';
+          document.getElementById('rf-new-contact-section').style.display = 'none';
+          document.getElementById('rf-org-picker-field').style.display = 'block';
+          populateOrgPicker();
+          // Nothing below the org picker is relevant yet - address and
+          // Your Event only appear once an organization choice is made.
+          document.getElementById('rf-address-section').style.display = 'none';
+          document.getElementById('rf-your-event-section').style.display = 'none';
+        } else {
+          knownRenter = null;
+          knownOrganizations = [];
+          banner.style.display = 'none';
+          document.getElementById('rf-new-contact-section').style.display = 'block';
+          document.getElementById('rf-org-picker-field').style.display = 'none';
+          document.getElementById('rf-existing-org-summary').style.display = 'none';
+          document.getElementById('rf-existing-address-field').style.display = 'none';
+          document.getElementById('rf-new-org-fields').style.display = 'none';
+          document.getElementById('rf-new-org-name-row').style.display = 'none';
+          document.getElementById('rf-org').value = '';
+          document.getElementById('rf-is-nonprofit').value = '';
+          document.getElementById('rf-ein').value = '';
+          document.getElementById('rf-ein-field').style.display = 'none';
+          document.getElementById('rf-street').value = '';
           document.getElementById('rf-suite').value = '';
           document.getElementById('rf-city').value = '';
           document.getElementById('rf-state').value = '';
           document.getElementById('rf-zip').value = '';
-          setContactFieldsLocked(true);
-          document.getElementById('rf-event-details').focus();
-        } else {
-          knownRenter = null;
-          banner.style.display = 'none';
-          setContactFieldsLocked(false);
+          // A new renter always sees address and Your Event straight away -
+          // organization name here is optional and progressively reveals
+          // nonprofit/EIN as it's typed, it never gates these sections.
+          document.getElementById('rf-address-section').style.display = 'block';
+          document.getElementById('rf-your-event-section').style.display = 'block';
           document.getElementById('rf-first-name').focus();
         }
       } catch (err) {
         statusEl.style.color = '#b3382c';
         statusEl.textContent = 'Could not check that email — you can still continue and fill in your info below.';
         document.getElementById('rf-after-email').style.display = 'block';
-        setContactFieldsLocked(false);
+        document.getElementById('rf-new-contact-section').style.display = 'block';
+        document.getElementById('rf-org-picker-field').style.display = 'none';
+        document.getElementById('rf-address-section').style.display = 'block';
+        document.getElementById('rf-your-event-section').style.display = 'block';
       } finally {
         continueBtn.disabled = false;
       }
@@ -1896,7 +2013,7 @@
       if (e.key === 'Enter') { e.preventDefault(); checkEmailAndProceed(); }
     });
     document.getElementById('rf-edit-contact-btn').addEventListener('click', () => {
-      setContactFieldsLocked(false);
+      document.getElementById('rf-new-contact-section').style.display = 'block';
       document.getElementById('rf-first-name').focus();
     });
 
@@ -2033,7 +2150,10 @@
       if (isHccgcEventPath) { box.style.display = 'none'; return; }
       const roomValues = selectedRoomValues();
       const rows = Array.from(document.querySelectorAll('.rf-date-row'));
-      const isNonprofit = document.getElementById('rf-is-nonprofit').value === 'yes';
+      const orgPickerVal = document.getElementById('rf-org-picker') ? document.getElementById('rf-org-picker').value : '';
+      const selectedExistingOrg = orgPickerVal && orgPickerVal !== '__new__'
+        ? knownOrganizations.find(function (o) { return o.organization_id === orgPickerVal; }) : null;
+      const isNonprofit = selectedExistingOrg ? !!selectedExistingOrg.is_nonprofit : document.getElementById('rf-is-nonprofit').value === 'yes';
       if (!roomValues.length || !rows.length) { box.style.display = 'none'; return; }
 
       const rateByName = { 'Surya Hall': 45, 'Patanjali Hall': 40, 'Nataraj Room': 30, 'Ganesh Room': 15, 'Kitchen': 0, 'Entire Facility': 130 };
@@ -2109,9 +2229,41 @@
           notes: document.getElementById('rf-notes').value
         };
       } else {
-        if (document.getElementById('rf-is-nonprofit').value === 'yes' && !document.getElementById('rf-org').value.trim()) {
-          showRequestResult('Organization name is required for nonprofits.'); return;
+        let organizationMode, organizationId, organizationName, orgIsNonprofit, orgEin, orgWebsite;
+
+        if (knownRenter) {
+          const orgPickerVal = document.getElementById('rf-org-picker').value;
+          if (!orgPickerVal) { showRequestResult('Please select an organization for this booking.'); return; }
+          if (orgPickerVal === '__new__') {
+            organizationMode = 'new';
+            organizationName = document.getElementById('rf-org-known-path').value;
+            if (!organizationName.trim()) { showRequestResult('Organization name is required.'); return; }
+            const npVal = document.getElementById('rf-is-nonprofit').value;
+            if (!npVal) { showRequestResult('Please answer whether this organization is a nonprofit.'); return; }
+            orgIsNonprofit = npVal === 'yes';
+            orgEin = document.getElementById('rf-ein').value;
+            if (orgIsNonprofit && !orgEin.trim()) { showRequestResult('EIN is required for a nonprofit organization.'); return; }
+            orgWebsite = '';
+          } else {
+            organizationMode = 'existing';
+            organizationId = orgPickerVal;
+          }
+        } else {
+          const orgNameTyped = document.getElementById('rf-org').value.trim();
+          if (orgNameTyped) {
+            organizationMode = 'new';
+            organizationName = orgNameTyped;
+            const npVal = document.getElementById('rf-is-nonprofit').value;
+            if (!npVal) { showRequestResult('Please answer whether this organization is a nonprofit.'); return; }
+            orgIsNonprofit = npVal === 'yes';
+            orgEin = document.getElementById('rf-ein').value;
+            if (orgIsNonprofit && !orgEin.trim()) { showRequestResult('EIN is required for a nonprofit organization.'); return; }
+            orgWebsite = document.getElementById('rf-website').value;
+          } else {
+            organizationMode = 'none';
+          }
         }
+
         const addressParts = [document.getElementById('rf-street').value, document.getElementById('rf-suite').value].filter(Boolean).join(', ');
         const fullAddress = addressParts + (addressParts ? ', ' : '') +
           document.getElementById('rf-city').value + ', ' + document.getElementById('rf-state').value + ' ' + document.getElementById('rf-zip').value;
@@ -2123,9 +2275,12 @@
           lastName: document.getElementById('rf-last-name').value,
           email: document.getElementById('rf-email').value,
           phone: document.getElementById('rf-phone').value,
-          organizationName: document.getElementById('rf-org').value,
-          isNonprofit: document.getElementById('rf-is-nonprofit').value === 'yes',
-          website: document.getElementById('rf-website').value,
+          organizationMode: organizationMode,
+          organizationId: organizationMode === 'existing' ? organizationId : undefined,
+          organizationName: organizationMode === 'new' ? organizationName : undefined,
+          isNonprofit: organizationMode === 'new' ? orgIsNonprofit : undefined,
+          ein: organizationMode === 'new' ? orgEin : undefined,
+          website: organizationMode === 'new' ? orgWebsite : undefined,
           billingAddress: fullAddress,
           eventDetails: document.getElementById('rf-event-details').value,
           rooms: rooms,

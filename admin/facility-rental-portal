@@ -1107,7 +1107,7 @@ tbody input[type="text"], tbody input[type="number"] {
           <select id="f-renter-select" required>
             <option value="">Choose a customer…</option>
           </select>
-          <div class="card-sub" style="margin-bottom:0;margin-top:6px;">Don't see who you're looking for? <a href="add-renter" style="color:var(--saffron-dark);font-weight:700;">Add them on the Add A Customer page</a> first.</div>
+          <div class="card-sub" style="margin-bottom:0;margin-top:6px;">Don't see who you're looking for? <a href="#" id="link-goto-add-renter" style="color:var(--saffron-dark);font-weight:700;">Add them on the Add A Customer page</a> first.</div>
         </div>
         <div class="field" id="f-event-name-field"><label>Event name</label><input type="text" id="f-event-name" placeholder="e.g. Weekly Shakha, Birthday Celebration"></div>
         <div class="field" id="f-name-field" style="display:none;"><label id="f-name-label">Program / event name</label><input type="text" id="nb-f-name" placeholder="e.g. Weekly Bhajan Sandhya"></div>
@@ -3816,6 +3816,10 @@ function resetForm() {
 regenerateOccurrences();
 
 
+document.getElementById('link-goto-add-renter').addEventListener('click', function (e) {
+  e.preventDefault();
+  document.getElementById('nav-add-renter').click();
+});
 function initNewBookingTab() {
   window.__nbLoaded = true;
   var entryDisplay = document.getElementById('f-entered-by-display');

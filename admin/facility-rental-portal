@@ -2931,6 +2931,23 @@ function populateContactFilter() {
   // difference between "already confirmed" and "still needs review".
   if (state.contactFilter === undefined) {
     state.contactFilter = new Set(sorted);
+    state.knownContactNames = new Set(sorted);
+  } else {
+    // A contact name that shows up now but wasn't part of the set the
+    // filter was already initialized with (a brand new customer, or a
+    // booking whose renter_name changed) would otherwise render as
+    // unchecked and silently disappear from the table with no obvious
+    // cause - exactly what happened with a new HCCGC event request
+    // appearing after the filter's first load. Auto-include anything
+    // genuinely new; only names the user has actually, deliberately
+    // unchecked stay excluded.
+    if (!state.knownContactNames) state.knownContactNames = new Set(sorted);
+    sorted.forEach(function (name) {
+      if (!state.knownContactNames.has(name)) {
+        state.knownContactNames.add(name);
+        state.contactFilter.add(name);
+      }
+    });
   }
   const list = document.getElementById('contact-filter-list');
   const checkedSet = state.contactFilter; // null = everything checked

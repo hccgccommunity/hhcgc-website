@@ -1109,6 +1109,12 @@ tbody input[type="text"], tbody input[type="number"] {
           </select>
           <div class="card-sub" style="margin-bottom:0;margin-top:6px;">Don't see who you're looking for? <a href="#" id="link-goto-add-renter" style="color:var(--saffron-dark);font-weight:700;">Add them on the Add A Customer page</a> first.</div>
         </div>
+        <div class="field" id="f-org-select-field" style="display:none;">
+          <label>Organization for this booking</label>
+          <select id="f-org-select">
+            <option value="">No organization — individual booking</option>
+          </select>
+        </div>
         <div class="field" id="f-event-name-field"><label>Event name</label><input type="text" id="f-event-name" placeholder="e.g. Weekly Shakha, Birthday Celebration"></div>
         <div class="field" id="f-name-field" style="display:none;"><label id="f-name-label">Program / event name</label><input type="text" id="nb-f-name" placeholder="e.g. Weekly Bhajan Sandhya"></div>
         <div class="field" id="f-hccg-rep-field" style="display:none;"><label>HCCGC representative name</label><input type="text" id="f-hccg-rep" placeholder="Who at HCCGC is organizing this?"></div>
@@ -1121,7 +1127,7 @@ tbody input[type="text"], tbody input[type="number"] {
         <div class="card-sub">Select all four for whole-facility. Kitchen requires Surya Hall or Patanjali Hall.</div>
         <button type="button" class="btn-whole-facility" id="btn-whole-facility">Select all rooms (whole facility)</button>
         <div class="room-picker" id="room-picker" style="margin-top:12px;"></div>
-        <div class="checkbox-row" id="nonprofit-row" style="display:none;"><span style="color:var(--green);font-weight:700;">&#10003; Nonprofit discount applied</span> <span class="card-sub" style="margin:0;">(based on this customer's saved status — change it in Add A Customer)</span></div>
+        <div class="checkbox-row" id="nonprofit-row" style="display:none;"><span style="color:var(--green);font-weight:700;">&#10003; Nonprofit discount applied</span> <span class="card-sub" style="margin:0;">(based on the selected organization's status)</span></div>
 
         <div class="section-divider"></div>
 
@@ -3296,10 +3302,28 @@ document.getElementById('f-adjustment-enabled').addEventListener('change', funct
   document.getElementById('adjustment-fields').classList.toggle('open', this.checked);
   recalc();
 });
-['f-renter-select','f-adj-type','f-adj-value'].forEach(function (id) {
+['f-renter-select','f-org-select','f-adj-type','f-adj-value'].forEach(function (id) {
   document.getElementById(id).addEventListener('input', recalc);
   document.getElementById(id).addEventListener('change', recalc);
 });
+document.getElementById('f-renter-select').addEventListener('change', loadOrganizationsForSelectedRenter);
+async function loadOrganizationsForSelectedRenter() {
+  const renterId = document.getElementById('f-renter-select').value;
+  const orgField = document.getElementById('f-org-select-field');
+  const orgSelect = document.getElementById('f-org-select');
+  NB_ORGANIZATIONS = [];
+  orgSelect.innerHTML = '<option value="">No organization — individual booking</option>';
+  if (!renterId) { orgField.style.display = 'none'; return; }
+  try {
+    const res = await authedFetch(API_BASE + '/renters/' + encodeURIComponent(renterId) + '/organizations');
+    NB_ORGANIZATIONS = await res.json();
+    orgSelect.innerHTML = '<option value="">No organization — individual booking</option>' +
+      NB_ORGANIZATIONS.map(function (o) { return '<option value="' + o.organization_id + '">' + escHtml(o.organization_name) + (o.is_nonprofit ? ' (nonprofit)' : '') + '</option>'; }).join('');
+    orgField.style.display = 'flex';
+  } catch (err) {
+    orgField.style.display = 'none';
+  }
+}
 roomPicker.addEventListener('change', recalc);
 
 function recalc() {
@@ -3320,7 +3344,8 @@ function recalc() {
     return sum + (r ? r.rate : 0);
   }, 0);
   const selectedRenter = NB_RENTERS.find(function (r) { return r.renter_id === document.getElementById('f-renter-select').value; });
-  const isNonprofit = !document.getElementById('f-internal-enabled').checked && !!(selectedRenter && selectedRenter.is_nonprofit);
+  const selectedOrg = NB_ORGANIZATIONS.find(function (o) { return o.organization_id === document.getElementById('f-org-select').value; });
+  const isNonprofit = !document.getElementById('f-internal-enabled').checked && !!(selectedOrg && selectedOrg.is_nonprofit);
   document.getElementById('nonprofit-row').style.display = isNonprofit ? 'flex' : 'none';
   const occList = occurrences.length ? occurrences : [{
     date: document.getElementById('f-date').value,
@@ -3675,6 +3700,7 @@ window.addEventListener('resize', function () {
 // backend looks up the renter's actual details by renterId, so nothing
 // beyond the selected ID needs to travel with the booking request.
 let NB_RENTERS = [];
+let NB_ORGANIZATIONS = [];
 async function nbLoadRenters() {
   try {
     const res = await authedFetch(API_BASE + '/renters');
@@ -3725,7 +3751,7 @@ document.getElementById('btn-generate').addEventListener('click', async function
     eventDescription: document.getElementById('f-event-description').value || null,
     hccgcRepresentativeName: isInternal ? document.getElementById('f-hccg-rep').value : null,
     publishAsEvent: isInternal ? document.getElementById('f-publish-event').checked : false,
-    isNonprofit: !isInternal && !!(NB_RENTERS.find(function (r) { return r.renter_id === document.getElementById('f-renter-select').value; }) || {}).is_nonprofit,
+    organizationId: !isInternal ? (document.getElementById('f-org-select').value || null) : null,
     notes: document.getElementById('nb-f-notes').value,
     manualAdjustmentType: (!isInternal && document.getElementById('f-adjustment-enabled').checked) ? document.getElementById('f-adj-type').value : null,
     manualAdjustmentValue: (!isInternal && document.getElementById('f-adjustment-enabled').checked) ? parseFloat(document.getElementById('f-adj-value').value) || null : null,

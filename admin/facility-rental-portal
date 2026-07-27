@@ -2921,33 +2921,9 @@ function populateContactFilter() {
   BOOKINGS.forEach(function (b) { names.add(contactNameFor(b)); });
   const sorted = Array.from(names).sort(function (a, b) { return a.localeCompare(b); });
   // First time this runs (state.contactFilter is still undefined, not yet
-  // touched by the user) - everything checked by default, HCCGC included.
-  // HCCGC used to be excluded by default here, on the assumption that
-  // HCCGC bookings are just internal noise - but a genuinely pending
-  // HCCGC event request (submitted via the public request form, awaiting
-  // approval) would be silently hidden by that same exclusion with no
-  // indication why. The status filter is the right tool for focusing on
-  // what needs attention; a customer-level exclusion can't tell the
-  // difference between "already confirmed" and "still needs review".
+  // touched by the user), default to everything except HCCGC checked.
   if (state.contactFilter === undefined) {
-    state.contactFilter = new Set(sorted);
-    state.knownContactNames = new Set(sorted);
-  } else {
-    // A contact name that shows up now but wasn't part of the set the
-    // filter was already initialized with (a brand new customer, or a
-    // booking whose renter_name changed) would otherwise render as
-    // unchecked and silently disappear from the table with no obvious
-    // cause - exactly what happened with a new HCCGC event request
-    // appearing after the filter's first load. Auto-include anything
-    // genuinely new; only names the user has actually, deliberately
-    // unchecked stay excluded.
-    if (!state.knownContactNames) state.knownContactNames = new Set(sorted);
-    sorted.forEach(function (name) {
-      if (!state.knownContactNames.has(name)) {
-        state.knownContactNames.add(name);
-        state.contactFilter.add(name);
-      }
-    });
+    state.contactFilter = new Set(sorted.filter(function (n) { return n !== 'HCCGC'; }));
   }
   const list = document.getElementById('contact-filter-list');
   const checkedSet = state.contactFilter; // null = everything checked

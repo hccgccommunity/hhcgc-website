@@ -1233,6 +1233,7 @@
                   <span>Welcome back, <strong id="rf-known-renter-name"></strong>! We've filled in the info we have on file below.</span>
                   <button type="button" id="rf-edit-contact-btn" style="flex-shrink:0; font-family:inherit; font-size:0.8rem; font-weight:700; padding:6px 12px; border-radius:8px; border:1.5px solid #2e7d4f; background:#fff; color:#2e7d4f; cursor:pointer;">Edit</button>
                 </div>
+                <div id="rf-known-renter-details" style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(46,125,79,0.2);font-size:0.86rem;color:#2e7d4f;"></div>
               </div>
 
               <div id="rf-standard-only-section">
@@ -1288,6 +1289,7 @@
                   <div class="request-field-row">
                     <div class="request-field" id="rf-ein-field" style="display:none;"><label>EIN (Employer Identification Number) <span class="req-star">*</span></label><input type="text" id="rf-ein" placeholder="XX-XXXXXXX"></div>
                   </div>
+                  <div id="rf-same-address-row" style="display:none;align-items:center;gap:8px;margin-bottom:14px;"><input type="checkbox" id="rf-same-address" checked><label for="rf-same-address">Is your billing address for this organization the same as your address?</label></div>
                 </div>
 
                 <!-- Address: shown for a new renter always, and for a known renter only once an organization choice (existing or new) has actually been made. -->
@@ -1835,6 +1837,7 @@
       document.getElementById('rf-existing-address-field').style.display = 'none';
       document.getElementById('rf-new-org-fields').style.display = 'none';
       document.getElementById('rf-new-org-name-row').style.display = 'none';
+      document.getElementById('rf-same-address-row').style.display = 'none';
       document.getElementById('rf-org-known-path').required = false;
 
       if (!val) {
@@ -1848,14 +1851,16 @@
         document.getElementById('rf-is-nonprofit').value = '';
         document.getElementById('rf-is-nonprofit').dispatchEvent(new Event('change'));
         document.getElementById('rf-ein').value = '';
-        // A new organization's address is asked fresh, not pre-filled from
-        // the renter's own address on file - it may well be different.
+        document.getElementById('rf-same-address-row').style.display = 'flex';
+        document.getElementById('rf-same-address').checked = true;
+        // Defaults to "same as your address", so the address section
+        // stays hidden until the checkbox is actually unchecked.
         document.getElementById('rf-street').value = '';
         document.getElementById('rf-suite').value = '';
         document.getElementById('rf-city').value = '';
         document.getElementById('rf-state').value = '';
         document.getElementById('rf-zip').value = '';
-        document.getElementById('rf-address-section').style.display = 'block';
+        document.getElementById('rf-address-section').style.display = 'none';
         document.getElementById('rf-your-event-section').style.display = 'block';
       } else {
         const org = knownOrganizations.find(function (o) { return o.organization_id === val; });
@@ -1863,17 +1868,26 @@
         summary.style.display = 'block';
         summary.innerHTML = '<strong>' + escapeHtmlLocal(org ? org.organization_name : '') + '</strong>' +
           (org && org.is_nonprofit ? ' — nonprofit on file (EIN ' + escapeHtmlLocal(org.ein || 'not on file') + ')' : ' — not marked as a nonprofit');
-        // Greyed-out address on file, editable via the Edit button rather
-        // than shown as an open field by default.
-        document.getElementById('rf-street').value = knownRenter.address || '';
+        // Greyed-out address on file (the organization's own effective
+        // address - its own, or the renter's if it's marked the same),
+        // editable via the Edit button rather than shown as an open field.
+        const effAddr = (org && org.effectiveAddress) || '';
+        document.getElementById('rf-street').value = effAddr;
         document.getElementById('rf-suite').value = ''; document.getElementById('rf-city').value = '';
         document.getElementById('rf-state').value = ''; document.getElementById('rf-zip').value = '';
-        document.getElementById('rf-existing-address-display').textContent = knownRenter.address || '(none on file)';
+        document.getElementById('rf-existing-address-display').textContent = effAddr || '(none on file)';
         document.getElementById('rf-existing-address-field').style.display = 'block';
         document.getElementById('rf-address-section').style.display = 'none';
         document.getElementById('rf-your-event-section').style.display = 'block';
       }
       updateLiveEstimate();
+    });
+    document.getElementById('rf-same-address').addEventListener('change', function () {
+      document.getElementById('rf-address-section').style.display = this.checked ? 'none' : 'block';
+      if (this.checked) {
+        document.getElementById('rf-street').value = ''; document.getElementById('rf-suite').value = '';
+        document.getElementById('rf-city').value = ''; document.getElementById('rf-state').value = ''; document.getElementById('rf-zip').value = '';
+      }
     });
     document.getElementById('rf-edit-existing-address-btn').addEventListener('click', function () {
       document.getElementById('rf-existing-address-field').style.display = 'none';
@@ -1916,7 +1930,11 @@
           knownRenter = data.renter;
           knownOrganizations = data.organizations || [];
           banner.style.display = 'block';
-          document.getElementById('rf-known-renter-name').textContent = data.renter.contact_name;
+          document.getElementById('rf-known-renter-name').textContent = (data.renter.contact_name || '') + ' ji';
+          const detailsParts = [];
+          if (data.renter.phone) detailsParts.push('Phone: ' + escapeHtmlLocal(data.renter.phone));
+          if (data.renter.address) detailsParts.push('Address: ' + escapeHtmlLocal(data.renter.address));
+          document.getElementById('rf-known-renter-details').innerHTML = detailsParts.join(' &nbsp;&middot;&nbsp; ');
           const nameParts = (data.renter.contact_name || '').split(' ');
           document.getElementById('rf-first-name').value = nameParts[0] || '';
           document.getElementById('rf-last-name').value = nameParts.slice(1).join(' ') || '';
@@ -2229,7 +2247,7 @@
           notes: document.getElementById('rf-notes').value
         };
       } else {
-        let organizationMode, organizationId, organizationName, orgIsNonprofit, orgEin, orgWebsite;
+        let organizationMode, organizationId, organizationName, orgIsNonprofit, orgEin, orgWebsite, sameAsRenterAddress;
 
         if (knownRenter) {
           const orgPickerVal = document.getElementById('rf-org-picker').value;
@@ -2244,6 +2262,10 @@
             orgEin = document.getElementById('rf-ein').value;
             if (orgIsNonprofit && !orgEin.trim()) { showRequestResult('EIN is required for a nonprofit organization.'); return; }
             orgWebsite = '';
+            sameAsRenterAddress = document.getElementById('rf-same-address').checked;
+            if (!sameAsRenterAddress && !document.getElementById('rf-street').value.trim()) {
+              showRequestResult('Organization address is required when it differs from your address.'); return;
+            }
           } else {
             organizationMode = 'existing';
             organizationId = orgPickerVal;
@@ -2259,6 +2281,9 @@
             orgEin = document.getElementById('rf-ein').value;
             if (orgIsNonprofit && !orgEin.trim()) { showRequestResult('EIN is required for a nonprofit organization.'); return; }
             orgWebsite = document.getElementById('rf-website').value;
+            // No "same as" question for a brand new renter - the address
+            // they're entering below IS both their own and the org's.
+            sameAsRenterAddress = true;
           } else {
             organizationMode = 'none';
           }
@@ -2281,7 +2306,13 @@
           isNonprofit: organizationMode === 'new' ? orgIsNonprofit : undefined,
           ein: organizationMode === 'new' ? orgEin : undefined,
           website: organizationMode === 'new' ? orgWebsite : undefined,
-          billingAddress: fullAddress,
+          sameAsRenterAddress: organizationMode === 'new' ? sameAsRenterAddress : undefined,
+          organizationAddress: (organizationMode === 'new' && !sameAsRenterAddress) ? fullAddress : undefined,
+          // For a known renter whose org address is the same as theirs,
+          // rf-street etc. were never shown/filled in - billingAddress
+          // still needs to carry their actual address on file in that
+          // case, not an empty string.
+          billingAddress: (knownRenter && organizationMode === 'new' && sameAsRenterAddress) ? (knownRenter.address || '') : fullAddress,
           eventDetails: document.getElementById('rf-event-details').value,
           rooms: rooms,
           occurrences: occurrences,

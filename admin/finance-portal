@@ -900,19 +900,36 @@ tr.series-row:hover td { background: var(--surface-soft); }
       <button class="modal-close" id="btn-close-create-invoice">&times;</button>
     </div>
     <div class="modal-body">
-      <p class="card-sub" style="margin-bottom:14px;">For anything outside a facility room booking — a vendor charge, a misc bill, anything Finance needs to invoice directly.</p>
-      <div class="field">
-        <label>Customer</label>
-        <select id="create-inv-renter"><option value="">Loading customers…</option></select>
+      <div class="sub-tabs" style="display:flex;gap:8px;margin-bottom:16px;">
+        <button type="button" class="sub-tab-btn active" data-create-inv-mode="standalone">Standalone</button>
+        <button type="button" class="sub-tab-btn" data-create-inv-mode="existing">Tie to existing booking</button>
       </div>
-      <div class="field"><label>Description</label><textarea id="create-inv-description" rows="3" placeholder="What this invoice is for"></textarea></div>
-      <div class="field-row">
-        <div class="field"><label>Amount ($)</label><input type="number" step="0.01" min="0.01" id="create-inv-amount"></div>
-        <div class="field"><label>Due date</label><input type="date" id="create-inv-duedate"></div>
+
+      <div id="create-inv-standalone-fields">
+        <p class="card-sub" style="margin-bottom:14px;">For anything outside a facility room booking — a vendor charge, a misc bill, anything Finance needs to invoice directly.</p>
+        <div class="field">
+          <label>Customer</label>
+          <select id="create-inv-renter"><option value="">Loading customers…</option></select>
+        </div>
+        <div class="field"><label>Description</label><textarea id="create-inv-description" rows="3" placeholder="What this invoice is for"></textarea></div>
+        <div class="field-row">
+          <div class="field"><label>Amount ($)</label><input type="number" step="0.01" min="0.01" id="create-inv-amount"></div>
+          <div class="field"><label>Due date</label><input type="date" id="create-inv-duedate"></div>
+        </div>
       </div>
+
+      <div id="create-inv-existing-fields" style="display:none;">
+        <p class="card-sub" style="margin-bottom:14px;">Find a booking that doesn't have an invoice yet, or needs it resent — this opens that booking's own invoice, same as clicking its invoice icon in the table.</p>
+        <div class="field">
+          <label>Search by customer, event, or booking ID</label>
+          <input type="text" id="create-inv-booking-search" placeholder="Start typing…">
+        </div>
+        <div id="create-inv-booking-results" style="max-height:220px;overflow-y:auto;"></div>
+      </div>
+
       <div class="result-box" id="create-invoice-result" style="display:none;margin-top:10px;"></div>
     </div>
-    <div class="modal-footer" style="display:flex;gap:8px;flex-wrap:wrap;">
+    <div class="modal-footer" style="display:flex;gap:8px;flex-wrap:wrap;" id="create-invoice-standalone-footer">
       <button type="button" class="btn-secondary" id="btn-cancel-create-invoice">Cancel</button>
       <button type="button" class="btn-secondary" id="btn-just-create-invoice">Create</button>
       <button type="button" class="btn-primary" id="btn-confirm-create-invoice" style="margin-top:0;">Create &amp; send</button>
@@ -927,21 +944,38 @@ tr.series-row:hover td { background: var(--surface-soft); }
       <button class="modal-close" id="btn-close-create-receipt">&times;</button>
     </div>
     <div class="modal-body">
-      <p class="card-sub" style="margin-bottom:14px;">For an invoice created via Create Invoice — link a matching transaction and mark it paid to generate the receipt.</p>
-      <div class="field">
-        <label>Invoice</label>
-        <select id="create-rcpt-invoice"><option value="">Loading invoices…</option></select>
+      <div class="sub-tabs" style="display:flex;gap:8px;margin-bottom:16px;">
+        <button type="button" class="sub-tab-btn active" data-create-rcpt-mode="standalone">Standalone</button>
+        <button type="button" class="sub-tab-btn" data-create-rcpt-mode="existing">Tie to existing booking</button>
       </div>
-      <div class="field"><label>Description</label><textarea id="create-rcpt-description" rows="3" placeholder="What this payment was for"></textarea></div>
-      <div class="field"><label>Amount</label><input type="text" id="create-rcpt-amount" readonly style="background:var(--surface-soft);color:var(--muted);"></div>
-      <div id="create-rcpt-txn-section" style="display:none;">
-        <div style="font-size:0.8rem;font-weight:700;color:var(--muted);margin:14px 0 8px;">Matching transaction</div>
-        <div id="create-rcpt-txn-list"></div>
-        <div id="create-rcpt-paid-status" style="margin-top:10px;font-size:0.86rem;"></div>
+
+      <div id="create-rcpt-standalone-fields">
+        <p class="card-sub" style="margin-bottom:14px;">For an invoice created via Create Invoice — link a matching transaction and mark it paid to generate the receipt.</p>
+        <div class="field">
+          <label>Invoice</label>
+          <select id="create-rcpt-invoice"><option value="">Loading invoices…</option></select>
+        </div>
+        <div class="field"><label>Description</label><textarea id="create-rcpt-description" rows="3" placeholder="What this payment was for"></textarea></div>
+        <div class="field"><label>Amount</label><input type="text" id="create-rcpt-amount" readonly style="background:var(--surface-soft);color:var(--muted);"></div>
+        <div id="create-rcpt-txn-section" style="display:none;">
+          <div style="font-size:0.8rem;font-weight:700;color:var(--muted);margin:14px 0 8px;">Matching transaction</div>
+          <div id="create-rcpt-txn-list"></div>
+          <div id="create-rcpt-paid-status" style="margin-top:10px;font-size:0.86rem;"></div>
+        </div>
       </div>
+
+      <div id="create-rcpt-existing-fields" style="display:none;">
+        <p class="card-sub" style="margin-bottom:14px;">Find a paid booking that doesn't have a receipt yet, or needs it resent — this opens that booking's own receipt, same as clicking its receipt icon in the table.</p>
+        <div class="field">
+          <label>Search by customer, event, or booking ID</label>
+          <input type="text" id="create-rcpt-booking-search" placeholder="Start typing…">
+        </div>
+        <div id="create-rcpt-booking-results" style="max-height:220px;overflow-y:auto;"></div>
+      </div>
+
       <div class="result-box" id="create-receipt-result" style="display:none;margin-top:10px;"></div>
     </div>
-    <div class="modal-footer" style="display:flex;gap:8px;flex-wrap:wrap;">
+    <div class="modal-footer" style="display:flex;gap:8px;flex-wrap:wrap;" id="create-receipt-standalone-footer">
       <button type="button" class="btn-secondary" id="btn-cancel-create-receipt">Cancel</button>
       <button type="button" class="btn-secondary" id="btn-just-create-receipt" disabled>Create</button>
       <button type="button" class="btn-primary" id="btn-confirm-create-receipt" style="margin-top:0;" disabled>Create &amp; send</button>
@@ -2213,11 +2247,65 @@ document.getElementById('btn-create-invoice').addEventListener('click', async fu
   document.getElementById('create-inv-duedate').value = new Date().toISOString().slice(0, 10);
   document.getElementById('create-invoice-result').style.display = 'none';
   document.getElementById('create-invoice-overlay').style.display = 'flex';
+  setCreateInvoiceMode('standalone');
   await loadRentersIntoSelect(document.getElementById('create-inv-renter'));
 });
 document.getElementById('btn-close-create-invoice').addEventListener('click', function () { document.getElementById('create-invoice-overlay').style.display = 'none'; });
 document.getElementById('btn-cancel-create-invoice').addEventListener('click', function () { document.getElementById('create-invoice-overlay').style.display = 'none'; });
 document.getElementById('create-invoice-overlay').addEventListener('click', function (e) { if (e.target === this) this.style.display = 'none'; });
+
+// ── Create Invoice: tie to existing booking ──
+function setCreateInvoiceMode(mode) {
+  document.querySelectorAll('#create-invoice-overlay .sub-tab-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.createInvMode === mode); });
+  document.getElementById('create-inv-standalone-fields').style.display = mode === 'standalone' ? 'block' : 'none';
+  document.getElementById('create-inv-existing-fields').style.display = mode === 'existing' ? 'block' : 'none';
+  document.getElementById('create-invoice-standalone-footer').style.display = mode === 'standalone' ? 'flex' : 'none';
+  document.getElementById('create-inv-booking-search').value = '';
+  document.getElementById('create-inv-booking-results').innerHTML = '';
+  document.getElementById('create-invoice-result').style.display = 'none';
+}
+document.querySelectorAll('#create-invoice-overlay .sub-tab-btn').forEach(function (btn) {
+  btn.addEventListener('click', function () { setCreateInvoiceMode(btn.dataset.createInvMode); });
+});
+let lastInvBookingSearchResults = [];
+document.getElementById('create-inv-booking-search').addEventListener('input', function () {
+  clearTimeout(createInvSearchTimer);
+  const q = this.value.trim();
+  const resultsEl = document.getElementById('create-inv-booking-results');
+  if (q.length < 2) { resultsEl.innerHTML = ''; return; }
+  createInvSearchTimer = setTimeout(async function () {
+    resultsEl.innerHTML = '<div class="card-sub">Searching…</div>';
+    try {
+      const res = await authedFetch(API_BASE + '/finance/booking-search?q=' + encodeURIComponent(q));
+      const results = await res.json();
+      lastInvBookingSearchResults = results;
+      if (!results.length) { resultsEl.innerHTML = '<div class="card-sub">No matching bookings.</div>'; return; }
+      resultsEl.innerHTML = results.map(function (r) {
+        return '<div class="exp-line-item" style="cursor:pointer;" data-tie-invoice-booking="' + r.bookingId + '">' +
+          '<div class="exp-top-row"><span>' + escHtml(r.renterName) + (r.eventName ? ' \u2014 ' + escHtml(r.eventName) : '') + '</span><span>' + money(r.amount) + '</span></div>' +
+          '<div class="exp-date">' + formatDate(r.eventDate) + (r.invoiceSentAt ? ' \u00b7 invoice already sent' : ' \u00b7 invoice not sent yet') + '</div>' +
+        '</div>';
+      }).join('');
+    } catch (err) {
+      resultsEl.innerHTML = '<div class="card-sub" style="color:var(--red);">Could not search: ' + escHtml(err.message) + '</div>';
+    }
+  }, 300);
+});
+document.getElementById('create-inv-booking-results').addEventListener('click', function (e) {
+  const item = e.target.closest('[data-tie-invoice-booking]');
+  if (!item) return;
+  const bookingId = item.dataset.tieInvoiceBooking;
+  if (!INVOICES.find(function (i) { return i.bookingId === bookingId; })) {
+    // Search results can include bookings outside the currently-loaded
+    // date range, which the popup wouldn't otherwise be able to find -
+    // this minimal record (from the search result itself) is enough for
+    // it to open correctly regardless.
+    const found = lastInvBookingSearchResults.find(function (r) { return r.bookingId === bookingId; });
+    if (found) INVOICES.push({ bookingId: found.bookingId, invoiceSentAt: found.invoiceSentAt, paymentStatus: 'pending' });
+  }
+  document.getElementById('create-invoice-overlay').style.display = 'none';
+  openFinanceInvoicePopup(bookingId);
+});
 
 async function submitCreateInvoice(alsoSend, btn) {
   const renterId = document.getElementById('create-inv-renter').value;
@@ -2279,6 +2367,7 @@ document.getElementById('btn-create-receipt').addEventListener('click', async fu
   document.getElementById('btn-just-create-receipt').disabled = true;
   document.getElementById('btn-confirm-create-receipt').disabled = true;
   document.getElementById('create-receipt-overlay').style.display = 'flex';
+  setCreateReceiptMode('standalone');
   const sel = document.getElementById('create-rcpt-invoice');
   sel.innerHTML = '<option value="">Loading invoices…</option>';
   try {
@@ -2294,6 +2383,55 @@ document.getElementById('btn-create-receipt').addEventListener('click', async fu
 document.getElementById('btn-close-create-receipt').addEventListener('click', function () { document.getElementById('create-receipt-overlay').style.display = 'none'; });
 document.getElementById('btn-cancel-create-receipt').addEventListener('click', function () { document.getElementById('create-receipt-overlay').style.display = 'none'; });
 document.getElementById('create-receipt-overlay').addEventListener('click', function (e) { if (e.target === this) this.style.display = 'none'; });
+
+// ── Create Receipt: tie to existing booking ──
+function setCreateReceiptMode(mode) {
+  document.querySelectorAll('#create-receipt-overlay .sub-tab-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.createRcptMode === mode); });
+  document.getElementById('create-rcpt-standalone-fields').style.display = mode === 'standalone' ? 'block' : 'none';
+  document.getElementById('create-rcpt-existing-fields').style.display = mode === 'existing' ? 'block' : 'none';
+  document.getElementById('create-receipt-standalone-footer').style.display = mode === 'standalone' ? 'flex' : 'none';
+  document.getElementById('create-rcpt-booking-search').value = '';
+  document.getElementById('create-rcpt-booking-results').innerHTML = '';
+  document.getElementById('create-receipt-result').style.display = 'none';
+}
+document.querySelectorAll('#create-receipt-overlay .sub-tab-btn').forEach(function (btn) {
+  btn.addEventListener('click', function () { setCreateReceiptMode(btn.dataset.createRcptMode); });
+});
+let lastRcptBookingSearchResults = [];
+document.getElementById('create-rcpt-booking-search').addEventListener('input', function () {
+  clearTimeout(createRcptSearchTimer);
+  const q = this.value.trim();
+  const resultsEl = document.getElementById('create-rcpt-booking-results');
+  if (q.length < 2) { resultsEl.innerHTML = ''; return; }
+  createRcptSearchTimer = setTimeout(async function () {
+    resultsEl.innerHTML = '<div class="card-sub">Searching…</div>';
+    try {
+      const res = await authedFetch(API_BASE + '/finance/booking-search?q=' + encodeURIComponent(q));
+      const results = await res.json();
+      lastRcptBookingSearchResults = results;
+      if (!results.length) { resultsEl.innerHTML = '<div class="card-sub">No matching bookings.</div>'; return; }
+      resultsEl.innerHTML = results.map(function (r) {
+        return '<div class="exp-line-item" style="cursor:pointer;" data-tie-receipt-booking="' + r.bookingId + '">' +
+          '<div class="exp-top-row"><span>' + escHtml(r.renterName) + (r.eventName ? ' \u2014 ' + escHtml(r.eventName) : '') + '</span><span>' + money(r.amount) + '</span></div>' +
+          '<div class="exp-date">' + formatDate(r.eventDate) + (r.receiptSentAt ? ' \u00b7 receipt already sent' : ' \u00b7 receipt not sent yet') + '</div>' +
+        '</div>';
+      }).join('');
+    } catch (err) {
+      resultsEl.innerHTML = '<div class="card-sub" style="color:var(--red);">Could not search: ' + escHtml(err.message) + '</div>';
+    }
+  }, 300);
+});
+document.getElementById('create-rcpt-booking-results').addEventListener('click', function (e) {
+  const item = e.target.closest('[data-tie-receipt-booking]');
+  if (!item) return;
+  const bookingId = item.dataset.tieReceiptBooking;
+  if (!INVOICES.find(function (i) { return i.bookingId === bookingId; })) {
+    const found = lastRcptBookingSearchResults.find(function (r) { return r.bookingId === bookingId; });
+    if (found) INVOICES.push({ bookingId: found.bookingId, receiptSentAt: found.receiptSentAt, paymentStatus: 'paid' });
+  }
+  document.getElementById('create-receipt-overlay').style.display = 'none';
+  openFinanceReceiptPopup(bookingId);
+});
 
 document.getElementById('create-rcpt-invoice').addEventListener('change', async function () {
   const opt = this.options[this.selectedIndex];

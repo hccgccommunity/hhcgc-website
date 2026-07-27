@@ -67,6 +67,11 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 
 .sub-tab-nav { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 14px; }
 .sub-tab-btn { padding: 8px 16px; border-radius: 999px; font-size: 0.84rem; font-weight: 700; color: var(--muted); background: #fff; border: 1.5px solid var(--border); cursor: pointer; font-family: inherit; }
+.et-tb-btn { min-width: 30px; padding: 5px 9px; font-size: 0.86rem; font-family: inherit; color: var(--ink, #2c1b10); background: #fff; border: 1.5px solid var(--border); border-radius: 6px; cursor: pointer; }
+.et-tb-btn:hover { background: var(--surface-soft); }
+.et-tb-btn.active { background: var(--saffron-dark); color: #fff; border-color: var(--saffron-dark); }
+#et-body-editor:focus { outline: 2px solid var(--saffron-dark); outline-offset: -1px; }
+#et-body-editor:empty:before { content: attr(data-placeholder); color: var(--muted); }
 .sub-tab-btn.active { background: var(--saffron-dark); color: #fff; border-color: var(--saffron-dark); }
 .sub-tab-panel { display: none; }
 .sub-tab-panel.active { display: block; }
@@ -751,7 +756,31 @@ tr.series-row:hover td { background: var(--surface-soft); }
     </div>
 
     <div class="field"><label>Subject line</label><input type="text" id="et-subject" style="width:100%;font-family:inherit;font-size:0.92rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></div>
-    <div class="field"><label>Email body (HTML)</label><textarea id="et-body" rows="16" style="width:100%;font-family:monospace;font-size:0.84rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></textarea></div>
+    <div class="field">
+      <label>Email body</label>
+      <div id="et-toolbar" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;padding:8px;border:1.5px solid var(--border);border-bottom:none;border-radius:10px 10px 0 0;background:var(--surface-soft);">
+        <button type="button" class="et-tb-btn" data-cmd="bold" title="Bold" style="font-weight:700;">B</button>
+        <button type="button" class="et-tb-btn" data-cmd="italic" title="Italic" style="font-style:italic;">I</button>
+        <button type="button" class="et-tb-btn" data-cmd="underline" title="Underline" style="text-decoration:underline;">U</button>
+        <span style="width:1px;height:20px;background:var(--border);margin:0 2px;"></span>
+        <select id="et-font-size" title="Font size" style="font-family:inherit;font-size:0.82rem;padding:4px 6px;border:1.5px solid var(--border);border-radius:6px;">
+          <option value="">Size</option>
+          <option value="1">Small</option>
+          <option value="3" selected>Normal</option>
+          <option value="5">Large</option>
+          <option value="7">X-Large</option>
+        </select>
+        <button type="button" class="et-tb-btn" data-cmd="insertUnorderedList" title="Bullet list">&#8226; List</button>
+        <button type="button" class="et-tb-btn" data-cmd="createLink" title="Insert link">Link</button>
+        <button type="button" class="et-tb-btn" data-cmd="removeFormat" title="Clear formatting">Clear</button>
+        <span style="width:1px;height:20px;background:var(--border);margin:0 2px;"></span>
+        <select id="et-insert-variable" style="font-family:inherit;font-size:0.82rem;padding:4px 6px;border:1.5px solid var(--border);border-radius:6px;">
+          <option value="">Insert variable…</option>
+        </select>
+      </div>
+      <div id="et-body-editor" contenteditable="true" style="width:100%;min-height:280px;font-family:Arial,Helvetica,sans-serif;font-size:0.92rem;padding:14px;border:1.5px solid var(--border);border-radius:0 0 10px 10px;background:#fff;overflow-y:auto;"></div>
+      <div class="field-hint" style="margin-top:6px;">Formats like an email, not raw HTML — use the toolbar for bold/italic/size, and "Insert variable" to drop in a merge field at the cursor instead of typing it by hand.</div>
+    </div>
 
     <div class="field-hint" id="et-merge-fields" style="margin-bottom:16px;"></div>
 
@@ -3829,8 +3858,12 @@ function showEmailTemplate(type) {
   if (!emailTemplatesData) return;
   const t = emailTemplatesData.templates[type];
   document.getElementById('et-subject').value = t.subject;
-  document.getElementById('et-body').value = t.body;
+  document.getElementById('et-body-editor').innerHTML = t.body;
   document.getElementById('et-merge-fields').innerHTML = 'Available merge fields: ' + EMAIL_TEMPLATE_MERGE_FIELDS[type].map(f => '<code>' + f + '</code>').join(', ');
+  const varSelect = document.getElementById('et-insert-variable');
+  varSelect.innerHTML = '<option value="">Insert variable…</option>' + EMAIL_TEMPLATE_MERGE_FIELDS[type].map(function (f) {
+    return '<option value="' + f + '">' + f + '</option>';
+  }).join('');
 
   const attachmentSection = document.getElementById('et-attachment-section');
   if (type === 'receipt') {
@@ -3859,12 +3892,45 @@ document.querySelectorAll('#tab-email-templates .sub-tab-btn').forEach(function 
   });
 });
 
+// ── WYSIWYG toolbar for the email body editor ──
+// Uses the browser's built-in execCommand on the contenteditable div -
+// deliberately no external rich-text library, since the only output that
+// matters is the resulting HTML, and execCommand already produces
+// perfectly good email-safe HTML (<b>, <i>, <u>, <ul>, <a>, <font>) for
+// this narrow a toolbar without adding a dependency.
+const etEditor = document.getElementById('et-body-editor');
+document.querySelectorAll('.et-tb-btn').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    etEditor.focus();
+    const cmd = btn.dataset.cmd;
+    if (cmd === 'createLink') {
+      const url = prompt('Link URL:', 'https://');
+      if (!url) return;
+      document.execCommand('createLink', false, url);
+    } else {
+      document.execCommand(cmd, false, null);
+    }
+  });
+});
+document.getElementById('et-font-size').addEventListener('change', function () {
+  if (!this.value) return;
+  etEditor.focus();
+  document.execCommand('fontSize', false, this.value);
+  this.value = '3';
+});
+document.getElementById('et-insert-variable').addEventListener('change', function () {
+  if (!this.value) return;
+  etEditor.focus();
+  document.execCommand('insertText', false, this.value);
+  this.value = '';
+});
+
 document.getElementById('btn-reset-template').addEventListener('click', function () {
   if (!emailTemplatesData) return;
   if (!confirm('Reset this template to the default wording? This does not save automatically — you can still review before clicking Save.')) return;
   const def = emailTemplatesData.defaults[currentTemplateType];
   document.getElementById('et-subject').value = def.subject;
-  document.getElementById('et-body').value = def.body;
+  document.getElementById('et-body-editor').innerHTML = def.body;
   if (currentTemplateType === 'receipt') {
     document.getElementById('et-attachment-enabled').checked = !!def.attachmentEnabled;
     document.getElementById('et-attachment-filename').value = def.attachmentFilename || '';
@@ -3877,7 +3943,7 @@ document.getElementById('btn-save-template').addEventListener('click', async fun
   const payload = {
     type: currentTemplateType,
     subject: document.getElementById('et-subject').value,
-    body: document.getElementById('et-body').value
+    body: document.getElementById('et-body-editor').innerHTML
   };
   if (currentTemplateType === 'receipt') {
     payload.attachmentEnabled = document.getElementById('et-attachment-enabled').checked;
@@ -3919,7 +3985,7 @@ document.getElementById('btn-send-test-template').addEventListener('click', asyn
   const payload = {
     type: currentTemplateType,
     subject: document.getElementById('et-subject').value,
-    body: document.getElementById('et-body').value,
+    body: document.getElementById('et-body-editor').innerHTML,
     to: testEmail
   };
   if (currentTemplateType === 'receipt') {

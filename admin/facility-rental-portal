@@ -1345,6 +1345,7 @@ tbody input[type="text"], tbody input[type="number"] {
     </div>
     <div class="field"><label>Notes (optional)</label><textarea id="f-notes" placeholder="Anything worth remembering about this contact"></textarea></div>
     <div class="checkbox-row" style="display:flex;align-items:center;gap:8px;margin-bottom:14px;"><input type="checkbox" id="f-nonprofit"><label for="f-nonprofit">This customer is a nonprofit — applicable discount will be applied automatically on bookings</label></div>
+    <div class="field" id="f-ein-field" style="display:none;"><label>EIN (Employer Identification Number)</label><input type="text" id="f-ein" placeholder="XX-XXXXXXX"></div>
     <button type="button" class="btn-primary" id="btn-add-renter">Save customer</button>
     <div class="result-box" id="result-box" style="display:none;"></div>
   </div>
@@ -1401,6 +1402,7 @@ tbody input[type="text"], tbody input[type="number"] {
       <div class="field"><label>Address</label><textarea id="edit-f-address" rows="2" placeholder="Street, suite, city, state, ZIP"></textarea></div>
       <div class="field"><label>Notes</label><textarea id="edit-f-notes"></textarea></div>
       <div class="checkbox-row" style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="edit-f-nonprofit"><label for="edit-f-nonprofit">This customer is a nonprofit</label></div>
+      <div class="field" id="edit-f-ein-field" style="display:none;"><label>EIN (Employer Identification Number)</label><input type="text" id="edit-f-ein" placeholder="XX-XXXXXXX"></div>
       <div class="result-box" id="edit-result-box" style="display:none;"></div>
     </div>
     <div class="modal-footer">
@@ -4312,6 +4314,8 @@ function openEditRenterModal(renterId) {
   document.getElementById('edit-f-address').value = r.address || '';
   document.getElementById('edit-f-notes').value = r.notes || '';
   document.getElementById('edit-f-nonprofit').checked = !!r.is_nonprofit;
+  document.getElementById('edit-f-ein').value = r.ein || '';
+  document.getElementById('edit-f-ein-field').style.display = r.is_nonprofit ? 'block' : 'none';
   document.getElementById('edit-result-box').style.display = 'none';
   document.getElementById('edit-renter-modal-overlay').style.display = 'flex';
 }
@@ -4319,6 +4323,9 @@ function closeEditRenterModal() { document.getElementById('edit-renter-modal-ove
 document.getElementById('btn-close-edit-renter').addEventListener('click', closeEditRenterModal);
 document.getElementById('btn-cancel-edit-renter').addEventListener('click', closeEditRenterModal);
 document.getElementById('edit-renter-modal-overlay').addEventListener('click', function (e) { if (e.target === this) closeEditRenterModal(); });
+document.getElementById('edit-f-nonprofit').addEventListener('change', function () {
+  document.getElementById('edit-f-ein-field').style.display = this.checked ? 'block' : 'none';
+});
 
 document.getElementById('btn-save-edit-renter').addEventListener('click', async function () {
   const btn = this;
@@ -4331,8 +4338,13 @@ document.getElementById('btn-save-edit-renter').addEventListener('click', async 
     website: document.getElementById('edit-f-website').value,
     address: document.getElementById('edit-f-address').value,
     notes: document.getElementById('edit-f-notes').value,
-    isNonprofit: document.getElementById('edit-f-nonprofit').checked
+    isNonprofit: document.getElementById('edit-f-nonprofit').checked,
+    ein: document.getElementById('edit-f-ein').value
   };
+  if (payload.isNonprofit && !payload.ein) {
+    resultBox.className = 'result-box error'; resultBox.style.display = 'block'; resultBox.textContent = 'EIN is required for nonprofit customers.';
+    return;
+  }
   btn.disabled = true; btn.textContent = 'Saving…';
   try {
     const res = await authedFetch(API_BASE + '/renters/' + encodeURIComponent(editingRenterId), {
@@ -4364,6 +4376,9 @@ function showResult(type, message) {
   box.textContent = message;
 }
 
+document.getElementById('f-nonprofit').addEventListener('change', function () {
+  document.getElementById('f-ein-field').style.display = this.checked ? 'block' : 'none';
+});
 document.getElementById('btn-add-renter').addEventListener('click', async function () {
   const btn = this;
   const addressParts = [
@@ -4381,9 +4396,11 @@ document.getElementById('btn-add-renter').addEventListener('click', async functi
     website: document.getElementById('f-website').value,
     address: addressParts,
     notes: document.getElementById('f-notes').value,
-    isNonprofit: document.getElementById('f-nonprofit').checked
+    isNonprofit: document.getElementById('f-nonprofit').checked,
+    ein: document.getElementById('f-ein').value
   };
   if (!payload.contactName) { showResult('error', 'Contact name is required.'); return; }
+  if (payload.isNonprofit && !payload.ein) { showResult('error', 'EIN is required for nonprofit customers.'); return; }
 
   btn.disabled = true; btn.textContent = 'Saving…';
   try {
@@ -4395,8 +4412,9 @@ document.getElementById('btn-add-renter').addEventListener('click', async functi
       showResult('error', (data.errors || [data.error || 'Something went wrong.']).join(' '));
     } else {
       showResult('success', payload.contactName + ' saved — selectable on New Booking now.');
-      ['f-name','f-phone','f-email','f-org','f-website','f-street','f-suite','f-city','f-state','f-zip','f-notes'].forEach(function (id) { document.getElementById(id).value = ''; });
+      ['f-name','f-phone','f-email','f-org','f-website','f-street','f-suite','f-city','f-state','f-zip','f-notes','f-ein'].forEach(function (id) { document.getElementById(id).value = ''; });
       document.getElementById('f-nonprofit').checked = false;
+      document.getElementById('f-ein-field').style.display = 'none';
       await loadRenters();
     }
   } catch (err) {

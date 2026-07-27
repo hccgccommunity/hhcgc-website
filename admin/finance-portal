@@ -312,6 +312,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
       <li><button class="tab-btn" data-tab="dashboard">Dashboard</button></li>
       <li><button class="tab-btn" data-tab="accounting">Accounting</button></li>
       <li><button class="tab-btn active" data-tab="matching">Invoices &amp; Receipts</button></li>
+      <li><button class="tab-btn" data-tab="email-templates">Email Templates</button></li>
       <li><button class="tab-btn" data-tab="expenses">Expense Approvals</button></li>
     </ul>
   </div>
@@ -738,6 +739,57 @@ tr.series-row:hover td { background: var(--surface-soft); }
     <div class="pagination-bar" id="inv-pagination-bar"></div>
   </div>
 
+<div class="tab-panel" id="tab-email-templates">
+  <div class="card">
+    <h2>Email Templates</h2>
+    <p class="card-sub">Edit the wording sent for invoices, receipts, and event reminders. Merge fields like <code>{{renterName}}</code> get filled in automatically when each email is actually sent — leave them as-is to keep that data in place.</p>
+    <div class="sub-tabs" style="display:flex;gap:8px;margin:16px 0;flex-wrap:wrap;">
+      <button type="button" class="sub-tab-btn active" data-template-type="invoice">Invoice</button>
+      <button type="button" class="sub-tab-btn" data-template-type="invoiceNonFacility">Invoice (non-facility)</button>
+      <button type="button" class="sub-tab-btn" data-template-type="receipt">Receipt</button>
+      <button type="button" class="sub-tab-btn" data-template-type="reminder">Event Reminder</button>
+    </div>
+
+    <div class="field"><label>Subject line</label><input type="text" id="et-subject" style="width:100%;font-family:inherit;font-size:0.92rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></div>
+    <div class="field"><label>Email body (HTML)</label><textarea id="et-body" rows="16" style="width:100%;font-family:monospace;font-size:0.84rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></textarea></div>
+
+    <div class="field-hint" id="et-merge-fields" style="margin-bottom:16px;"></div>
+
+    <div id="et-reminder-timing-section" style="display:none;margin-bottom:16px;padding:14px 16px;background:var(--surface-soft);border-radius:10px;">
+      <div class="field" style="margin-bottom:0;">
+        <label for="et-reminder-hours">Send this reminder how many hours before the event?</label>
+        <input type="number" id="et-reminder-hours" min="1" max="720" step="1" style="width:140px;font-family:inherit;font-size:0.92rem;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;">
+        <div class="field-hint" style="margin-top:4px;">The scheduled job checks hourly, so treat this as roughly accurate, not exact. 48 hours = 2 days. Max 720 hours (30 days).</div>
+      </div>
+    </div>
+
+    <div id="et-attachment-section" style="display:none;margin-bottom:16px;padding:14px 16px;background:var(--surface-soft);border-radius:10px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <input type="checkbox" id="et-attachment-enabled">
+        <label for="et-attachment-enabled" style="font-weight:700;">Attach a PDF to this email</label>
+      </div>
+      <div class="field"><label>Attachment filename</label><input type="text" id="et-attachment-filename" style="width:100%;font-family:inherit;font-size:0.88rem;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;"></div>
+      <div class="field"><label>Replace the PDF (optional — leave blank to keep the current one)</label><input type="file" id="et-attachment-file" accept="application/pdf"></div>
+    </div>
+
+    <div style="display:flex;gap:10px;">
+      <button type="button" class="btn-primary" id="btn-save-template" style="margin-top:0;">Save template</button>
+      <button type="button" class="btn-secondary" id="btn-reset-template">Reset to default</button>
+    </div>
+    <div class="result-box" id="et-result" style="display:none;margin-top:12px;"></div>
+
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+      <label style="font-weight:700;font-size:0.88rem;display:block;margin-bottom:8px;">Send a test email</label>
+      <p class="card-sub" style="margin-bottom:10px;">Sends exactly what's in the editor above — saved or not — filled in with sample data, so you can see how it actually looks in an inbox before saving.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <input type="email" id="et-test-email" placeholder="you@hccgc.org" style="flex:1;min-width:220px;font-family:inherit;font-size:0.88rem;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;">
+        <button type="button" class="btn-secondary" id="btn-send-test-template">Send test</button>
+      </div>
+      <div class="result-box" id="et-test-result" style="display:none;margin-top:10px;"></div>
+    </div>
+  </div>
+</div>
+
   <!-- ── EXPENSE APPROVALS TAB ── -->
   <div class="tab-panel" id="tab-expenses">
     <div class="toolbar">
@@ -1158,6 +1210,7 @@ document.querySelectorAll('.tab-btn').forEach(function (btn) {
     if (btn.dataset.tab === 'dashboard' && !window.__dashboardLoaded) { loadDashboard(); loadAnnualTrendChart(); }
     if (btn.dataset.tab === 'accounting' && !window.__txLoaded) { loadTransactions(); window.__txLoaded = true; }
     if (btn.dataset.tab === 'matching' && !window.__matchingLoaded) loadInvoices();
+    if (btn.dataset.tab === 'email-templates' && !window.__etLoaded) initEmailTemplatesTab();
     if (btn.dataset.tab === 'expenses') loadExpenseSubmissions();
   });
 });
@@ -3739,6 +3792,163 @@ function fixHeaderLinksForSubfolder(headerEl) {
     link.setAttribute('href', '/' + href);
   });
 }
+// ==================== EMAIL TEMPLATES TAB ====================
+const EMAIL_TEMPLATE_MERGE_FIELDS = {
+  invoice: ['{{amount}}', '{{bookingId}}', '{{occurrencesTable}}', '{{discountLine}}', '{{chargeLine}}'],
+  invoiceNonFacility: ['{{amount}}', '{{bookingId}}', '{{eventName}}'],
+  receipt: ['{{invoiceNumber}}', '{{today}}', '{{renterName}}', '{{occurrencesTable}}', '{{amount}}', '{{amountInWords}}', '{{paymentDate}}', '{{paymentMethod}}'],
+  reminder: ['{{reminderWindow}}', '{{eventName}}', '{{eventDate}}', '{{eventTime}}', '{{rooms}}']
+};
+let emailTemplatesData = null;
+let currentTemplateType = 'invoice';
+
+function initEmailTemplatesTab() {
+  window.__etLoaded = true;
+  loadEmailTemplates();
+}
+
+async function loadEmailTemplates() {
+  try {
+    const res = await authedFetch(API_BASE + '/admin/email-templates');
+    emailTemplatesData = await res.json();
+    showEmailTemplate(currentTemplateType);
+  } catch (err) {
+    document.getElementById('et-result').className = 'result-box error';
+    document.getElementById('et-result').style.display = 'block';
+    document.getElementById('et-result').textContent = 'Could not load templates: ' + err.message;
+  }
+}
+
+function showEmailTemplate(type) {
+  currentTemplateType = type;
+  document.getElementById('et-result').style.display = 'none';
+  document.getElementById('et-test-result').style.display = 'none';
+  if (!document.getElementById('et-test-email').value && window.__hccgcFirebaseUser) {
+    document.getElementById('et-test-email').value = window.__hccgcFirebaseUser.email || '';
+  }
+  if (!emailTemplatesData) return;
+  const t = emailTemplatesData.templates[type];
+  document.getElementById('et-subject').value = t.subject;
+  document.getElementById('et-body').value = t.body;
+  document.getElementById('et-merge-fields').innerHTML = 'Available merge fields: ' + EMAIL_TEMPLATE_MERGE_FIELDS[type].map(f => '<code>' + f + '</code>').join(', ');
+
+  const attachmentSection = document.getElementById('et-attachment-section');
+  if (type === 'receipt') {
+    attachmentSection.style.display = 'block';
+    document.getElementById('et-attachment-enabled').checked = t.attachmentEnabled;
+    document.getElementById('et-attachment-filename').value = t.attachmentFilename || '';
+    document.getElementById('et-attachment-file').value = '';
+  } else {
+    attachmentSection.style.display = 'none';
+  }
+
+  const reminderTimingSection = document.getElementById('et-reminder-timing-section');
+  if (type === 'reminder') {
+    reminderTimingSection.style.display = 'block';
+    document.getElementById('et-reminder-hours').value = emailTemplatesData.reminderHoursBefore || 48;
+  } else {
+    reminderTimingSection.style.display = 'none';
+  }
+}
+
+document.querySelectorAll('#tab-email-templates .sub-tab-btn').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('#tab-email-templates .sub-tab-btn').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    showEmailTemplate(btn.dataset.templateType);
+  });
+});
+
+document.getElementById('btn-reset-template').addEventListener('click', function () {
+  if (!emailTemplatesData) return;
+  if (!confirm('Reset this template to the default wording? This does not save automatically — you can still review before clicking Save.')) return;
+  const def = emailTemplatesData.defaults[currentTemplateType];
+  document.getElementById('et-subject').value = def.subject;
+  document.getElementById('et-body').value = def.body;
+  if (currentTemplateType === 'receipt') {
+    document.getElementById('et-attachment-enabled').checked = !!def.attachmentEnabled;
+    document.getElementById('et-attachment-filename').value = def.attachmentFilename || '';
+  }
+});
+
+document.getElementById('btn-save-template').addEventListener('click', async function () {
+  const resultEl = document.getElementById('et-result');
+  resultEl.style.display = 'none';
+  const payload = {
+    type: currentTemplateType,
+    subject: document.getElementById('et-subject').value,
+    body: document.getElementById('et-body').value
+  };
+  if (currentTemplateType === 'receipt') {
+    payload.attachmentEnabled = document.getElementById('et-attachment-enabled').checked;
+    payload.attachmentFilename = document.getElementById('et-attachment-filename').value;
+    const fileInput = document.getElementById('et-attachment-file');
+    if (fileInput.files && fileInput.files[0]) {
+      payload.attachmentBase64 = await new Promise(function (resolve, reject) {
+        const reader = new FileReader();
+        reader.onload = function () { resolve(reader.result.split(',')[1]); };
+        reader.onerror = reject;
+        reader.readAsDataURL(fileInput.files[0]);
+      });
+    }
+  }
+  if (currentTemplateType === 'reminder') {
+    payload.reminderHoursBefore = Number(document.getElementById('et-reminder-hours').value);
+  }
+  try {
+    const res = await authedFetch(API_BASE + '/admin/email-templates', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) { resultEl.className = 'result-box error'; resultEl.style.display = 'block'; resultEl.textContent = (data.errors || [data.error]).join(' ') || 'Could not save.'; return; }
+    resultEl.className = 'result-box success'; resultEl.style.display = 'block'; resultEl.textContent = 'Saved.';
+    await loadEmailTemplates();
+  } catch (err) {
+    resultEl.className = 'result-box error'; resultEl.style.display = 'block'; resultEl.textContent = 'Could not reach the server: ' + err.message;
+  }
+});
+
+document.getElementById('btn-send-test-template').addEventListener('click', async function () {
+  const resultEl = document.getElementById('et-test-result');
+  const testEmail = document.getElementById('et-test-email').value.trim();
+  resultEl.style.display = 'none';
+  if (!testEmail) {
+    resultEl.className = 'result-box error'; resultEl.style.display = 'block'; resultEl.textContent = 'Enter an email address to send the test to.';
+    return;
+  }
+  const payload = {
+    type: currentTemplateType,
+    subject: document.getElementById('et-subject').value,
+    body: document.getElementById('et-body').value,
+    to: testEmail
+  };
+  if (currentTemplateType === 'receipt') {
+    payload.attachmentEnabled = document.getElementById('et-attachment-enabled').checked;
+    payload.attachmentFilename = document.getElementById('et-attachment-filename').value;
+    // Note: a newly-chosen-but-unsaved PDF replacement isn't included in
+    // the test send — only a saved attachment or the built-in default is.
+    // Save the template first if testing a specific new PDF matters.
+  }
+  if (currentTemplateType === 'reminder') {
+    payload.reminderHoursBefore = Number(document.getElementById('et-reminder-hours').value);
+  }
+  const btn = this;
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    const res = await authedFetch(API_BASE + '/admin/email-templates/test', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) { resultEl.className = 'result-box error'; resultEl.style.display = 'block'; resultEl.textContent = (data.errors || [data.error]).join(' ') || 'Could not send.'; return; }
+    resultEl.className = 'result-box success'; resultEl.style.display = 'block'; resultEl.textContent = 'Test email sent to ' + data.sentTo + '.';
+  } catch (err) {
+    resultEl.className = 'result-box error'; resultEl.style.display = 'block'; resultEl.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Send test';
+  }
+});
+
+
 loadPartial('site-header', '/header.html');
 loadPartial('site-footer', '/footer.html');
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/service-worker.js').catch(function () {});

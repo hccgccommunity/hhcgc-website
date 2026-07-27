@@ -2921,9 +2921,16 @@ function populateContactFilter() {
   BOOKINGS.forEach(function (b) { names.add(contactNameFor(b)); });
   const sorted = Array.from(names).sort(function (a, b) { return a.localeCompare(b); });
   // First time this runs (state.contactFilter is still undefined, not yet
-  // touched by the user), default to everything except HCCGC checked.
+  // touched by the user) - everything checked by default, HCCGC included.
+  // HCCGC used to be excluded by default here, on the assumption that
+  // HCCGC bookings are just internal noise - but a genuinely pending
+  // HCCGC event request (submitted via the public request form, awaiting
+  // approval) would be silently hidden by that same exclusion with no
+  // indication why. The status filter is the right tool for focusing on
+  // what needs attention; a customer-level exclusion can't tell the
+  // difference between "already confirmed" and "still needs review".
   if (state.contactFilter === undefined) {
-    state.contactFilter = new Set(sorted.filter(function (n) { return n !== 'HCCGC'; }));
+    state.contactFilter = new Set(sorted);
   }
   const list = document.getElementById('contact-filter-list');
   const checkedSet = state.contactFilter; // null = everything checked

@@ -70,6 +70,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .et-tb-btn { min-width: 30px; padding: 5px 9px; font-size: 0.86rem; font-family: inherit; color: var(--ink, #2c1b10); background: #fff; border: 1.5px solid var(--border); border-radius: 6px; cursor: pointer; }
 .et-tb-btn:hover { background: var(--surface-soft); }
 .et-tb-btn.active { background: var(--saffron-dark); color: #fff; border-color: var(--saffron-dark); }
+.nav-badge { display: inline-block; background: #b3382c; color: #fff; font-size: 0.68rem; font-weight: 700; padding: 1px 6px; border-radius: 999px; margin-left: 4px; vertical-align: middle; }
 #et-body-editor:focus { outline: 2px solid var(--saffron-dark); outline-offset: -1px; }
 #et-body-editor:empty:before { content: attr(data-placeholder); color: var(--muted); }
 .sub-tab-btn.active { background: var(--saffron-dark); color: #fff; border-color: var(--saffron-dark); }
@@ -318,7 +319,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
       <li><button class="tab-btn" data-tab="accounting">Accounting</button></li>
       <li><button class="tab-btn active" data-tab="matching">Invoices &amp; Receipts</button></li>
       <li><button class="tab-btn" data-tab="email-templates">Email Templates</button></li>
-      <li><button class="tab-btn" data-tab="expenses">Expense Approvals</button></li>
+      <li><button class="tab-btn" data-tab="expenses" id="nav-expenses">Expense Approvals</button></li>
     </ul>
   </div>
 </div>
@@ -3847,8 +3848,9 @@ document.getElementById('btn-approve-expense').addEventListener('click', async f
     if (!res.ok) {
       box.className = 'result-box error'; box.textContent = (data.errors || [data.error]).join(' ');
     } else {
-      box.className = 'result-box success'; box.textContent = 'Approved ' + data.approvedCount + ' expense(s), total ' + money(data.total) + '. Email sent to the approver.';
+      box.className = 'result-box success'; box.textContent = 'Approved ' + data.approvedCount + ' expense(s), total ' + money(data.total) + '. Email sent to finance@hccgc.org.';
       await loadExpenseSubmissions();
+      await loadPendingCounts();
       setTimeout(closeExpenseReview, 1400);
     }
   } catch (err) {
@@ -3873,6 +3875,7 @@ document.getElementById('btn-reject-expense').addEventListener('click', async fu
     } else {
       box.className = 'result-box success'; box.textContent = 'Rejected.';
       await loadExpenseSubmissions();
+      await loadPendingCounts();
       setTimeout(closeExpenseReview, 1000);
     }
   } catch (err) {
@@ -4092,6 +4095,24 @@ document.getElementById('btn-send-test-template').addEventListener('click', asyn
   }
 });
 
+
+async function loadPendingCounts() {
+  try {
+    const res = await authedFetch(API_BASE + '/pending-counts');
+    const data = await res.json();
+    const expensesLink = document.getElementById('nav-expenses');
+    if (expensesLink) {
+      const existingBadge = expensesLink.querySelector('.nav-badge');
+      if (existingBadge) existingBadge.remove();
+      if (data.pendingExpenseSubmissions > 0) {
+        expensesLink.insertAdjacentHTML('beforeend', ' <span class="nav-badge">' + data.pendingExpenseSubmissions + '</span>');
+      }
+    }
+  } catch (err) {
+    // Non-critical - badge just doesn't show if this fails.
+  }
+}
+loadPendingCounts();
 
 loadPartial('site-header', '/header.html');
 loadPartial('site-footer', '/footer.html');

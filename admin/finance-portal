@@ -3688,12 +3688,21 @@ function renderExpenseReviewDetails() {
     const checkbox = i.status === 'submitted'
       ? '<input type="checkbox" class="exp-item-select" data-select-checkbox="' + i.line_item_id + '" checked style="margin-right:10px;width:16px;height:16px;flex-shrink:0;">'
       : '';
+    let paidSection = '';
+    if (i.status === 'approved') {
+      paidSection = '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;margin-top:6px;" data-mark-expense-paid="' + i.line_item_id + '">Mark paid</button>';
+    } else if (i.status === 'paid') {
+      paidSection = '<div style="margin-top:6px;font-size:0.78rem;color:var(--green);">&#10003; Paid' + (i.payment_match_source ? ' — matched to bank transaction' : ' — no bank transaction matched yet') + '</div>' +
+        (i.payment_match_source ? '' : '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;margin-top:4px;" data-find-expense-match="' + i.line_item_id + '">Find matching transaction</button>');
+    }
+    const matchCandidatesEl = '<div id="match-candidates-' + i.line_item_id + '" style="margin-top:6px;"></div>';
     return '<div class="exp-line-item' + (i.line_item_id === currentReviewLineItemId ? ' active' : '') + '" data-line-id="' + i.line_item_id + '" data-select-line="' + i.line_item_id + '" style="display:flex;align-items:flex-start;">' +
       checkbox +
       '<div style="flex:1;">' +
         '<div class="exp-top-row"><span>' + escHtml(i.expense_for) + '</span><span>' + money(i.amount) + '</span></div>' +
         '<div class="exp-date">' + formatDate(i.expense_date) + ' · <span class="source-tag">' + i.status + '</span></div>' +
         (i.status === 'submitted' ? '<select class="cat-select' + (i.category_id ? '' : ' uncategorized') + '" data-set-expense-category="' + i.line_item_id + '">' + catOptions + '</select>' : '') +
+        paidSection + matchCandidatesEl +
       '</div>' +
     '</div>';
   }).join('');
@@ -3712,6 +3721,75 @@ document.getElementById('exp-review-details').addEventListener('change', functio
   const sel = e.target.closest('[data-set-expense-category]');
   if (!sel) return;
   setExpenseCategory(sel.dataset.setExpenseCategory, sel.value);
+});
+document.getElementById('exp-review-details').addEventListener('click', async function (e) {
+  const markBtn = e.target.closest('[data-mark-expense-paid]');
+  const findBtn = e.target.closest('[data-find-expense-match]');
+  const btn = markBtn || findBtn;
+  if (!btn) return;
+  e.stopPropagation();
+  const lineItemId = markBtn ? markBtn.dataset.markExpensePaid : findBtn.dataset.findExpenseMatch;
+  const candidatesEl = document.getElementById('match-candidates-' + lineItemId);
+  btn.disabled = true; btn.textContent = markBtn ? 'Marking paid…' : 'Searching…';
+  try {
+    const url = markBtn
+      ? API_BASE + '/finance/expense-line-items/' + encodeURIComponent(lineItemId) + '/mark-paid'
+      : API_BASE + '/finance/reimbursement-candidates?amount=' + encodeURIComponent(currentReviewSubmission.items.find(function (i) { return i.line_item_id === lineItemId; }).amount);
+    const res = await authedFetch(url, { method: markBtn ? 'POST' : 'GET' });
+    const data = await res.json();
+    if (!res.ok) { candidatesEl.innerHTML = '<div style="color:var(--red);font-size:0.78rem;">' + ((data.errors || [data.error]).join(' ') || 'Could not complete this.') + '</div>'; return; }
+    // markBtn's response shape is { candidates: [...] } from mark-paid;
+    // findBtn's is a bare array from reimbursement-candidates - either
+    // way, render whatever came back the same way.
+    const candidates = markBtn ? (data.candidates || []) : data;
+    if (markBtn) {
+      const item = currentReviewSubmission.items.find(function (i) { return i.line_item_id === lineItemId; });
+      if (item) item.status = 'paid';
+    }
+    if (!candidates.length) {
+      candidatesEl.innerHTML = '<div style="font-size:0.78rem;color:var(--muted);">No matching bank transaction found yet — you can try again later once it clears.</div>';
+      if (markBtn) renderExpenseReviewDetails();
+      return;
+    }
+    candidatesEl.innerHTML = '<div style="font-size:0.78rem;color:var(--muted);margin:4px 0;">Possible matching transaction' + (candidates.length > 1 ? 's' : '') + ':</div>' +
+      candidates.map(function (c, idx) {
+        return '<div class="exp-line-item" style="padding:8px 10px;cursor:pointer;" data-confirm-match-line="' + lineItemId + '" data-confirm-match-idx="' + idx + '">' +
+          '<div class="exp-top-row"><span>' + escHtml(c.description) + '</span><span>' + money(Math.abs(c.amount)) + '</span></div>' +
+          '<div class="exp-date">' + formatDate(c.date) + '</div>' +
+        '</div>';
+      }).join('');
+    candidatesEl.dataset.candidates = JSON.stringify(candidates);
+    if (markBtn) renderExpenseReviewDetails();
+  } catch (err) {
+    candidatesEl.innerHTML = '<div style="color:var(--red);font-size:0.78rem;">Could not reach the server: ' + escHtml(err.message) + '</div>';
+  } finally {
+    if (btn.isConnected) { btn.disabled = false; btn.textContent = markBtn ? 'Mark paid' : 'Find matching transaction'; }
+  }
+});
+document.getElementById('exp-review-details').addEventListener('click', async function (e) {
+  const pick = e.target.closest('[data-confirm-match-line]');
+  if (!pick) return;
+  e.stopPropagation();
+  const lineItemId = pick.dataset.confirmMatchLine;
+  const idx = Number(pick.dataset.confirmMatchIdx);
+  const candidatesEl = document.getElementById('match-candidates-' + lineItemId);
+  const candidates = JSON.parse(candidatesEl.dataset.candidates || '[]');
+  const c = candidates[idx];
+  if (!c) return;
+  candidatesEl.innerHTML = '<div style="font-size:0.78rem;color:var(--muted);">Confirming…</div>';
+  try {
+    const res = await authedFetch(API_BASE + '/finance/expense-line-items/' + encodeURIComponent(lineItemId) + '/confirm-bank-match', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date: c.date, description: c.description, amount: c.amount })
+    });
+    const data = await res.json();
+    if (!res.ok) { candidatesEl.innerHTML = '<div style="color:var(--red);font-size:0.78rem;">' + ((data.errors || [data.error]).join(' ') || 'Could not confirm.') + '</div>'; return; }
+    const item = currentReviewSubmission.items.find(function (i) { return i.line_item_id === lineItemId; });
+    if (item) item.payment_match_source = 'bank';
+    renderExpenseReviewDetails();
+  } catch (err) {
+    candidatesEl.innerHTML = '<div style="color:var(--red);font-size:0.78rem;">Could not reach the server: ' + escHtml(err.message) + '</div>';
+  }
 });
 
 async function selectExpenseLineItem(lineItemId) {

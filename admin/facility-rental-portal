@@ -1579,9 +1579,9 @@ function renderPendingRequestsList() {
     else if (item.event_description) titleParts.push(escHtml(item.event_description.length > 60 ? item.event_description.slice(0, 60) + '\u2026' : item.event_description));
     if (roomsStr) titleParts.push(escHtml(roomsStr));
     const titleText = titleParts.length ? titleParts.join(' \u00b7 ') : escHtml(item.renter_name);
-    return '<div class="exp-line-item" style="cursor:pointer;" data-request-row="' + repBookingId + '">' +
+    return '<div class="exp-line-item" style="cursor:pointer;margin-bottom:16px;" data-request-row="' + repBookingId + '">' +
       '<div class="exp-top-row"><span style="font-weight:700;color:var(--ink,#2c1b10);">' + titleText + '</span>' +
-        '<span class="request-row-chevron" id="request-chevron-' + repBookingId + '" style="color:var(--muted);margin-left:16px;">\u25be</span></div>' +
+        '<span class="request-row-chevron" id="request-chevron-' + repBookingId + '" style="color:var(--muted);margin-left:16px;">\u25b8</span></div>' +
       '<div class="exp-date">' + escHtml(item.renter_name) + (isSeries ? ' \u2014 ' + item.occurrences.length + ' occurrences' : '') + '</div>' +
       '<div class="exp-date">' + dateStr + '</div>' +
       '<div class="request-detail-slot" id="request-detail-' + repBookingId + '"></div>' +
@@ -1593,7 +1593,7 @@ function renderPendingRequestsList() {
   if (wasReviewing && pending.some(function (b) { return b.booking_id === wasReviewing || (b.recurring_series_id && BOOKINGS.some(function (x) { return x.booking_id === wasReviewing && x.recurring_series_id === b.recurring_series_id; })); })) {
     const slot = document.getElementById('request-detail-' + wasReviewing);
     const chevron = document.getElementById('request-chevron-' + wasReviewing);
-    if (slot) { slot.appendChild(form); form.style.display = 'block'; if (chevron) chevron.textContent = '\u25b4'; reviewingBookingId = wasReviewing; }
+    if (slot) { slot.appendChild(form); form.style.display = 'block'; if (chevron) chevron.textContent = '\u25be'; reviewingBookingId = wasReviewing; }
   }
 }
 document.getElementById('pending-requests-list').addEventListener('click', function (e) {
@@ -2327,14 +2327,14 @@ function toggleInlineBookingReview(bookingId, chevron) {
   // Same request clicked again — collapse it.
   if (reviewingBookingId === bookingId && form.style.display !== 'none') {
     form.style.display = 'none';
-    if (chevron) chevron.textContent = '\u25be';
+    if (chevron) chevron.textContent = '\u25b8';
     reviewingBookingId = null;
     return;
   }
   // Reset whichever row's chevron was previously showing "open".
-  document.querySelectorAll('.request-row-chevron').forEach(function (c) { c.textContent = '\u25be'; });
+  document.querySelectorAll('.request-row-chevron').forEach(function (c) { c.textContent = '\u25b8'; });
   slot.appendChild(form);
-  if (chevron) chevron.textContent = '\u25b4';
+  if (chevron) chevron.textContent = '\u25be';
   openInlineBookingReview(bookingId);
 }
 async function openInlineBookingReview(bookingId) {
@@ -2517,7 +2517,7 @@ function formatTimeRange(start, end) {
 }
 document.getElementById('btn-close-inline-review').addEventListener('click', function () {
   document.getElementById('inline-review-form').style.display = 'none';
-  document.querySelectorAll('.request-row-chevron').forEach(function (c) { c.textContent = '\u25be'; });
+  document.querySelectorAll('.request-row-chevron').forEach(function (c) { c.textContent = '\u25b8'; });
   reviewingBookingId = null;
 });
 document.getElementById('btn-inline-review-approve').addEventListener('click', async function () {

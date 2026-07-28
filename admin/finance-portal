@@ -830,7 +830,9 @@ tr.series-row:hover td { background: var(--surface-soft); }
         <option value="rejected">Rejected</option>
         <option value="">All</option>
       </select>
+      <input type="month" id="exp-month-filter" title="Filter by the month the expense was actually incurred (its own date), not when it was submitted">
       <button type="button" class="btn-secondary" id="btn-load-expenses">Refresh</button>
+      <span class="card-sub" id="exp-month-total" style="margin:0;"></span>
     </div>
     <div id="expenses-submission-list"></div>
   </div>
@@ -3618,17 +3620,36 @@ document.getElementById('exp-status-filter').addEventListener('change', loadExpe
 
 async function loadExpenseSubmissions() {
   const status = document.getElementById('exp-status-filter').value;
+  const monthFilter = document.getElementById('exp-month-filter').value; // 'YYYY-MM' or ''
   const list = document.getElementById('expenses-submission-list');
+  const totalEl = document.getElementById('exp-month-total');
   list.innerHTML = '<div class="empty-state">Loading…</div>';
+  totalEl.textContent = '';
   setTabLoading('tab-expenses', true);
   try {
     const res = await authedFetch(API_BASE + '/finance/expense-submissions' + (status ? '?status=' + status : ''));
     EXPENSE_SUBMISSIONS = await res.json();
-    if (!EXPENSE_SUBMISSIONS.length) { list.innerHTML = '<div class="empty-state">Nothing here.</div>'; return; }
-    list.innerHTML = EXPENSE_SUBMISSIONS.map(function (s) {
-      const total = s.items.reduce(function (sum, i) { return sum + i.amount; }, 0);
+    // Attribute each expense to the month it was actually incurred (its
+    // own expense_date), not when it was submitted, approved, or paid -
+    // a submission made in one month can easily include expenses from an
+    // earlier one, and those should count toward that earlier month.
+    const bySubmission = EXPENSE_SUBMISSIONS.map(function (s) {
+      const matchingItems = monthFilter ? s.items.filter(function (i) { return (i.expense_date || '').slice(0, 7) === monthFilter; }) : s.items;
+      return { submission: s, matchingItems: matchingItems };
+    }).filter(function (x) { return x.matchingItems.length > 0; });
+    if (!bySubmission.length) { list.innerHTML = '<div class="empty-state">Nothing here.</div>'; return; }
+    if (monthFilter) {
+      const monthTotal = bySubmission.reduce(function (sum, x) { return sum + x.matchingItems.reduce(function (s2, i) { return s2 + i.amount; }, 0); }, 0);
+      totalEl.textContent = 'Total for ' + monthFilter + ': ' + money(monthTotal);
+    }
+    list.innerHTML = bySubmission.map(function (x) {
+      const s = x.submission;
+      const total = x.matchingItems.reduce(function (sum, i) { return sum + i.amount; }, 0);
+      const countLabel = monthFilter && x.matchingItems.length !== s.items.length
+        ? x.matchingItems.length + ' of ' + s.items.length + ' expense(s) in this month'
+        : s.items.length + ' expense(s)';
       return '<div class="exp-submission-card">' +
-        '<div class="exp-sub-info"><strong>' + escHtml(s.firstName) + ' ' + escHtml(s.lastName) + '</strong> — ' + s.items.length + ' expense(s)<br>' +
+        '<div class="exp-sub-info"><strong>' + escHtml(s.firstName) + ' ' + escHtml(s.lastName) + '</strong> — ' + countLabel + '<br>' +
         '<span style="color:var(--muted);font-size:0.82rem;">' + escHtml(s.email) + ' · Zelle: ' + escHtml(s.zelleId || '—') + '</span></div>' +
         '<div style="display:flex;align-items:center;gap:16px;"><span class="exp-sub-total">' + money(total) + '</span>' +
         '<button type="button" class="btn-secondary" data-review-submission="' + s.submissionId + '">Review</button></div>' +
@@ -3640,6 +3661,7 @@ async function loadExpenseSubmissions() {
     setTabLoading('tab-expenses', false);
   }
 }
+document.getElementById('exp-month-filter').addEventListener('change', loadExpenseSubmissions);
 document.getElementById('expenses-submission-list').addEventListener('click', function (e) {
   const btn = e.target.closest('[data-review-submission]');
   if (!btn) return;
@@ -4112,7 +4134,6 @@ async function loadPendingCounts() {
     // Non-critical - badge just doesn't show if this fails.
   }
 }
-loadPendingCounts();
 
 loadPartial('site-header', '/header.html');
 loadPartial('site-footer', '/footer.html');
@@ -4163,6 +4184,7 @@ onAuthStateChanged(auth, function(user) {
     document.getElementById('gate').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     loadCategories().then(function () { loadInvoices(); window.__matchingLoaded = true; });
+    loadPendingCounts();
   }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });
 });
 </script>

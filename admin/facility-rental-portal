@@ -1573,9 +1573,16 @@ function renderPendingRequestsList() {
     const isSeries = item.type === 'series';
     const repBookingId = isSeries ? item.occurrences[0].booking_id : item.booking.booking_id;
     const dateStr = formatDate(item.event_date) + (isSeries ? ' \u2013 ' + formatDate(item.event_date_last) : '');
+    const roomsStr = (item.rooms || []).join(', ');
+    const subtitleParts = [];
+    if (item.event_name) subtitleParts.push(escHtml(item.event_name));
+    else if (item.event_description) subtitleParts.push(escHtml(item.event_description.length > 60 ? item.event_description.slice(0, 60) + '\u2026' : item.event_description));
+    if (roomsStr) subtitleParts.push(escHtml(roomsStr));
+    const subtitle = subtitleParts.length ? '<div class="exp-date" style="font-weight:600;color:var(--ink,#2c1b10);">' + subtitleParts.join(' \u00b7 ') + '</div>' : '';
     return '<div class="exp-line-item" style="cursor:pointer;" data-request-row="' + repBookingId + '">' +
       '<div class="exp-top-row"><span>' + escHtml(item.renter_name) + (isSeries ? ' \u2014 ' + item.occurrences.length + ' occurrences' : '') + '</span>' +
         '<span class="request-row-chevron" id="request-chevron-' + repBookingId + '" style="color:var(--muted);">\u25be</span></div>' +
+      subtitle +
       '<div class="exp-date">' + dateStr + '</div>' +
       '<div class="request-detail-slot" id="request-detail-' + repBookingId + '"></div>' +
     '</div>';
@@ -1764,7 +1771,7 @@ function groupIntoDisplayItems(list) {
       items.push({
         type: 'single', booking: b, renter_name: b.renter_name, event_date: b.event_date,
         hours: b.hours, final_total: Number(b.final_total), payment_status: b.payment_status,
-        updated_display: b.updated_display
+        updated_display: b.updated_display, event_name: b.event_name, event_description: b.event_description, rooms: b.rooms, organization_name: b.organization_name
       });
     }
   });
@@ -1785,6 +1792,7 @@ function groupIntoDisplayItems(list) {
     item.paidCount = occ.filter(function (o) { return o.payment_status === 'paid'; }).length;
     item.notes = first.notes;
     item.event_name = first.event_name;
+    item.event_description = first.event_description;
     item.organization_name = first.organization_name;
     item.created_by = first.created_by;
     item.updated_display = occ.reduce(function (latest, o) { return o.updated_display > latest ? o.updated_display : latest; }, first.updated_display);

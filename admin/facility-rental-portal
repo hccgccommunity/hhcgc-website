@@ -1545,6 +1545,16 @@ async function authedFetch(url, options) {
 function escHtml(str) {
   return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
+// Converts a stored UTC ISO timestamp to a 24-hour "HH:MM" string in
+// Eastern time, suitable for populating an <input type="time"> field.
+// A plain .slice(11, 16) on the raw UTC string looks like it works but
+// is wrong - it grabs the UTC hour/minute with no timezone conversion
+// at all, silently showing (and, if saved without correction, re-saving)
+// a time 4-5 hours off from the real Eastern wall-clock time.
+function utcIsoToEasternTimeInput(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York' });
+}
 function loadPartial(id, file) {
   var target = document.getElementById(id);
   if (!target) return;
@@ -2805,8 +2815,8 @@ async function openEditModal(bookingId) {
     document.getElementById('edit-adj-reason').value = b.manual_adjustment_reason || '';
   }
   document.getElementById('edit-date').value = b.event_date;
-  document.getElementById('edit-start').value = (b.start_time || '').slice(11, 16);
-  document.getElementById('edit-end').value = (b.end_time || '').slice(11, 16);
+  document.getElementById('edit-start').value = utcIsoToEasternTimeInput(b.start_time);
+  document.getElementById('edit-end').value = utcIsoToEasternTimeInput(b.end_time);
   document.getElementById('edit-notes').value = b.notes || '';
   document.querySelectorAll('.edit-room-cb').forEach(function (cb) { cb.checked = b.rooms.includes(cb.value); });
   enforceEditKitchenRule();
@@ -2913,8 +2923,8 @@ function renderSeriesEditOccTable(occurrences) {
     }
     return '<tr data-booking-id="' + occ.booking_id + '">' +
       '<td><input type="date" class="series-occ-date" value="' + occ.event_date + '"></td>' +
-      '<td><input type="time" class="series-occ-start" value="' + (occ.start_time || '').slice(11, 16) + '" list="common-times"></td>' +
-      '<td><input type="time" class="series-occ-end" value="' + (occ.end_time || '').slice(11, 16) + '" list="common-times"></td>' +
+      '<td><input type="time" class="series-occ-start" value="' + utcIsoToEasternTimeInput(occ.start_time) + '" list="common-times"></td>' +
+      '<td><input type="time" class="series-occ-end" value="' + utcIsoToEasternTimeInput(occ.end_time) + '" list="common-times"></td>' +
       '<td style="text-align:center;"><input type="checkbox" class="series-occ-remove"></td>' +
     '</tr>';
   }).join('');
@@ -2999,7 +3009,7 @@ document.getElementById('btn-save-series-edit').addEventListener('click', async 
       // unchanged rather than trying to read inputs that don't exist on
       // this row, and they can never be marked for removal.
       const existing = occurrences.find(function (o) { return o.booking_id === bookingId; });
-      return { bookingId: bookingId, eventDate: existing.event_date, startTime: (existing.start_time || '').slice(11, 16), endTime: (existing.end_time || '').slice(11, 16), remove: false };
+      return { bookingId: bookingId, eventDate: existing.event_date, startTime: utcIsoToEasternTimeInput(existing.start_time), endTime: utcIsoToEasternTimeInput(existing.end_time), remove: false };
     }
     return {
       bookingId: bookingId,

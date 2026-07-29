@@ -431,8 +431,8 @@ body {
   },
   {
     "key": "issue-reporting",
-    "name": "Issue Reporting",
-    "description": "Report a problem with screenshots and priority — get notified once it's resolved.",
+    "name": "Issues & Feature Requests",
+    "description": "Report a problem or request a feature, with back-and-forth replies until it's resolved or complete.",
     "url": "issue-reporting",
     "icon": "flag"
   },

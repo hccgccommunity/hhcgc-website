@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Issue Reporting — HCCGC Admin Portal</title>
+<title>Issues & Feature Requests — HCCGC Admin Portal</title>
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -47,6 +47,13 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .page-hero p { color: #ffffff; opacity: 0.9; font-size: 0.92rem; max-width: 560px; }
 .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.85); text-decoration: none; margin-bottom: 14px; }
 .back-link:hover { color: #fff; text-decoration: underline; }
+
+.tab-nav { background: var(--surface); border-bottom: 1px solid var(--border); }
+.tab-nav ul { list-style: none; display: flex; gap: 4px; margin: 0; padding: 0; }
+.tab-btn { font-family: inherit; font-size: 0.9rem; font-weight: 700; color: var(--muted); background: none; border: none; border-bottom: 3px solid transparent; padding: 14px 18px; cursor: pointer; }
+.tab-btn.active { color: var(--maroon); border-bottom-color: var(--maroon); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
 
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; box-shadow: var(--shadow); margin-bottom: 20px; }
 .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
@@ -105,9 +112,17 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .modal-header h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.15rem; color: var(--maroon); }
 .modal-close { background: none; border: none; font-size: 1.4rem; color: var(--muted); cursor: pointer; line-height: 1; }
 .modal-body { padding: 22px 26px; max-height: 65vh; overflow-y: auto; }
-.modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 18px 26px; border-top: 1px solid var(--border); }
+.modal-footer { display: flex; flex-direction: column; gap: 10px; padding: 18px 26px; border-top: 1px solid var(--border); }
 .screenshot-links { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
 .screenshot-links a { font-size: 0.82rem; color: var(--saffron-dark); font-weight: 700; }
+
+.reply-thread { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
+.reply-item { padding: 10px 14px; border-radius: 12px; margin-bottom: 10px; font-size: 0.86rem; }
+.reply-item.mine { background: var(--surface-soft); }
+.reply-item.theirs { background: #f2eee6; }
+.reply-meta { font-size: 0.74rem; color: var(--muted); font-weight: 700; margin-bottom: 4px; }
+.reply-compose { display: flex; gap: 8px; margin-top: 12px; align-items: flex-end; }
+.reply-compose textarea { flex: 1; min-height: 60px; }
 
 #gate{padding:60px 16px;display:flex;justify-content:center;}
 .gate-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow);}
@@ -131,42 +146,88 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 <div class="page-hero">
   <div class="container">
     <a class="back-link" href="https://hccgc.org/admin/admin-portal">&larr; Back to apps</a>
-    <h1>Issue Reporting</h1>
-    <p>Report a problem, attach a screenshot, and hear back once it's resolved.</p>
+    <h1>Issues & Feature Requests</h1>
+    <p>Report a problem or request a feature, have a back-and-forth conversation about it, and hear back once it's done.</p>
+  </div>
+</div>
+
+<div class="tab-nav">
+  <div class="container">
+    <ul>
+      <li><button class="tab-btn active" data-tab="issue">Report an Issue</button></li>
+      <li><button class="tab-btn" data-tab="feature_request">Request a Feature</button></li>
+    </ul>
   </div>
 </div>
 
 <div class="container" style="padding:24px 0 60px;">
-  <div class="card">
-    <h2 style="font-family:Georgia,serif;color:var(--maroon);margin-bottom:16px;">Report an issue</h2>
-    <form id="issueForm">
-      <div class="field"><label>Title <span style="color:var(--saffron-dark);">*</span></label><input type="text" id="if-title" placeholder="Short summary of the problem" required></div>
-      <div class="field"><label>What happened? <span style="color:var(--saffron-dark);">*</span></label><textarea id="if-description" placeholder="Describe the behavior — what you did, what you expected, what actually happened." required></textarea></div>
-      <div class="field">
-        <label>Priority <span style="color:var(--saffron-dark);">*</span></label>
-        <div class="priority-options" id="priority-options">
-          <label class="priority-opt low" data-priority="low"><input type="radio" name="priority" value="low">Low</label>
-          <label class="priority-opt medium selected" data-priority="medium"><input type="radio" name="priority" value="medium" checked>Medium</label>
-          <label class="priority-opt high" data-priority="high"><input type="radio" name="priority" value="high">High</label>
-          <label class="priority-opt critical" data-priority="critical"><input type="radio" name="priority" value="critical">Critical</label>
+
+  <div class="tab-panel active" id="tab-issue">
+    <div class="card">
+      <h2 style="font-family:Georgia,serif;color:var(--maroon);margin-bottom:16px;">Report an issue</h2>
+      <form id="issueForm" data-ticket-type="issue">
+        <div class="field"><label>Title <span style="color:var(--saffron-dark);">*</span></label><input type="text" class="tf-title" placeholder="Short summary of the problem" required></div>
+        <div class="field"><label>What happened? <span style="color:var(--saffron-dark);">*</span></label><textarea class="tf-description" placeholder="Describe the behavior — what you did, what you expected, what actually happened." required></textarea></div>
+        <div class="field">
+          <label>Priority <span style="color:var(--saffron-dark);">*</span></label>
+          <div class="priority-options">
+            <label class="priority-opt low" data-priority="low"><input type="radio" name="priority-issue" value="low">Low</label>
+            <label class="priority-opt medium selected" data-priority="medium"><input type="radio" name="priority-issue" value="medium" checked>Medium</label>
+            <label class="priority-opt high" data-priority="high"><input type="radio" name="priority-issue" value="high">High</label>
+            <label class="priority-opt critical" data-priority="critical"><input type="radio" name="priority-issue" value="critical">Critical</label>
+          </div>
         </div>
+        <div class="field">
+          <label>Screenshots (optional)</label>
+          <label class="file-upload-label tf-upload-label">📎 Choose file(s)<input type="file" class="tf-screenshots" accept="image/*" multiple style="display:none;"></label>
+        </div>
+        <button type="submit" class="btn-primary tf-submit-btn">Submit issue</button>
+        <div class="result-box tf-result-box" style="display:none;"></div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h2 style="font-family:Georgia,serif;color:var(--maroon);" id="issue-tickets-heading">My issues</h2>
+        <button type="button" class="btn-secondary tt-refresh-btn">Refresh</button>
       </div>
-      <div class="field">
-        <label>Screenshots (optional)</label>
-        <label class="file-upload-label" id="upload-label">📎 Choose file(s)<input type="file" id="if-screenshots" accept="image/*" multiple style="display:none;"></label>
-      </div>
-      <button type="submit" class="btn-primary" id="if-submit-btn">Submit issue</button>
-      <div class="result-box" id="if-result-box" style="display:none;"></div>
-    </form>
+      <div class="tt-tickets-list" id="issue-tickets-list"></div>
+    </div>
   </div>
 
-  <div class="card">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-      <h2 style="font-family:Georgia,serif;color:var(--maroon);" id="tickets-heading">My issues</h2>
-      <button type="button" class="btn-secondary" id="btn-refresh-tickets">Refresh</button>
+  <div class="tab-panel" id="tab-feature_request">
+    <div class="card">
+      <h2 style="font-family:Georgia,serif;color:var(--maroon);margin-bottom:16px;">Request a feature</h2>
+      <form id="featureForm" data-ticket-type="feature_request">
+        <div class="field"><label>Title <span style="color:var(--saffron-dark);">*</span></label><input type="text" class="tf-title" placeholder="Short summary of the feature" required></div>
+        <div class="field"><label>What would this do? <span style="color:var(--saffron-dark);">*</span></label><textarea class="tf-description" placeholder="Describe what you'd like to be able to do, and why it would help." required></textarea></div>
+        <div class="field">
+          <label>Priority <span style="color:var(--saffron-dark);">*</span></label>
+          <div class="priority-options">
+            <label class="priority-opt low" data-priority="low"><input type="radio" name="priority-feature" value="low">Low</label>
+            <label class="priority-opt medium selected" data-priority="medium"><input type="radio" name="priority-feature" value="medium" checked>Medium</label>
+            <label class="priority-opt high" data-priority="high"><input type="radio" name="priority-feature" value="high">High</label>
+            <label class="priority-opt critical" data-priority="critical"><input type="radio" name="priority-feature" value="critical">Critical</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Screenshots / mockups (optional)</label>
+          <label class="file-upload-label tf-upload-label">📎 Choose file(s)<input type="file" class="tf-screenshots" accept="image/*" multiple style="display:none;"></label>
+        </div>
+        <button type="submit" class="btn-primary tf-submit-btn">Submit request</button>
+        <div class="result-box tf-result-box" style="display:none;"></div>
+      </form>
     </div>
-    <div id="tickets-list"></div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h2 style="font-family:Georgia,serif;color:var(--maroon);" id="feature_request-tickets-heading">My feature requests</h2>
+        <button type="button" class="btn-secondary tt-refresh-btn">Refresh</button>
+      </div>
+      <div class="tt-tickets-list" id="feature_request-tickets-list"></div>
+    </div>
   </div>
+
 </div>
 
 </div>
@@ -174,7 +235,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 <div class="modal-overlay" id="ticket-modal-overlay" style="display:none;">
   <div class="modal-panel">
     <div class="modal-header">
-      <h2 id="ticket-modal-title">Issue</h2>
+      <h2 id="ticket-modal-title">Ticket</h2>
       <button class="modal-close" id="btn-close-ticket-modal">&times;</button>
     </div>
     <div class="modal-body" id="ticket-modal-body"></div>
@@ -198,25 +259,39 @@ async function authedFetch(url, options) {
 function escHtml(str) { return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function formatDateTime(iso) { if (!iso) return '—'; var d = new Date(iso); return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ', ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); }
 
-// ── Priority selector ──
+// ── Tabs ──
+document.querySelectorAll('.tab-btn').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+    document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    if (!TICKETS_LOADED[btn.dataset.tab]) loadTickets(btn.dataset.tab);
+  });
+});
+
+// ── Priority selector (shared logic for both forms) ──
 document.querySelectorAll('.priority-opt').forEach(function (opt) {
   opt.addEventListener('click', function () {
-    document.querySelectorAll('.priority-opt').forEach(function (o) { o.classList.remove('selected'); });
+    var group = opt.closest('.priority-options');
+    group.querySelectorAll('.priority-opt').forEach(function (o) { o.classList.remove('selected'); });
     opt.classList.add('selected');
     opt.querySelector('input').checked = true;
   });
 });
 
-// ── File upload label ──
-document.getElementById('if-screenshots').addEventListener('change', function (e) {
-  var label = document.getElementById('upload-label');
-  if (e.target.files.length) {
-    label.classList.add('has-file');
-    label.firstChild.textContent = '✓ ' + e.target.files.length + ' file(s) selected';
-  } else {
-    label.classList.remove('has-file');
-    label.firstChild.textContent = '📎 Choose file(s)';
-  }
+// ── File upload labels (shared, per-form) ──
+document.querySelectorAll('.tf-screenshots').forEach(function (input) {
+  input.addEventListener('change', function (e) {
+    var label = input.closest('.field').querySelector('.tf-upload-label');
+    if (e.target.files.length) {
+      label.classList.add('has-file');
+      label.firstChild.textContent = '✓ ' + e.target.files.length + ' file(s) selected';
+    } else {
+      label.classList.remove('has-file');
+      label.firstChild.textContent = '📎 Choose file(s)';
+    }
+  });
 });
 
 function fileToBase64(file) {
@@ -227,122 +302,190 @@ function fileToBase64(file) {
     reader.readAsDataURL(file);
   });
 }
-function showResult(message, type) {
-  var box = document.getElementById('if-result-box');
-  box.style.display = 'block';
-  box.className = 'result-box ' + type;
-  box.textContent = message;
-}
 
-document.getElementById('issueForm').addEventListener('submit', async function (e) {
-  e.preventDefault();
-  var btn = document.getElementById('if-submit-btn');
-  var title = document.getElementById('if-title').value.trim();
-  var description = document.getElementById('if-description').value.trim();
-  var priority = document.querySelector('input[name="priority"]:checked').value;
-  if (!title || !description) { showResult('Title and description are both required.', 'error'); return; }
-
-  btn.disabled = true; btn.textContent = 'Submitting…';
-  try {
-    var files = Array.from(document.getElementById('if-screenshots').files);
-    var screenshots = [];
-    for (var i = 0; i < files.length; i++) {
-      var base64 = await fileToBase64(files[i]);
-      screenshots.push({ base64: base64, filename: files[i].name, mimeType: files[i].type });
+// ── Submission (shared handler for both forms) ──
+document.querySelectorAll('#issueForm, #featureForm').forEach(function (form) {
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var ticketType = form.dataset.ticketType;
+    var btn = form.querySelector('.tf-submit-btn');
+    var resultBox = form.querySelector('.tf-result-box');
+    var title = form.querySelector('.tf-title').value.trim();
+    var description = form.querySelector('.tf-description').value.trim();
+    var priority = form.querySelector('input[type="radio"]:checked').value;
+    if (!title || !description) {
+      resultBox.style.display = 'block'; resultBox.className = 'result-box error tf-result-box';
+      resultBox.textContent = 'Title and description are both required.';
+      return;
     }
-    var res = await authedFetch(API_BASE + '/issues', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: title, description: description, priority: priority, screenshots: screenshots })
-    });
-    var data = await res.json();
-    if (!res.ok) {
-      showResult((data.errors || [data.error || 'Something went wrong.']).join(' '), 'error');
-    } else {
-      showResult('Issue submitted — you\'ll get an email once it\'s resolved.', 'success');
-      document.getElementById('issueForm').reset();
-      document.querySelectorAll('.priority-opt').forEach(function (o) { o.classList.remove('selected'); });
-      document.querySelector('.priority-opt.medium').classList.add('selected');
-      document.getElementById('upload-label').classList.remove('has-file');
-      document.getElementById('upload-label').firstChild.textContent = '📎 Choose file(s)';
-      await loadTickets();
+    btn.disabled = true; btn.textContent = 'Submitting…';
+    try {
+      var files = Array.from(form.querySelector('.tf-screenshots').files);
+      var screenshots = [];
+      for (var i = 0; i < files.length; i++) {
+        var base64 = await fileToBase64(files[i]);
+        screenshots.push({ base64: base64, filename: files[i].name, mimeType: files[i].type });
+      }
+      var res = await authedFetch(API_BASE + '/issues', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ticketType: ticketType, title: title, description: description, priority: priority, screenshots: screenshots })
+      });
+      var data = await res.json();
+      if (!res.ok) {
+        resultBox.style.display = 'block'; resultBox.className = 'result-box error tf-result-box';
+        resultBox.textContent = (data.errors || [data.error || 'Something went wrong.']).join(' ');
+      } else {
+        resultBox.style.display = 'block'; resultBox.className = 'result-box success tf-result-box';
+        resultBox.textContent = (ticketType === 'feature_request' ? 'Request submitted' : 'Issue submitted') + " \u2014 you'll get an email when there's a reply or it's " + (ticketType === 'feature_request' ? 'completed.' : 'resolved.');
+        form.reset();
+        var priorityGroup = form.querySelector('.priority-options');
+        priorityGroup.querySelectorAll('.priority-opt').forEach(function (o) { o.classList.remove('selected'); });
+        priorityGroup.querySelector('.priority-opt.medium').classList.add('selected');
+        var uploadLabel = form.querySelector('.tf-upload-label');
+        uploadLabel.classList.remove('has-file');
+        uploadLabel.firstChild.textContent = '📎 Choose file(s)';
+        await loadTickets(ticketType);
+      }
+    } catch (err) {
+      resultBox.style.display = 'block'; resultBox.className = 'result-box error tf-result-box';
+      resultBox.textContent = 'Could not reach the server: ' + err.message;
+    } finally {
+      btn.disabled = false; btn.textContent = ticketType === 'feature_request' ? 'Submit request' : 'Submit issue';
     }
-  } catch (err) {
-    showResult('Could not reach the server: ' + err.message, 'error');
-  } finally {
-    btn.disabled = false; btn.textContent = 'Submit issue';
-  }
+  });
 });
 
-// ── Tickets list ──
-let TICKETS = [];
+// ── Tickets list, per type ──
+let TICKETS_BY_TYPE = { issue: [], feature_request: [] };
+let TICKETS_LOADED = { issue: false, feature_request: false };
 window.IS_NILAJ = false;
-document.getElementById('btn-refresh-tickets').addEventListener('click', loadTickets);
-async function loadTickets() {
-  var list = document.getElementById('tickets-list');
+document.querySelectorAll('.tt-refresh-btn').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var ticketType = btn.closest('.tab-panel').id === 'tab-issue' ? 'issue' : 'feature_request';
+    loadTickets(ticketType);
+  });
+});
+async function loadTickets(ticketType) {
+  var list = document.getElementById(ticketType + '-tickets-list');
   list.innerHTML = '<div class="empty-state">Loading…</div>';
   try {
-    var res = await authedFetch(API_BASE + '/issues');
-    TICKETS = await res.json();
-    if (!TICKETS.length) { list.innerHTML = '<div class="empty-state">' + (window.IS_NILAJ ? 'No issues reported yet.' : 'You haven\'t reported any issues yet.') + '</div>'; return; }
-    list.innerHTML = TICKETS.map(function (t) {
-      return '<div class="ticket-row" data-ticket-id="' + t.ticketId + '">' +
+    var res = await authedFetch(API_BASE + '/issues?ticketType=' + ticketType);
+    TICKETS_BY_TYPE[ticketType] = await res.json();
+    TICKETS_LOADED[ticketType] = true;
+    var tickets = TICKETS_BY_TYPE[ticketType];
+    var noun = ticketType === 'feature_request' ? 'feature request' : 'issue';
+    if (!tickets.length) { list.innerHTML = '<div class="empty-state">' + (window.IS_NILAJ ? ('No ' + noun + 's yet.') : ("You haven\'t submitted any " + noun + 's yet.')) + '</div>'; return; }
+    list.innerHTML = tickets.map(function (t) {
+      return '<div class="ticket-row" data-ticket-id="' + t.ticketId + '" data-ticket-type="' + ticketType + '">' +
         '<span class="priority-dot ' + t.priority + '"></span>' +
         '<div class="ticket-main"><div class="ticket-title">' + escHtml(t.title) + '</div>' +
-        '<div class="ticket-meta">' + (window.IS_NILAJ ? escHtml(t.reporterEmail) + ' \u00b7 ' : '') + formatDateTime(t.createdAt) + '</div></div>' +
-        '<span class="status-pill ' + t.status + '">' + t.status + '</span>' +
+        '<div class="ticket-meta">' + (window.IS_NILAJ ? escHtml(t.reporterEmail) + ' \\u00b7 ' : '') + formatDateTime(t.createdAt) + (t.replies.length ? ' \\u00b7 ' + t.replies.length + ' repl' + (t.replies.length === 1 ? 'y' : 'ies') : '') + '</div></div>' +
+        '<span class="status-pill ' + t.status + '">' + (t.status === 'resolved' ? (ticketType === 'feature_request' ? 'completed' : 'resolved') : 'open') + '</span>' +
       '</div>';
     }).join('');
   } catch (err) {
     list.innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
   }
 }
-document.getElementById('tickets-list').addEventListener('click', function (e) {
-  var row = e.target.closest('[data-ticket-id]');
-  if (!row) return;
-  openTicketModal(row.dataset.ticketId);
+document.querySelectorAll('.tt-tickets-list').forEach(function (list) {
+  list.addEventListener('click', function (e) {
+    var row = e.target.closest('[data-ticket-id]');
+    if (!row) return;
+    openTicketModal(row.dataset.ticketId, row.dataset.ticketType);
+  });
 });
 
 function screenshotLinksHtml(urls) {
   if (!urls || !urls.length) return '';
   return '<div class="screenshot-links">' + urls.map(function (u, i) { return '<a href="' + u + '" target="_blank" rel="noopener">📎 Screenshot ' + (i + 1) + '</a>'; }).join('') + '</div>';
 }
-function openTicketModal(ticketId) {
-  var t = TICKETS.find(function (x) { return x.ticketId === ticketId; });
+function repliesHtml(replies) {
+  if (!replies || !replies.length) return '';
+  return '<div class="reply-thread"><div style="font-weight:700;font-size:0.82rem;color:var(--muted);margin-bottom:8px;">Conversation</div>' +
+    replies.map(function (r) {
+      var mine = r.authorEmail.toLowerCase() === (window.__hccgcCurrentUser ? window.__hccgcCurrentUser.email : '').toLowerCase();
+      return '<div class="reply-item ' + (mine ? 'mine' : 'theirs') + '">' +
+        '<div class="reply-meta">' + escHtml(r.authorEmail) + ' \\u00b7 ' + formatDateTime(r.createdAt) + '</div>' +
+        '<div style="white-space:pre-wrap;">' + escHtml(r.message) + '</div>' +
+      '</div>';
+    }).join('') + '</div>';
+}
+let currentModalTicketId = null;
+let currentModalTicketType = null;
+function openTicketModal(ticketId, ticketType) {
+  var t = TICKETS_BY_TYPE[ticketType].find(function (x) { return x.ticketId === ticketId; });
   if (!t) return;
+  currentModalTicketId = ticketId;
+  currentModalTicketType = ticketType;
+  var isFeature = ticketType === 'feature_request';
+  var completeLabel = isFeature ? 'completed' : 'resolved';
   document.getElementById('ticket-modal-title').textContent = t.title;
-  var html = '<div style="margin-bottom:14px;"><span class="priority-dot ' + t.priority + '" style="display:inline-block;"></span> <strong>' + t.priority.charAt(0).toUpperCase() + t.priority.slice(1) + ' priority</strong> \u00b7 <span class="status-pill ' + t.status + '">' + t.status + '</span></div>';
-  if (window.IS_NILAJ) html += '<div style="font-size:0.82rem;color:var(--muted);margin-bottom:10px;">Reported by ' + escHtml(t.reporterEmail) + ' on ' + formatDateTime(t.createdAt) + '</div>';
+  var html = '<div style="margin-bottom:14px;"><span class="priority-dot ' + t.priority + '" style="display:inline-block;"></span> <strong>' + t.priority.charAt(0).toUpperCase() + t.priority.slice(1) + ' priority</strong> \\u00b7 <span class="status-pill ' + t.status + '">' + (t.status === 'resolved' ? completeLabel : 'open') + '</span></div>';
+  if (window.IS_NILAJ) html += '<div style="font-size:0.82rem;color:var(--muted);margin-bottom:10px;">' + (isFeature ? 'Requested' : 'Reported') + ' by ' + escHtml(t.reporterEmail) + ' on ' + formatDateTime(t.createdAt) + '</div>';
   html += '<p style="white-space:pre-wrap;font-size:0.9rem;">' + escHtml(t.description) + '</p>';
   html += screenshotLinksHtml(t.screenshotUrls);
   if (t.status === 'resolved') {
     html += '<div class="card" style="margin-top:16px;background:var(--green-bg);box-shadow:none;">';
-    html += '<div style="font-weight:700;color:var(--green);margin-bottom:8px;">Resolved ' + formatDateTime(t.resolvedAt) + '</div>';
+    html += '<div style="font-weight:700;color:var(--green);margin-bottom:8px;">' + (isFeature ? 'Completed' : 'Resolved') + ' ' + formatDateTime(t.resolvedAt) + '</div>';
     html += '<p style="white-space:pre-wrap;font-size:0.88rem;">' + escHtml(t.resolutionNotes || '') + '</p>';
     html += screenshotLinksHtml(t.resolutionScreenshotUrls);
     html += '</div>';
-  } else if (window.IS_NILAJ) {
-    html += '<div class="field" style="margin-top:16px;"><label>Resolution notes</label><textarea id="resolve-notes"></textarea></div>';
-    html += '<div class="field"><label>Screenshots (optional)</label><label class="file-upload-label" id="resolve-upload-label">📎 Choose file(s)<input type="file" id="resolve-screenshots" accept="image/*" multiple style="display:none;"></label></div>';
   }
+  html += repliesHtml(t.replies);
   document.getElementById('ticket-modal-body').innerHTML = html;
 
   var footer = document.getElementById('ticket-modal-footer');
+  var footerHtml = '';
+  // Reply box - the reporter or Nilaj can reply, regardless of status,
+  // so the back-and-forth can keep going even on something already
+  // marked resolved/completed if a question comes up later.
+  footerHtml += '<div class="reply-compose"><textarea id="reply-message" placeholder="Write a reply…"></textarea><button type="button" class="btn-secondary" id="btn-send-reply" style="flex-shrink:0;">Send</button></div>';
   if (window.IS_NILAJ && t.status !== 'resolved') {
-    footer.innerHTML = '<button type="button" class="btn-primary" id="btn-resolve-ticket" style="margin-top:0;">Mark resolved</button>';
+    footerHtml += '<div style="padding-top:12px;border-top:1px solid var(--border);">' +
+      '<div class="field"><label>' + (isFeature ? 'Completion' : 'Resolution') + ' notes</label><textarea id="resolve-notes"></textarea></div>' +
+      '<div class="field"><label>Screenshots (optional)</label><label class="file-upload-label" id="resolve-upload-label">📎 Choose file(s)<input type="file" id="resolve-screenshots" accept="image/*" multiple style="display:none;"></label></div>' +
+      '<button type="button" class="btn-primary" id="btn-resolve-ticket" style="margin-top:0;">Mark ' + completeLabel + '</button>' +
+    '</div>';
+  }
+  footer.innerHTML = footerHtml;
+
+  document.getElementById('btn-send-reply').addEventListener('click', sendReply);
+  if (window.IS_NILAJ && t.status !== 'resolved') {
     document.getElementById('resolve-screenshots').addEventListener('change', function (e) {
       var label = document.getElementById('resolve-upload-label');
       label.classList.toggle('has-file', e.target.files.length > 0);
       label.firstChild.textContent = e.target.files.length ? '✓ ' + e.target.files.length + ' file(s) selected' : '📎 Choose file(s)';
     });
-    document.getElementById('btn-resolve-ticket').addEventListener('click', function () { resolveTicket(t.ticketId); });
-  } else {
-    footer.innerHTML = '';
+    document.getElementById('btn-resolve-ticket').addEventListener('click', function () { resolveTicket(ticketId, ticketType); });
   }
   document.getElementById('ticket-modal-overlay').style.display = 'flex';
 }
-async function resolveTicket(ticketId) {
+async function sendReply() {
+  var textarea = document.getElementById('reply-message');
+  var message = textarea.value.trim();
+  if (!message) return;
+  var btn = document.getElementById('btn-send-reply');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    var res = await authedFetch(API_BASE + '/issues/' + encodeURIComponent(currentModalTicketId) + '/replies', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: message })
+    });
+    var data = await res.json();
+    if (!res.ok) { alert('Could not send: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+    textarea.value = '';
+    await loadTickets(currentModalTicketType);
+    openTicketModal(currentModalTicketId, currentModalTicketType);
+  } catch (err) {
+    alert('Could not reach the server: ' + err.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Send';
+  }
+}
+async function resolveTicket(ticketId, ticketType) {
   var notes = document.getElementById('resolve-notes').value.trim();
-  if (!notes) { alert('Resolution notes are required.'); return; }
+  var isFeature = ticketType === 'feature_request';
+  if (!notes) { alert((isFeature ? 'Completion' : 'Resolution') + ' notes are required.'); return; }
   var btn = document.getElementById('btn-resolve-ticket');
   btn.disabled = true; btn.textContent = 'Saving…';
   try {
@@ -357,13 +500,13 @@ async function resolveTicket(ticketId) {
       body: JSON.stringify({ resolutionNotes: notes, screenshots: screenshots })
     });
     var data = await res.json();
-    if (!res.ok) { alert('Could not resolve: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+    if (!res.ok) { alert('Could not save: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
     document.getElementById('ticket-modal-overlay').style.display = 'none';
-    await loadTickets();
+    await loadTickets(ticketType);
   } catch (err) {
     alert('Could not reach the server: ' + err.message);
   } finally {
-    btn.disabled = false; btn.textContent = 'Mark resolved';
+    btn.disabled = false; btn.textContent = 'Mark ' + (isFeature ? 'completed' : 'resolved');
   }
 }
 document.getElementById('btn-close-ticket-modal').addEventListener('click', function () {
@@ -435,14 +578,15 @@ onAuthStateChanged(auth, function(user) {
   getDoc(doc(db, 'portalUsers', email)).then(function(snap) {
     var data = snap.exists() ? snap.data() : {};
     if (!data.isAdmin && !(Array.isArray(data.allowedApps) && data.allowedApps.includes(REQUIRED_APP_KEY))) {
-      showGate('Access not granted', "You don't have access to Issue Reporting. Ask an admin to grant it.");
+      showGate('Access not granted', "You don't have access to Issues & Feature Requests. Ask an admin to grant it.");
       return;
     }
     window.IS_NILAJ = email === 'nilaj@hccgc.org';
-    document.getElementById('tickets-heading').textContent = window.IS_NILAJ ? 'All issues' : 'My issues';
+    document.getElementById('issue-tickets-heading').textContent = window.IS_NILAJ ? 'All issues' : 'My issues';
+    document.getElementById('feature_request-tickets-heading').textContent = window.IS_NILAJ ? 'All feature requests' : 'My feature requests';
     document.getElementById('gate').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    loadTickets();
+    loadTickets('issue');
   }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });
 });
 </script>

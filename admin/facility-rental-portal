@@ -949,7 +949,12 @@ tbody input[type="text"], tbody input[type="number"] {
         <label>Rooms</label>
         <div class="modal-room-picker" id="edit-room-picker"></div>
       </div>
-      <div class="checkbox-row" id="edit-nonprofit-row"><input type="checkbox" id="edit-nonprofit"><label for="edit-nonprofit">Customer is a nonprofit</label></div>
+      <div class="field" id="edit-org-select-field" style="display:none;">
+        <label>Organization for this booking</label>
+        <select id="edit-org-select">
+          <option value="">No organization — individual booking</option>
+        </select>
+      </div>
       <div class="field"><label>Notes</label><textarea id="edit-notes"></textarea></div>
       <div class="result-box" id="ab-edit-result-box" style="display:none;"></div>
     </div>
@@ -984,7 +989,12 @@ tbody input[type="text"], tbody input[type="number"] {
         <label>Rooms</label>
         <div class="modal-room-picker" id="series-edit-room-picker"></div>
       </div>
-      <div class="checkbox-row" id="series-edit-nonprofit-row"><input type="checkbox" id="series-edit-nonprofit"><label for="series-edit-nonprofit">Customer is a nonprofit</label></div>
+      <div class="field" id="series-edit-org-select-field" style="display:none;">
+        <label>Organization for this series</label>
+        <select id="series-edit-org-select">
+          <option value="">No organization — individual booking</option>
+        </select>
+      </div>
       <div class="field"><label>Notes</label><textarea id="series-edit-notes"></textarea></div>
 
       <div class="field"><label>Occurrences</label></div>
@@ -2700,6 +2710,20 @@ function enforceEditKitchenRule() {
   if (!eligible) kitchenCb.checked = false;
 }
 
+async function loadOrgsForEditSelect(selectId, renterId, currentOrgId) {
+  const select = document.getElementById(selectId);
+  select.innerHTML = '<option value="">No organization — individual booking</option>';
+  if (!renterId) return;
+  try {
+    const res = await authedFetch(API_BASE + '/renters/' + encodeURIComponent(renterId) + '/organizations');
+    const orgs = await res.json();
+    select.innerHTML = '<option value="">No organization — individual booking</option>' +
+      orgs.map(function (o) { return '<option value="' + o.organization_id + '">' + escHtml(o.organization_name) + (o.is_nonprofit ? ' (nonprofit)' : '') + '</option>'; }).join('');
+    select.value = currentOrgId || '';
+  } catch (err) {
+    // Leave the "no organization" default in place if this fails.
+  }
+}
 async function openEditModal(bookingId) {
   const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
   if (!b) return;
@@ -2716,14 +2740,14 @@ async function openEditModal(bookingId) {
   document.getElementById('edit-renter-select-field').style.display = b.is_internal ? 'none' : 'flex';
   document.getElementById('edit-name-field').style.display = b.is_internal ? 'flex' : 'none';
   document.getElementById('edit-hccg-rep-field').style.display = b.is_internal ? 'flex' : 'none';
-  document.getElementById('edit-nonprofit-row').style.display = b.is_internal ? 'none' : 'flex';
+  document.getElementById('edit-org-select-field').style.display = b.is_internal ? 'none' : 'flex';
 
   if (b.is_internal) {
     document.getElementById('edit-name').value = b.renter_name || '';
     document.getElementById('edit-hccg-rep').value = b.hccgc_representative_name || '';
   } else {
     select.value = b.renter_id || '';
-    document.getElementById('edit-nonprofit').checked = !!b.is_nonprofit;
+    await loadOrgsForEditSelect('edit-org-select', b.renter_id, b.organization_id);
   }
   document.getElementById('edit-date').value = b.event_date;
   document.getElementById('edit-start').value = (b.start_time || '').slice(11, 16);
@@ -2763,7 +2787,7 @@ document.getElementById('btn-save-edit').addEventListener('click', async functio
     renterId: b.is_internal ? null : document.getElementById('edit-renter-select').value,
     renterName: b.is_internal ? document.getElementById('edit-name').value : null,
     hccgcRepresentativeName: b.is_internal ? document.getElementById('edit-hccg-rep').value : null,
-    isNonprofit: b.is_internal ? false : document.getElementById('edit-nonprofit').checked
+    organizationId: b.is_internal ? null : (document.getElementById('edit-org-select').value || null)
   };
 
   btn.disabled = true; btn.textContent = 'Saving…';
@@ -2857,14 +2881,14 @@ async function openSeriesEditModal(seriesId) {
   document.getElementById('series-edit-renter-select-field').style.display = first.is_internal ? 'none' : 'flex';
   document.getElementById('series-edit-name-field').style.display = first.is_internal ? 'flex' : 'none';
   document.getElementById('series-edit-hccg-rep-field').style.display = first.is_internal ? 'flex' : 'none';
-  document.getElementById('series-edit-nonprofit-row').style.display = first.is_internal ? 'none' : 'flex';
+  document.getElementById('series-edit-org-select-field').style.display = first.is_internal ? 'none' : 'flex';
 
   if (first.is_internal) {
     document.getElementById('series-edit-name').value = first.renter_name || '';
     document.getElementById('series-edit-hccg-rep').value = first.hccgc_representative_name || '';
   } else {
     select.value = first.renter_id || '';
-    document.getElementById('series-edit-nonprofit').checked = !!first.is_nonprofit;
+    await loadOrgsForEditSelect('series-edit-org-select', first.renter_id, first.organization_id);
   }
   document.getElementById('series-edit-notes').value = first.notes || '';
   document.querySelectorAll('.series-edit-room-cb').forEach(function (cb) { cb.checked = first.rooms.includes(cb.value); });
@@ -2918,7 +2942,7 @@ document.getElementById('btn-save-series-edit').addEventListener('click', async 
     renterId: isInternal ? null : document.getElementById('series-edit-renter-select').value,
     renterName: isInternal ? document.getElementById('series-edit-name').value : null,
     hccgcRepresentativeName: isInternal ? document.getElementById('series-edit-hccg-rep').value : null,
-    isNonprofit: isInternal ? false : document.getElementById('series-edit-nonprofit').checked,
+    organizationId: isInternal ? null : (document.getElementById('series-edit-org-select').value || null),
     occurrences: occInputs
   };
 

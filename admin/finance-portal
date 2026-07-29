@@ -1281,9 +1281,14 @@ function renderCategoriesTab() {
   document.getElementById('expense-category-list').innerHTML = expense.map(renderCategoryPill).join('');
 }
 function renderCategoryPill(c) {
+  const adminButtons = window.__hccgcIsAdmin
+    ? '<button data-edit-category="' + c.category_id + '" data-name="' + escHtml(c.name) + '">Edit</button>' +
+      '<button data-delete-category="' + c.category_id + '" data-name="' + escHtml(c.name) + '">Delete</button>'
+    : '';
   return '<div class="category-pill' + (c.active ? '' : ' inactive') + '">' +
     '<span class="type-dot ' + c.type + '"></span>' + escHtml(c.name) +
     '<button data-toggle-category="' + c.category_id + '" data-active="' + !c.active + '">' + (c.active ? 'Deactivate' : 'Activate') + '</button>' +
+    adminButtons +
     '</div>';
 }
 async function toggleCategoryActive(categoryId, active) {
@@ -1292,11 +1297,41 @@ async function toggleCategoryActive(categoryId, active) {
   });
   await loadCategories();
 }
+async function renameCategory(categoryId, currentName) {
+  const newName = prompt('Rename category:', currentName);
+  if (newName === null) return;
+  const trimmed = newName.trim();
+  if (!trimmed || trimmed === currentName) return;
+  try {
+    const res = await authedFetch(API_BASE + '/finance/categories/' + encodeURIComponent(categoryId), {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: trimmed })
+    });
+    const data = await res.json();
+    if (!res.ok) { alert((data.errors || [data.error]).join(' ') || 'Could not rename.'); return; }
+    await loadCategories();
+  } catch (err) {
+    alert('Could not reach the server: ' + err.message);
+  }
+}
+async function deleteCategory(categoryId, name) {
+  if (!confirm('Delete "' + name + '" permanently? This can\'t be undone. If it\'s already in use anywhere, this will be refused — deactivate it instead in that case.')) return;
+  try {
+    const res = await authedFetch(API_BASE + '/finance/categories/' + encodeURIComponent(categoryId) + '/delete', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) { alert((data.errors || [data.error]).join(' ') || 'Could not delete.'); return; }
+    await loadCategories();
+  } catch (err) {
+    alert('Could not reach the server: ' + err.message);
+  }
+}
 ['income-category-list', 'expense-category-list'].forEach(function (id) {
   document.getElementById(id).addEventListener('click', function (e) {
-    const btn = e.target.closest('[data-toggle-category]');
-    if (!btn) return;
-    toggleCategoryActive(btn.dataset.toggleCategory, btn.dataset.active === 'true');
+    const toggleBtn = e.target.closest('[data-toggle-category]');
+    if (toggleBtn) { toggleCategoryActive(toggleBtn.dataset.toggleCategory, toggleBtn.dataset.active === 'true'); return; }
+    const editBtn = e.target.closest('[data-edit-category]');
+    if (editBtn) { renameCategory(editBtn.dataset.editCategory, editBtn.dataset.name); return; }
+    const deleteBtn = e.target.closest('[data-delete-category]');
+    if (deleteBtn) { deleteCategory(deleteBtn.dataset.deleteCategory, deleteBtn.dataset.name); return; }
   });
 });
 document.getElementById('btn-add-category').addEventListener('click', async function () {
@@ -4183,6 +4218,7 @@ onAuthStateChanged(auth, function(user) {
     }
     document.getElementById('gate').style.display = 'none';
     document.getElementById('app').style.display = 'block';
+    window.__hccgcIsAdmin = !!data.isAdmin;
     loadCategories().then(function () { loadInvoices(); window.__matchingLoaded = true; });
     loadPendingCounts();
   }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });

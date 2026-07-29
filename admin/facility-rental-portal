@@ -1459,6 +1459,31 @@ tbody input[type="text"], tbody input[type="number"] {
   </div>
 </div>
 
+<div class="modal-overlay" id="customer-events-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:600px;">
+    <div class="modal-header">
+      <h2>Events — <span id="ce-renter-name"></span></h2>
+      <button class="modal-close" id="btn-close-customer-events">&times;</button>
+    </div>
+    <div class="modal-body">
+      <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:8px 10px;border-bottom:2px solid var(--border);">Event</th>
+            <th style="text-align:left;padding:8px 10px;border-bottom:2px solid var(--border);">Date</th>
+            <th style="text-align:left;padding:8px 10px;border-bottom:2px solid var(--border);">Status</th>
+            <th style="text-align:right;padding:8px 10px;border-bottom:2px solid var(--border);">Amount</th>
+          </tr>
+        </thead>
+        <tbody id="ce-events-tbody"></tbody>
+      </table>
+      <div id="ce-empty-state" class="card-sub" style="display:none;padding:16px 0;">No events yet for this customer.</div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-close-customer-events-2">Close</button>
+    </div>
+  </div>
+</div>
 
 <div class="modal-overlay" id="review-renter-modal-overlay" style="display:none;">
   <div class="modal-panel" style="max-width:560px;">
@@ -4351,6 +4376,7 @@ function renderRenters() {
     } else if (status === 'rejected') {
       actions.push('<button type="button" class="btn-small btn-approve" onclick="approveRenterAction(\'' + r.renter_id + '\')">Approve</button>');
     }
+    actions.push('<button type="button" class="btn-small" onclick="openCustomerEventsModal(\'' + r.renter_id + '\', \'' + escHtml(r.contact_name).replace(/'/g, "\\'") + '\')">View events</button>');
     actions.push('<button type="button" class="btn-small btn-edit-renter" onclick="openEditRenterModal(\'' + r.renter_id + '\')">Edit</button>');
     return '<tr>' +
       '<td>' + escHtml(r.contact_name) + '</td>' +
@@ -4501,6 +4527,42 @@ document.getElementById('btn-close-manage-orgs').addEventListener('click', close
 document.getElementById('btn-close-manage-orgs-2').addEventListener('click', closeManageOrgsModal);
 document.getElementById('manage-orgs-overlay').addEventListener('click', function (e) { if (e.target === this) closeManageOrgsModal(); });
 
+// ── Customer Events (event name, date, $$) ──
+async function openCustomerEventsModal(renterId, renterName) {
+  document.getElementById('ce-renter-name').textContent = renterName || '';
+  document.getElementById('customer-events-overlay').style.display = 'flex';
+  const tbody = document.getElementById('ce-events-tbody');
+  const emptyState = document.getElementById('ce-empty-state');
+  tbody.innerHTML = '<tr><td colspan="4" style="padding:14px 10px;color:var(--muted);">Loading…</td></tr>';
+  emptyState.style.display = 'none';
+  try {
+    const res = await authedFetch(API_BASE + '/renters/' + encodeURIComponent(renterId) + '/requests');
+    const events = await res.json();
+    if (!events.length) {
+      tbody.innerHTML = '';
+      emptyState.style.display = 'block';
+      return;
+    }
+    tbody.innerHTML = events.map(function (ev) {
+      const statusLabel = (ev.paymentStatus || '').charAt(0).toUpperCase() + (ev.paymentStatus || '').slice(1);
+      return '<tr>' +
+        '<td style="padding:8px 10px;border-bottom:1px solid var(--border);">' + escHtml(ev.eventName || '\u2014') + '</td>' +
+        '<td style="padding:8px 10px;border-bottom:1px solid var(--border);">' + formatDate(ev.eventDate) + '</td>' +
+        '<td style="padding:8px 10px;border-bottom:1px solid var(--border);"><span class="status-badge ' + escHtml(ev.paymentStatus || '') + '">' + escHtml(statusLabel) + '</span></td>' +
+        '<td style="padding:8px 10px;border-bottom:1px solid var(--border);text-align:right;">' + money(ev.finalTotal) + '</td>' +
+      '</tr>';
+    }).join('');
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="4" style="padding:14px 10px;color:var(--red);">Could not load: ' + escHtml(err.message) + '</td></tr>';
+  }
+}
+function closeCustomerEventsModal() {
+  document.getElementById('customer-events-overlay').style.display = 'none';
+}
+document.getElementById('btn-close-customer-events').addEventListener('click', closeCustomerEventsModal);
+document.getElementById('btn-close-customer-events-2').addEventListener('click', closeCustomerEventsModal);
+document.getElementById('customer-events-overlay').addEventListener('click', function (e) { if (e.target === this) closeCustomerEventsModal(); });
+
 async function loadOrgsForManageModal() {
   const listEl = document.getElementById('mo-org-list');
   listEl.innerHTML = '<div class="card-sub">Loading…</div>';
@@ -4512,14 +4574,34 @@ async function loadOrgsForManageModal() {
       return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">' +
         '<span><strong>' + escHtml(o.organization_name) + '</strong>' + (o.is_nonprofit ? ' <span style="color:var(--green);font-weight:700;">— nonprofit</span>' : '') +
         (o.ein ? ' <span class="muted-inline">EIN ' + escHtml(o.ein) + '</span>' : '') + '</span>' +
-        '<button type="button" class="btn-small" data-edit-org-id="' + o.organization_id + '">Edit</button>' +
+        '<span style="display:flex;gap:6px;">' +
+          '<button type="button" class="btn-small" data-edit-org-id="' + o.organization_id + '">Edit</button>' +
+          '<button type="button" class="btn-small" data-delete-org-id="' + o.organization_id + '" data-delete-org-name="' + escHtml(o.organization_name) + '">Delete</button>' +
+        '</span>' +
       '</div>';
     }).join('');
   } catch (err) {
     listEl.innerHTML = '<div class="card-sub" style="color:var(--red);">Could not load: ' + escHtml(err.message) + '</div>';
   }
 }
-document.getElementById('mo-org-list').addEventListener('click', function (e) {
+document.getElementById('mo-org-list').addEventListener('click', async function (e) {
+  const deleteBtn = e.target.closest('[data-delete-org-id]');
+  if (deleteBtn) {
+    const orgId = deleteBtn.dataset.deleteOrgId;
+    const orgName = deleteBtn.dataset.deleteOrgName;
+    if (!confirm('Delete "' + orgName + '" permanently? This can\'t be undone. If it\'s already used by any bookings, this will be refused.')) return;
+    deleteBtn.disabled = true; deleteBtn.textContent = 'Deleting…';
+    try {
+      const res = await authedFetch(API_BASE + '/organizations/' + encodeURIComponent(orgId) + '/delete', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) { alert((data.errors || [data.error]).join(' ') || 'Could not delete.'); deleteBtn.disabled = false; deleteBtn.textContent = 'Delete'; return; }
+      await loadOrgsForManageModal();
+    } catch (err) {
+      alert('Could not reach the server: ' + err.message);
+      deleteBtn.disabled = false; deleteBtn.textContent = 'Delete';
+    }
+    return;
+  }
   const btn = e.target.closest('[data-edit-org-id]');
   if (!btn) return;
   const org = manageOrgsList.find(function (o) { return o.organization_id === btn.dataset.editOrgId; });

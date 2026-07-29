@@ -761,7 +761,7 @@ tbody input[type="text"], tbody input[type="number"] {
     <li><button class="tab-btn" data-tab="new-booking">New Booking</button></li>
     <li><button class="tab-btn active" data-tab="all-bookings" id="nav-all-bookings">All Bookings</button></li>
     <li><button class="tab-btn" data-tab="rooms-rates">Rooms &amp; Rates</button></li>
-    <li><button class="tab-btn" data-tab="add-renter" id="nav-add-renter">Add A Customer</button></li>
+    <li><button class="tab-btn" data-tab="add-renter" id="nav-add-renter">Customers</button></li>
   </ul>
   </div>
 </div>
@@ -1107,7 +1107,7 @@ tbody input[type="text"], tbody input[type="number"] {
           <select id="f-renter-select" required>
             <option value="">Choose a customer…</option>
           </select>
-          <div class="card-sub" style="margin-bottom:0;margin-top:6px;">Don't see who you're looking for? <a href="#" id="link-goto-add-renter" style="color:var(--saffron-dark);font-weight:700;">Add them on the Add A Customer page</a> first.</div>
+          <div class="card-sub" style="margin-bottom:0;margin-top:6px;">Don't see who you're looking for? <a href="#" id="link-goto-add-renter" style="color:var(--saffron-dark);font-weight:700;">Add them on the Customers page</a> first.</div>
         </div>
         <div class="field" id="f-org-select-field" style="display:none;">
           <label>Organization for this booking</label>

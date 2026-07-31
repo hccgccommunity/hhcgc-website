@@ -2479,6 +2479,7 @@ async function loadForms() {
         '<div class="page-row-actions">' +
           '<button class="btn-row" data-copy-form-link="' + f.formId + '">Copy link</button>' +
           '<button class="btn-row" data-view-responses="' + f.formId + '">Responses</button>' +
+          '<button class="btn-row" data-duplicate-form="' + f.formId + '">Duplicate</button>' +
           '<button class="btn-row" data-edit-form="' + f.formId + '">' +
             '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit' +
           '</button>' +
@@ -2505,6 +2506,28 @@ document.getElementById('forms-list').addEventListener('click', async function (
   }
   var respBtn = e.target.closest('[data-view-responses]');
   if (respBtn) { openResponsesModal(respBtn.dataset.viewResponses); return; }
+  var dupBtn = e.target.closest('[data-duplicate-form]');
+  if (dupBtn) {
+    dupBtn.disabled = true; dupBtn.textContent = 'Duplicating\u2026';
+    try {
+      var res = await formsAuthedFetch(FORMS_API_BASE + '/forms/' + encodeURIComponent(dupBtn.dataset.duplicateForm) + '/duplicate', { method: 'POST' });
+      var data = await res.json();
+      if (!res.ok) {
+        showStatusForms((data.errors || [data.error]).join(' ') || 'Could not duplicate.', 'error');
+        dupBtn.disabled = false; dupBtn.textContent = 'Duplicate';
+        return;
+      }
+      showStatusForms('Draft copy created \u2014 it won\'t accept responses until you turn that on.', 'success');
+      await loadForms();
+      // Drop straight into the copy, since duplicating is almost always
+      // the first step of editing it.
+      openFormBuilder(data.formId);
+    } catch (err) {
+      showStatusForms('Could not reach the server: ' + err.message, 'error');
+      dupBtn.disabled = false; dupBtn.textContent = 'Duplicate';
+    }
+    return;
+  }
   var editBtn = e.target.closest('[data-edit-form]');
   if (editBtn) { openFormBuilder(editBtn.dataset.editForm); return; }
   var delBtn = e.target.closest('[data-delete-form]');

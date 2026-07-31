@@ -30,6 +30,10 @@
     ],
     "rewrites": [
       {
+        "source": "/forms/**",
+        "destination": "/forms-page.html"
+      },
+      {
         "source": "**",
         "destination": "/event-page.html"
       }

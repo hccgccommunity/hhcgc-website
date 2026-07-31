@@ -31,7 +31,7 @@
 
     .page-hero { padding: 34px 0 28px; background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%); color: #fff; }
     .page-hero h1 { font-family: Georgia, "Times New Roman", serif; font-size: 1.75rem; margin-bottom: 6px; }
-    .page-hero .sub { opacity: 0.92; font-size: 0.95rem; }
+    .page-hero .sub { opacity: 0.95; font-size: 1rem; font-weight: 700; }
     .page-hero .meta { opacity: 0.82; font-size: 0.86rem; margin-top: 8px; }
 
     .card {
@@ -294,6 +294,15 @@
 <script>
 const API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';
 
+// 'HH:MM' (24h, as stored) -> '6:00 PM'
+function fmt12h(hhmm) {
+  if (!hhmm) return '';
+  var parts = String(hhmm).split(':');
+  var h = Number(parts[0]), m = parts[1] || '00';
+  var suffix = h >= 12 ? 'PM' : 'AM';
+  var h12 = h % 12; if (h12 === 0) h12 = 12;
+  return h12 + ':' + m + ' ' + suffix;
+}
 function esc(str) {
   return String(str == null ? '' : str)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -387,14 +396,19 @@ async function loadForm() {
     FORM_DEF = data;
     // form_name is an internal label for admins; the public page leads
     // with the event itself.
-    document.getElementById('hero-title').textContent = data.eventName || 'Registration';
-    document.getElementById('hero-sub').textContent = '';
+    document.getElementById('hero-title').textContent =
+      'RSVP for ' + (data.eventName || 'this event');
+    var whenParts = [];
     if (data.eventDate) {
-      document.getElementById('hero-meta').textContent =
-        new Date(data.eventDate + 'T00:00:00').toLocaleDateString('en-US',
-          { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+      whenParts.push(new Date(data.eventDate + 'T00:00:00').toLocaleDateString('en-US',
+        { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }));
     }
-    document.title = (data.eventName || 'Registration') + ' | HCCGC';
+    if (data.eventStartTime && data.eventEndTime) {
+      whenParts.push(fmt12h(data.eventStartTime) + ' \u2013 ' + fmt12h(data.eventEndTime));
+    }
+    document.getElementById('hero-sub').textContent = whenParts.join('  \u00b7  ');
+    document.getElementById('hero-meta').textContent = '';
+    document.title = 'RSVP \u2014 ' + (data.eventName || 'Event') + ' | HCCGC';
     renderQuestions(data.questions || []);
     stateMsg.style.display = 'none';
     document.getElementById('public-form').style.display = 'block';

@@ -73,7 +73,7 @@
       font-family: inherit; font-size: 0.98rem; font-weight: 700; color: #fff;
       background: linear-gradient(135deg, var(--saffron-dark), var(--maroon));
       border: none; border-radius: 12px; padding: 13px 40px; cursor: pointer;
-      min-width: 180px;
+      min-width: 180px; display: block; margin: 4px auto 0;
     }
     @media (max-width: 480px) { .btn-submit { width: 100%; } }
     .btn-submit:disabled { opacity: 0.6; cursor: default; }

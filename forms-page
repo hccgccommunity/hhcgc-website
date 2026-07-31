@@ -70,10 +70,12 @@
     .choice input { margin-top: 2px; width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; }
 
     .btn-submit {
-      font-family: inherit; font-size: 1rem; font-weight: 700; color: #fff;
+      font-family: inherit; font-size: 0.98rem; font-weight: 700; color: #fff;
       background: linear-gradient(135deg, var(--saffron-dark), var(--maroon));
-      border: none; border-radius: 12px; padding: 14px 24px; cursor: pointer; width: 100%;
+      border: none; border-radius: 12px; padding: 13px 40px; cursor: pointer;
+      min-width: 180px;
     }
+    @media (max-width: 480px) { .btn-submit { width: 100%; } }
     .btn-submit:disabled { opacity: 0.6; cursor: default; }
 
     .result-box { margin-top: 16px; border-radius: 12px; padding: 14px 16px; font-size: 0.9rem; line-height: 1.55; }
@@ -446,7 +448,25 @@ async function loadPartial(placeholderId, filePath) {
     var response = await fetch(filePath);
     if (!response.ok) throw new Error('Unable to load ' + filePath);
     target.innerHTML = await response.text();
+    fixPartialPathsForSubfolder(target);
   } catch (error) { target.innerHTML = ''; }
+}
+// header.html/footer.html reference the logo and nav links relatively,
+// which is fine at the site root but breaks here: this page is served at
+// /forms/<id>, so "hccgc-logo.png" resolves to /forms/hccgc-logo.png and
+// 404s — that's why the logo came up blank. Same fix the /admin pages
+// already use for the same reason.
+function fixPartialPathsForSubfolder(el) {
+  el.querySelectorAll('img[src]').forEach(function (img) {
+    var src = img.getAttribute('src');
+    if (!src || src.startsWith('/') || src.startsWith('http') || src.startsWith('data:')) return;
+    img.setAttribute('src', '/' + src);
+  });
+  el.querySelectorAll('a[href]').forEach(function (link) {
+    var href = link.getAttribute('href');
+    if (!href || href.startsWith('http') || href.startsWith('/') || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+    link.setAttribute('href', '/' + href);
+  });
 }
 loadPartial('header-placeholder', '/header.html');
 loadPartial('footer-placeholder', '/footer.html');

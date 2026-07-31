@@ -1283,8 +1283,14 @@ tbody input[type="text"], tbody input[type="number"] {
   <div class="tab-panel" id="tab-dashboard">
 <div class="container">
   <div class="card" style="margin-bottom:20px;">
-    <h2 class="section-title">Revenue by month</h2>
-    <p class="card-sub" style="margin:-8px 0 14px;">Always the trailing 6 months, this month, and the next 6 — paid and unpaid, not affected by the filters below.</p>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+      <h2 class="section-title" style="margin:0;">Revenue by month</h2>
+      <div class="sub-tabs" style="display:flex;gap:6px;">
+        <button type="button" class="sub-tab-btn active" id="rbm-toggle-revenue" data-metric="revenue">$$</button>
+        <button type="button" class="sub-tab-btn" id="rbm-toggle-count" data-metric="count"># of bookings</button>
+      </div>
+    </div>
+    <p class="card-sub" style="margin:8px 0 14px;">Always the trailing 6 months, this month, and the next 6 — paid and unpaid, not affected by the filters below.</p>
     <div id="revenue-by-month"></div>
   </div>
 
@@ -4084,38 +4090,51 @@ async function loadDashboard() {
   }
 }
 document.getElementById('dash-source-filter').addEventListener('change', loadDashboard);
+let MONTHLY_TREND_DATA = null;
+let MONTHLY_TREND_METRIC = 'revenue';
 async function loadMonthlyTrend() {
   try {
     var res = await authedFetch(API_BASE + '/bookings-monthly-trend');
     var data = await res.json();
     if (!res.ok) throw new Error((data.errors || [data.error || ('Server returned ' + res.status)]).join(' '));
-    renderVerticalTrendChart('revenue-by-month', data.months, 'No booking activity in this window.');
+    MONTHLY_TREND_DATA = data.months;
+    renderVerticalTrendChart('revenue-by-month', data.months, 'No booking activity in this window.', MONTHLY_TREND_METRIC);
   } catch (err) {
     document.getElementById('revenue-by-month').innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
   }
+}
+document.getElementById('rbm-toggle-revenue').addEventListener('click', function () { setMonthlyTrendMetric('revenue'); });
+document.getElementById('rbm-toggle-count').addEventListener('click', function () { setMonthlyTrendMetric('count'); });
+function setMonthlyTrendMetric(metric) {
+  MONTHLY_TREND_METRIC = metric;
+  document.getElementById('rbm-toggle-revenue').classList.toggle('active', metric === 'revenue');
+  document.getElementById('rbm-toggle-count').classList.toggle('active', metric === 'count');
+  if (MONTHLY_TREND_DATA) renderVerticalTrendChart('revenue-by-month', MONTHLY_TREND_DATA, 'No booking activity in this window.', metric);
 }
 function niceMax(value) {
   if (value % 100 === 0) return value + 100;
   return Math.ceil(value / 100) * 100;
 }
-function renderVerticalTrendChart(containerId, months, emptyMessage) {
+function renderVerticalTrendChart(containerId, months, emptyMessage, metric) {
+  metric = metric || 'revenue';
   var container = document.getElementById(containerId);
   if (!months.length) { container.innerHTML = '<div class="empty-state">' + emptyMessage + '</div>'; return; }
-  var rawMax = Math.max.apply(null, months.map(function (m) { return m.revenue; })) || 1;
-  var axisMax = niceMax(rawMax);
+  var formatVal = metric === 'count' ? function (v) { return String(v); } : money;
+  var rawMax = Math.max.apply(null, months.map(function (m) { return m[metric]; })) || 1;
+  var axisMax = metric === 'count' ? Math.max(1, Math.ceil(rawMax * 1.2)) : niceMax(rawMax);
   var chartHeight = 150;
   var gridlineCount = 4;
   var yAxisHtml = '<div class="trend-yaxis" style="height:' + chartHeight + 'px;">' +
     Array.from({ length: gridlineCount + 1 }, function (_, i) {
       var val = axisMax * (gridlineCount - i) / gridlineCount;
-      return '<div class="trend-yaxis-label">' + money(val) + '</div>';
+      return '<div class="trend-yaxis-label">' + formatVal(metric === 'count' ? Math.round(val) : val) + '</div>';
     }).join('') +
   '</div>';
   var bars = months.map(function (m) {
-    var h = Math.max(2, (m.revenue / axisMax) * chartHeight);
+    var h = Math.max(2, (m[metric] / axisMax) * chartHeight);
     var label = new Date(m.month + '-02').toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
     return '<div class="trend-month">' +
-      '<div class="trend-bars" style="height:' + chartHeight + 'px;"><div class="trend-bar" style="height:' + h + 'px;" title="' + label + ': ' + money(m.revenue) + '"></div></div>' +
+      '<div class="trend-bars" style="height:' + chartHeight + 'px;"><div class="trend-bar" style="height:' + h + 'px;" title="' + label + ': ' + formatVal(m[metric]) + '"></div></div>' +
       '<div class="trend-month-label">' + label + '</div>' +
     '</div>';
   }).join('');

@@ -1177,8 +1177,21 @@ textarea{resize:vertical;}
           <div class="field-error" id="err-form-event-name">Please enter the event name.</div>
         </div>
         <div class="form-group">
-          <label for="form-event-date">Event Date</label>
+          <label for="form-event-date">Event Date *</label>
           <input type="date" id="form-event-date">
+          <div class="field-error" id="err-form-event-date">Please pick the event date.</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="form-event-start">Start Time *</label>
+          <input type="time" id="form-event-start">
+          <div class="field-error" id="err-form-event-start">Please pick a start time.</div>
+        </div>
+        <div class="form-group">
+          <label for="form-event-end">End Time *</label>
+          <input type="time" id="form-event-end">
+          <div class="field-error" id="err-form-event-end">End time must be after the start time.</div>
         </div>
       </div>
       <div class="toggle-row">
@@ -2442,6 +2455,15 @@ function showStatusForms(msg, kind) {
   setTimeout(function () { bar.className = 'status-bar'; }, 4000);
 }
 function formPublicUrl(formId) { return 'https://hccgc.org/forms/' + formId; }
+// 'HH:MM' (24h, as stored) -> '6:00 PM'
+function fmt12h(hhmm) {
+  if (!hhmm) return '';
+  var parts = String(hhmm).split(':');
+  var h = Number(parts[0]), m = parts[1] || '00';
+  var suffix = h >= 12 ? 'PM' : 'AM';
+  var h12 = h % 12; if (h12 === 0) h12 = 12;
+  return h12 + ':' + m + ' ' + suffix;
+}
 
 /* ---- List ---- */
 let FORMS_CACHE = [];
@@ -2463,6 +2485,9 @@ async function loadForms() {
       var dateStr = f.eventDate
         ? new Date(f.eventDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
         : 'No date';
+      if (f.eventStartTime && f.eventEndTime) {
+        dateStr += ', ' + fmt12h(f.eventStartTime) + '\u2013' + fmt12h(f.eventEndTime);
+      }
       return '<div class="page-row">' +
         '<div class="page-row-dot' + (f.isActive ? ' live' : '') + '"></div>' +
         '<div class="page-row-info">' +
@@ -2641,8 +2666,8 @@ document.getElementById('questions-builder').addEventListener('change', function
 
 async function openFormBuilder(formId) {
   document.getElementById('form-builder-result').className = 'status-bar';
-  document.getElementById('err-form-name').classList.remove('show');
-  document.getElementById('err-form-event-name').classList.remove('show');
+  ['err-form-name','err-form-event-name','err-form-event-date','err-form-event-start','err-form-event-end']
+    .forEach(function (id) { document.getElementById(id).classList.remove('show'); });
   document.getElementById('err-form-questions').style.display = 'none';
   document.getElementById('edit-form-id').value = formId || '';
   document.getElementById('form-builder-title').textContent = formId ? 'Edit Form' : 'New Form';
@@ -2651,6 +2676,8 @@ async function openFormBuilder(formId) {
     document.getElementById('form-name').value = '';
     document.getElementById('form-event-name').value = '';
     document.getElementById('form-event-date').value = '';
+    document.getElementById('form-event-start').value = '';
+    document.getElementById('form-event-end').value = '';
     document.getElementById('form-is-active').checked = true;
     BUILDER_QUESTIONS = [];
     renderQuestionsBuilder();
@@ -2666,6 +2693,8 @@ async function openFormBuilder(formId) {
     document.getElementById('form-name').value = f.formName || '';
     document.getElementById('form-event-name').value = f.eventName || '';
     document.getElementById('form-event-date').value = f.eventDate || '';
+    document.getElementById('form-event-start').value = f.eventStartTime || '';
+    document.getElementById('form-event-end').value = f.eventEndTime || '';
     document.getElementById('form-is-active').checked = f.isActive !== false;
     BUILDER_QUESTIONS = (f.questions || []).map(function (q) {
       return { questionText: q.questionText, questionType: q.questionType, options: q.options || [], isRequired: q.isRequired };
@@ -2700,12 +2729,18 @@ document.getElementById('btn-save-form').addEventListener('click', async functio
   syncQuestionsFromDom();
   var formName = document.getElementById('form-name').value.trim();
   var eventName = document.getElementById('form-event-name').value.trim();
-  var eventDate = document.getElementById('form-event-date').value || null;
+  var eventDate = document.getElementById('form-event-date').value || '';
+  var eventStartTime = document.getElementById('form-event-start').value || '';
+  var eventEndTime = document.getElementById('form-event-end').value || '';
   var isActive = document.getElementById('form-is-active').checked;
   var formId = document.getElementById('edit-form-id').value;
 
+  var badEnd = !eventEndTime || (eventStartTime && eventEndTime <= eventStartTime);
   document.getElementById('err-form-name').classList.toggle('show', !formName);
   document.getElementById('err-form-event-name').classList.toggle('show', !eventName);
+  document.getElementById('err-form-event-date').classList.toggle('show', !eventDate);
+  document.getElementById('err-form-event-start').classList.toggle('show', !eventStartTime);
+  document.getElementById('err-form-event-end').classList.toggle('show', badEnd);
   var qErrors = [];
   BUILDER_QUESTIONS.forEach(function (q, i) {
     if (!q.questionText.trim()) qErrors.push('Question ' + (i + 1) + ' needs text.');
@@ -2716,13 +2751,17 @@ document.getElementById('btn-save-form').addEventListener('click', async functio
   var qErrEl = document.getElementById('err-form-questions');
   if (qErrors.length) { qErrEl.textContent = qErrors.join(' '); qErrEl.style.display = 'block'; }
   else { qErrEl.style.display = 'none'; }
-  if (!formName || !eventName || qErrors.length) return;
+  if (!formName || !eventName || !eventDate || !eventStartTime || badEnd || qErrors.length) return;
 
   var orig = btn.textContent;
   btn.disabled = true; btn.textContent = 'Saving\u2026';
   var resultBox = document.getElementById('form-builder-result');
   try {
-    var payload = { formName: formName, eventName: eventName, eventDate: eventDate, isActive: isActive, questions: BUILDER_QUESTIONS };
+    var payload = {
+      formName: formName, eventName: eventName, eventDate: eventDate,
+      eventStartTime: eventStartTime, eventEndTime: eventEndTime,
+      isActive: isActive, questions: BUILDER_QUESTIONS
+    };
     var url = formId ? FORMS_API_BASE + '/forms/' + encodeURIComponent(formId) : FORMS_API_BASE + '/forms';
     var res = await formsAuthedFetch(url, {
       method: formId ? 'PATCH' : 'POST',

@@ -646,6 +646,8 @@ body{font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(44,27,16,.45);z-index:200;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto;}
 .modal-overlay.show{display:flex;}
 .modal-card{background:#fff;border-radius:18px;max-width:640px;width:100%;box-shadow:var(--shadow);margin:auto;}
+.modal-card.wide{max-width:960px;}
+.modal-card.wide .modal-body{max-height:calc(100vh - 210px);overflow-y:auto;}
 .wizard-header{padding:1.4rem 1.6rem 0;}
 .wizard-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .wizard-header-top h3{font-family:Georgia,serif;color:var(--maroon);font-size:1.1rem;}
@@ -1156,7 +1158,7 @@ textarea{resize:vertical;}
 </div>
 
 <div class="modal-overlay" id="modal-overlay-form">
-  <div class="modal-card">
+  <div class="modal-card wide">
     <div class="modal-header">
       <h3 id="form-builder-title">New Form</h3>
       <button class="modal-close" id="form-builder-close">&times;</button>
@@ -1188,11 +1190,11 @@ textarea{resize:vertical;}
         <strong style="color:var(--text);">Always collected:</strong> First name, last name, email, phone — all mandatory. You don't need to add these below.
       </div>
 
-      <div style="display:flex;align-items:center;justify-content:space-between;margin:18px 0 10px;">
+      <div style="margin:18px 0 10px;">
         <label style="margin:0;">Custom Questions</label>
-        <button type="button" class="btn-secondary" id="btn-add-question" style="padding:6px 12px;font-size:.8rem;">+ Add question</button>
       </div>
       <div id="questions-builder"></div>
+      <button type="button" class="btn-row" id="btn-add-question" style="width:100%;justify-content:center;margin-top:10px;padding:.7rem;">+ Add question</button>
       <div class="field-error" id="err-form-questions" style="display:none;"></div>
 
       <div class="status-bar" id="form-builder-result" style="margin-top:14px;"></div>
@@ -1205,7 +1207,7 @@ textarea{resize:vertical;}
 </div>
 
 <div class="modal-overlay" id="modal-overlay-responses">
-  <div class="modal-card">
+  <div class="modal-card wide">
     <div class="modal-header">
       <h3 id="responses-title">Responses</h3>
       <button class="modal-close" id="responses-close">&times;</button>
@@ -2556,12 +2558,10 @@ function renderQuestionsBuilder() {
         '<button type="button" class="btn-secondary" data-q-down="' + i + '" style="padding:4px 9px;font-size:.78rem;"' + (i === BUILDER_QUESTIONS.length - 1 ? ' disabled' : '') + '>\u2193</button>' +
         '<button type="button" class="btn-secondary" data-q-remove="' + i + '" style="padding:4px 9px;font-size:.78rem;">Remove</button>' +
       '</div>' +
-      (needsOptions
-        ? '<div style="margin-top:10px;">' +
-            '<label style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:4px;">Options (one per line)</label>' +
-            '<textarea data-q-options="' + i + '" rows="3" placeholder="Option 1&#10;Option 2">' + escF((q.options || []).join('\n')) + '</textarea>' +
-          '</div>'
-        : '') +
+      '<div data-q-options-wrap="' + i + '" style="margin-top:10px;' + (needsOptions ? '' : 'display:none;') + '">' +
+        '<label style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:4px;">Options (one per line)</label>' +
+        '<textarea data-q-options="' + i + '" rows="3" placeholder="Option 1&#10;Option 2">' + escF((q.options || []).join('\n')) + '</textarea>' +
+      '</div>' +
     '</div>';
   }).join('');
 }
@@ -2581,6 +2581,11 @@ document.getElementById('btn-add-question').addEventListener('click', function (
   syncQuestionsFromDom();
   BUILDER_QUESTIONS.push({ questionText: '', questionType: 'text', options: [], isRequired: false });
   renderQuestionsBuilder();
+  // The button now sits below the list, so bring the new question into
+  // view and put the cursor in it rather than leaving the user to hunt
+  // for where it landed.
+  var last = document.querySelector('[data-q-text="' + (BUILDER_QUESTIONS.length - 1) + '"]');
+  if (last) { last.scrollIntoView({ block: 'center', behavior: 'smooth' }); last.focus(); }
 });
 document.getElementById('questions-builder').addEventListener('click', function (e) {
   var up = e.target.closest('[data-q-up]');
@@ -2599,12 +2604,16 @@ document.getElementById('questions-builder').addEventListener('click', function 
   }
   renderQuestionsBuilder();
 });
-// Changing type to/from an options-based type needs a re-render so the
-// options textarea appears or disappears.
+// Changing the type only needs the options block shown or hidden for
+// that one question. Re-rendering the whole list here would throw away
+// every input mid-edit and scroll the user back to the top, which reads
+// as the form losing their work.
 document.getElementById('questions-builder').addEventListener('change', function (e) {
-  if (!e.target.closest('[data-q-type]')) return;
-  syncQuestionsFromDom();
-  renderQuestionsBuilder();
+  var typeEl = e.target.closest('[data-q-type]');
+  if (!typeEl) return;
+  var i = typeEl.dataset.qType;
+  var wrap = document.querySelector('[data-q-options-wrap="' + i + '"]');
+  if (wrap) wrap.style.display = TYPES_WITH_OPTIONS.indexOf(typeEl.value) !== -1 ? 'block' : 'none';
 });
 
 async function openFormBuilder(formId) {
@@ -2648,8 +2657,19 @@ function closeFormBuilder() { document.getElementById('modal-overlay-form').clas
 document.getElementById('btn-new-form').addEventListener('click', function () { openFormBuilder(null); });
 document.getElementById('form-builder-close').addEventListener('click', closeFormBuilder);
 document.getElementById('form-builder-cancel').addEventListener('click', closeFormBuilder);
+// Only treat this as a backdrop dismiss when the press AND the release
+// both happened on the backdrop itself. Checking the click target alone
+// is a well-known trap: drag-selecting text inside a textarea and
+// releasing past the edge of the card makes the browser fire `click` on
+// the nearest common ancestor — the overlay — so the form would vanish
+// mid-edit with everything typed into it lost.
+var formOverlayPressedOnBackdrop = false;
+document.getElementById('modal-overlay-form').addEventListener('mousedown', function (e) {
+  formOverlayPressedOnBackdrop = (e.target === this);
+});
 document.getElementById('modal-overlay-form').addEventListener('click', function (e) {
-  if (e.target === this) closeFormBuilder();
+  if (e.target === this && formOverlayPressedOnBackdrop) closeFormBuilder();
+  formOverlayPressedOnBackdrop = false;
 });
 
 document.getElementById('btn-save-form').addEventListener('click', async function () {
@@ -2754,8 +2774,13 @@ async function openResponsesModal(formId) {
 function closeResponsesModal() { document.getElementById('modal-overlay-responses').classList.remove('show'); }
 document.getElementById('responses-close').addEventListener('click', closeResponsesModal);
 document.getElementById('responses-close-2').addEventListener('click', closeResponsesModal);
+var respOverlayPressedOnBackdrop = false;
+document.getElementById('modal-overlay-responses').addEventListener('mousedown', function (e) {
+  respOverlayPressedOnBackdrop = (e.target === this);
+});
 document.getElementById('modal-overlay-responses').addEventListener('click', function (e) {
-  if (e.target === this) closeResponsesModal();
+  if (e.target === this && respOverlayPressedOnBackdrop) closeResponsesModal();
+  respOverlayPressedOnBackdrop = false;
 });
 document.getElementById('btn-download-responses').addEventListener('click', function () {
   if (!CURRENT_RESPONSES || !CURRENT_RESPONSES.length || !CURRENT_RESPONSES_FORM) {

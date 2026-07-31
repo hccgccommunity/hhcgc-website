@@ -753,6 +753,7 @@ textarea{resize:vertical;}
         <li><button class="tab-btn" data-wm-tab="homepage">Homepage</button></li>
         <li><button class="tab-btn" data-wm-tab="events">Manage Events</button></li>
         <li><button class="tab-btn" data-wm-tab="pages">Manage Pages</button></li>
+        <li><button class="tab-btn" data-wm-tab="forms">Forms</button></li>
       </ul>
     </div>
   </div>
@@ -1086,6 +1087,13 @@ textarea{resize:vertical;}
     <!-- STEP 6: Media & Registration -->
     <div class="wizard-step" id="step-6">
       <div class="form-group">
+        <label for="page-form-id">Attached Registration Form</label>
+        <select id="page-form-id">
+          <option value="">None — no form attached</option>
+        </select>
+        <div class="field-hint">Optional. Attaching a form shows a "Register" button on this page linking to it. The form also always works on its own as a standalone link — build and manage forms in the Forms tab.</div>
+      </div>
+      <div class="form-group">
         <label for="page-zeffy-url">Zeffy Registration Embed Code</label>
         <textarea id="page-zeffy-url" rows="4" placeholder="Paste the full Zeffy iframe embed code here&#10;&#10;Example:&#10;&lt;iframe src=&quot;https://www.zeffy.com/embed/ticketing/your-event&quot; ...&gt;&lt;/iframe&gt;"></textarea>
         <div class="field-hint">From Zeffy: go to your event &rarr; Share &rarr; Embed &rarr; copy the full iframe code and paste it here. Leave blank to show "Registrations will open soon!"</div>
@@ -1124,6 +1132,90 @@ textarea{resize:vertical;}
     </div>
   </div>
 </div>
+    </div>
+
+    <div class="tab-panel" id="wm-tab-forms">
+      <div class="page-header">
+        <h1>Forms</h1>
+        <p>Build registration forms for events. Every form collects first name, last name, email, and phone — add whatever else you need. Share the standalone link, or attach a form to a page in Manage Pages.</p>
+      </div>
+      <div class="status-bar" id="status-bar-forms"></div>
+      <div class="toolbar">
+        <div id="forms-count" style="font-size:.86rem;color:var(--muted);"></div>
+        <button class="btn-new" id="btn-new-form">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Form
+        </button>
+      </div>
+      <div class="pages-list" id="forms-list">
+        <div class="empty-state">Loading&hellip;</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay-form">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 id="form-builder-title">New Form</h3>
+      <button class="modal-close" id="form-builder-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-form-id">
+      <div class="form-group">
+        <label for="form-name">Form Name *</label>
+        <input type="text" id="form-name" placeholder="e.g. Diwali Mela 2026 Registration">
+        <div class="field-error" id="err-form-name">Please enter a form name.</div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="form-event-name">Event Name *</label>
+          <input type="text" id="form-event-name" placeholder="e.g. Diwali Mela 2026">
+          <div class="field-error" id="err-form-event-name">Please enter the event name.</div>
+        </div>
+        <div class="form-group">
+          <label for="form-event-date">Event Date</label>
+          <input type="date" id="form-event-date">
+        </div>
+      </div>
+      <div class="toggle-row">
+        <input type="checkbox" id="form-is-active" checked>
+        <label for="form-is-active">Form is accepting responses</label>
+      </div>
+
+      <div style="margin:20px 0 10px;padding:12px 14px;background:var(--surface-soft, #fff6ea);border-radius:10px;font-size:.82rem;color:var(--muted);">
+        <strong style="color:var(--text);">Always collected:</strong> First name, last name, email, phone — all mandatory. You don't need to add these below.
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:18px 0 10px;">
+        <label style="margin:0;">Custom Questions</label>
+        <button type="button" class="btn-secondary" id="btn-add-question" style="padding:6px 12px;font-size:.8rem;">+ Add question</button>
+      </div>
+      <div id="questions-builder"></div>
+      <div class="field-error" id="err-form-questions" style="display:none;"></div>
+
+      <div class="status-bar" id="form-builder-result" style="margin-top:14px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="form-builder-cancel">Cancel</button>
+      <button class="btn-save" id="btn-save-form">Save Form</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay-responses">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 id="responses-title">Responses</h3>
+      <button class="modal-close" id="responses-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="responses-body"><div class="empty-state">Loading&hellip;</div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="btn-download-responses">Download CSV</button>
+      <button class="btn-secondary" id="responses-close-2">Close</button>
     </div>
   </div>
 </div>
@@ -2182,6 +2274,7 @@ function openModalMP(page) {
   document.getElementById('page-curriculum').value = page ? ((page.curriculum||[]).map(w=>[w.weekLabel,w.title,w.description].filter(Boolean).join(' | ')).join('\n')) : '';
 
   // Step 6
+  populatePageFormOptions(page ? (page.formId || '') : '');
   document.getElementById('page-zeffy-url').value = page ? (page.zeffyUrl||'') : '';
   document.getElementById('page-registration-note').value = page ? (page.registrationNote||'') : '';
   document.getElementById('page-flyer-url').value = page ? (page.driveUrl||'') : '';
@@ -2237,6 +2330,7 @@ document.getElementById('btn-save').addEventListener('click', async function() {
     aboutBody: document.getElementById('page-about-body').value.trim(),
     whatToExpect: parseLines('page-what-to-expect'),
     whoShouldAttend: parseLines('page-who-should-attend'),
+    formId: document.getElementById('page-form-id').value || '',
     zeffyUrl: document.getElementById('page-zeffy-url').value.trim(),
     registrationNote: document.getElementById('page-registration-note').value.trim(),
     flyerImageUrl: convertDriveUrl(rawFlyer),
@@ -2312,6 +2406,432 @@ document.getElementById('btn-save').addEventListener('click', async function() {
     btn.disabled = false; btn.innerHTML = orig;
     showStatusMP('Error: ' + (err.message || 'unknown error'), 'error');
   }
+});
+
+
+/* ===================== FORMS TAB ===================== */
+const FORMS_API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';
+const FORM_QUESTION_TYPES = [
+  { value: 'text',     label: 'Short answer' },
+  { value: 'textarea', label: 'Paragraph' },
+  { value: 'dropdown', label: 'Dropdown' },
+  { value: 'radio',    label: 'Multiple choice (pick one)' },
+  { value: 'checkbox', label: 'Checkboxes (pick many)' }
+];
+const TYPES_WITH_OPTIONS = ['dropdown', 'radio', 'checkbox'];
+
+async function formsAuthedFetch(url, options) {
+  options = options || {};
+  var user = window.__hccgcUser;
+  if (!user) throw new Error('Not signed in.');
+  var token = await user.getIdToken();
+  options.headers = Object.assign({}, options.headers, { 'Authorization': 'Bearer ' + token });
+  return fetch(url, options);
+}
+function escF(str) {
+  return String(str == null ? '' : str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function showStatusForms(msg, kind) {
+  var bar = document.getElementById('status-bar-forms');
+  if (!bar) return;
+  bar.className = 'status-bar ' + (kind || '') + ' show';
+  bar.textContent = msg;
+  setTimeout(function () { bar.className = 'status-bar'; }, 4000);
+}
+function formPublicUrl(formId) { return 'https://hccgc.org/forms/' + formId; }
+
+/* ---- List ---- */
+let FORMS_CACHE = [];
+async function loadForms() {
+  var list = document.getElementById('forms-list');
+  list.innerHTML = '<div class="empty-state">Loading&hellip;</div>';
+  try {
+    var res = await formsAuthedFetch(FORMS_API_BASE + '/forms');
+    var data = await res.json();
+    if (!res.ok) throw new Error((data.errors || [data.error || 'Server error']).join(' '));
+    FORMS_CACHE = data;
+    document.getElementById('forms-count').textContent =
+      data.length + ' form' + (data.length === 1 ? '' : 's');
+    if (!data.length) {
+      list.innerHTML = '<div class="empty-state">No forms yet. Click "New Form" to create your first one.</div>';
+      return;
+    }
+    list.innerHTML = data.map(function (f) {
+      var dateStr = f.eventDate
+        ? new Date(f.eventDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        : 'No date';
+      return '<div class="page-row">' +
+        '<div class="page-row-dot' + (f.isActive ? ' live' : '') + '"></div>' +
+        '<div class="page-row-info">' +
+          '<h4>' + escF(f.formName) +
+            ' <span class="type-pill ' + (f.isActive ? 'event' : 'initiative') + '">' +
+            (f.isActive ? 'Accepting' : 'Closed') + '</span></h4>' +
+          '<div class="meta">' +
+            escF(f.eventName) + ' &nbsp;·&nbsp; ' + escF(dateStr) +
+            ' &nbsp;·&nbsp; ' + f.responseCount + ' response' + (f.responseCount === 1 ? '' : 's') +
+            ' &nbsp;·&nbsp; <a href="' + escF(formPublicUrl(f.formId)) + '" target="_blank">' +
+            escF(formPublicUrl(f.formId)) + ' \u2197</a>' +
+          '</div>' +
+        '</div>' +
+        '<div class="page-row-actions">' +
+          '<button class="btn-row" data-copy-form-link="' + f.formId + '">Copy link</button>' +
+          '<button class="btn-row" data-view-responses="' + f.formId + '">Responses</button>' +
+          '<button class="btn-row" data-edit-form="' + f.formId + '">' +
+            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit' +
+          '</button>' +
+          '<button class="btn-row danger" data-delete-form="' + f.formId + '">Delete</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  } catch (err) {
+    list.innerHTML = '<div class="empty-state">Could not load forms: ' + escF(err.message) + '</div>';
+  }
+}
+
+document.getElementById('forms-list').addEventListener('click', async function (e) {
+  var copyBtn = e.target.closest('[data-copy-form-link]');
+  if (copyBtn) {
+    var url = formPublicUrl(copyBtn.dataset.copyFormLink);
+    try {
+      await navigator.clipboard.writeText(url);
+      showStatusForms('Link copied: ' + url, 'success');
+    } catch (err) {
+      window.prompt('Copy this link:', url);
+    }
+    return;
+  }
+  var respBtn = e.target.closest('[data-view-responses]');
+  if (respBtn) { openResponsesModal(respBtn.dataset.viewResponses); return; }
+  var editBtn = e.target.closest('[data-edit-form]');
+  if (editBtn) { openFormBuilder(editBtn.dataset.editForm); return; }
+  var delBtn = e.target.closest('[data-delete-form]');
+  if (delBtn) {
+    var f = FORMS_CACHE.find(function (x) { return x.formId === delBtn.dataset.deleteForm; });
+    var name = f ? f.formName : 'this form';
+    if (!confirm('Delete "' + name + '" permanently? This can\'t be undone. If it already has responses, this will be refused \u2014 turn off "accepting responses" instead in that case.')) return;
+    delBtn.disabled = true; delBtn.textContent = 'Deleting\u2026';
+    try {
+      var res = await formsAuthedFetch(FORMS_API_BASE + '/forms/' + encodeURIComponent(delBtn.dataset.deleteForm) + '/delete', { method: 'POST' });
+      var data = await res.json();
+      if (!res.ok) {
+        showStatusForms((data.errors || [data.error]).join(' ') || 'Could not delete.', 'error');
+        delBtn.disabled = false; delBtn.textContent = 'Delete';
+        return;
+      }
+      showStatusForms('Form deleted.', 'success');
+      loadForms();
+    } catch (err) {
+      showStatusForms('Could not reach the server: ' + err.message, 'error');
+      delBtn.disabled = false; delBtn.textContent = 'Delete';
+    }
+  }
+});
+
+/* ---- Builder ---- */
+let BUILDER_QUESTIONS = [];
+function renderQuestionsBuilder() {
+  var wrap = document.getElementById('questions-builder');
+  if (!BUILDER_QUESTIONS.length) {
+    wrap.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:.84rem;border:1px dashed var(--border);border-radius:10px;">No custom questions yet \u2014 the four standard fields will still be collected.</div>';
+    return;
+  }
+  wrap.innerHTML = BUILDER_QUESTIONS.map(function (q, i) {
+    var needsOptions = TYPES_WITH_OPTIONS.indexOf(q.questionType) !== -1;
+    return '<div style="border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;background:#fff;">' +
+      '<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">' +
+        '<span style="font-weight:700;font-size:.8rem;color:var(--muted);flex-shrink:0;">Q' + (i + 1) + '</span>' +
+        '<input type="text" data-q-text="' + i + '" value="' + escF(q.questionText) + '" placeholder="Question text" style="flex:1;">' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">' +
+        '<select data-q-type="' + i + '" style="flex:1;min-width:170px;">' +
+          FORM_QUESTION_TYPES.map(function (t) {
+            return '<option value="' + t.value + '"' + (t.value === q.questionType ? ' selected' : '') + '>' + t.label + '</option>';
+          }).join('') +
+        '</select>' +
+        '<label style="display:flex;align-items:center;gap:6px;font-size:.8rem;font-weight:700;white-space:nowrap;">' +
+          '<input type="checkbox" data-q-required="' + i + '"' + (q.isRequired ? ' checked' : '') + '> Required' +
+        '</label>' +
+        '<button type="button" class="btn-secondary" data-q-up="' + i + '" style="padding:4px 9px;font-size:.78rem;"' + (i === 0 ? ' disabled' : '') + '>\u2191</button>' +
+        '<button type="button" class="btn-secondary" data-q-down="' + i + '" style="padding:4px 9px;font-size:.78rem;"' + (i === BUILDER_QUESTIONS.length - 1 ? ' disabled' : '') + '>\u2193</button>' +
+        '<button type="button" class="btn-secondary" data-q-remove="' + i + '" style="padding:4px 9px;font-size:.78rem;">Remove</button>' +
+      '</div>' +
+      (needsOptions
+        ? '<div style="margin-top:10px;">' +
+            '<label style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:4px;">Options (one per line)</label>' +
+            '<textarea data-q-options="' + i + '" rows="3" placeholder="Option 1&#10;Option 2">' + escF((q.options || []).join('\n')) + '</textarea>' +
+          '</div>'
+        : '') +
+    '</div>';
+  }).join('');
+}
+function syncQuestionsFromDom() {
+  BUILDER_QUESTIONS.forEach(function (q, i) {
+    var textEl = document.querySelector('[data-q-text="' + i + '"]');
+    var typeEl = document.querySelector('[data-q-type="' + i + '"]');
+    var reqEl = document.querySelector('[data-q-required="' + i + '"]');
+    var optEl = document.querySelector('[data-q-options="' + i + '"]');
+    if (textEl) q.questionText = textEl.value;
+    if (typeEl) q.questionType = typeEl.value;
+    if (reqEl) q.isRequired = reqEl.checked;
+    if (optEl) q.options = optEl.value.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+  });
+}
+document.getElementById('btn-add-question').addEventListener('click', function () {
+  syncQuestionsFromDom();
+  BUILDER_QUESTIONS.push({ questionText: '', questionType: 'text', options: [], isRequired: false });
+  renderQuestionsBuilder();
+});
+document.getElementById('questions-builder').addEventListener('click', function (e) {
+  var up = e.target.closest('[data-q-up]');
+  var down = e.target.closest('[data-q-down]');
+  var rm = e.target.closest('[data-q-remove]');
+  if (!up && !down && !rm) return;
+  syncQuestionsFromDom();
+  if (up) {
+    var i = Number(up.dataset.qUp);
+    var tmp = BUILDER_QUESTIONS[i - 1]; BUILDER_QUESTIONS[i - 1] = BUILDER_QUESTIONS[i]; BUILDER_QUESTIONS[i] = tmp;
+  } else if (down) {
+    var j = Number(down.dataset.qDown);
+    var tmp2 = BUILDER_QUESTIONS[j + 1]; BUILDER_QUESTIONS[j + 1] = BUILDER_QUESTIONS[j]; BUILDER_QUESTIONS[j] = tmp2;
+  } else {
+    BUILDER_QUESTIONS.splice(Number(rm.dataset.qRemove), 1);
+  }
+  renderQuestionsBuilder();
+});
+// Changing type to/from an options-based type needs a re-render so the
+// options textarea appears or disappears.
+document.getElementById('questions-builder').addEventListener('change', function (e) {
+  if (!e.target.closest('[data-q-type]')) return;
+  syncQuestionsFromDom();
+  renderQuestionsBuilder();
+});
+
+async function openFormBuilder(formId) {
+  document.getElementById('form-builder-result').className = 'status-bar';
+  document.getElementById('err-form-name').classList.remove('show');
+  document.getElementById('err-form-event-name').classList.remove('show');
+  document.getElementById('err-form-questions').style.display = 'none';
+  document.getElementById('edit-form-id').value = formId || '';
+  document.getElementById('form-builder-title').textContent = formId ? 'Edit Form' : 'New Form';
+
+  if (!formId) {
+    document.getElementById('form-name').value = '';
+    document.getElementById('form-event-name').value = '';
+    document.getElementById('form-event-date').value = '';
+    document.getElementById('form-is-active').checked = true;
+    BUILDER_QUESTIONS = [];
+    renderQuestionsBuilder();
+    document.getElementById('modal-overlay-form').classList.add('show');
+    return;
+  }
+  document.getElementById('modal-overlay-form').classList.add('show');
+  document.getElementById('questions-builder').innerHTML = '<div class="empty-state">Loading&hellip;</div>';
+  try {
+    var res = await formsAuthedFetch(FORMS_API_BASE + '/forms/' + encodeURIComponent(formId));
+    var f = await res.json();
+    if (!res.ok) throw new Error((f.errors || [f.error || 'Server error']).join(' '));
+    document.getElementById('form-name').value = f.formName || '';
+    document.getElementById('form-event-name').value = f.eventName || '';
+    document.getElementById('form-event-date').value = f.eventDate || '';
+    document.getElementById('form-is-active').checked = f.isActive !== false;
+    BUILDER_QUESTIONS = (f.questions || []).map(function (q) {
+      return { questionText: q.questionText, questionType: q.questionType, options: q.options || [], isRequired: q.isRequired };
+    });
+    renderQuestionsBuilder();
+  } catch (err) {
+    document.getElementById('questions-builder').innerHTML =
+      '<div class="empty-state">Could not load: ' + escF(err.message) + '</div>';
+  }
+}
+function closeFormBuilder() { document.getElementById('modal-overlay-form').classList.remove('show'); }
+document.getElementById('btn-new-form').addEventListener('click', function () { openFormBuilder(null); });
+document.getElementById('form-builder-close').addEventListener('click', closeFormBuilder);
+document.getElementById('form-builder-cancel').addEventListener('click', closeFormBuilder);
+document.getElementById('modal-overlay-form').addEventListener('click', function (e) {
+  if (e.target === this) closeFormBuilder();
+});
+
+document.getElementById('btn-save-form').addEventListener('click', async function () {
+  var btn = this;
+  syncQuestionsFromDom();
+  var formName = document.getElementById('form-name').value.trim();
+  var eventName = document.getElementById('form-event-name').value.trim();
+  var eventDate = document.getElementById('form-event-date').value || null;
+  var isActive = document.getElementById('form-is-active').checked;
+  var formId = document.getElementById('edit-form-id').value;
+
+  document.getElementById('err-form-name').classList.toggle('show', !formName);
+  document.getElementById('err-form-event-name').classList.toggle('show', !eventName);
+  var qErrors = [];
+  BUILDER_QUESTIONS.forEach(function (q, i) {
+    if (!q.questionText.trim()) qErrors.push('Question ' + (i + 1) + ' needs text.');
+    if (TYPES_WITH_OPTIONS.indexOf(q.questionType) !== -1 && !(q.options || []).length) {
+      qErrors.push('Question ' + (i + 1) + ' needs at least one option.');
+    }
+  });
+  var qErrEl = document.getElementById('err-form-questions');
+  if (qErrors.length) { qErrEl.textContent = qErrors.join(' '); qErrEl.style.display = 'block'; }
+  else { qErrEl.style.display = 'none'; }
+  if (!formName || !eventName || qErrors.length) return;
+
+  var orig = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Saving\u2026';
+  var resultBox = document.getElementById('form-builder-result');
+  try {
+    var payload = { formName: formName, eventName: eventName, eventDate: eventDate, isActive: isActive, questions: BUILDER_QUESTIONS };
+    var url = formId ? FORMS_API_BASE + '/forms/' + encodeURIComponent(formId) : FORMS_API_BASE + '/forms';
+    var res = await formsAuthedFetch(url, {
+      method: formId ? 'PATCH' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      resultBox.className = 'status-bar error show';
+      resultBox.textContent = (data.errors || [data.error || 'Could not save.']).join(' ');
+      return;
+    }
+    closeFormBuilder();
+    showStatusForms(formId ? 'Form updated.' : 'Form created \u2014 share it at ' + formPublicUrl(data.formId), 'success');
+    loadForms();
+  } catch (err) {
+    resultBox.className = 'status-bar error show';
+    resultBox.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = orig;
+  }
+});
+
+/* ---- Responses ---- */
+let CURRENT_RESPONSES = null;
+let CURRENT_RESPONSES_FORM = null;
+async function openResponsesModal(formId) {
+  var form = FORMS_CACHE.find(function (f) { return f.formId === formId; });
+  document.getElementById('responses-title').textContent =
+    'Responses' + (form ? ' \u2014 ' + form.formName : '');
+  document.getElementById('modal-overlay-responses').classList.add('show');
+  var body = document.getElementById('responses-body');
+  body.innerHTML = '<div class="empty-state">Loading&hellip;</div>';
+  CURRENT_RESPONSES = null;
+  try {
+    var defRes = await formsAuthedFetch(FORMS_API_BASE + '/forms/' + encodeURIComponent(formId));
+    var def = await defRes.json();
+    if (!defRes.ok) throw new Error((def.errors || [def.error || 'Server error']).join(' '));
+    var res = await formsAuthedFetch(FORMS_API_BASE + '/forms/' + encodeURIComponent(formId) + '/responses');
+    var rows = await res.json();
+    if (!res.ok) throw new Error((rows.errors || [rows.error || 'Server error']).join(' '));
+    CURRENT_RESPONSES = rows;
+    CURRENT_RESPONSES_FORM = def;
+    if (!rows.length) { body.innerHTML = '<div class="empty-state">No responses yet.</div>'; return; }
+    var headers = ['First name', 'Last name', 'Email', 'Phone']
+      .concat(def.questions.map(function (q) { return q.questionText; }))
+      .concat(['Submitted']);
+    var headHtml = headers.map(function (h) {
+      return '<th style="text-align:left;padding:8px 10px;border-bottom:2px solid var(--border);white-space:nowrap;">' + escF(h) + '</th>';
+    }).join('');
+    var bodyHtml = rows.map(function (r) {
+      var cells = [r.firstName, r.lastName, r.email, r.phone].map(function (v) {
+        return '<td style="padding:8px 10px;border-bottom:1px solid var(--border);">' + escF(v) + '</td>';
+      });
+      def.questions.forEach(function (q) {
+        var a = r.answers ? r.answers[q.questionId] : '';
+        if (Array.isArray(a)) a = a.join(', ');
+        cells.push('<td style="padding:8px 10px;border-bottom:1px solid var(--border);">' + escF(a) + '</td>');
+      });
+      cells.push('<td style="padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap;">' +
+        escF(new Date(r.submittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })) + '</td>');
+      return '<tr>' + cells.join('') + '</tr>';
+    }).join('');
+    body.innerHTML =
+      '<div style="font-size:.82rem;color:var(--muted);margin-bottom:10px;">' + rows.length + ' response' + (rows.length === 1 ? '' : 's') + '</div>' +
+      '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:.84rem;">' +
+      '<thead><tr>' + headHtml + '</tr></thead><tbody>' + bodyHtml + '</tbody></table></div>';
+  } catch (err) {
+    body.innerHTML = '<div class="empty-state">Could not load: ' + escF(err.message) + '</div>';
+  }
+}
+function closeResponsesModal() { document.getElementById('modal-overlay-responses').classList.remove('show'); }
+document.getElementById('responses-close').addEventListener('click', closeResponsesModal);
+document.getElementById('responses-close-2').addEventListener('click', closeResponsesModal);
+document.getElementById('modal-overlay-responses').addEventListener('click', function (e) {
+  if (e.target === this) closeResponsesModal();
+});
+document.getElementById('btn-download-responses').addEventListener('click', function () {
+  if (!CURRENT_RESPONSES || !CURRENT_RESPONSES.length || !CURRENT_RESPONSES_FORM) {
+    showStatusForms('Nothing to download yet.', 'error');
+    return;
+  }
+  var def = CURRENT_RESPONSES_FORM;
+  function csvCell(v) {
+    if (Array.isArray(v)) v = v.join(', ');
+    v = String(v == null ? '' : v);
+    return '"' + v.replace(/"/g, '""') + '"';
+  }
+  var header = ['First name', 'Last name', 'Email', 'Phone']
+    .concat(def.questions.map(function (q) { return q.questionText; }))
+    .concat(['Submitted']).map(csvCell).join(',');
+  var lines = CURRENT_RESPONSES.map(function (r) {
+    var cells = [r.firstName, r.lastName, r.email, r.phone];
+    def.questions.forEach(function (q) { cells.push(r.answers ? r.answers[q.questionId] : ''); });
+    cells.push(r.submittedAt);
+    return cells.map(csvCell).join(',');
+  });
+  var csv = [header].concat(lines).join('\n');
+  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (def.formName || 'form').replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '-responses.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+});
+
+/* ---- Manage Pages integration ---- */
+// Fills the "Attached Registration Form" dropdown in the Manage Pages
+// wizard. Falls back to fetching if the Forms tab hasn't been opened yet
+// this session, since the wizard can be opened without ever visiting it.
+async function populatePageFormOptions(selectedFormId) {
+  var sel = document.getElementById('page-form-id');
+  if (!sel) return;
+  function paint(forms) {
+    sel.innerHTML = '<option value="">None — no form attached</option>' +
+      forms.map(function (f) {
+        return '<option value="' + f.formId + '">' + escF(f.formName) +
+          (f.isActive ? '' : ' (not accepting responses)') + '</option>';
+      }).join('');
+    // If the page points at a form that no longer exists, keep the
+    // reference visible rather than silently resetting it to "None" —
+    // otherwise saving the page would quietly drop the attachment.
+    if (selectedFormId && !forms.some(function (f) { return f.formId === selectedFormId; })) {
+      sel.insertAdjacentHTML('beforeend',
+        '<option value="' + escF(selectedFormId) + '">(previously attached form — no longer available)</option>');
+    }
+    sel.value = selectedFormId || '';
+  }
+  if (FORMS_CACHE.length) { paint(FORMS_CACHE); return; }
+  try {
+    var res = await formsAuthedFetch(FORMS_API_BASE + '/forms');
+    var data = await res.json();
+    if (res.ok) { FORMS_CACHE = data; paint(data); }
+    else paint([]);
+  } catch (err) {
+    paint([]);
+  }
+}
+
+/* Load once the user is known, and again whenever the Forms tab opens. */
+let FORMS_LOADED = false;
+function initFormsTabIfReady() {
+  if (FORMS_LOADED || !window.__hccgcUser) return;
+  FORMS_LOADED = true;
+  loadForms();
+}
+window.addEventListener('hccgc-signed-in', initFormsTabIfReady);
+if (window.__hccgcUser) initFormsTabIfReady();
+document.querySelectorAll('[data-wm-tab="forms"]').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    if (window.__hccgcUser) { if (!FORMS_LOADED) { FORMS_LOADED = true; } loadForms(); }
+  });
 });
 
 </script>

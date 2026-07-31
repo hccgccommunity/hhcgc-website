@@ -31,7 +31,7 @@
     "rewrites": [
       {
         "source": "/forms/**",
-        "destination": "/forms-page.html"
+        "destination": "/forms-page"
       },
       {
         "source": "**",

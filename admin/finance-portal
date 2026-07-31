@@ -955,6 +955,10 @@ tr.series-row:hover td { background: var(--surface-soft); }
           <span class="payment-method-icon">🧾</span>
           <span class="payment-method-label">Check</span>
         </button>
+        <button type="button" class="payment-method-card" data-payment-method="cash">
+          <span class="payment-method-icon">💵</span>
+          <span class="payment-method-label">Cash</span>
+        </button>
       </div>
       <div class="result-box" id="mark-paid-result" style="display:none;margin-top:14px;"></div>
     </div>

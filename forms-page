@@ -399,8 +399,12 @@ async function loadForm() {
     document.getElementById('hero-title').textContent =
       'RSVP for ' + (data.eventName || 'this event');
     var whenParts = [];
-    if (data.eventDate) {
-      whenParts.push(new Date(data.eventDate + 'T00:00:00').toLocaleDateString('en-US',
+    // Trim to YYYY-MM-DD before parsing: appending 'T00:00:00' to a value
+    // that already carries a time produces an Invalid Date, which would
+    // render as literal "Invalid Date" on the page.
+    var dOnly = data.eventDate ? String(data.eventDate).slice(0, 10) : '';
+    if (dOnly) {
+      whenParts.push(new Date(dOnly + 'T00:00:00').toLocaleDateString('en-US',
         { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }));
     }
     if (data.eventStartTime && data.eventEndTime) {

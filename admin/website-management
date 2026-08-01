@@ -2455,6 +2455,14 @@ function showStatusForms(msg, kind) {
   setTimeout(function () { bar.className = 'status-bar'; }, 4000);
 }
 function formPublicUrl(formId) { return 'https://hccgc.org/forms/' + formId; }
+// <input type="date"> only accepts exactly YYYY-MM-DD and silently
+// blanks itself on anything else — including a full ISO timestamp. The
+// backend normalizes this now, but trimming here too means a stray
+// timestamp can never blank the field and get saved back as empty.
+function toDateInputValue(v) {
+  if (!v) return '';
+  return String(v).slice(0, 10);
+}
 // 'HH:MM' (24h, as stored) -> '6:00 PM'
 function fmt12h(hhmm) {
   if (!hhmm) return '';
@@ -2482,8 +2490,9 @@ async function loadForms() {
       return;
     }
     list.innerHTML = data.map(function (f) {
-      var dateStr = f.eventDate
-        ? new Date(f.eventDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      var dOnly = toDateInputValue(f.eventDate);
+      var dateStr = dOnly
+        ? new Date(dOnly + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
         : 'No date';
       if (f.eventStartTime && f.eventEndTime) {
         dateStr += ', ' + fmt12h(f.eventStartTime) + '\u2013' + fmt12h(f.eventEndTime);
@@ -2692,7 +2701,7 @@ async function openFormBuilder(formId) {
     if (!res.ok) throw new Error((f.errors || [f.error || 'Server error']).join(' '));
     document.getElementById('form-name').value = f.formName || '';
     document.getElementById('form-event-name').value = f.eventName || '';
-    document.getElementById('form-event-date').value = f.eventDate || '';
+    document.getElementById('form-event-date').value = toDateInputValue(f.eventDate);
     document.getElementById('form-event-start').value = f.eventStartTime || '';
     document.getElementById('form-event-end').value = f.eventEndTime || '';
     document.getElementById('form-is-active').checked = f.isActive !== false;

@@ -2087,7 +2087,7 @@
       row.className = 'rf-date-row';
       row.dataset.rowId = id;
       row.innerHTML =
-        '<div class="request-field"><label>Date</label><input type="date" class="rf-date-input" required></div>' +
+        '<div class="request-field"><label>Date</label><input type="date" class="rf-date-input" min="' + todayLocalISO() + '" required></div>' +
         '<div class="request-field"><label>Start time</label><input type="time" class="rf-start-input" value="14:00" required></div>' +
         '<div class="request-field"><label>End time</label><input type="time" class="rf-end-input" value="16:00" required></div>' +
         '<div class="rf-remove-date-wrap"><button type="button" class="rf-remove-date" title="Remove this date">&times;</button></div>';
@@ -2117,6 +2117,7 @@
     document.getElementById('rf-recur-end-type').addEventListener('change', function () {
       document.getElementById('rf-recur-count-field').style.display = this.value === 'count' ? 'block' : 'none';
       document.getElementById('rf-recur-until-field').style.display = this.value === 'until' ? 'block' : 'none';
+      document.getElementById('rf-recur-until').min = todayLocalISO();
     });
     document.getElementById('rf-generate-dates-btn').addEventListener('click', function () {
       const firstRow = document.querySelector('.rf-date-row');
@@ -2213,6 +2214,17 @@
     roomPanel.addEventListener('change', updateLiveEstimate);
     document.getElementById('rf-is-nonprofit').addEventListener('change', updateLiveEstimate);
 
+    // Today's date in the user's own local timezone as YYYY-MM-DD.
+    // Deliberately NOT toISOString(), which converts to UTC first and can
+    // report tomorrow's date for anyone east of UTC late in the evening —
+    // that would let a genuinely past date slip through the guard.
+    function todayLocalISO() {
+      const d = new Date();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return d.getFullYear() + '-' + m + '-' + day;
+    }
+
     document.getElementById('requestForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('rf-submit-btn');
@@ -2230,6 +2242,19 @@
         endTime: row.querySelector('.rf-end-input').value
       }));
       if (occurrences.some(o => !o.date || !o.startTime || !o.endTime)) { showRequestResult('Please fill in every date row completely.'); return; }
+
+      // The `min` attribute stops the picker offering past dates, but it's
+      // only a hint — typed input, autofill, and a stale page left open
+      // overnight all bypass it. This is the actual gate on the client;
+      // the server enforces it independently.
+      const todayStr = todayLocalISO();
+      const pastDates = occurrences.filter(o => o.date < todayStr).map(o => o.date);
+      if (pastDates.length) {
+        showRequestResult(pastDates.length === 1
+          ? 'The date ' + pastDates[0] + ' is in the past. Please choose a future date.'
+          : 'These dates are in the past: ' + pastDates.join(', ') + '. Please choose future dates.');
+        return;
+      }
 
       let payload;
       if (isHccgcEventPath) {

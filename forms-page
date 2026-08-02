@@ -30,17 +30,10 @@
     .container { width: min(calc(100% - 32px), 720px); margin: 0 auto; }
     .container.wide { width: min(calc(100% - 32px), 1080px); }
     .layout { display: flex; gap: 26px; align-items: flex-start; margin: 26px 0 60px; }
-    .layout .flyer-col { flex: 0 0 40%; position: sticky; top: 20px; }
     .layout .form-col { flex: 1; min-width: 0; }
     .layout .card { margin: 0; }
-    .flyer-card {
-      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 14px; box-shadow: var(--shadow); overflow: hidden;
-    }
-    .flyer-card img { width: 100%; height: auto; display: block; border-radius: 14px; }
     @media (max-width: 860px) {
       .layout { flex-direction: column; }
-      .layout .flyer-col { flex: none; width: 100%; position: static; }
     }
     .shared-list { display: flex; flex-direction: column; gap: 10px; }
     .shared-item { border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; background: #fff; }
@@ -274,9 +267,6 @@
 
 <div class="container wide">
  <div class="layout">
-  <div class="flyer-col" id="flyer-col" style="display:none;">
-    <div class="flyer-card"><img id="flyer-img" alt="Event flyer"></div>
-  </div>
   <div class="form-col">
   <div class="card" id="form-card">
     <div class="state-msg" id="state-msg">Loading form&hellip;</div>
@@ -323,6 +313,11 @@
 <div id="footer-placeholder"></div>
 
 <script>
+// Embedded on an event page (?embed=1): the surrounding page already
+// carries the branding, title and date, so the hero, site header and
+// footer are all suppressed — otherwise the visitor sees the event name
+// twice and a second set of navigation.
+var IS_EMBED = new URLSearchParams(window.location.search).get('embed') === '1';
 const API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';
 
 // 'HH:MM' (24h, as stored) -> '6:00 PM'
@@ -471,6 +466,11 @@ async function loadForm() {
     // with the event itself.
     document.getElementById('hero-title').textContent =
       'RSVP for ' + (data.eventName || 'this event');
+    if (IS_EMBED) {
+      var heroEl = document.querySelector('.page-hero');
+      if (heroEl) heroEl.style.display = 'none';
+      document.body.style.background = 'transparent';
+    }
     var whenParts = [];
     // Trim to YYYY-MM-DD before parsing: appending 'T00:00:00' to a value
     // that already carries a time produces an Invalid Date, which would
@@ -486,10 +486,6 @@ async function loadForm() {
     document.getElementById('hero-sub').textContent = whenParts.join('  \u00b7  ');
     document.getElementById('hero-meta').textContent = '';
     document.title = 'RSVP \u2014 ' + (data.eventName || 'Event') + ' | HCCGC';
-    if (data.flyerUrl) {
-      document.getElementById('flyer-img').src = data.flyerUrl;
-      document.getElementById('flyer-col').style.display = 'block';
-    }
     stateMsg.style.display = 'none';
     // Registration closes 2 hours before the event starts. Say so plainly
     // rather than showing a form that will just reject the submission.
@@ -579,8 +575,10 @@ function fixPartialPathsForSubfolder(el) {
     link.setAttribute('href', '/' + href);
   });
 }
-loadPartial('header-placeholder', '/header.html');
-loadPartial('footer-placeholder', '/footer.html');
+if (!IS_EMBED) {
+  loadPartial('header-placeholder', '/header.html');
+  loadPartial('footer-placeholder', '/footer.html');
+}
 
 // /forms/<id>/shared/<token> renders the group list instead of the form.
 function sharedTokenFromUrl() {

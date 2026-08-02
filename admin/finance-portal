@@ -3324,8 +3324,16 @@ function openFinanceInvoicePopup(bookingId) {
   let html = '<button type="button" class="invoice-action-btn" data-fin-inv-action="view">View invoice</button>';
   html += '<button type="button" class="invoice-action-btn primary" data-fin-inv-action="send">' + (alreadySent ? 'Resend invoice' : 'Send invoice') + '</button>';
   html += '<button type="button" class="invoice-action-btn" data-fin-inv-action="download">Download invoice</button>';
+  // Voiding is what unlocks editing a booking whose invoice the renter
+  // already holds, so it only appears once something has actually been
+  // sent — and only for admins, matching the server-side restriction.
+  if (alreadySent && window.__hccgcIsAdmin) {
+    html += '<button type="button" class="invoice-action-btn" data-fin-inv-action="void" style="color:var(--red);border-color:var(--red);">Void invoice</button>';
+  }
   html += alreadySent
-    ? '<p class="card-sub" style="margin:6px 0 0;">Sent ' + formatTimestampDate(inv.invoiceSentAt) + '.</p>'
+    ? '<p class="card-sub" style="margin:6px 0 0;">Sent ' + formatTimestampDate(inv.invoiceSentAt) + '.'
+      + (window.__hccgcIsAdmin ? ' Void it to make the booking editable again — the customer is emailed.' : '')
+      + '</p>'
     : '<p class="card-sub" style="margin:6px 0 0;">Not sent yet.</p>';
   body.innerHTML = html;
   body.dataset.bookingId = bookingId;
@@ -3337,6 +3345,32 @@ document.getElementById('invoice-action-body').addEventListener('click', async f
   const bookingId = this.dataset.bookingId;
   if (btn.dataset.finInvAction === 'view') { document.getElementById('invoice-action-overlay').style.display = 'none'; viewDocument(bookingId, 'invoice'); return; }
   if (btn.dataset.finInvAction === 'download') { document.getElementById('invoice-action-overlay').style.display = 'none'; downloadDocument(bookingId, 'invoice'); return; }
+  if (btn.dataset.finInvAction === 'void') {
+    const inv = INVOICES.find(function (i) { return i.bookingId === bookingId; });
+    // The note is mandatory server-side and goes into the email the
+    // customer receives, so it's collected here rather than sent blank.
+    const note = window.prompt(
+      'Void this invoice for ' + (inv ? inv.renterName : 'this customer') + '?\n\n' +
+      'They will be emailed that it has been voided, with facility-rental@hccgc.org copied. ' +
+      'The booking then becomes editable again.\n\n' +
+      'Reason (included in that email):', '');
+    if (note === null) return;
+    if (!note.trim()) { alert('A reason is required — it is included in the email to the customer.'); return; }
+    document.getElementById('invoice-action-overlay').style.display = 'none';
+    try {
+      const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/void', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ note: note.trim() })
+      });
+      const data = await res.json();
+      if (!res.ok) { alert('Could not void: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+      alert('Invoice voided. The customer has been emailed, and the booking can now be edited in the Facility Rental portal.');
+      await loadInvoices();
+    } catch (err) {
+      alert('Could not reach the server: ' + err.message);
+    }
+    return;
+  }
   if (btn.dataset.finInvAction === 'send') {
     const inv = INVOICES.find(function (i) { return i.bookingId === bookingId; });
     const isResend = inv && inv.invoiceSentAt;

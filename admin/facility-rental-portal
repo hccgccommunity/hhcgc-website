@@ -2018,8 +2018,17 @@ function renderBookingRow(b, isSubRow, seriesPerOccurrenceMode) {
   // Kebab menu is deliberately down to just Edit and Cancel now — invoice
   // send/edit/download lives in the invoice icon's popup, and marking
   // paid/matching payments moved entirely into Finance.
+  // An invoice the renter already holds can't be quietly contradicted by
+  // an edit. Non-admins don't see Edit at all in that state; admins do,
+  // and get told to void it first (the server enforces both).
+  const invoiceAlreadySent = !!b.invoice_sent_at;
   const actions = [];
-  if (canEditThis) actions.push({ label: 'Edit', fn: () => openEditModal(b.booking_id) });
+  if (canEditThis && (!invoiceAlreadySent || window.__hccgcIsAdmin)) {
+    actions.push({
+      label: 'Edit',
+      fn: () => invoiceAlreadySent ? showInvoiceSentEditNotice() : openEditModal(b.booking_id)
+    });
+  }
   if (notCancelled && !locked) actions.push({ label: 'Cancel', danger: true, fn: () => cancelBookingFlow(b.booking_id) });
 
   const actionsCell = treatAsSubRow ? '<td></td>' : '<td><div style="display:flex;align-items:center;gap:8px;">' + actionIcons(b) + renderActionsKebab(b.booking_id, actions) + '</div></td>';
@@ -2060,8 +2069,14 @@ function renderSeriesSummaryRow(item) {
   // same as the individual-booking lock above.
   const canEditThis = notCancelled && !allPaid && (!allHistoricallyLocked || (allPast && PAST_BOOKING_EDIT_ALLOWLIST.includes(currentUserEmail())));
 
+  const seriesInvoiceSent = item.occurrences.some(function (o) { return o.invoice_sent_at; });
   const actions = [];
-  if (canEditThis) actions.push({ label: 'Edit series', fn: () => openSeriesEditModal(item.seriesId) });
+  if (canEditThis && (!seriesInvoiceSent || window.__hccgcIsAdmin)) {
+    actions.push({
+      label: 'Edit series',
+      fn: () => seriesInvoiceSent ? showInvoiceSentEditNotice() : openSeriesEditModal(item.seriesId)
+    });
+  }
   if (notCancelled && !allHistoricallyLocked) actions.push({ label: 'Cancel all', danger: true, fn: () => cancelSeriesFlow(item.seriesId) });
 
   // Combined invoicing (default): the group IS the billing unit, so it
@@ -2824,6 +2839,20 @@ async function loadOrgsForEditSelect(selectId, renterId, currentOrgId) {
   } catch (err) {
     // Leave the "no organization" default in place if this fails.
   }
+}
+// Shown when an admin picks Edit on a booking whose invoice has already
+// gone out — explains the required order rather than failing on save.
+function showInvoiceSentEditNotice() {
+  alert(
+    'An invoice has already been sent for this booking.\n\n' +
+    'To change it:\n' +
+    '  1. Go to Finance \u2192 Invoices & Receipts\n' +
+    '  2. Open this booking\'s invoice and choose "Void invoice"\n' +
+    '     (the customer is emailed, with facility-rental@hccgc.org copied)\n' +
+    '  3. Come back here \u2014 the booking will be editable\n' +
+    '  4. Edit it, then send the invoice again\n\n' +
+    'This keeps what the customer is holding and what we have on record in step.'
+  );
 }
 async function openEditModal(bookingId) {
   const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
@@ -4915,6 +4944,7 @@ onAuthStateChanged(auth, function(user) {
   if (!email.endsWith('@'+ALLOWED_DOMAIN)) { showGate('Access denied', 'Please use an @'+ALLOWED_DOMAIN+' account.'); return; }
   getDoc(doc(db, 'portalUsers', email)).then(function(snap) {
     var data = snap.exists() ? snap.data() : {};
+    window.__hccgcIsAdmin = !!data.isAdmin;
     if (!data.isAdmin && !(Array.isArray(data.allowedApps) && data.allowedApps.includes(REQUIRED_APP_KEY))) {
       showGate('Access not granted', "You don't have access to Facility Bookings. Ask an admin to grant it.");
       return;

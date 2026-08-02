@@ -2848,7 +2848,15 @@ function groupInvoicesIntoDisplayItems(list) {
     item.paidCount = occ.filter(function (o) { return o.paymentStatus === 'paid'; }).length;
     item.invoiceSentAt = occ.reduce(function (latest, o) { return (!latest || (o.invoiceSentAt && o.invoiceSentAt > latest)) ? o.invoiceSentAt : latest; }, first.invoiceSentAt);
     item.recurrenceSummary = first.recurrenceSummary || (occ.length + ' occurrences');
-    item.invoiceMode = first.invoiceMode || 'combined';
+    // Derived from EVERY occurrence, not just occ[0]. Reading one row
+    // meant a single NULL or stale value at the front of the group made
+    // the whole series render — and send — as one combined invoice, even
+    // when the rest of the occurrences were explicitly per-occurrence.
+    // Treat the series as per-occurrence if ANY occurrence says so.
+    item.invoiceMode = occ.some(function (o) { return o.invoiceMode === 'per_occurrence'; })
+      ? 'per_occurrence'
+      : (first.invoiceMode || 'combined');
+    item.invoiceModeMixed = occ.some(function (o) { return (o.invoiceMode || null) !== (first.invoiceMode || null); });
   });
   return items;
 }

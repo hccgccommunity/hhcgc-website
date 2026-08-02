@@ -381,7 +381,7 @@ function renderPage(e) {
       regHtml += '<div class="zeffy-responsive-frame">';
       regHtml += '<iframe title="' + esc(title) + ' registration" ';
       regHtml += 'src="' + esc(iframeSrc) + '" ';
-      regHtml += 'allowpaymentrequest allowtransparency="true" scrolling="auto" ';
+      regHtml += 'allowpaymentrequest allowtransparency="true" scrolling="no" ';
       regHtml += 'style="position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent;display:block;overflow:hidden;">';
       regHtml += '</iframe></div>';
     } else if (formUrl) {
@@ -403,7 +403,7 @@ function renderPage(e) {
     regHtml += '<div class="tickets-form">' +
       '<iframe id="hccgc-form-embed" src="/forms/' + encodeURIComponent(e.formId) + '?embed=1" ' +
       'style="width:100%;border:0;height:600px;display:block;background:transparent;" ' +
-      'title="Registration form" scrolling="auto"></iframe>' +
+      'title="Registration form" scrolling="no"></iframe>' +
       '</div>';
   } else {
     regHtml += '<div class="rsvp-soon">Registrations will open soon!</div>';
@@ -435,23 +435,16 @@ function renderPage(e) {
   content.innerHTML = sections.join('');
   content.style.display = 'block';
 
-  // Height is pinned to the flyer, measured once it has loaded. The
-  // previous postMessage auto-height loop never settled: each report grew
-  // the iframe, which grew the measurement, which grew the iframe again —
-  // producing unbounded blank space and pushing the footer off the page.
-  // A single measurement with no feedback path cannot do that.
+  // Height comes from the form's own content, reported once. The form
+  // never re-measures after this, so there is no loop and no unbounded
+  // growth. Sized to content means no internal scrollbar either.
   if (e.formId) {
-    var sizeForm = function () {
+    window.addEventListener('message', function (ev) {
+      if (!ev.data || ev.data.type !== 'hccgc-form-height') return;
       var f = document.getElementById('hccgc-form-embed');
-      if (!f) return;
-      var img = document.querySelector('.tickets-flyer .flyer-frame img');
-      var h = img ? Math.round(img.getBoundingClientRect().height) : 0;
-      f.style.height = (h > 200 ? h : 760) + 'px';
-    };
-    var fImg = document.querySelector('.tickets-flyer .flyer-frame img');
-    if (fImg && !fImg.complete) fImg.addEventListener('load', sizeForm);
-    sizeForm();
-    window.addEventListener('resize', sizeForm);
+      var h = Number(ev.data.height) || 0;
+      if (f && h > 100) f.style.height = h + 'px';
+    });
   }
   document.getElementById('loading-state').style.display = 'none';
 

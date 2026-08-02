@@ -645,6 +645,23 @@ async function loadSharedResponses(formId, token) {
   }
 }
 var __sharedToken = sharedTokenFromUrl();
+// One-shot height report. Deliberately fires only ONCE per render and
+// never re-measures after the host resizes the frame — that feedback path
+// is what previously made the page grow without bound. Re-sent only when
+// the form's own content genuinely changes (a conditional branch opening).
+if (IS_EMBED) {
+  var __sentHeight = 0;
+  function reportHeightOnce() {
+    var el = document.getElementById('form-card');
+    if (!el) return;
+    var h = Math.ceil(el.getBoundingClientRect().height) + 8;
+    if (h <= 0 || h === __sentHeight) return;
+    __sentHeight = h;
+    try { window.parent.postMessage({ type: 'hccgc-form-height', height: h }, '*'); } catch (e) {}
+  }
+  window.addEventListener('load', function () { setTimeout(reportHeightOnce, 150); });
+  document.addEventListener('change', function () { setTimeout(reportHeightOnce, 80); });
+}
 if (__sharedToken) loadSharedResponses(getFormIdFromUrl(), __sharedToken);
 else loadForm();
 </script>

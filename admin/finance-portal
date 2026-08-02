@@ -2653,12 +2653,13 @@ let INVOICES = [];
 let invSortKey = 'activity', invSortDir = 'desc';
 let invPageSize = 10, invPage = 1;
 let invContactFilter = undefined; // undefined = all contacts, Set = specific selection
-const INV_STATUS_CATEGORIES = ['requested', 'invoiced', 'pending', 'paid', 'internal', 'cancelled', 'rejected'];
+const INV_STATUS_CATEGORIES = ['requested', 'invoiced', 'pending', 'paid', 'voided', 'internal', 'cancelled', 'rejected'];
 const INV_STATUS_LABELS = {
   requested: 'Requested — awaiting review',
   invoiced: 'Invoiced (generated or sent)',
   pending: 'Pending (not yet invoiced)',
   paid: 'Paid',
+  voided: 'Voided invoice',
   internal: 'Internal / No charge',
   cancelled: 'Cancelled',
   rejected: 'Rejected'
@@ -2671,6 +2672,9 @@ function matchesInvStatusCategory(r, category) {
   if (category === 'internal') return r.paymentStatus === 'n/a';
   if (category === 'requested') return r.paymentStatus === 'requested';
   if (category === 'rejected') return r.paymentStatus === 'rejected';
+  // 'voided' matched no category, so a voided booking failed every filter
+  // and only appeared once Cancelled/Rejected were ticked on.
+  if (category === 'voided') return r.paymentStatus === 'voided';
   return false;
 }
 let invStatusFilter = undefined; // undefined = everything except cancelled (set on first populate)

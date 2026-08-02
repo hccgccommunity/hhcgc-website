@@ -221,10 +221,15 @@ thead th.sortable.active .sort-arrow { opacity: 1; color: var(--saffron-dark); }
 .modal-body .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
 .modal-body .field label { font-size: 0.78rem; font-weight: 700; color: var(--muted); }
 .modal-body .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.modal-body input:not([type="checkbox"]), .modal-body select, .modal-body textarea {
+/* Radios are excluded alongside checkboxes: this rule sets width:100%
+   and text-input padding, which on a radio makes the control fill the
+   whole row and shove its label text off to the far edge. */
+.modal-body input:not([type="checkbox"]):not([type="radio"]), .modal-body select, .modal-body textarea {
   font-family: Arial, Helvetica, sans-serif; font-size: 0.9rem; padding: 9px 12px; border: 1.5px solid var(--border);
   border-radius: 10px; background: #fff; color: var(--text); width: 100%; box-sizing: border-box;
 }
+.modal-body input[type="radio"] { width: 16px; height: 16px; flex-shrink: 0; margin: 0; }
+.modal-body .radio-option { display: flex; align-items: center; gap: 8px; font-weight: 400; font-size: 0.86rem; color: var(--text); cursor: pointer; }
 .modal-body textarea { resize: vertical; min-height: 56px; }
 .modal-room-picker { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 8px; margin-bottom: 8px; }
 .modal-room-check { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; font-size: 0.84rem; }
@@ -1027,10 +1032,10 @@ tbody input[type="text"], tbody input[type="number"] {
       <div class="field" id="series-edit-invoice-mode-field" style="display:none;">
         <label>How should invoicing work for this series?</label>
         <div style="display:flex;flex-direction:column;gap:6px;">
-          <label style="display:flex;align-items:center;gap:6px;font-weight:400;"><input type="radio" name="series-edit-invoice-mode" value="combined"> One invoice for the whole series</label>
-          <label style="display:flex;align-items:center;gap:6px;font-weight:400;"><input type="radio" name="series-edit-invoice-mode" value="per_occurrence"> One invoice per occurrence</label>
+          <label class="radio-option"><input type="radio" name="series-edit-invoice-mode" value="combined"> <span>One invoice for the whole series</span></label>
+          <label class="radio-option"><input type="radio" name="series-edit-invoice-mode" value="per_occurrence"> <span>One invoice per occurrence</span></label>
         </div>
-        <div class="card-sub" id="series-edit-invoice-mode-warning" style="margin:6px 0 0;display:none;"></div>
+        <div class="card-sub" id="series-edit-invoice-mode-warning" style="margin:8px 0 0;display:none;font-size:0.78rem;line-height:1.45;"></div>
       </div>
 
       <div id="series-edit-adjustment-section" style="display:none;">

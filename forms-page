@@ -471,6 +471,10 @@ async function loadForm() {
       if (heroEl) heroEl.style.display = 'none';
       document.body.style.background = 'transparent';
       document.body.style.minHeight = '0';
+      // The host page sizes the iframe to this content, so the frame must
+      // never produce its own scrollbar.
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
       var contEl = document.querySelector('.container');
       if (contEl) contEl.style.width = '100%';
     }

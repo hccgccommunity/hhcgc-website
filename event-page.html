@@ -109,12 +109,13 @@ button,input,select,textarea{font:inherit;}
 .form-notice{display:flex;align-items:flex-start;gap:10px;background:rgba(255,255,255,0.7);border:1px solid var(--border);border-radius:14px;padding:12px 16px;font-size:0.95rem;color:var(--muted);line-height:1.55;}
 .form-notice-urgent{background:rgba(127,46,22,0.07);border-color:rgba(127,46,22,0.25);color:var(--maroon);font-weight:600;}
 .form-notice-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
-.tickets-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:stretch;margin-top:24px;}
+.tickets-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start;margin-top:24px;}
 .tickets-flyer{display:flex;align-self:start;grid-column:1;}
 /* Pinned explicitly so the form always sits on the RIGHT even when there
    is no flyer — otherwise it fell into the first column and appeared on
    the left. */
 .tickets-form{grid-column:2;}
+.tickets-form iframe{overflow:hidden;}
 @media(max-width:980px){.tickets-flyer,.tickets-form{grid-column:1;}}
 .tickets-flyer .flyer-frame{border-radius:20px;overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow);position:sticky;top:calc(var(--header-offset) + 16px);width:100%;}
 .tickets-flyer .flyer-frame img{width:100%;height:auto;display:block;}
@@ -439,34 +440,17 @@ function renderPage(e) {
     // document inside it, which reported a bigger height, which grew the
     // iframe again — the page expanded forever.
     var lastFormHeight = 0;
-    // With a flyer alongside, the form is sized to match it and scrolls
-    // internally if taller. Without one there is nothing to match, so it
-    // takes its own content height — which also removes the tall fixed
-    // iframe that was leaving a band of blank space above the footer.
-    function sizeFormToFlyer() {
-      var f = document.getElementById('hccgc-form-embed');
-      var img = document.querySelector('.tickets-flyer .flyer-frame img');
-      if (!f || !img) return false;
-      var h = Math.round(img.getBoundingClientRect().height);
-      if (h < 200) return false;
-      f.style.height = h + 'px';
-      f.setAttribute('scrolling', 'auto');
-      return true;
-    }
-    var flyerImg = document.querySelector('.tickets-flyer .flyer-frame img');
-    if (flyerImg) {
-      if (flyerImg.complete) sizeFormToFlyer();
-      flyerImg.addEventListener('load', sizeFormToFlyer);
-      window.addEventListener('resize', sizeFormToFlyer);
-    }
+    // The form always takes its own content height. Capping it to the
+    // flyer's height meant any form taller than the flyer got an internal
+    // scrollbar, which reads as a broken embed rather than part of the
+    // page. Side-by-side columns of unequal height are fine; a scrollbar
+    // inside the page is not.
     window.addEventListener('message', function (ev) {
       if (!ev.data || ev.data.type !== 'hccgc-form-height') return;
-      // Once a flyer is present it decides the height instead.
-      if (document.querySelector('.tickets-flyer .flyer-frame img')) return;
       var f = document.getElementById('hccgc-form-embed');
       var h = Number(ev.data.height) || 0;
       if (!f || !h) return;
-      if (Math.abs(h - lastFormHeight) < 24) return;
+      if (Math.abs(h - lastFormHeight) < 16) return;
       lastFormHeight = h;
       f.style.height = h + 'px';
     });

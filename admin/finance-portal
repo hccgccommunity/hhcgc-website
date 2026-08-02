@@ -2854,6 +2854,9 @@ function groupInvoicesIntoDisplayItems(list) {
     item.paidCount = occ.filter(function (o) { return o.paymentStatus === 'paid'; }).length;
     item.invoiceSentAt = occ.reduce(function (latest, o) { return (!latest || (o.invoiceSentAt && o.invoiceSentAt > latest)) ? o.invoiceSentAt : latest; }, first.invoiceSentAt);
     item.recurrenceSummary = first.recurrenceSummary || (occ.length + ' occurrences');
+    // Must match the Facility Rental portal EXACTLY, or the two group the
+    // same booking differently. Both take the earliest occurrence's mode.
+    item.invoiceMode = first.invoiceMode || 'combined';
     // For monthly, pre-bucket the occurrences by calendar month. Each
     // bucket is one invoice.
     if (item.invoiceMode === 'monthly') {
@@ -2874,18 +2877,6 @@ function groupInvoicesIntoDisplayItems(list) {
         return b;
       });
     }
-    // Derived from EVERY occurrence, not just occ[0]. Reading one row
-    // meant a single NULL or stale value at the front of the group made
-    // the whole series render — and send — as one combined invoice, even
-    // when the rest of the occurrences were explicitly per-occurrence.
-    // Treat the series as per-occurrence if ANY occurrence says so.
-    // Must match the Facility Rental portal EXACTLY or the two group the
-    // same booking differently. Both now take the earliest occurrence's
-    // mode. The old "any per_occurrence wins" rule diverged whenever a
-    // series had mixed values — e.g. after switching a per-occurrence
-    // series to monthly — so Finance kept rendering it per-occurrence
-    // while Facility Bookings correctly showed months.
-    item.invoiceMode = first.invoiceMode || 'combined';
     item.invoiceModeMixed = occ.some(function (o) { return (o.invoiceMode || null) !== (first.invoiceMode || null); });
   });
   return items;

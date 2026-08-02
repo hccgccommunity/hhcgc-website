@@ -1203,6 +1203,47 @@ textarea{resize:vertical;}
         <div class="field-hint">Lowercase letters, numbers and hyphens only. Leave blank to use the default link. Changing it breaks any link already shared.</div>
         <div class="field-error" id="err-form-slug">Use lowercase letters, numbers and hyphens only.</div>
       </div>
+      <div style="margin:18px 0 10px;padding-top:14px;border-top:1px solid var(--border);">
+        <label style="margin:0;">Responses</label>
+      </div>
+      <div class="toggle-row">
+        <input type="checkbox" id="form-one-per-email">
+        <label for="form-one-per-email">Only one response per email address</label>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="form-confirmed-limit">Confirmed limit <span style="font-weight:400;color:var(--muted);">(optional)</span></label>
+          <input type="number" id="form-confirmed-limit" min="1" step="1" placeholder="e.g. 15">
+          <div class="field-hint">First N responses get the confirmed flag; the rest get the overflow flag. Blank = unlimited, no flags.</div>
+        </div>
+        <div class="form-group">
+          <label for="form-confirmed-label">Confirmed flag</label>
+          <input type="text" id="form-confirmed-label" placeholder="Confirmed">
+          <label for="form-overflow-label" style="margin-top:8px;">Overflow flag</label>
+          <input type="text" id="form-overflow-label" placeholder="Waitlist">
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <input type="checkbox" id="form-conf-email-enabled">
+        <label for="form-conf-email-enabled">Email the submitter a confirmation</label>
+      </div>
+      <div id="form-conf-email-fields" style="display:none;">
+        <div class="form-group">
+          <label for="form-conf-email-subject">Subject</label>
+          <input type="text" id="form-conf-email-subject" placeholder="Thanks for your RSVP — {{event_name}}">
+        </div>
+        <div class="form-group">
+          <label for="form-conf-email-body">Message</label>
+          <textarea id="form-conf-email-body" rows="7" placeholder="Namaste {{first_name}},&#10;&#10;Thanks for registering for {{event_name}} on {{event_date}}.&#10;&#10;Your status: {{flag}}&#10;&#10;Warm regards,&#10;Team HCCGC"></textarea>
+          <div class="field-hint">
+            Variables: <code>{{first_name}}</code> <code>{{last_name}}</code> <code>{{email}}</code>
+            <code>{{phone}}</code> <code>{{flag}}</code> <code>{{event_name}}</code>
+            <code>{{event_date}}</code> <code>{{event_time}}</code> <code>{{form_name}}</code>
+          </div>
+        </div>
+      </div>
+
       <div class="toggle-row">
         <input type="checkbox" id="form-is-active" checked>
         <label for="form-is-active">Form is accepting responses</label>
@@ -2675,6 +2716,9 @@ function syncQuestionsFromDom() {
     if (q.conditionQuestionIndex === null) q.conditionValue = null;
   });
 }
+document.getElementById('form-conf-email-enabled').addEventListener('change', function () {
+  document.getElementById('form-conf-email-fields').style.display = this.checked ? 'block' : 'none';
+});
 document.getElementById('btn-add-question').addEventListener('click', function () {
   syncQuestionsFromDom();
   BUILDER_QUESTIONS.push({ questionText: '', questionType: 'text', options: [], isRequired: false, conditionQuestionIndex: null, conditionValue: null });
@@ -2736,6 +2780,14 @@ async function openFormBuilder(formId) {
     document.getElementById('form-event-start').value = '';
     document.getElementById('form-event-end').value = '';
     document.getElementById('form-slug').value = '';
+    document.getElementById('form-one-per-email').checked = false;
+    document.getElementById('form-confirmed-limit').value = '';
+    document.getElementById('form-confirmed-label').value = '';
+    document.getElementById('form-overflow-label').value = '';
+    document.getElementById('form-conf-email-enabled').checked = false;
+    document.getElementById('form-conf-email-fields').style.display = 'none';
+    document.getElementById('form-conf-email-subject').value = '';
+    document.getElementById('form-conf-email-body').value = '';
     document.getElementById('form-is-active').checked = true;
     BUILDER_QUESTIONS = [];
     renderQuestionsBuilder();
@@ -2754,6 +2806,14 @@ async function openFormBuilder(formId) {
     document.getElementById('form-event-start').value = f.eventStartTime || '';
     document.getElementById('form-event-end').value = f.eventEndTime || '';
     document.getElementById('form-slug').value = f.slug || '';
+    document.getElementById('form-one-per-email').checked = !!f.oneResponsePerEmail;
+    document.getElementById('form-confirmed-limit').value = (f.confirmedLimit === null || f.confirmedLimit === undefined) ? '' : f.confirmedLimit;
+    document.getElementById('form-confirmed-label').value = f.confirmedLabel || '';
+    document.getElementById('form-overflow-label').value = f.overflowLabel || '';
+    document.getElementById('form-conf-email-enabled').checked = !!f.confirmationEmailEnabled;
+    document.getElementById('form-conf-email-fields').style.display = f.confirmationEmailEnabled ? 'block' : 'none';
+    document.getElementById('form-conf-email-subject').value = f.confirmationEmailSubject || '';
+    document.getElementById('form-conf-email-body').value = f.confirmationEmailBody || '';
     document.getElementById('form-is-active').checked = f.isActive !== false;
     BUILDER_QUESTIONS = (f.questions || []).map(function (q) {
       return { questionText: q.questionText, questionType: q.questionType, options: q.options || [], isRequired: q.isRequired, conditionQuestionIndex: (q.conditionQuestionIndex === undefined ? null : q.conditionQuestionIndex), conditionValue: q.conditionValue || null };
@@ -2822,7 +2882,15 @@ document.getElementById('btn-save-form').addEventListener('click', async functio
     var payload = {
       formName: formName, eventName: eventName, eventDate: eventDate,
       eventStartTime: eventStartTime, eventEndTime: eventEndTime,
-      slug: slug, isActive: isActive, questions: BUILDER_QUESTIONS
+      slug: slug, isActive: isActive,
+      oneResponsePerEmail: document.getElementById('form-one-per-email').checked,
+      confirmedLimit: document.getElementById('form-confirmed-limit').value || null,
+      confirmedLabel: document.getElementById('form-confirmed-label').value.trim() || 'Confirmed',
+      overflowLabel: document.getElementById('form-overflow-label').value.trim() || 'Waitlist',
+      confirmationEmailEnabled: document.getElementById('form-conf-email-enabled').checked,
+      confirmationEmailSubject: document.getElementById('form-conf-email-subject').value.trim(),
+      confirmationEmailBody: document.getElementById('form-conf-email-body').value,
+      questions: BUILDER_QUESTIONS
     };
     var url = formId ? FORMS_API_BASE + '/forms/' + encodeURIComponent(formId) : FORMS_API_BASE + '/forms';
     var res = await formsAuthedFetch(url, {
@@ -2850,6 +2918,7 @@ document.getElementById('btn-save-form').addEventListener('click', async functio
 /* ---- Responses ---- */
 let CURRENT_RESPONSES = null;
 let CURRENT_RESPONSES_FORM = null;
+let CURRENT_RESPONSES_FORM_ID = null;
 async function openResponsesModal(formId) {
   var form = FORMS_CACHE.find(function (f) { return f.formId === formId; });
   document.getElementById('responses-title').textContent =
@@ -2867,10 +2936,11 @@ async function openResponsesModal(formId) {
     if (!res.ok) throw new Error((rows.errors || [rows.error || 'Server error']).join(' '));
     CURRENT_RESPONSES = rows;
     CURRENT_RESPONSES_FORM = def;
+    CURRENT_RESPONSES_FORM_ID = formId;
     if (!rows.length) { body.innerHTML = '<div class="empty-state">No responses yet.</div>'; return; }
-    var headers = ['First name', 'Last name', 'Email', 'Phone']
+    var headers = ['First name', 'Last name', 'Email', 'Phone', 'Status']
       .concat(def.questions.map(function (q) { return q.questionText; }))
-      .concat(['Submitted']);
+      .concat(['Submitted', '']);
     var headHtml = headers.map(function (h) {
       return '<th style="text-align:left;padding:8px 10px;border-bottom:2px solid var(--border);white-space:nowrap;">' + escF(h) + '</th>';
     }).join('');
@@ -2878,6 +2948,9 @@ async function openResponsesModal(formId) {
       var cells = [r.firstName, r.lastName, r.email, r.phone].map(function (v) {
         return '<td style="padding:8px 10px;border-bottom:1px solid var(--border);">' + escF(v) + '</td>';
       });
+      cells.push('<td style="padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap;">' +
+        (r.statusFlag ? '<span class="type-pill ' + (r.statusFlag === (def.confirmedLabel || 'Confirmed') ? 'event' : 'initiative') + '">' + escF(r.statusFlag) + '</span>' : '\u2014') +
+        '</td>');
       def.questions.forEach(function (q) {
         var a = r.answers ? r.answers[q.questionId] : '';
         if (Array.isArray(a)) a = a.join(', ');
@@ -2885,6 +2958,8 @@ async function openResponsesModal(formId) {
       });
       cells.push('<td style="padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap;">' +
         escF(new Date(r.submittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })) + '</td>');
+      cells.push('<td style="padding:8px 10px;border-bottom:1px solid var(--border);">' +
+        '<button type="button" class="btn-row danger" data-delete-response="' + r.responseId + '" data-response-name="' + escF(r.firstName + ' ' + r.lastName) + '">Delete</button></td>');
       return '<tr>' + cells.join('') + '</tr>';
     }).join('');
     body.innerHTML =
@@ -2895,6 +2970,22 @@ async function openResponsesModal(formId) {
     body.innerHTML = '<div class="empty-state">Could not load: ' + escF(err.message) + '</div>';
   }
 }
+document.getElementById('responses-body').addEventListener('click', async function (e) {
+  var btn = e.target.closest('[data-delete-response]');
+  if (!btn) return;
+  if (!confirm('Delete the response from ' + btn.dataset.responseName + '? This can\'t be undone.\n\nNote: this does NOT move anyone up from the waitlist \u2014 flags are fixed at submission time so nobody already told they are confirmed loses that.')) return;
+  btn.disabled = true; btn.textContent = 'Deleting\u2026';
+  try {
+    var res = await formsAuthedFetch(FORMS_API_BASE + '/forms/' + encodeURIComponent(CURRENT_RESPONSES_FORM_ID) + '/responses/' + encodeURIComponent(btn.dataset.deleteResponse) + '/delete', { method: 'POST' });
+    var data = await res.json();
+    if (!res.ok) { alert((data.errors || [data.error]).join(' ') || 'Could not delete.'); btn.disabled = false; btn.textContent = 'Delete'; return; }
+    await openResponsesModal(CURRENT_RESPONSES_FORM_ID);
+    loadForms();
+  } catch (err) {
+    alert('Could not reach the server: ' + err.message);
+    btn.disabled = false; btn.textContent = 'Delete';
+  }
+});
 function closeResponsesModal() { document.getElementById('modal-overlay-responses').classList.remove('show'); }
 document.getElementById('responses-close').addEventListener('click', closeResponsesModal);
 document.getElementById('responses-close-2').addEventListener('click', closeResponsesModal);
@@ -2917,11 +3008,11 @@ document.getElementById('btn-download-responses').addEventListener('click', func
     v = String(v == null ? '' : v);
     return '"' + v.replace(/"/g, '""') + '"';
   }
-  var header = ['First name', 'Last name', 'Email', 'Phone']
+  var header = ['First name', 'Last name', 'Email', 'Phone', 'Status']
     .concat(def.questions.map(function (q) { return q.questionText; }))
     .concat(['Submitted']).map(csvCell).join(',');
   var lines = CURRENT_RESPONSES.map(function (r) {
-    var cells = [r.firstName, r.lastName, r.email, r.phone];
+    var cells = [r.firstName, r.lastName, r.email, r.phone, r.statusFlag || ''];
     def.questions.forEach(function (q) { cells.push(r.answers ? r.answers[q.questionId] : ''); });
     cells.push(r.submittedAt);
     return cells.map(csvCell).join(',');

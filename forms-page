@@ -28,6 +28,29 @@
       color: var(--text); min-height: 100vh;
     }
     .container { width: min(calc(100% - 32px), 720px); margin: 0 auto; }
+    .container.wide { width: min(calc(100% - 32px), 1080px); }
+    .layout { display: flex; gap: 26px; align-items: flex-start; margin: 26px 0 60px; }
+    .layout .flyer-col { flex: 0 0 40%; position: sticky; top: 20px; }
+    .layout .form-col { flex: 1; min-width: 0; }
+    .layout .card { margin: 0; }
+    .flyer-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 14px; box-shadow: var(--shadow); overflow: hidden;
+    }
+    .flyer-card img { width: 100%; height: auto; display: block; border-radius: 14px; }
+    @media (max-width: 860px) {
+      .layout { flex-direction: column; }
+      .layout .flyer-col { flex: none; width: 100%; position: static; }
+    }
+    .shared-list { display: flex; flex-direction: column; gap: 10px; }
+    .shared-item { border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; background: #fff; }
+    .shared-item.is-you { border-color: var(--saffron); background: var(--surface-soft); }
+    .shared-name { font-weight: 700; font-size: 0.95rem; }
+    .shared-meta { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+    .closed-note {
+      background: var(--surface-soft); border: 1.5px solid var(--border); border-radius: 12px;
+      padding: 18px; text-align: center; color: var(--muted); font-size: 0.95rem;
+    }
 
     .page-hero { padding: 34px 0 28px; background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%); color: #fff; }
     .page-hero h1 { font-family: Georgia, "Times New Roman", serif; font-size: 1.75rem; margin-bottom: 6px; }
@@ -249,7 +272,12 @@
   </div>
 </div>
 
-<div class="container">
+<div class="container wide">
+ <div class="layout">
+  <div class="flyer-col" id="flyer-col" style="display:none;">
+    <div class="flyer-card"><img id="flyer-img" alt="Event flyer"></div>
+  </div>
+  <div class="form-col">
   <div class="card" id="form-card">
     <div class="state-msg" id="state-msg">Loading form&hellip;</div>
 
@@ -284,9 +312,12 @@
 
     <div class="thanks" id="thanks-panel" style="display:none;">
       <h2>Thank you!</h2>
-      <p>Your response has been recorded.</p>
+      <p id="thanks-text">Your response has been recorded.</p>
+      <p id="thanks-shared" style="display:none;margin-top:14px;"></p>
     </div>
   </div>
+  </div>
+ </div>
 </div>
 
 <div id="footer-placeholder"></div>
@@ -455,8 +486,23 @@ async function loadForm() {
     document.getElementById('hero-sub').textContent = whenParts.join('  \u00b7  ');
     document.getElementById('hero-meta').textContent = '';
     document.title = 'RSVP \u2014 ' + (data.eventName || 'Event') + ' | HCCGC';
-    renderQuestions(data.questions || []);
+    if (data.flyerUrl) {
+      document.getElementById('flyer-img').src = data.flyerUrl;
+      document.getElementById('flyer-col').style.display = 'block';
+    }
     stateMsg.style.display = 'none';
+    // Registration closes 2 hours before the event starts. Say so plainly
+    // rather than showing a form that will just reject the submission.
+    if (data.submissionsClosed) {
+      document.getElementById('form-card').innerHTML =
+        '<div class="closed-note"><strong>Registration is closed.</strong><br>' +
+        (data.eventEnded
+          ? 'This event has ended.'
+          : 'Registration closes two hours before the event begins.') +
+        '</div>';
+      return;
+    }
+    renderQuestions(data.questions || []);
     document.getElementById('public-form').style.display = 'block';
   } catch (err) {
     document.getElementById('hero-title').textContent = 'Something went wrong';
@@ -490,6 +536,11 @@ document.getElementById('public-form').addEventListener('submit', async function
       return;
     }
     document.getElementById('public-form').style.display = 'none';
+    if (data.sharedLink) {
+      var sh = document.getElementById('thanks-shared');
+      sh.innerHTML = '<a href="' + data.sharedLink + '" style="color:var(--saffron-dark);font-weight:700;">See everyone else in your group &rarr;</a>';
+      sh.style.display = 'block';
+    }
     document.getElementById('thanks-panel').style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   } catch (err) {
@@ -531,7 +582,45 @@ function fixPartialPathsForSubfolder(el) {
 loadPartial('header-placeholder', '/header.html');
 loadPartial('footer-placeholder', '/footer.html');
 
-loadForm();
+// /forms/<id>/shared/<token> renders the group list instead of the form.
+function sharedTokenFromUrl() {
+  var parts = window.location.pathname.split('/').filter(Boolean);
+  var i = parts.indexOf('shared');
+  return (i !== -1 && parts[i + 1]) ? decodeURIComponent(parts[i + 1]) : null;
+}
+async function loadSharedResponses(formId, token) {
+  document.getElementById('state-msg').textContent = 'Loading\u2026';
+  try {
+    var res = await fetch(API_BASE + '/public/forms/' + encodeURIComponent(formId) + '/shared/' + encodeURIComponent(token));
+    var data = await res.json();
+    if (!res.ok) {
+      document.getElementById('hero-title').textContent = 'Not available';
+      document.getElementById('state-msg').textContent = (data.errors || [data.error || 'Not available.']).join(' ');
+      return;
+    }
+    document.getElementById('hero-title').textContent = data.eventName || 'Event';
+    document.getElementById('hero-sub').textContent = data.groupQuestion + ': ' + data.groupValue;
+    document.title = data.eventName + ' | HCCGC';
+    document.getElementById('state-msg').style.display = 'none';
+    var html = '<div class="section-label">' + esc(data.responses.length) + ' in your group</div><div class="shared-list">';
+    html += data.responses.map(function (r) {
+      var extra = (r.answers || []).filter(function (a) { return a.answer !== '' && a.answer !== null && a.answer !== undefined; })
+        .map(function (a) { return esc(a.question) + ': ' + esc(Array.isArray(a.answer) ? a.answer.join(', ') : a.answer); }).join(' &middot; ');
+      return '<div class="shared-item' + (r.isYou ? ' is-you' : '') + '">' +
+        '<div class="shared-name">' + esc(r.name) + (r.isYou ? ' <span style="font-weight:400;color:var(--muted);">(you)</span>' : '') +
+        (r.statusFlag ? ' <span style="font-size:.76rem;color:var(--green);font-weight:700;">' + esc(r.statusFlag) + '</span>' : '') + '</div>' +
+        (extra ? '<div class="shared-meta">' + extra + '</div>' : '') +
+      '</div>';
+    }).join('');
+    html += '</div>';
+    document.getElementById('form-card').innerHTML = html;
+  } catch (err) {
+    document.getElementById('state-msg').textContent = 'Could not load: ' + err.message;
+  }
+}
+var __sharedToken = sharedTokenFromUrl();
+if (__sharedToken) loadSharedResponses(getFormIdFromUrl(), __sharedToken);
+else loadForm();
 </script>
 </body>
 </html>

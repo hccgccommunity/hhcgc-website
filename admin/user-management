@@ -627,7 +627,12 @@ document.getElementById('btn-email-diagnostics').addEventListener('click', async
   try {
     var testTo = window.prompt('Send a diagnostic test email to which address?\n(Leave blank to only check the connection.)', '');
     if (testTo === null) { out.style.display = 'none'; btn.disabled = false; return; }
-    var url = API_BASE + '/admin/email-diagnostics' + (testTo.trim() ? '?to=' + encodeURIComponent(testTo.trim()) : '');
+    var testMailbox = window.prompt('Send AS which mailbox?\n\nLeave blank to use the current sender. Enter DoNotReply@hccgc.org to test whether sending directly as that account works before switching to it.', '');
+    if (testMailbox === null) { out.style.display = 'none'; btn.disabled = false; return; }
+    var qs = [];
+    if (testTo.trim()) qs.push('to=' + encodeURIComponent(testTo.trim()));
+    if (testMailbox.trim()) qs.push('mailbox=' + encodeURIComponent(testMailbox.trim()));
+    var url = API_BASE + '/admin/email-diagnostics' + (qs.length ? '?' + qs.join('&') : '');
     var res = await authedFetch(url);
     var data = await res.json();
     out.textContent = JSON.stringify(data, null, 2);

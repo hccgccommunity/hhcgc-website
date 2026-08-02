@@ -2133,6 +2133,11 @@ function showStatusMP(msg, type) {
 // Convert Google Drive share URL to thumbnail URL (avoids CORS issues with uc?export=view)
 function convertDriveUrl(url) {
   if (!url) return '';
+  // Uploaded images already come back as a direct, publicly readable image
+  // url. Passing those through the Drive-share conversion below rewrote a
+  // working url into a different form and broke rendering, so leave them
+  // alone — only legacy pasted share links need converting.
+  if (url.indexOf('lh3.googleusercontent.com') !== -1) return url;
   var m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
   if (m) return 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w1600';
   return url;

@@ -2724,6 +2724,7 @@ function renderAmbiguousSeriesList() {
       '<div style="margin-top:8px;display:flex;gap:8px;">' +
         '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-resolve-series="' + s.seriesId + '" data-resolve-mode="combined">One invoice for the whole series</button>' +
         '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-resolve-series="' + s.seriesId + '" data-resolve-mode="per_occurrence">Invoice each occurrence separately</button>' +
+        '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-resolve-series="' + s.seriesId + '" data-resolve-mode="monthly">One invoice per month</button>' +
       '</div>' +
     '</div>';
   }).join('');
@@ -2823,12 +2824,18 @@ function groupInvoicesIntoDisplayItems(list) {
   const items = [];
   list.forEach(function (inv) {
     if (inv.seriesId) {
-      if (!seriesMap[inv.seriesId]) {
-        const item = { type: 'series', seriesId: inv.seriesId, occurrences: [] };
-        seriesMap[inv.seriesId] = item;
+      // A monthly series produces one invoice PER MONTH, so the group key
+      // includes the month — otherwise every month would collapse into a
+      // single row and send as one invoice for the whole series.
+      const key = inv.invoiceMode === 'monthly'
+        ? inv.seriesId + '::' + String(inv.eventDate || '').slice(0, 7)
+        : inv.seriesId;
+      if (!seriesMap[key]) {
+        const item = { type: 'series', seriesId: inv.seriesId, groupKey: key, occurrences: [] };
+        seriesMap[key] = item;
         items.push(item);
       }
-      seriesMap[inv.seriesId].occurrences.push(inv);
+      seriesMap[key].occurrences.push(inv);
     } else {
       items.push({ type: 'single', invoice: inv });
     }
@@ -2847,14 +2854,16 @@ function groupInvoicesIntoDisplayItems(list) {
     item.paymentStatus = occ.every(function (o) { return o.paymentStatus === first.paymentStatus; }) ? first.paymentStatus : 'mixed';
     item.paidCount = occ.filter(function (o) { return o.paymentStatus === 'paid'; }).length;
     item.invoiceSentAt = occ.reduce(function (latest, o) { return (!latest || (o.invoiceSentAt && o.invoiceSentAt > latest)) ? o.invoiceSentAt : latest; }, first.invoiceSentAt);
-    item.recurrenceSummary = first.recurrenceSummary || (occ.length + ' occurrences');
+    item.recurrenceSummary = item.invoiceMode === 'monthly'
+      ? (new Date(String(first.eventDate).slice(0, 10) + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) + ' \u00b7 ' + occ.length + ' occurrence' + (occ.length === 1 ? '' : 's'))
+      : (first.recurrenceSummary || (occ.length + ' occurrences'));
     // Derived from EVERY occurrence, not just occ[0]. Reading one row
     // meant a single NULL or stale value at the front of the group made
     // the whole series render — and send — as one combined invoice, even
     // when the rest of the occurrences were explicitly per-occurrence.
     // Treat the series as per-occurrence if ANY occurrence says so.
-    item.invoiceMode = occ.some(function (o) { return o.invoiceMode === 'per_occurrence'; })
-      ? 'per_occurrence'
+    item.invoiceMode = occ.some(function (o) { return o.invoiceMode === 'per_occurrence'; }) ? 'per_occurrence'
+      : occ.some(function (o) { return o.invoiceMode === 'monthly'; }) ? 'monthly'
       : (first.invoiceMode || 'combined');
     item.invoiceModeMixed = occ.some(function (o) { return (o.invoiceMode || null) !== (first.invoiceMode || null); });
   });

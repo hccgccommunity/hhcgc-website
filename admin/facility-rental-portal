@@ -817,6 +817,7 @@ tbody input[type="text"], tbody input[type="number"] {
       <div class="request-field-row" style="gap:16px;">
         <label style="display:flex;align-items:center;gap:6px;font-weight:400;"><input type="radio" name="ir-invoice-mode" value="combined" checked> One invoice for the whole series</label>
         <label style="display:flex;align-items:center;gap:6px;font-weight:400;"><input type="radio" name="ir-invoice-mode" value="per_occurrence"> One invoice per occurrence</label>
+            <label style="display:flex;align-items:center;gap:6px;font-weight:400;"><input type="radio" name="ir-invoice-mode" value="monthly"> One invoice per month</label>
       </div>
     </div>
     <div class="field" id="ir-conflicts-field"><label>Conflicts</label><div id="ir-conflicts">Checking…</div></div>
@@ -1034,6 +1035,7 @@ tbody input[type="text"], tbody input[type="number"] {
         <div style="display:flex;flex-direction:column;gap:6px;">
           <label class="radio-option"><input type="radio" name="series-edit-invoice-mode" value="combined"> <span>One invoice for the whole series</span></label>
           <label class="radio-option"><input type="radio" name="series-edit-invoice-mode" value="per_occurrence"> <span>One invoice per occurrence</span></label>
+          <label class="radio-option"><input type="radio" name="series-edit-invoice-mode" value="monthly"> <span>One invoice per month</span></label>
         </div>
         <div class="card-sub" id="series-edit-invoice-mode-warning" style="margin:8px 0 0;display:none;font-size:0.78rem;line-height:1.45;"></div>
       </div>
@@ -1256,6 +1258,7 @@ tbody input[type="text"], tbody input[type="number"] {
             <div class="request-field-row" style="gap:16px;">
               <label style="display:flex;align-items:center;gap:6px;font-weight:400;"><input type="radio" name="f-invoice-mode" value="combined" checked> One invoice for the whole series</label>
               <label style="display:flex;align-items:center;gap:6px;font-weight:400;"><input type="radio" name="f-invoice-mode" value="per_occurrence"> One invoice per occurrence</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;"><input type="radio" name="f-invoice-mode" value="monthly"> One invoice per month</label>
             </div>
             <div class="card-sub" style="margin:6px 0 0;">Combined: one invoice, one receipt, tracked at the series level — matches paying the whole series at once. Per occurrence: each date gets its own invoice and receipt, tracked independently — matches paying before each individual date.</div>
           </div>
@@ -3052,7 +3055,7 @@ async function openSeriesEditModal(seriesId) {
   var imField = document.getElementById('series-edit-invoice-mode-field');
   imField.style.display = first.is_internal ? 'none' : 'block';
   if (!first.is_internal) {
-    var mode = first.invoice_mode === 'per_occurrence' ? 'per_occurrence' : 'combined';
+    var mode = ['per_occurrence', 'monthly'].indexOf(first.invoice_mode) !== -1 ? first.invoice_mode : 'combined';
     SERIES_EDIT_ORIGINAL_INVOICE_MODE = mode;
     var modeRadio = document.querySelector('input[name="series-edit-invoice-mode"][value="' + mode + '"]');
     if (modeRadio) modeRadio.checked = true;

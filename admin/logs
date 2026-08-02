@@ -69,7 +69,11 @@ tr:hover td { background: var(--surface-soft); }
 .app-pill.finance { background: var(--green-bg); color: var(--green); }
 .app-pill.issue-reporting { background: #fff3d6; color: #b5750a; }
 .app-pill.other { background: var(--surface-soft); color: var(--muted); }
-.details-cell { max-width: 320px; font-size: 0.78rem; color: var(--muted); font-family: ui-monospace, monospace; white-space: pre-wrap; word-break: break-word; }
+.details-cell { max-width: 420px; font-size: 0.78rem; color: var(--muted); word-break: break-word; }
+.details-kv { display: flex; flex-direction: column; gap: 2px; }
+.details-kv-row { display: flex; gap: 8px; align-items: baseline; }
+.details-kv-key { flex: 0 0 auto; min-width: 140px; font-weight: 700; color: var(--text); }
+.details-kv-val { flex: 1; font-family: ui-monospace, monospace; word-break: break-word; }
 .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
 
 #gate{padding:60px 16px;display:flex;justify-content:center;}
@@ -159,6 +163,37 @@ async function authedFetch(url, options) {
   options.headers = Object.assign({}, options.headers, { 'Authorization': 'Bearer ' + token });
   return fetch(url, options);
 }
+// Audit details are stored as a JSON blob. Rendering the raw string is
+// unreadable once entries carry more than a couple of fields, so unpack
+// it into labelled rows. Anything that isn't valid JSON (older entries,
+// or a plain string) falls back to being shown as-is.
+function prettyKey(k) {
+  return String(k)
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/_/g, ' ')
+    .replace(/^./, function (ch) { return ch.toUpperCase(); });
+}
+function prettyValue(v) {
+  if (v === null || v === undefined || v === '') return '\u2014';
+  if (typeof v === 'boolean') return v ? 'Yes' : 'No';
+  if (Array.isArray(v)) return v.length ? v.map(prettyValue).join(', ') : '\u2014';
+  if (typeof v === 'object') return JSON.stringify(v);
+  return String(v);
+}
+function formatDetails(raw) {
+  if (!raw) return '<span style="opacity:.6;">\u2014</span>';
+  var obj;
+  try { obj = JSON.parse(raw); } catch (e) { return escHtml(raw); }
+  if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) return escHtml(String(raw));
+  var keys = Object.keys(obj);
+  if (!keys.length) return '<span style="opacity:.6;">\u2014</span>';
+  return '<div class="details-kv">' + keys.map(function (k) {
+    return '<div class="details-kv-row">' +
+      '<span class="details-kv-key">' + escHtml(prettyKey(k)) + '</span>' +
+      '<span class="details-kv-val">' + escHtml(prettyValue(obj[k])) + '</span>' +
+    '</div>';
+  }).join('') + '</div>';
+}
 function escHtml(str) { return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function formatDateTime(iso) { if (!iso) return '—'; var d = new Date(iso); return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ', ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); }
 function appPillClass(app) {
@@ -228,7 +263,7 @@ async function loadLogs() {
         '<td>' + escHtml(l.subPage) + '</td>' +
         '<td>' + escHtml(l.actionLabel) + '</td>' +
         '<td>' + escHtml(l.actorEmail || '\u2014') + '</td>' +
-        '<td class="details-cell">' + escHtml(l.details || '') + '</td>' +
+        '<td class="details-cell">' + formatDetails(l.details) + '</td>' +
       '</tr>';
     }).join('');
   } catch (err) {

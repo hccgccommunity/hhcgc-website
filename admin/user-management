@@ -327,6 +327,12 @@ input:focus { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 3px
       </div>
 
       <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border, #eee2d3);">
+        <div style="font-weight:700;margin-bottom:4px;">Outgoing email configuration</div>
+        <div class="field-hint" style="margin:0 0 14px;">Which address each type of email is sent from, and who is copied. External mail defaults to DoNotReply@hccgc.org. Leave a CC blank for none. Note: a From address only takes effect once it is a verified "Send as" alias on facility-bookings@hccgc.org — otherwise Gmail silently replaces it.</div>
+        <div id="email-config-list"><div class="field-hint">Loading&hellip;</div></div>
+      </div>
+
+      <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border, #eee2d3);">
         <div style="font-weight:700;margin-bottom:4px;">Public test emails (Facility Rental request form)</div>
         <div class="field-hint" style="margin:0 0 14px;">When someone submits a facility request using one of these email addresses, the request still goes through every normal flow — created, still needs approval, still shows in All Bookings — but the internal "new request" alert email is skipped, and it won't count toward the pending-request notification badge. The renter-facing confirmation email still sends as usual.</div>
         <div id="public-test-emails-list" style="margin-bottom:10px;"></div>
@@ -575,6 +581,31 @@ window.addEventListener('hccgc-um-ready', function (e) {
   loadSettings();
 });
 
+var emailConfig = {};
+var emailActions = [];
+async function loadEmailConfig() {
+  var box = document.getElementById('email-config-list');
+  try {
+    var res = await authedFetch(API_BASE + '/admin/email-config');
+    var data = await res.json();
+    if (!res.ok) throw new Error((data.errors || [data.error]).join(' '));
+    emailActions = data.actions || [];
+    emailConfig = data.config || {};
+    box.innerHTML =
+      '<div style="display:grid;grid-template-columns:1.4fr 1.2fr 1.2fr;gap:8px;font-size:.76rem;font-weight:700;color:var(--muted);padding-bottom:6px;">' +
+      '<div>Email</div><div>Sent from</div><div>CC</div></div>' +
+      emailActions.map(function (a) {
+        var cfg = emailConfig[a.key] || {};
+        return '<div style="display:grid;grid-template-columns:1.4fr 1.2fr 1.2fr;gap:8px;align-items:center;padding:4px 0;">' +
+          '<div style="font-size:.82rem;">' + a.label + '</div>' +
+          '<input type="email" data-ec-from="' + a.key + '" value="' + (cfg.fromEmail || '') + '" style="font-size:.8rem;padding:5px 8px;">' +
+          '<input type="email" data-ec-cc="' + a.key + '" value="' + (cfg.cc || '') + '" placeholder="none" style="font-size:.8rem;padding:5px 8px;">' +
+        '</div>';
+      }).join('');
+  } catch (err) {
+    box.innerHTML = '<div class="field-hint">Could not load: ' + err.message + '</div>';
+  }
+}
 async function loadSettings() {
   try {
     var res = await authedFetch(API_BASE + '/admin/settings');
@@ -590,6 +621,7 @@ async function loadSettings() {
     try { publicTestEmails = JSON.parse(byKey.public_test_emails || defaultPublicTestEmails); } catch (e) { publicTestEmails = []; }
     if (!Array.isArray(publicTestEmails)) publicTestEmails = [];
     renderPublicTestEmailsList();
+    loadEmailConfig();
     settingsLoaded = true;
     renderUserTestModeList();
   } catch (err) {
@@ -652,7 +684,16 @@ document.getElementById('btn-save-settings').addEventListener('click', async fun
     { key: 'test_mode', value: document.getElementById('setting-test-mode').checked ? 'true' : 'false' },
     { key: 'test_mode_email', value: document.getElementById('setting-test-email').value },
     { key: 'user_test_mode_emails', value: JSON.stringify(checkedEmails) },
-    { key: 'public_test_emails', value: JSON.stringify(publicTestEmails) }
+    { key: 'public_test_emails', value: JSON.stringify(publicTestEmails) },
+    { key: 'email_config', value: JSON.stringify((function () {
+        var out = {};
+        emailActions.forEach(function (a) {
+          var f = document.querySelector('[data-ec-from="' + a.key + '"]');
+          var cc = document.querySelector('[data-ec-cc="' + a.key + '"]');
+          out[a.key] = { fromEmail: f ? f.value.trim() : '', cc: cc ? cc.value.trim() : '' };
+        });
+        return out;
+      })()) }
   ];
   try {
     for (var i = 0; i < toSave.length; i++) {

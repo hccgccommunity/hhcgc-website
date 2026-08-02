@@ -682,6 +682,8 @@ textarea{resize:vertical;}
 .sec-label{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--saffron-dark);margin:1.2rem 0 .6rem;padding-bottom:6px;border-bottom:1px dashed var(--border);display:block;}
 .drive-help{background:#e8f5e9;border:1px solid #c8e6c9;border-radius:10px;padding:10px 14px;font-size:.77rem;color:#2e7d32;margin-top:6px;line-height:1.6;}
 .drive-help strong{display:block;margin-bottom:3px;}
+.radio-line{display:flex;align-items:center;gap:8px;font-weight:400;font-size:.86rem;cursor:pointer;}
+.radio-line input{width:16px;height:16px;flex-shrink:0;margin:0;}
 .img-preview{margin-top:8px;display:none;}
 .img-preview img{max-width:100%;border-radius:8px;border:1px solid var(--border);max-height:140px;object-fit:contain;}
 .event-sync-box{background:var(--surface-soft);border:1px solid var(--border);border-radius:12px;padding:1rem 1.2rem;margin-top:.8rem;}
@@ -1089,13 +1091,22 @@ textarea{resize:vertical;}
     <!-- STEP 6: Media & Registration -->
     <div class="wizard-step" id="step-6">
       <div class="form-group">
-        <label for="page-form-id">Attached Registration Form</label>
-        <select id="page-form-id">
-          <option value="">None — no form attached</option>
-        </select>
-        <div class="field-hint">Optional. Attaching a form shows a "Register" button on this page linking to it. The form also always works on its own as a standalone link — build and manage forms in the Forms tab.</div>
+        <label>Registration on this page</label>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
+          <label class="radio-line"><input type="radio" name="page-reg-mode" value="none" checked> None</label>
+          <label class="radio-line"><input type="radio" name="page-reg-mode" value="zeffy"> Embed Zeffy</label>
+          <label class="radio-line"><input type="radio" name="page-reg-mode" value="form"> Embed an HCCGC form</label>
+        </div>
+        <div class="field-hint">Pick one. The embedded form appears inline without its own title or banner, since this page already has them.</div>
       </div>
-      <div class="form-group">
+      <div class="form-group" id="page-form-group" style="display:none;">
+        <label for="page-form-id">Which form</label>
+        <select id="page-form-id">
+          <option value="">— pick a form —</option>
+        </select>
+        <div class="field-hint">The form also keeps working on its own shareable link.</div>
+      </div>
+      <div class="form-group" id="page-zeffy-group" style="display:none;">
         <label for="page-zeffy-url">Zeffy Registration Embed Code</label>
         <textarea id="page-zeffy-url" rows="4" placeholder="Paste the full Zeffy iframe embed code here&#10;&#10;Example:&#10;&lt;iframe src=&quot;https://www.zeffy.com/embed/ticketing/your-event&quot; ...&gt;&lt;/iframe&gt;"></textarea>
         <div class="field-hint">From Zeffy: go to your event &rarr; Share &rarr; Embed &rarr; copy the full iframe code and paste it here. Leave blank to show "Registrations will open soon!"</div>
@@ -1105,15 +1116,12 @@ textarea{resize:vertical;}
         <textarea id="page-registration-note" rows="2" placeholder="e.g. Early bird price ends May 18th. Register soon!"></textarea>
       </div>
       <div class="form-group">
-        <label for="page-flyer-url">Event Flyer Image</label>
-        <input type="text" id="page-flyer-url" placeholder="Paste Google Drive share link">
-        <div class="drive-help">
-          <strong>How to get a Google Drive image URL:</strong>
-          1. Upload flyer to Google Drive &nbsp;→&nbsp; Right-click → Share<br>
-          2. Set access to "Anyone with the link" → Copy link<br>
-          3. Paste here — we'll convert it automatically
-        </div>
+        <label for="page-flyer-file">Event Flyer Image</label>
+        <input type="file" id="page-flyer-file" accept="image/*">
+        <div class="hint" id="page-flyer-hint">Upload the image directly — no Drive link or sharing setup needed.</div>
+        <input type="hidden" id="page-flyer-url">
         <div class="img-preview" id="flyer-img-wrap"><img id="flyer-img" src="" alt="Flyer preview"></div>
+        <button type="button" class="btn-row danger" id="btn-remove-page-flyer" style="display:none;margin-top:6px;">Remove image</button>
       </div>
       <div class="form-group">
         <label for="page-meta-desc">Search Engine Description <span class="hint">(optional, ~150 chars)</span></label>
@@ -1226,17 +1234,6 @@ textarea{resize:vertical;}
           <label for="form-overflow-label" style="margin-top:8px;">Overflow flag</label>
           <input type="text" id="form-overflow-label" placeholder="Waitlist">
         </div>
-      </div>
-
-      <div class="form-group">
-        <label for="form-flyer-file">Event flyer <span style="font-weight:400;color:var(--muted);">(optional)</span></label>
-        <input type="file" id="form-flyer-file" accept="image/*">
-        <div class="field-hint">Shown beside the form on the RSVP page. Upload the image itself — no link needed.</div>
-        <div id="form-flyer-preview" style="display:none;margin-top:8px;">
-          <img id="form-flyer-img" style="max-width:220px;border-radius:10px;border:1px solid var(--border);display:block;">
-          <button type="button" class="btn-row danger" id="btn-remove-flyer" style="margin-top:6px;">Remove flyer</button>
-        </div>
-        <input type="hidden" id="form-flyer-url">
       </div>
 
       <div class="form-group">
@@ -2247,7 +2244,52 @@ function setupImgPreview(inputId, wrapId, imgId) {
     else wrap.style.display = 'none';
   });
 }
-setupImgPreview('page-flyer-url', 'flyer-img-wrap', 'flyer-img');
+// Direct upload replaces the old paste-a-Drive-link flow: uploading here
+// also grants public read, which the manual route routinely got wrong and
+// left images broken on the live page.
+document.getElementById('page-flyer-file').addEventListener('change', async function (e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var hint = document.getElementById('page-flyer-hint');
+  var orig = hint.textContent;
+  hint.textContent = 'Uploading\u2026';
+  try {
+    var base64 = await fileToBase64Forms(file);
+    var res = await formsAuthedFetch(FORMS_API_BASE + '/pages/image-upload', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ base64: base64, filename: file.name, mimeType: file.type })
+    });
+    var data = await res.json();
+    if (!res.ok) { hint.textContent = (data.errors || [data.error]).join(' ') || 'Upload failed.'; return; }
+    setPageFlyer(data.imageUrl);
+    hint.textContent = orig;
+  } catch (err) {
+    hint.textContent = 'Upload failed: ' + err.message;
+  }
+});
+function setPageFlyer(url) {
+  document.getElementById('page-flyer-url').value = url || '';
+  var wrap = document.getElementById('flyer-img-wrap');
+  var btn = document.getElementById('btn-remove-page-flyer');
+  if (url) {
+    document.getElementById('flyer-img').src = url;
+    wrap.style.display = 'block';
+    btn.style.display = 'inline-block';
+  } else {
+    wrap.style.display = 'none';
+    btn.style.display = 'none';
+    document.getElementById('page-flyer-file').value = '';
+  }
+}
+document.getElementById('btn-remove-page-flyer').addEventListener('click', function () { setPageFlyer(''); });
+function applyRegModeUI() {
+  var mode = (document.querySelector('input[name="page-reg-mode"]:checked') || {}).value || 'none';
+  document.getElementById('page-form-group').style.display = mode === 'form' ? 'block' : 'none';
+  document.getElementById('page-zeffy-group').style.display = mode === 'zeffy' ? 'block' : 'none';
+}
+document.querySelectorAll('input[name="page-reg-mode"]').forEach(function (r) {
+  r.addEventListener('change', applyRegModeUI);
+});
 setupImgPreview('page-instructor-photo', 'instructor-img-wrap', 'instructor-img');
 
 // WIZARD UI
@@ -2360,10 +2402,16 @@ function openModalMP(page) {
   document.getElementById('page-curriculum').value = page ? ((page.curriculum||[]).map(w=>[w.weekLabel,w.title,w.description].filter(Boolean).join(' | ')).join('\n')) : '';
 
   // Step 6
+  // Derived from what's actually stored rather than a separate flag, so
+  // pages saved before this choice existed still open correctly.
+  var regMode = page ? (page.formId ? 'form' : (page.zeffyUrl ? 'zeffy' : 'none')) : 'none';
+  var regRadio = document.querySelector('input[name="page-reg-mode"][value="' + regMode + '"]');
+  if (regRadio) regRadio.checked = true;
+  applyRegModeUI();
   populatePageFormOptions(page ? (page.formId || '') : '');
   document.getElementById('page-zeffy-url').value = page ? (page.zeffyUrl||'') : '';
   document.getElementById('page-registration-note').value = page ? (page.registrationNote||'') : '';
-  document.getElementById('page-flyer-url').value = page ? (page.driveUrl||'') : '';
+  setPageFlyer(page ? (page.flyerImageUrl || page.driveUrl || '') : '');
   document.getElementById('page-meta-desc').value = page ? (page.metaDescription||'') : '';
   document.getElementById('flyer-img-wrap').style.display = 'none';
 
@@ -2416,8 +2464,12 @@ document.getElementById('btn-save').addEventListener('click', async function() {
     aboutBody: document.getElementById('page-about-body').value.trim(),
     whatToExpect: parseLines('page-what-to-expect'),
     whoShouldAttend: parseLines('page-who-should-attend'),
-    formId: document.getElementById('page-form-id').value || '',
-    zeffyUrl: document.getElementById('page-zeffy-url').value.trim(),
+    // Only one registration method is stored, so switching modes can't
+    // leave a stale Zeffy embed rendering next to a form.
+    formId: ((document.querySelector('input[name="page-reg-mode"]:checked') || {}).value === 'form')
+      ? (document.getElementById('page-form-id').value || '') : '',
+    zeffyUrl: ((document.querySelector('input[name="page-reg-mode"]:checked') || {}).value === 'zeffy')
+      ? document.getElementById('page-zeffy-url').value.trim() : '',
     registrationNote: document.getElementById('page-registration-note').value.trim(),
     flyerImageUrl: convertDriveUrl(rawFlyer),
     driveUrl: rawFlyer,
@@ -2737,41 +2789,6 @@ function syncQuestionsFromDom() {
     if (q.conditionQuestionIndex === null) q.conditionValue = null;
   });
 }
-document.getElementById('form-flyer-file').addEventListener('change', async function (e) {
-  var file = e.target.files[0];
-  if (!file) return;
-  var hint = this.closest('.form-group').querySelector('.field-hint');
-  var orig = hint.textContent;
-  hint.textContent = 'Uploading\u2026';
-  try {
-    var base64 = await fileToBase64Forms(file);
-    var res = await formsAuthedFetch(FORMS_API_BASE + '/forms/flyer-upload', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ base64: base64, filename: file.name, mimeType: file.type })
-    });
-    var data = await res.json();
-    if (!res.ok) { hint.textContent = (data.errors || [data.error]).join(' ') || 'Upload failed.'; return; }
-    document.getElementById('form-flyer-url').value = data.flyerUrl;
-    document.getElementById('form-flyer-img').src = data.flyerUrl;
-    document.getElementById('form-flyer-preview').style.display = 'block';
-    hint.textContent = orig;
-  } catch (err) {
-    hint.textContent = 'Upload failed: ' + err.message;
-  }
-});
-function fileToBase64Forms(file) {
-  return new Promise(function (resolve, reject) {
-    var r = new FileReader();
-    r.onload = function () { resolve(r.result.split(',')[1]); };
-    r.onerror = reject;
-    r.readAsDataURL(file);
-  });
-}
-document.getElementById('btn-remove-flyer').addEventListener('click', function () {
-  document.getElementById('form-flyer-url').value = '';
-  document.getElementById('form-flyer-preview').style.display = 'none';
-  document.getElementById('form-flyer-file').value = '';
-});
 // Only choice-type questions can drive shared visibility — free text has
 // no shared value to group people by.
 function populateLimitScopeOptions(qIdx, answerVal) {
@@ -2879,9 +2896,6 @@ async function openFormBuilder(formId) {
     document.getElementById('form-conf-email-fields').style.display = 'none';
     document.getElementById('form-conf-email-subject').value = '';
     document.getElementById('form-conf-email-body').value = '';
-    document.getElementById('form-flyer-url').value = '';
-    document.getElementById('form-flyer-file').value = '';
-    document.getElementById('form-flyer-preview').style.display = 'none';
     populateSharedQuestionOptions(null);
     populateLimitScopeOptions(null, null);
     document.getElementById('form-is-active').checked = true;
@@ -2910,13 +2924,6 @@ async function openFormBuilder(formId) {
     document.getElementById('form-conf-email-fields').style.display = f.confirmationEmailEnabled ? 'block' : 'none';
     document.getElementById('form-conf-email-subject').value = f.confirmationEmailSubject || '';
     document.getElementById('form-conf-email-body').value = f.confirmationEmailBody || '';
-    document.getElementById('form-flyer-url').value = f.flyerUrl || '';
-    if (f.flyerUrl) {
-      document.getElementById('form-flyer-img').src = f.flyerUrl;
-      document.getElementById('form-flyer-preview').style.display = 'block';
-    } else {
-      document.getElementById('form-flyer-preview').style.display = 'none';
-    }
     document.getElementById('form-is-active').checked = f.isActive !== false;
     BUILDER_QUESTIONS = (f.questions || []).map(function (q) {
       return { questionText: q.questionText, questionType: q.questionType, options: q.options || [], isRequired: q.isRequired, conditionQuestionIndex: (q.conditionQuestionIndex === undefined ? null : q.conditionQuestionIndex), conditionValue: q.conditionValue || null };
@@ -2995,7 +3002,6 @@ document.getElementById('btn-save-form').addEventListener('click', async functio
       confirmationEmailEnabled: document.getElementById('form-conf-email-enabled').checked,
       confirmationEmailSubject: document.getElementById('form-conf-email-subject').value.trim(),
       confirmationEmailBody: document.getElementById('form-conf-email-body').value,
-      flyerUrl: document.getElementById('form-flyer-url').value || null,
       sharedViewQuestionIndex: document.getElementById('form-shared-question').value === '' ? null : Number(document.getElementById('form-shared-question').value),
       limitQuestionIndex: document.getElementById('form-limit-question').value === '' ? null : Number(document.getElementById('form-limit-question').value),
       limitAnswerValue: document.getElementById('form-limit-answer').value || null,

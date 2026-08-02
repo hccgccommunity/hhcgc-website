@@ -257,15 +257,16 @@
        Any leftover spacing here shows up on the host page as the form
        starting lower than the flyer and stopping short of the container's
        right edge. */
-    body.is-embed { margin: 0; padding: 0; background: transparent; min-height: 0; overflow: hidden; }
-    body.is-embed .container,
-    body.is-embed .container.wide { width: 100%; max-width: none; margin: 0; padding: 0; }
-    body.is-embed .layout { display: block; margin: 0; gap: 0; }
-    body.is-embed .form-col { flex: none; width: 100%; min-width: 0; }
-    body.is-embed #form-card { margin: 0; }
-    body.is-embed .page-hero { display: none; }
-    body.is-embed #header-placeholder,
-    body.is-embed #footer-placeholder { display: none; }
+    html.is-embed-root { margin: 0; padding: 0; overflow: hidden; }
+    html.is-embed-root body { margin: 0; padding: 0; background: transparent; min-height: 0; overflow: hidden; }
+    html.is-embed-root body .container,
+    html.is-embed-root body .container.wide { width: 100%; max-width: none; margin: 0; padding: 0; }
+    html.is-embed-root body .layout { display: block; margin: 0; gap: 0; }
+    html.is-embed-root body .form-col { flex: none; width: 100%; min-width: 0; }
+    html.is-embed-root body #form-card { margin: 0; }
+    html.is-embed-root body .page-hero { display: none; }
+    html.is-embed-root body #header-placeholder,
+    html.is-embed-root body #footer-placeholder { display: none; }
   </style>
 </head>
 <body>
@@ -333,6 +334,12 @@
 // footer are all suppressed — otherwise the visitor sees the event name
 // twice and a second set of navigation.
 var IS_EMBED = new URLSearchParams(window.location.search).get('embed') === '1';
+// Applied straight away, before any measuring. It used to be set only
+// after the form data loaded, so the first height reports measured the
+// FULL page (hero, margins, footer) and the host sized the iframe to
+// that — leaving a huge frame that pushed the event page's footer far
+// below the fold.
+if (IS_EMBED) document.documentElement.classList.add('is-embed-root');
 const API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';
 
 // 'HH:MM' (24h, as stored) -> '6:00 PM'
@@ -490,7 +497,7 @@ async function loadForm() {
       // never produce its own scrollbar.
       document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
-      document.body.classList.add('is-embed');
+
     }
     var whenParts = [];
     // Trim to YYYY-MM-DD before parsing: appending 'T00:00:00' to a value

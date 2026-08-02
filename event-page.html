@@ -397,7 +397,7 @@ function renderPage(e) {
     // (right-hand) grid cell, so the flyer keeps the left column.
     regHtml += '<div class="tickets-form">' +
       '<iframe id="hccgc-form-embed" src="/forms/' + encodeURIComponent(e.formId) + '?embed=1" ' +
-      'style="width:100%;border:0;height:900px;display:block;background:transparent;" ' +
+      'style="width:100%;border:0;height:600px;display:block;background:transparent;" ' +
       'title="Registration form" scrolling="no"></iframe>' +
       '</div>';
   } else {
@@ -439,8 +439,30 @@ function renderPage(e) {
     // document inside it, which reported a bigger height, which grew the
     // iframe again — the page expanded forever.
     var lastFormHeight = 0;
+    // With a flyer alongside, the form is sized to match it and scrolls
+    // internally if taller. Without one there is nothing to match, so it
+    // takes its own content height — which also removes the tall fixed
+    // iframe that was leaving a band of blank space above the footer.
+    function sizeFormToFlyer() {
+      var f = document.getElementById('hccgc-form-embed');
+      var img = document.querySelector('.tickets-flyer .flyer-frame img');
+      if (!f || !img) return false;
+      var h = Math.round(img.getBoundingClientRect().height);
+      if (h < 200) return false;
+      f.style.height = h + 'px';
+      f.setAttribute('scrolling', 'auto');
+      return true;
+    }
+    var flyerImg = document.querySelector('.tickets-flyer .flyer-frame img');
+    if (flyerImg) {
+      if (flyerImg.complete) sizeFormToFlyer();
+      flyerImg.addEventListener('load', sizeFormToFlyer);
+      window.addEventListener('resize', sizeFormToFlyer);
+    }
     window.addEventListener('message', function (ev) {
       if (!ev.data || ev.data.type !== 'hccgc-form-height') return;
+      // Once a flyer is present it decides the height instead.
+      if (document.querySelector('.tickets-flyer .flyer-frame img')) return;
       var f = document.getElementById('hccgc-form-embed');
       var h = Number(ev.data.height) || 0;
       if (!f || !h) return;

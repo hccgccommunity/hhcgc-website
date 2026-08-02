@@ -251,6 +251,21 @@
       .site-header nav ul { flex-direction:column; gap:14px; }
     }
 
+
+    /* Embedded in an event page: strip every outer margin, padding and
+       max-width so the form's own card sits flush with the iframe edges.
+       Any leftover spacing here shows up on the host page as the form
+       starting lower than the flyer and stopping short of the container's
+       right edge. */
+    body.is-embed { margin: 0; padding: 0; background: transparent; min-height: 0; overflow: hidden; }
+    body.is-embed .container,
+    body.is-embed .container.wide { width: 100%; max-width: none; margin: 0; padding: 0; }
+    body.is-embed .layout { display: block; margin: 0; gap: 0; }
+    body.is-embed .form-col { flex: none; width: 100%; min-width: 0; }
+    body.is-embed #form-card { margin: 0; }
+    body.is-embed .page-hero { display: none; }
+    body.is-embed #header-placeholder,
+    body.is-embed #footer-placeholder { display: none; }
   </style>
 </head>
 <body>
@@ -475,14 +490,7 @@ async function loadForm() {
       // never produce its own scrollbar.
       document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
-      // Full-bleed inside the iframe: the page's own max-width and side
-      // padding made the form visibly narrower than the flyer beside it.
-      var contEl = document.querySelector('.container');
-      if (contEl) { contEl.style.width = '100%'; contEl.style.maxWidth = 'none'; contEl.style.padding = '0'; contEl.style.margin = '0'; }
-      var layoutEl = document.querySelector('.layout');
-      if (layoutEl) { layoutEl.style.margin = '0'; layoutEl.style.gap = '0'; }
-      var cardEl = document.getElementById('form-card');
-      if (cardEl) cardEl.style.margin = '0';
+      document.body.classList.add('is-embed');
     }
     var whenParts = [];
     // Trim to YYYY-MM-DD before parsing: appending 'T00:00:00' to a value

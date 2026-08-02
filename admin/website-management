@@ -1215,6 +1215,10 @@ textarea{resize:vertical;}
           <label for="form-confirmed-limit">Confirmed limit <span style="font-weight:400;color:var(--muted);">(optional)</span></label>
           <input type="number" id="form-confirmed-limit" min="1" step="1" placeholder="e.g. 15">
           <div class="field-hint">First N responses get the confirmed flag; the rest get the overflow flag. Blank = unlimited, no flags.</div>
+          <label for="form-limit-question" style="margin-top:8px;">Apply the limit only to</label>
+          <select id="form-limit-question"><option value="">Everyone who responds</option></select>
+          <select id="form-limit-answer" style="margin-top:6px;display:none;"></select>
+          <div class="field-hint">e.g. cap singers at 15 while audience stays unlimited. Responses that don't match aren't counted or flagged.</div>
         </div>
         <div class="form-group">
           <label for="form-confirmed-label">Confirmed flag</label>
@@ -2770,6 +2774,29 @@ document.getElementById('btn-remove-flyer').addEventListener('click', function (
 });
 // Only choice-type questions can drive shared visibility — free text has
 // no shared value to group people by.
+function populateLimitScopeOptions(qIdx, answerVal) {
+  var qSel = document.getElementById('form-limit-question');
+  var aSel = document.getElementById('form-limit-answer');
+  qSel.innerHTML = '<option value="">Everyone who responds</option>' +
+    BUILDER_QUESTIONS.map(function (q, i) {
+      if (TYPES_WITH_OPTIONS.indexOf(q.questionType) === -1) return '';
+      return '<option value="' + i + '"' + (String(qIdx) === String(i) ? ' selected' : '') + '>Q' + (i + 1) + ': ' + escF((q.questionText || '').slice(0, 50)) + '</option>';
+    }).join('');
+  qSel.value = (qIdx === null || qIdx === undefined) ? '' : String(qIdx);
+  var q = BUILDER_QUESTIONS[qSel.value];
+  if (qSel.value !== '' && q && q.options && q.options.length) {
+    aSel.style.display = 'block';
+    aSel.innerHTML = '<option value="">\u2014 pick the answer \u2014</option>' +
+      q.options.map(function (o) { return '<option value="' + escF(o) + '"' + (answerVal === o ? ' selected' : '') + '>' + escF(o) + '</option>'; }).join('');
+    aSel.value = answerVal || '';
+  } else {
+    aSel.style.display = 'none';
+    aSel.innerHTML = '';
+  }
+}
+document.getElementById('form-limit-question').addEventListener('change', function () {
+  populateLimitScopeOptions(this.value === '' ? null : Number(this.value), null);
+});
 function populateSharedQuestionOptions(selected) {
   var sel = document.getElementById('form-shared-question');
   sel.innerHTML = '<option value="">Off — nobody sees other responses</option>' +
@@ -2856,6 +2883,7 @@ async function openFormBuilder(formId) {
     document.getElementById('form-flyer-file').value = '';
     document.getElementById('form-flyer-preview').style.display = 'none';
     populateSharedQuestionOptions(null);
+    populateLimitScopeOptions(null, null);
     document.getElementById('form-is-active').checked = true;
     BUILDER_QUESTIONS = [];
     renderQuestionsBuilder();
@@ -2895,6 +2923,7 @@ async function openFormBuilder(formId) {
     });
     renderQuestionsBuilder();
     populateSharedQuestionOptions(f.sharedViewQuestionIndex);
+    populateLimitScopeOptions(f.limitQuestionIndex, f.limitAnswerValue);
   } catch (err) {
     document.getElementById('questions-builder').innerHTML =
       '<div class="empty-state">Could not load: ' + escF(err.message) + '</div>';
@@ -2968,6 +2997,8 @@ document.getElementById('btn-save-form').addEventListener('click', async functio
       confirmationEmailBody: document.getElementById('form-conf-email-body').value,
       flyerUrl: document.getElementById('form-flyer-url').value || null,
       sharedViewQuestionIndex: document.getElementById('form-shared-question').value === '' ? null : Number(document.getElementById('form-shared-question').value),
+      limitQuestionIndex: document.getElementById('form-limit-question').value === '' ? null : Number(document.getElementById('form-limit-question').value),
+      limitAnswerValue: document.getElementById('form-limit-answer').value || null,
       questions: BUILDER_QUESTIONS
     };
     var url = formId ? FORMS_API_BASE + '/forms/' + encodeURIComponent(formId) : FORMS_API_BASE + '/forms';

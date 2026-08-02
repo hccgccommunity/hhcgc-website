@@ -2951,8 +2951,8 @@ async function openResponsesModal(formId) {
       cells.push('<td style="padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap;">' +
         (r.statusFlag ? '<span class="type-pill ' + (r.statusFlag === (def.confirmedLabel || 'Confirmed') ? 'event' : 'initiative') + '">' + escF(r.statusFlag) + '</span>' : '\u2014') +
         '</td>');
-      def.questions.forEach(function (q) {
-        var a = r.answers ? r.answers[q.questionId] : '';
+      def.questions.forEach(function (q, qi) {
+        var a = answerFor(r, def, q, qi);
         if (Array.isArray(a)) a = a.join(', ');
         cells.push('<td style="padding:8px 10px;border-bottom:1px solid var(--border);">' + escF(a) + '</td>');
       });
@@ -2986,6 +2986,21 @@ document.getElementById('responses-body').addEventListener('click', async functi
     btn.disabled = false; btn.textContent = 'Delete';
   }
 });
+// Answers are keyed by question_id. Before question ids were preserved
+// across edits, editing a form minted new ids and orphaned every answer
+// already collected. Fall back to matching by position so those older
+// responses still display instead of appearing blank.
+function answerFor(response, def, q, index) {
+  var a = response.answers ? response.answers[q.questionId] : undefined;
+  if (a !== undefined && a !== null && a !== '') return a;
+  var keys = response.answers ? Object.keys(response.answers) : [];
+  // Only fall back when the stored keys match none of the current
+  // questions — otherwise a genuinely blank answer would pick up a
+  // neighbour's value.
+  var anyMatch = def.questions.some(function (dq) { return keys.indexOf(dq.questionId) !== -1; });
+  if (!anyMatch && keys.length > index) return response.answers[keys[index]];
+  return a === undefined ? '' : a;
+}
 function closeResponsesModal() { document.getElementById('modal-overlay-responses').classList.remove('show'); }
 document.getElementById('responses-close').addEventListener('click', closeResponsesModal);
 document.getElementById('responses-close-2').addEventListener('click', closeResponsesModal);
@@ -3013,7 +3028,7 @@ document.getElementById('btn-download-responses').addEventListener('click', func
     .concat(['Submitted']).map(csvCell).join(',');
   var lines = CURRENT_RESPONSES.map(function (r) {
     var cells = [r.firstName, r.lastName, r.email, r.phone, r.statusFlag || ''];
-    def.questions.forEach(function (q) { cells.push(r.answers ? r.answers[q.questionId] : ''); });
+    def.questions.forEach(function (q, qi) { cells.push(answerFor(r, def, q, qi)); });
     cells.push(r.submittedAt);
     return cells.map(csvCell).join(',');
   });

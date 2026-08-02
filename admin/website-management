@@ -2249,6 +2249,17 @@ function setupImgPreview(inputId, wrapId, imgId) {
 // Direct upload replaces the old paste-a-Drive-link flow: uploading here
 // also grants public read, which the manual route routinely got wrong and
 // left images broken on the live page.
+// Reads a chosen file as base64 for upload. (Was previously defined
+// alongside the form-flyer field; removing that field deleted this too,
+// which broke BOTH page image uploads with "Can't find variable".)
+function fileToBase64Forms(file) {
+  return new Promise(function (resolve, reject) {
+    var r = new FileReader();
+    r.onload = function () { resolve(String(r.result).split(',')[1]); };
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
 document.getElementById('page-flyer-file').addEventListener('change', async function (e) {
   var file = e.target.files[0];
   if (!file) return;

@@ -2048,7 +2048,12 @@ function renderBookingRow(b, isSubRow, seriesPerOccurrenceMode) {
 function renderSeriesSummaryRow(item) {
   const isExpanded = expandedSeries.has(item.seriesId);
   const repOcc = item.occurrences[0];
-  const perOccurrenceMode = repOcc && repOcc.invoice_mode === 'per_occurrence';
+  const seriesMode = (repOcc && repOcc.invoice_mode) || 'combined';
+  const perOccurrenceMode = seriesMode === 'per_occurrence';
+  // Monthly bills per MONTH, so like per-occurrence the invoice/receipt do
+  // NOT belong at the booking level — they belong on the month rows one
+  // level down. Only a combined series is billed at this level.
+  const billsBelowSeries = perOccurrenceMode || seriesMode === 'monthly';
 
   if (item.payment_status === 'requested' || item.payment_status === 'rejected') {
     const actions = item.payment_status === 'requested'
@@ -2091,7 +2096,7 @@ function renderSeriesSummaryRow(item) {
   // individually now, so the group only gets a notes icon — there's still
   // a group-level note worth having even when billing is split up.
   const groupIcons = item.is_internal ? '' :
-    (perOccurrenceMode ? '<div class="action-icons">' + notesButtonHtml(repOcc) + '</div>' : actionIcons(repOcc));
+    (billsBelowSeries ? '<div class="action-icons">' + notesButtonHtml(repOcc) + '</div>' : actionIcons(repOcc));
 
   return (
     '<tr class="series-summary-row">' +
@@ -2104,7 +2109,7 @@ function renderSeriesSummaryRow(item) {
 
 function renderTableHead() {
   const theadRow = document.getElementById('thead-row');
-  let html = '<th class="sortable" data-sort="renter_name">Contact Name <span class="sort-arrow">&#8645;</span></th>';
+  let html = '<th class="sortable" data-sort="renter_name">Customer <span class="sort-arrow">&#8645;</span></th>';
   COLUMN_DEFS.forEach(function (col) {
     if (!visibleColumns.has(col.key)) return;
     html += col.sortable
@@ -2269,7 +2274,44 @@ function render() {
     if (item.type === 'single') return renderBookingRow(item.booking, false);
     const summary = renderSeriesSummaryRow(item);
     if (!expandedSeries.has(item.seriesId)) return summary;
-    const seriesPerOccurrenceMode = item.occurrences[0] && item.occurrences[0].invoice_mode === 'per_occurrence';
+    const mode = (item.occurrences[0] && item.occurrences[0].invoice_mode) || 'combined';
+    // Monthly bills a month at a time, so the expansion has an extra MONTH
+    // level between the customer and the occurrences — matching Finance,
+    // so both portals group the same booking the same way.
+    if (mode === 'monthly') {
+      const buckets = {};
+      item.occurrences.forEach(function (o) {
+        const m = String(o.event_date || '').slice(0, 7);
+        if (!buckets[m]) buckets[m] = [];
+        buckets[m].push(o);
+      });
+      return summary + Object.keys(buckets).sort().map(function (m) {
+        const occs = buckets[m];
+        const mKey = item.seriesId + '::' + m;
+        const mOpen = expandedSeries.has(mKey);
+        const label = new Date(m + '-02T00:00:00').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        const total = occs.reduce(function (s, o) { return s + (Number(o.final_total) || 0); }, 0);
+        const colCount = COLUMN_DEFS.filter(function (col) { return visibleColumns.has(col.key); }).length;
+        const monthRow = '<tr class="series-row" style="background:var(--surface-soft, #fff6ea);">' +
+          '<td onclick="toggleSeries(\'' + mKey + '\')" style="cursor:pointer;padding-left:28px;">' +
+            '<div class="renter-name">' + (mOpen ? '&#9660; ' : '&#9654; ') + escHtml(label) +
+            ' <span class="discount-chip" style="margin-left:4px;">' + occs.length + ' occurrence' + (occs.length === 1 ? '' : 's') + '</span></div>' +
+            '<div class="renter-sub">' + money(total) + ' \u00b7 one invoice for this month</div>' +
+          '</td>' +
+          '<td colspan="' + colCount + '"></td>' +
+          // Invoice/receipt live HERE for a monthly series — one invoice
+          // per month — using this month's first occurrence as the
+          // representative record, the same convention a combined series
+          // uses at its own level.
+          '<td><div style="display:flex;align-items:center;gap:8px;">' +
+            (item.is_internal ? '' : actionIcons(occs[0])) +
+          '</div></td>' +
+        '</tr>';
+        const occRows = mOpen ? occs.map(function (occ) { return renderBookingRow(occ, true, false); }).join('') : '';
+        return monthRow + occRows;
+      }).join('');
+    }
+    const seriesPerOccurrenceMode = mode === 'per_occurrence';
     return summary + item.occurrences.map(function (occ) { return renderBookingRow(occ, true, seriesPerOccurrenceMode); }).join('');
   }).join('');
 }
@@ -3160,6 +3202,7 @@ document.getElementById('btn-save-series-edit').addEventListener('click', async 
     renterName: isInternal ? document.getElementById('series-edit-name').value : null,
     hccgcRepresentativeName: isInternal ? document.getElementById('series-edit-hccg-rep').value : null,
     organizationId: isInternal ? null : (document.getElementById('series-edit-org-select').value || null),
+    invoiceMode: (document.querySelector('input[name="series-edit-invoice-mode"]:checked') || {}).value || undefined,
     eventName: isInternal ? undefined : document.getElementById('series-edit-event-name').value,
     manualAdjustmentType: (!isInternal && document.getElementById('series-edit-adjustment-enabled').checked) ? document.getElementById('series-edit-adj-type').value : null,
     manualAdjustmentValue: (!isInternal && document.getElementById('series-edit-adjustment-enabled').checked) ? parseFloat(document.getElementById('series-edit-adj-value').value) || null : null,
@@ -4913,6 +4956,14 @@ document.querySelectorAll('.tab-btn').forEach(function (btn) {
     if (btn.dataset.tab === 'dashboard' && !window.__dashLoaded) initDashboardTab();
     if (btn.dataset.tab === 'rooms-rates' && !window.__rrLoaded) initRoomsRatesTab();
     if (btn.dataset.tab === 'add-renter' && !window.__arLoaded) initAddRenterTab();
+    // Always refetch on tab switch. The init guards above only ever ran
+    // once, so a tab opened earlier kept showing whatever it had cached —
+    // after editing a booking elsewhere (or in the other portal) the data
+    // was stale until a full page reload.
+    if (btn.dataset.tab === 'all-bookings') loadBookings();
+    if (btn.dataset.tab === 'dashboard' && window.__dashLoaded) initDashboardTab();
+    if (btn.dataset.tab === 'rooms-rates' && window.__rrLoaded) loadRooms();
+    if (btn.dataset.tab === 'add-renter' && window.__arLoaded) loadRenters();
   });
 });
 </script>

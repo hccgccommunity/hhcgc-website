@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Form | Hindu Community Center of Greater Cincinnati</title>
+  <meta name="description" content="Registration form — Hindu Community Center of Greater Cincinnati." />
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <style>
+    :root {
+      --bg: #fff9f1; --surface: #ffffff; --surface-soft: #fff6ea;
+      --border: rgba(121,62,17,0.14); --text: #2c1b10; --muted: #6a5141;
+      --saffron: #b55a18; --saffron-dark: #8d3e0d; --maroon: #7f2e16;
+      --green: #2e7d4f; --green-bg: #e8f5ec; --red: #b3382c; --red-bg: #fbe9e7;
+      --shadow: 0 18px 45px rgba(93,43,14,0.10); --radius: 22px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%),
+                  radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%),
+                  var(--bg);
+      color: var(--text); min-height: 100vh;
+    }
+    .container { width: min(calc(100% - 32px), 720px); margin: 0 auto; }
+    .container.wide { width: min(calc(100% - 32px), 1080px); }
+    .layout { display: flex; gap: 26px; align-items: flex-start; margin: 26px 0 60px; }
+    .layout .flyer-col { flex: 0 0 40%; position: sticky; top: 20px; }
+    .layout .form-col { flex: 1; min-width: 0; }
+    .layout .card { margin: 0; }
+    .flyer-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 14px; box-shadow: var(--shadow); overflow: hidden;
+    }
+    .flyer-card img { width: 100%; height: auto; display: block; border-radius: 14px; }
+    @media (max-width: 860px) {
+      .layout { flex-direction: column; }
+      .layout .flyer-col { flex: none; width: 100%; position: static; }
+    }
+    .shared-list { display: flex; flex-direction: column; gap: 10px; }
+    .shared-item { border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; background: #fff; }
+    .shared-item.is-you { border-color: var(--saffron); background: var(--surface-soft); }
+    .shared-name { font-weight: 700; font-size: 0.95rem; }
+    .shared-meta { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+    .closed-note {
+      background: var(--surface-soft); border: 1.5px solid var(--border); border-radius: 12px;
+      padding: 18px; text-align: center; color: var(--muted); font-size: 0.95rem;
+    }
+
+    .page-hero { padding: 34px 0 28px; background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%); color: #fff; }
+    .page-hero h1 { font-family: Georgia, "Times New Roman", serif; font-size: 1.75rem; margin-bottom: 6px; }
+    .page-hero .sub { opacity: 0.95; font-size: 1rem; font-weight: 700; }
+    .page-hero .meta { opacity: 0.82; font-size: 0.86rem; margin-top: 8px; }
+
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 28px; box-shadow: var(--shadow); margin: 26px 0 60px;
+    }
+    .section-label {
+      font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--saffron-dark); margin-bottom: 14px;
+    }
+    .divider { height: 1px; background: var(--border); margin: 26px 0 22px; }
+
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .field > label { font-size: 0.9rem; font-weight: 700; }
+    .req { color: var(--saffron-dark); }
+    .field input[type="text"], .field input[type="email"], .field input[type="tel"],
+    .field select, .field textarea {
+      font-family: inherit; font-size: 0.94rem; padding: 11px 14px;
+      border: 1.5px solid var(--border); border-radius: 10px; background: #fff;
+      color: var(--text); width: 100%;
+    }
+    .field textarea { resize: vertical; min-height: 96px; }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      outline: none; border-color: var(--saffron); box-shadow: 0 0 0 3px rgba(181,90,24,0.12);
+    }
+    .field-row { display: flex; gap: 14px; flex-wrap: wrap; }
+    .field-row > .field { flex: 1; min-width: 200px; }
+
+    .choice-list { display: flex; flex-direction: column; gap: 8px; }
+    .choice {
+      display: flex; align-items: flex-start; gap: 10px; padding: 10px 13px;
+      border: 1.5px solid var(--border); border-radius: 10px; background: #fff;
+      cursor: pointer; font-size: 0.92rem;
+    }
+    .choice:hover { background: var(--surface-soft); }
+    .choice input { margin-top: 2px; width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; }
+
+    .btn-submit {
+      font-family: inherit; font-size: 0.98rem; font-weight: 700; color: #fff;
+      background: linear-gradient(135deg, var(--saffron-dark), var(--maroon));
+      border: none; border-radius: 12px; padding: 13px 40px; cursor: pointer;
+      min-width: 180px; display: block; margin: 4px auto 0;
+    }
+    @media (max-width: 480px) { .btn-submit { width: 100%; } }
+    .btn-submit:disabled { opacity: 0.6; cursor: default; }
+
+    .result-box { margin-top: 16px; border-radius: 12px; padding: 14px 16px; font-size: 0.9rem; line-height: 1.55; }
+    .result-box.success { background: var(--green-bg); color: var(--green); border: 1px solid rgba(46,125,79,0.25); }
+    .result-box.error { background: var(--red-bg); color: var(--red); border: 1px solid rgba(179,56,44,0.25); }
+
+    .state-msg { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 0.95rem; }
+    .thanks { text-align: center; padding: 40px 20px; }
+    .thanks h2 { font-family: Georgia, serif; color: var(--maroon); font-size: 1.4rem; margin-bottom: 10px; }
+    .thanks p { color: var(--muted); font-size: 0.95rem; }
+
+    /* ── Shared header/footer (matches facility-rental) ── */
+/* ── HEADER (matches yoga-for-all exactly) ── */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 249, 241, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+.brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+.brand-logo-wrap {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 8px;
+      box-shadow: var(--shadow);
+      flex-shrink: 0;
+    }
+.brand-logo {
+      width: 88px;
+      height: auto;
+      border-radius: 12px;
+      object-fit: contain;
+    }
+.brand-text h1 {
+      margin: 0;
+      font-size: 1.2rem;
+      line-height: 1.15;
+      color: var(--maroon);
+    }
+.site-header nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin: 0;
+      padding: 0;
+      align-items: center;
+      justify-content: flex-end;
+    }
+.site-header nav a {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.96rem;
+    }
+.site-header nav a:hover { color: var(--saffron-dark); }
+/* ── FOOTER (matches yoga-for-all exactly) ── */
+    .site-footer .footer-top {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 24px;
+      padding: 8px 0 0;
+    }
+.site-footer .footer-nav {
+      display: flex;
+      justify-content: flex-start;
+      min-width: 0;
+    }
+.site-footer .footer-nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      justify-content: flex-start;
+      align-items: center;
+    }
+.site-footer .footer-nav a {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+.site-footer .footer-nav a:hover { color: var(--saffron-dark); }
+.site-footer .footer-email {
+      text-align: center;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+    }
+.site-footer .footer-email a:hover { color: var(--saffron-dark); }
+.site-footer .footer-social {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      min-width: 220px;
+      color: var(--text);
+      font-weight: 700;
+    }
+.site-footer .footer-social-label { white-space: nowrap; }
+.site-footer .social-icons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+.site-footer .social-icon {
+      width: 42px;
+      height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: #fff;
+      border: 1px solid var(--border);
+      box-shadow: 0 6px 18px rgba(93, 43, 14, 0.10);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+.site-footer .social-icon:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(93, 43, 14, 0.16);
+    }
+.site-footer .social-icon svg { width: 20px; height: 20px; display: block; }
+.site-footer .footer-note {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.7rem;
+      text-align: center;
+    }
+.site-footer .copyright-links a { text-decoration: none; }
+.site-footer .footer-top { grid-template-columns: 1fr; justify-items: start; }
+.site-footer .footer-email,
+      .site-footer .footer-social { text-align: left; justify-content: flex-start; }
+.site-header nav ul { justify-content: flex-start; gap: 14px; }
+.brand-logo { width: 74px; }
+    .nav { display:flex; align-items:center; justify-content:space-between; gap:24px; min-height:92px; padding:12px 0; }
+    .site-header a.brand, .site-header a.brand:link, .site-header a.brand:visited { text-decoration:none; color:inherit; }
+    .site-header nav a, .site-header nav a:link, .site-header nav a:visited { font-weight:700; color:var(--text); font-size:.96rem; text-decoration:none; }
+    .site-header nav a:hover { color:var(--saffron-dark); }
+    .menu-toggle { display:none; border:0; background:transparent; padding:6px 0; cursor:pointer; color:#2c1b10; }
+    .menu-toggle .bar { display:block; width:26px; height:2px; margin:5px 0; background:currentColor; }
+    @media (max-width:768px){
+      .nav { flex-direction:column; align-items:stretch; gap:8px; }
+      .menu-toggle { display:inline-block; }
+      .site-header nav { display:none; width:100%; background:rgba(255,249,241,.95); padding:10px 0; }
+      .site-header nav.is-open { display:block; }
+      .site-header nav ul { flex-direction:column; gap:14px; }
+    }
+
+  </style>
+</head>
+<body>
+
+<div id="header-placeholder"></div>
+
+<div class="page-hero">
+  <div class="container">
+    <h1 id="hero-title">Loading&hellip;</h1>
+    <div class="sub" id="hero-sub"></div>
+    <div class="meta" id="hero-meta"></div>
+  </div>
+</div>
+
+<div class="container wide">
+ <div class="layout">
+  <div class="flyer-col" id="flyer-col" style="display:none;">
+    <div class="flyer-card"><img id="flyer-img" alt="Event flyer"></div>
+  </div>
+  <div class="form-col">
+  <div class="card" id="form-card">
+    <div class="state-msg" id="state-msg">Loading form&hellip;</div>
+
+    <form id="public-form" style="display:none;">
+      <div class="section-label">Your details</div>
+      <div class="field-row">
+        <div class="field">
+          <label for="pf-first">First name <span class="req">*</span></label>
+          <input type="text" id="pf-first" autocomplete="given-name" required>
+        </div>
+        <div class="field">
+          <label for="pf-last">Last name <span class="req">*</span></label>
+          <input type="text" id="pf-last" autocomplete="family-name" required>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="pf-email">Email <span class="req">*</span></label>
+          <input type="email" id="pf-email" autocomplete="email" required>
+        </div>
+        <div class="field">
+          <label for="pf-phone">Phone number <span class="req">*</span></label>
+          <input type="tel" id="pf-phone" autocomplete="tel" required>
+        </div>
+      </div>
+
+      <div id="custom-questions-wrap"></div>
+
+      <button type="submit" class="btn-submit" id="pf-submit">Submit</button>
+      <div class="result-box" id="pf-result" style="display:none;"></div>
+    </form>
+
+    <div class="thanks" id="thanks-panel" style="display:none;">
+      <h2>Thank you!</h2>
+      <p id="thanks-text">Your response has been recorded.</p>
+      <p id="thanks-shared" style="display:none;margin-top:14px;"></p>
+    </div>
+  </div>
+  </div>
+ </div>
+</div>
+
+<div id="footer-placeholder"></div>
+
+<script>
+const API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';
+
+// 'HH:MM' (24h, as stored) -> '6:00 PM'
+function fmt12h(hhmm) {
+  if (!hhmm) return '';
+  var parts = String(hhmm).split(':');
+  var h = Number(parts[0]), m = parts[1] || '00';
+  var suffix = h >= 12 ? 'PM' : 'AM';
+  var h12 = h % 12; if (h12 === 0) h12 = 12;
+  return h12 + ':' + m + ' ' + suffix;
+}
+function esc(str) {
+  return String(str == null ? '' : str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// Accepts either /forms/{id} (clean path) or ?id={id} (query fallback),
+// so the same file works whether hosting rewrites the path or not.
+function getFormIdFromUrl() {
+  var qs = new URLSearchParams(window.location.search);
+  var fromQuery = qs.get('id') || qs.get('form');
+  if (fromQuery) return fromQuery;
+  var parts = window.location.pathname.split('/').filter(Boolean);
+  var idx = parts.indexOf('forms');
+  if (idx !== -1 && parts[idx + 1]) return decodeURIComponent(parts[idx + 1]);
+  return null;
+}
+
+let FORM_DEF = null;
+
+function renderQuestions(questions) {
+  var wrap = document.getElementById('custom-questions-wrap');
+  if (!questions.length) { wrap.innerHTML = ''; return; }
+  var html = '<div class="divider"></div>';
+  html += questions.map(function (q) {
+    var reqMark = q.isRequired ? ' <span class="req">*</span>' : '';
+    var label = '<label for="q-' + esc(q.questionId) + '">' + esc(q.questionText) + reqMark + '</label>';
+    var control = '';
+    if (q.questionType === 'text') {
+      control = '<input type="text" id="q-' + esc(q.questionId) + '" data-qid="' + esc(q.questionId) + '" data-qtype="text">';
+    } else if (q.questionType === 'textarea') {
+      control = '<textarea id="q-' + esc(q.questionId) + '" data-qid="' + esc(q.questionId) + '" data-qtype="textarea"></textarea>';
+    } else if (q.questionType === 'dropdown') {
+      control = '<select id="q-' + esc(q.questionId) + '" data-qid="' + esc(q.questionId) + '" data-qtype="dropdown">' +
+        '<option value="">— Select —</option>' +
+        (q.options || []).map(function (o) { return '<option value="' + esc(o) + '">' + esc(o) + '</option>'; }).join('') +
+        '</select>';
+    } else if (q.questionType === 'radio') {
+      control = '<div class="choice-list" data-qid="' + esc(q.questionId) + '" data-qtype="radio">' +
+        (q.options || []).map(function (o, i) {
+          return '<label class="choice"><input type="radio" name="q-' + esc(q.questionId) + '" value="' + esc(o) + '">' +
+            '<span>' + esc(o) + '</span></label>';
+        }).join('') + '</div>';
+    } else if (q.questionType === 'checkbox') {
+      control = '<div class="choice-list" data-qid="' + esc(q.questionId) + '" data-qtype="checkbox">' +
+        (q.options || []).map(function (o) {
+          return '<label class="choice"><input type="checkbox" value="' + esc(o) + '">' +
+            '<span>' + esc(o) + '</span></label>';
+        }).join('') + '</div>';
+    }
+    var condAttrs = (q.conditionQuestionIndex === null || q.conditionQuestionIndex === undefined)
+      ? ''
+      : ' data-cond-idx="' + q.conditionQuestionIndex + '" data-cond-val="' + esc(q.conditionValue || '') + '"';
+    return '<div class="field" data-question-wrap="' + esc(q.questionId) + '"' + condAttrs + '>' + label + control + '</div>';
+  }).join('');
+  wrap.innerHTML = html;
+  // Re-evaluate on any change so branches appear/disappear as answered.
+  wrap.addEventListener('change', applyConditionalVisibility);
+  wrap.addEventListener('input', applyConditionalVisibility);
+  applyConditionalVisibility();
+}
+
+// Shows or hides conditional questions based on what's been answered so
+// far. A hidden question's answer is also cleared, so a branch the user
+// backed out of doesn't silently submit stale answers.
+function applyConditionalVisibility() {
+  if (!FORM_DEF) return;
+  var current = collectAnswers(true);
+  (FORM_DEF.questions || []).forEach(function (q) {
+    var wrapEl = document.querySelector('[data-question-wrap="' + CSS.escape(q.questionId) + '"]');
+    if (!wrapEl) return;
+    if (q.conditionQuestionIndex === null || q.conditionQuestionIndex === undefined) { wrapEl.style.display = ''; return; }
+    var controller = FORM_DEF.questions[q.conditionQuestionIndex];
+    if (!controller) { wrapEl.style.display = ''; return; }
+    var ans = current[controller.questionId];
+    var visible = Array.isArray(ans) ? ans.indexOf(q.conditionValue) !== -1 : ans === q.conditionValue;
+    wrapEl.style.display = visible ? '' : 'none';
+    if (!visible) clearAnswerFor(q);
+  });
+}
+function clearAnswerFor(q) {
+  if (q.questionType === 'text' || q.questionType === 'textarea' || q.questionType === 'dropdown') {
+    var el = document.getElementById('q-' + q.questionId);
+    if (el) el.value = '';
+  } else if (q.questionType === 'radio') {
+    document.querySelectorAll('input[name="q-' + CSS.escape(q.questionId) + '"]:checked').forEach(function (i) { i.checked = false; });
+  } else if (q.questionType === 'checkbox') {
+    var group = document.querySelector('[data-qid="' + CSS.escape(q.questionId) + '"][data-qtype="checkbox"]');
+    if (group) group.querySelectorAll('input:checked').forEach(function (i) { i.checked = false; });
+  }
+}
+function collectAnswers(includeHidden) {
+  var answers = {};
+  (FORM_DEF.questions || []).forEach(function (q) {
+    // On submit (includeHidden falsy) a hidden question contributes
+    // nothing — it was never shown, so there is no answer to record.
+    if (!includeHidden) {
+      var wrapEl = document.querySelector('[data-question-wrap="' + CSS.escape(q.questionId) + '"]');
+      if (wrapEl && wrapEl.style.display === 'none') return;
+    }
+    var qid = q.questionId;
+    if (q.questionType === 'text' || q.questionType === 'textarea' || q.questionType === 'dropdown') {
+      var el = document.getElementById('q-' + qid);
+      answers[qid] = el ? el.value.trim() : '';
+    } else if (q.questionType === 'radio') {
+      var checked = document.querySelector('input[name="q-' + CSS.escape(qid) + '"]:checked');
+      answers[qid] = checked ? checked.value : '';
+    } else if (q.questionType === 'checkbox') {
+      var group = document.querySelector('[data-qid="' + CSS.escape(qid) + '"][data-qtype="checkbox"]');
+      answers[qid] = group
+        ? Array.prototype.slice.call(group.querySelectorAll('input:checked')).map(function (i) { return i.value; })
+        : [];
+    }
+  });
+  return answers;
+}
+
+async function loadForm() {
+  var formId = getFormIdFromUrl();
+  var stateMsg = document.getElementById('state-msg');
+  if (!formId) {
+    document.getElementById('hero-title').textContent = 'Form not found';
+    stateMsg.textContent = 'No form was specified in the link. Please check the link you were given.';
+    return;
+  }
+  try {
+    var res = await fetch(API_BASE + '/public/forms/' + encodeURIComponent(formId));
+    var data = await res.json();
+    if (!res.ok) {
+      document.getElementById('hero-title').textContent = 'Form unavailable';
+      stateMsg.textContent = (data.errors || [data.error || 'This form is not available.']).join(' ');
+      return;
+    }
+    FORM_DEF = data;
+    // form_name is an internal label for admins; the public page leads
+    // with the event itself.
+    document.getElementById('hero-title').textContent =
+      'RSVP for ' + (data.eventName || 'this event');
+    var whenParts = [];
+    // Trim to YYYY-MM-DD before parsing: appending 'T00:00:00' to a value
+    // that already carries a time produces an Invalid Date, which would
+    // render as literal "Invalid Date" on the page.
+    var dOnly = data.eventDate ? String(data.eventDate).slice(0, 10) : '';
+    if (dOnly) {
+      whenParts.push(new Date(dOnly + 'T00:00:00').toLocaleDateString('en-US',
+        { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }));
+    }
+    if (data.eventStartTime && data.eventEndTime) {
+      whenParts.push(fmt12h(data.eventStartTime) + ' \u2013 ' + fmt12h(data.eventEndTime));
+    }
+    document.getElementById('hero-sub').textContent = whenParts.join('  \u00b7  ');
+    document.getElementById('hero-meta').textContent = '';
+    document.title = 'RSVP \u2014 ' + (data.eventName || 'Event') + ' | HCCGC';
+    if (data.flyerUrl) {
+      document.getElementById('flyer-img').src = data.flyerUrl;
+      document.getElementById('flyer-col').style.display = 'block';
+    }
+    stateMsg.style.display = 'none';
+    // Registration closes 2 hours before the event starts. Say so plainly
+    // rather than showing a form that will just reject the submission.
+    if (data.submissionsClosed) {
+      document.getElementById('form-card').innerHTML =
+        '<div class="closed-note"><strong>Registration is closed.</strong><br>' +
+        (data.eventEnded
+          ? 'This event has ended.'
+          : 'Registration closes two hours before the event begins.') +
+        '</div>';
+      return;
+    }
+    renderQuestions(data.questions || []);
+    document.getElementById('public-form').style.display = 'block';
+  } catch (err) {
+    document.getElementById('hero-title').textContent = 'Something went wrong';
+    stateMsg.textContent = 'Could not load this form: ' + err.message;
+  }
+}
+
+document.getElementById('public-form').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  var btn = document.getElementById('pf-submit');
+  var result = document.getElementById('pf-result');
+  var payload = {
+    firstName: document.getElementById('pf-first').value.trim(),
+    lastName: document.getElementById('pf-last').value.trim(),
+    email: document.getElementById('pf-email').value.trim(),
+    phone: document.getElementById('pf-phone').value.trim(),
+    answers: collectAnswers()
+  };
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  result.style.display = 'none';
+  try {
+    var res = await fetch(API_BASE + '/public/forms/' + encodeURIComponent(FORM_DEF.formId) + '/submit', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      result.style.display = 'block';
+      result.className = 'result-box error';
+      result.textContent = (data.errors || [data.error || 'Could not submit.']).join(' ');
+      return;
+    }
+    document.getElementById('public-form').style.display = 'none';
+    if (data.sharedLink) {
+      var sh = document.getElementById('thanks-shared');
+      sh.innerHTML = '<a href="' + data.sharedLink + '" style="color:var(--saffron-dark);font-weight:700;">See everyone else in your group &rarr;</a>';
+      sh.style.display = 'block';
+    }
+    document.getElementById('thanks-panel').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch (err) {
+    result.style.display = 'block';
+    result.className = 'result-box error';
+    result.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Submit';
+  }
+});
+
+async function loadPartial(placeholderId, filePath) {
+  var target = document.getElementById(placeholderId);
+  if (!target) return;
+  try {
+    var response = await fetch(filePath);
+    if (!response.ok) throw new Error('Unable to load ' + filePath);
+    target.innerHTML = await response.text();
+    fixPartialPathsForSubfolder(target);
+  } catch (error) { target.innerHTML = ''; }
+}
+// header.html/footer.html reference the logo and nav links relatively,
+// which is fine at the site root but breaks here: this page is served at
+// /forms/<id>, so "hccgc-logo.png" resolves to /forms/hccgc-logo.png and
+// 404s — that's why the logo came up blank. Same fix the /admin pages
+// already use for the same reason.
+function fixPartialPathsForSubfolder(el) {
+  el.querySelectorAll('img[src]').forEach(function (img) {
+    var src = img.getAttribute('src');
+    if (!src || src.startsWith('/') || src.startsWith('http') || src.startsWith('data:')) return;
+    img.setAttribute('src', '/' + src);
+  });
+  el.querySelectorAll('a[href]').forEach(function (link) {
+    var href = link.getAttribute('href');
+    if (!href || href.startsWith('http') || href.startsWith('/') || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+    link.setAttribute('href', '/' + href);
+  });
+}
+loadPartial('header-placeholder', '/header.html');
+loadPartial('footer-placeholder', '/footer.html');
+
+// /forms/<id>/shared/<token> renders the group list instead of the form.
+function sharedTokenFromUrl() {
+  var parts = window.location.pathname.split('/').filter(Boolean);
+  var i = parts.indexOf('shared');
+  return (i !== -1 && parts[i + 1]) ? decodeURIComponent(parts[i + 1]) : null;
+}
+async function loadSharedResponses(formId, token) {
+  document.getElementById('state-msg').textContent = 'Loading\u2026';
+  try {
+    var res = await fetch(API_BASE + '/public/forms/' + encodeURIComponent(formId) + '/shared/' + encodeURIComponent(token));
+    var data = await res.json();
+    if (!res.ok) {
+      document.getElementById('hero-title').textContent = 'Not available';
+      document.getElementById('state-msg').textContent = (data.errors || [data.error || 'Not available.']).join(' ');
+      return;
+    }
+    document.getElementById('hero-title').textContent = data.eventName || 'Event';
+    document.getElementById('hero-sub').textContent = data.groupQuestion + ': ' + data.groupValue;
+    document.title = data.eventName + ' | HCCGC';
+    document.getElementById('state-msg').style.display = 'none';
+    var html = '<div class="section-label">' + esc(data.responses.length) + ' in your group</div><div class="shared-list">';
+    html += data.responses.map(function (r) {
+      var extra = (r.answers || []).filter(function (a) { return a.answer !== '' && a.answer !== null && a.answer !== undefined; })
+        .map(function (a) { return esc(a.question) + ': ' + esc(Array.isArray(a.answer) ? a.answer.join(', ') : a.answer); }).join(' &middot; ');
+      return '<div class="shared-item' + (r.isYou ? ' is-you' : '') + '">' +
+        '<div class="shared-name">' + esc(r.name) + (r.isYou ? ' <span style="font-weight:400;color:var(--muted);">(you)</span>' : '') +
+        (r.statusFlag ? ' <span style="font-size:.76rem;color:var(--green);font-weight:700;">' + esc(r.statusFlag) + '</span>' : '') + '</div>' +
+        (extra ? '<div class="shared-meta">' + extra + '</div>' : '') +
+      '</div>';
+    }).join('');
+    html += '</div>';
+    document.getElementById('form-card').innerHTML = html;
+  } catch (err) {
+    document.getElementById('state-msg').textContent = 'Could not load: ' + err.message;
+  }
+}
+var __sharedToken = sharedTokenFromUrl();
+if (__sharedToken) loadSharedResponses(getFormIdFromUrl(), __sharedToken);
+else loadForm();
+</script>
+</body>
+</html>

@@ -1224,6 +1224,23 @@ textarea{resize:vertical;}
         </div>
       </div>
 
+      <div class="form-group">
+        <label for="form-flyer-file">Event flyer <span style="font-weight:400;color:var(--muted);">(optional)</span></label>
+        <input type="file" id="form-flyer-file" accept="image/*">
+        <div class="field-hint">Shown beside the form on the RSVP page. Upload the image itself — no link needed.</div>
+        <div id="form-flyer-preview" style="display:none;margin-top:8px;">
+          <img id="form-flyer-img" style="max-width:220px;border-radius:10px;border:1px solid var(--border);display:block;">
+          <button type="button" class="btn-row danger" id="btn-remove-flyer" style="margin-top:6px;">Remove flyer</button>
+        </div>
+        <input type="hidden" id="form-flyer-url">
+      </div>
+
+      <div class="form-group">
+        <label for="form-shared-question">Let respondents see each other <span style="font-weight:400;color:var(--muted);">(optional)</span></label>
+        <select id="form-shared-question"><option value="">Off — nobody sees other responses</option></select>
+        <div class="field-hint">Pick a dropdown/choice question. Anyone who picks the same answer can view the others who picked it — names and answers only, never contact details. Use <code>{{shared_responses_link}}</code> in the confirmation email to send them their link. The list stays open until the event ends.</div>
+      </div>
+
       <div class="toggle-row">
         <input type="checkbox" id="form-conf-email-enabled">
         <label for="form-conf-email-enabled">Email the submitter a confirmation</label>
@@ -1239,7 +1256,7 @@ textarea{resize:vertical;}
           <div class="field-hint">
             Variables: <code>{{first_name}}</code> <code>{{last_name}}</code> <code>{{email}}</code>
             <code>{{phone}}</code> <code>{{flag}}</code> <code>{{event_name}}</code>
-            <code>{{event_date}}</code> <code>{{event_time}}</code> <code>{{form_name}}</code>
+            <code>{{event_date}}</code> <code>{{event_time}}</code> <code>{{form_name}}</code> <code>{{shared_responses_link}}</code>
           </div>
         </div>
       </div>
@@ -2716,6 +2733,52 @@ function syncQuestionsFromDom() {
     if (q.conditionQuestionIndex === null) q.conditionValue = null;
   });
 }
+document.getElementById('form-flyer-file').addEventListener('change', async function (e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var hint = this.closest('.form-group').querySelector('.field-hint');
+  var orig = hint.textContent;
+  hint.textContent = 'Uploading\u2026';
+  try {
+    var base64 = await fileToBase64Forms(file);
+    var res = await formsAuthedFetch(FORMS_API_BASE + '/forms/flyer-upload', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ base64: base64, filename: file.name, mimeType: file.type })
+    });
+    var data = await res.json();
+    if (!res.ok) { hint.textContent = (data.errors || [data.error]).join(' ') || 'Upload failed.'; return; }
+    document.getElementById('form-flyer-url').value = data.flyerUrl;
+    document.getElementById('form-flyer-img').src = data.flyerUrl;
+    document.getElementById('form-flyer-preview').style.display = 'block';
+    hint.textContent = orig;
+  } catch (err) {
+    hint.textContent = 'Upload failed: ' + err.message;
+  }
+});
+function fileToBase64Forms(file) {
+  return new Promise(function (resolve, reject) {
+    var r = new FileReader();
+    r.onload = function () { resolve(r.result.split(',')[1]); };
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+document.getElementById('btn-remove-flyer').addEventListener('click', function () {
+  document.getElementById('form-flyer-url').value = '';
+  document.getElementById('form-flyer-preview').style.display = 'none';
+  document.getElementById('form-flyer-file').value = '';
+});
+// Only choice-type questions can drive shared visibility — free text has
+// no shared value to group people by.
+function populateSharedQuestionOptions(selected) {
+  var sel = document.getElementById('form-shared-question');
+  sel.innerHTML = '<option value="">Off — nobody sees other responses</option>' +
+    BUILDER_QUESTIONS.map(function (q, i) {
+      if (TYPES_WITH_OPTIONS.indexOf(q.questionType) === -1) return '';
+      return '<option value="' + i + '"' + (String(selected) === String(i) ? ' selected' : '') + '>Q' + (i + 1) + ': ' + escF((q.questionText || '').slice(0, 50)) + '</option>';
+    }).join('');
+  sel.value = (selected === null || selected === undefined) ? '' : String(selected);
+}
 document.getElementById('form-conf-email-enabled').addEventListener('change', function () {
   document.getElementById('form-conf-email-fields').style.display = this.checked ? 'block' : 'none';
 });
@@ -2723,6 +2786,7 @@ document.getElementById('btn-add-question').addEventListener('click', function (
   syncQuestionsFromDom();
   BUILDER_QUESTIONS.push({ questionText: '', questionType: 'text', options: [], isRequired: false, conditionQuestionIndex: null, conditionValue: null });
   renderQuestionsBuilder();
+  populateSharedQuestionOptions(document.getElementById('form-shared-question').value === '' ? null : Number(document.getElementById('form-shared-question').value));
   // The button now sits below the list, so bring the new question into
   // view and put the cursor in it rather than leaving the user to hunt
   // for where it landed.
@@ -2788,6 +2852,10 @@ async function openFormBuilder(formId) {
     document.getElementById('form-conf-email-fields').style.display = 'none';
     document.getElementById('form-conf-email-subject').value = '';
     document.getElementById('form-conf-email-body').value = '';
+    document.getElementById('form-flyer-url').value = '';
+    document.getElementById('form-flyer-file').value = '';
+    document.getElementById('form-flyer-preview').style.display = 'none';
+    populateSharedQuestionOptions(null);
     document.getElementById('form-is-active').checked = true;
     BUILDER_QUESTIONS = [];
     renderQuestionsBuilder();
@@ -2814,11 +2882,19 @@ async function openFormBuilder(formId) {
     document.getElementById('form-conf-email-fields').style.display = f.confirmationEmailEnabled ? 'block' : 'none';
     document.getElementById('form-conf-email-subject').value = f.confirmationEmailSubject || '';
     document.getElementById('form-conf-email-body').value = f.confirmationEmailBody || '';
+    document.getElementById('form-flyer-url').value = f.flyerUrl || '';
+    if (f.flyerUrl) {
+      document.getElementById('form-flyer-img').src = f.flyerUrl;
+      document.getElementById('form-flyer-preview').style.display = 'block';
+    } else {
+      document.getElementById('form-flyer-preview').style.display = 'none';
+    }
     document.getElementById('form-is-active').checked = f.isActive !== false;
     BUILDER_QUESTIONS = (f.questions || []).map(function (q) {
       return { questionText: q.questionText, questionType: q.questionType, options: q.options || [], isRequired: q.isRequired, conditionQuestionIndex: (q.conditionQuestionIndex === undefined ? null : q.conditionQuestionIndex), conditionValue: q.conditionValue || null };
     });
     renderQuestionsBuilder();
+    populateSharedQuestionOptions(f.sharedViewQuestionIndex);
   } catch (err) {
     document.getElementById('questions-builder').innerHTML =
       '<div class="empty-state">Could not load: ' + escF(err.message) + '</div>';
@@ -2890,6 +2966,8 @@ document.getElementById('btn-save-form').addEventListener('click', async functio
       confirmationEmailEnabled: document.getElementById('form-conf-email-enabled').checked,
       confirmationEmailSubject: document.getElementById('form-conf-email-subject').value.trim(),
       confirmationEmailBody: document.getElementById('form-conf-email-body').value,
+      flyerUrl: document.getElementById('form-flyer-url').value || null,
+      sharedViewQuestionIndex: document.getElementById('form-shared-question').value === '' ? null : Number(document.getElementById('form-shared-question').value),
       questions: BUILDER_QUESTIONS
     };
     var url = formId ? FORMS_API_BASE + '/forms/' + encodeURIComponent(formId) : FORMS_API_BASE + '/forms';

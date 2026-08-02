@@ -1049,15 +1049,12 @@ textarea{resize:vertical;}
           </div>
         </div>
         <div class="form-group">
-          <label for="page-instructor-photo">Instructor Photo</label>
-          <input type="text" id="page-instructor-photo" placeholder="Paste Google Drive share link">
-          <div class="drive-help">
-            <strong>How to get a Google Drive image URL:</strong>
-            1. Upload photo to Google Drive &nbsp;→&nbsp; Right-click → Share<br>
-            2. Set access to "Anyone with the link" → Copy link<br>
-            3. Paste here — we'll convert it automatically
-          </div>
-          <div class="img-preview" id="instructor-img-wrap"><img id="instructor-img" src="" alt="Preview"></div>
+          <label for="page-instructor-photo-file">Instructor Photo</label>
+          <input type="file" id="page-instructor-photo-file" accept="image/*">
+          <div class="hint" id="page-instructor-hint">Upload the image directly — no Drive link or sharing setup needed.</div>
+          <input type="hidden" id="page-instructor-photo">
+          <div class="img-preview" id="instructor-img-wrap"><img id="instructor-img" src="" alt="Instructor preview"></div>
+          <button type="button" class="btn-row danger" id="btn-remove-instructor-photo" style="display:none;margin-top:6px;">Remove image</button>
         </div>
         <div class="form-group">
           <label for="page-instructor-bio">Bio</label>
@@ -2290,7 +2287,32 @@ function applyRegModeUI() {
 document.querySelectorAll('input[name="page-reg-mode"]').forEach(function (r) {
   r.addEventListener('change', applyRegModeUI);
 });
-setupImgPreview('page-instructor-photo', 'instructor-img-wrap', 'instructor-img');
+document.getElementById('page-instructor-photo-file').addEventListener('change', async function (e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var hint = document.getElementById('page-instructor-hint');
+  var orig = hint.textContent;
+  hint.textContent = 'Uploading\u2026';
+  try {
+    var base64 = await fileToBase64Forms(file);
+    var res = await formsAuthedFetch(FORMS_API_BASE + '/pages/image-upload', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ base64: base64, filename: file.name, mimeType: file.type })
+    });
+    var data = await res.json();
+    if (!res.ok) { hint.textContent = (data.errors || [data.error]).join(' ') || 'Upload failed.'; return; }
+    setInstructorPhoto(data.imageUrl);
+    hint.textContent = orig;
+  } catch (err) { hint.textContent = 'Upload failed: ' + err.message; }
+});
+function setInstructorPhoto(url) {
+  document.getElementById('page-instructor-photo').value = url || '';
+  var wrap = document.getElementById('instructor-img-wrap');
+  var btn = document.getElementById('btn-remove-instructor-photo');
+  if (url) { document.getElementById('instructor-img').src = url; wrap.style.display = 'block'; btn.style.display = 'inline-block'; }
+  else { wrap.style.display = 'none'; btn.style.display = 'none'; document.getElementById('page-instructor-photo-file').value = ''; }
+}
+document.getElementById('btn-remove-instructor-photo').addEventListener('click', function () { setInstructorPhoto(''); });
 
 // WIZARD UI
 function updateWizardUI() {
@@ -2392,7 +2414,7 @@ function openModalMP(page) {
   document.getElementById('page-performers').value = page ? ((page.performers||[]).map(p=>[p.name,p.role,p.location].filter(Boolean).join(' | ')).join('\n')) : '';
   document.getElementById('page-instructor-name').value = page ? ((page.instructor&&page.instructor.name)||'') : '';
   document.getElementById('page-instructor-role').value = page ? ((page.instructor&&page.instructor.role)||'') : '';
-  document.getElementById('page-instructor-photo').value = page ? ((page.instructor&&page.instructor.driveUrl)||'') : '';
+  setInstructorPhoto(page ? ((page.instructor && (page.instructor.photoUrl || page.instructor.driveUrl)) || '') : '');
   document.getElementById('page-instructor-bio').value = page ? ((page.instructor&&page.instructor.bio)||'') : '';
   document.getElementById('instructor-img-wrap').style.display = 'none';
 

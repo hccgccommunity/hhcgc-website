@@ -200,7 +200,10 @@ function renderPage(e) {
   if (e.heroDescription) heroHtml += '<p class="hero-copy">' + esc(e.heroDescription) + '</p>';
   heroHtml += '<div class="hero-actions">';
   heroHtml += (e.zeffyUrl || e.formId) ? '<a class="btn btn-primary" href="#tickets">Register Now</a>' : '';
-  heroHtml += '<a class="btn btn-secondary" href="#about">About ' + (isInit?'the Initiative':'the Event') + '</a>';
+  // Only link to About when there's something there — the button used to
+  // render regardless and jumped to an empty section.
+  var hasAbout = !!(e.aboutBody || e.aboutTitle || (e.highlights && e.highlights.length) || e.aboutImageUrl);
+  if (hasAbout) heroHtml += '<a class="btn btn-secondary" href="#about">About ' + (isInit?'the Initiative':'the Event') + '</a>';
   heroHtml += '</div></div>';
 
   // Quick cards panel
@@ -350,16 +353,6 @@ function renderPage(e) {
   var zeffyScriptSrc = 'https://www.zeffy.com/embed/v2/zeffy-embed.js';
   var hasZeffy = !!e.zeffyUrl;
 
-  // An HCCGC form is the alternative to a Zeffy embed — never both. It's
-  // loaded with ?embed=1 so it renders inline without its own hero,
-  // header or footer, which this page already provides.
-  if (e.formId) {
-    regHtml += '<div class="tickets-form">' +
-      '<iframe id="hccgc-form-embed" src="/forms/' + encodeURIComponent(e.formId) + '?embed=1" ' +
-      'style="width:100%;border:0;min-height:900px;display:block;background:transparent;" ' +
-      'title="Registration form" scrolling="no"></iframe>' +
-      '</div>';
-  }
 
   if (e.zeffyUrl && !e.formId) {
     // Extract the iframe src from the stored embed code.
@@ -394,6 +387,14 @@ function renderPage(e) {
     // Store script src for dynamic injection
     var scriptSrcMatch2 = e.zeffyUrl.match(/src=['"]([^'"]*zeffy[^'"]*embed[^'"]*\.js)['"]/i);
     zeffyScriptSrc = scriptSrcMatch2 ? scriptSrcMatch2[1] : zeffyScriptSrc;
+  } else if (e.formId) {
+    // The HCCGC form is the alternative to Zeffy and occupies the SAME
+    // (right-hand) grid cell, so the flyer keeps the left column.
+    regHtml += '<div class="tickets-form">' +
+      '<iframe id="hccgc-form-embed" src="/forms/' + encodeURIComponent(e.formId) + '?embed=1" ' +
+      'style="width:100%;border:0;height:900px;display:block;background:transparent;" ' +
+      'title="Registration form" scrolling="no"></iframe>' +
+      '</div>';
   } else {
     regHtml += '<div class="rsvp-soon">Registrations will open soon!</div>';
   }
@@ -428,10 +429,19 @@ function renderPage(e) {
   // clips the form or leaves blank space under it. It posts its height as
   // it renders; resize to match so it reads as part of the page.
   if (e.formId) {
+    // Set an EXACT height, and only when it has genuinely changed. Using
+    // min-height here created a feedback loop: growing the iframe grew the
+    // document inside it, which reported a bigger height, which grew the
+    // iframe again — the page expanded forever.
+    var lastFormHeight = 0;
     window.addEventListener('message', function (ev) {
       if (!ev.data || ev.data.type !== 'hccgc-form-height') return;
       var f = document.getElementById('hccgc-form-embed');
-      if (f && ev.data.height) f.style.minHeight = (ev.data.height + 20) + 'px';
+      var h = Number(ev.data.height) || 0;
+      if (!f || !h) return;
+      if (Math.abs(h - lastFormHeight) < 24) return;
+      lastFormHeight = h;
+      f.style.height = h + 'px';
     });
   }
   document.getElementById('loading-state').style.display = 'none';

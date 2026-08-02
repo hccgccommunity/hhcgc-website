@@ -2626,6 +2626,31 @@ function renderQuestionsBuilder() {
         '<button type="button" class="btn-secondary" data-q-down="' + i + '" style="padding:4px 9px;font-size:.78rem;"' + (i === BUILDER_QUESTIONS.length - 1 ? ' disabled' : '') + '>\u2193</button>' +
         '<button type="button" class="btn-secondary" data-q-remove="' + i + '" style="padding:4px 9px;font-size:.78rem;">Remove</button>' +
       '</div>' +
+      // Only questions BEFORE this one can control it — a later question
+      // hasn't been answered yet when this one needs to be shown or hidden.
+      '<div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);">' +
+        '<label style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:4px;">Show this question only if…</label>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+          '<select data-q-cond-idx="' + i + '" style="flex:1;min-width:180px;">' +
+            '<option value="">Always show</option>' +
+            BUILDER_QUESTIONS.slice(0, i).map(function (pq, pi) {
+              if (TYPES_WITH_OPTIONS.indexOf(pq.questionType) === -1) return '';
+              var lbl = (pq.questionText || ('Question ' + (pi + 1))).slice(0, 50);
+              return '<option value="' + pi + '"' + (String(q.conditionQuestionIndex) === String(pi) ? ' selected' : '') + '>Q' + (pi + 1) + ': ' + escF(lbl) + '</option>';
+            }).join('') +
+          '</select>' +
+          '<select data-q-cond-val="' + i + '" style="flex:1;min-width:150px;"' + (q.conditionQuestionIndex === null || q.conditionQuestionIndex === undefined ? ' disabled' : '') + '>' +
+            (function () {
+              var ctrl = BUILDER_QUESTIONS[q.conditionQuestionIndex];
+              if (!ctrl || !ctrl.options) return '<option value="">—</option>';
+              return '<option value="">— pick an answer —</option>' + ctrl.options.map(function (o) {
+                return '<option value="' + escF(o) + '"' + (q.conditionValue === o ? ' selected' : '') + '>' + escF(o) + '</option>';
+              }).join('');
+            })() +
+          '</select>' +
+        '</div>' +
+        (i === 0 ? '<div class="field-hint" style="margin-top:4px;">The first question can\'t be conditional — nothing comes before it.</div>' : '') +
+      '</div>' +
       '<div data-q-options-wrap="' + i + '" style="margin-top:10px;' + (needsOptions ? '' : 'display:none;') + '">' +
         '<label style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:4px;">Options (one per line)</label>' +
         '<textarea data-q-options="' + i + '" rows="3" placeholder="Option 1&#10;Option 2">' + escF((q.options || []).join('\n')) + '</textarea>' +
@@ -2643,11 +2668,16 @@ function syncQuestionsFromDom() {
     if (typeEl) q.questionType = typeEl.value;
     if (reqEl) q.isRequired = reqEl.checked;
     if (optEl) q.options = optEl.value.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+    var condIdxEl = document.querySelector('[data-q-cond-idx="' + i + '"]');
+    var condValEl = document.querySelector('[data-q-cond-val="' + i + '"]');
+    if (condIdxEl) q.conditionQuestionIndex = condIdxEl.value === '' ? null : Number(condIdxEl.value);
+    if (condValEl) q.conditionValue = condValEl.value || null;
+    if (q.conditionQuestionIndex === null) q.conditionValue = null;
   });
 }
 document.getElementById('btn-add-question').addEventListener('click', function () {
   syncQuestionsFromDom();
-  BUILDER_QUESTIONS.push({ questionText: '', questionType: 'text', options: [], isRequired: false });
+  BUILDER_QUESTIONS.push({ questionText: '', questionType: 'text', options: [], isRequired: false, conditionQuestionIndex: null, conditionValue: null });
   renderQuestionsBuilder();
   // The button now sits below the list, so bring the new question into
   // view and put the cursor in it rather than leaving the user to hunt
@@ -2677,6 +2707,13 @@ document.getElementById('questions-builder').addEventListener('click', function 
 // every input mid-edit and scroll the user back to the top, which reads
 // as the form losing their work.
 document.getElementById('questions-builder').addEventListener('change', function (e) {
+  // Changing which question controls this one changes the list of valid
+  // answers, so that dropdown has to be rebuilt.
+  if (e.target.closest('[data-q-cond-idx]')) {
+    syncQuestionsFromDom();
+    renderQuestionsBuilder();
+    return;
+  }
   var typeEl = e.target.closest('[data-q-type]');
   if (!typeEl) return;
   var i = typeEl.dataset.qType;
@@ -2719,7 +2756,7 @@ async function openFormBuilder(formId) {
     document.getElementById('form-slug').value = f.slug || '';
     document.getElementById('form-is-active').checked = f.isActive !== false;
     BUILDER_QUESTIONS = (f.questions || []).map(function (q) {
-      return { questionText: q.questionText, questionType: q.questionType, options: q.options || [], isRequired: q.isRequired };
+      return { questionText: q.questionText, questionType: q.questionType, options: q.options || [], isRequired: q.isRequired, conditionQuestionIndex: (q.conditionQuestionIndex === undefined ? null : q.conditionQuestionIndex), conditionValue: q.conditionValue || null };
     });
     renderQuestionsBuilder();
   } catch (err) {

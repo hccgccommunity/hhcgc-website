@@ -352,14 +352,56 @@ function renderQuestions(questions) {
             '<span>' + esc(o) + '</span></label>';
         }).join('') + '</div>';
     }
-    return '<div class="field">' + label + control + '</div>';
+    var condAttrs = (q.conditionQuestionIndex === null || q.conditionQuestionIndex === undefined)
+      ? ''
+      : ' data-cond-idx="' + q.conditionQuestionIndex + '" data-cond-val="' + esc(q.conditionValue || '') + '"';
+    return '<div class="field" data-question-wrap="' + esc(q.questionId) + '"' + condAttrs + '>' + label + control + '</div>';
   }).join('');
   wrap.innerHTML = html;
+  // Re-evaluate on any change so branches appear/disappear as answered.
+  wrap.addEventListener('change', applyConditionalVisibility);
+  wrap.addEventListener('input', applyConditionalVisibility);
+  applyConditionalVisibility();
 }
 
-function collectAnswers() {
+// Shows or hides conditional questions based on what's been answered so
+// far. A hidden question's answer is also cleared, so a branch the user
+// backed out of doesn't silently submit stale answers.
+function applyConditionalVisibility() {
+  if (!FORM_DEF) return;
+  var current = collectAnswers(true);
+  (FORM_DEF.questions || []).forEach(function (q) {
+    var wrapEl = document.querySelector('[data-question-wrap="' + CSS.escape(q.questionId) + '"]');
+    if (!wrapEl) return;
+    if (q.conditionQuestionIndex === null || q.conditionQuestionIndex === undefined) { wrapEl.style.display = ''; return; }
+    var controller = FORM_DEF.questions[q.conditionQuestionIndex];
+    if (!controller) { wrapEl.style.display = ''; return; }
+    var ans = current[controller.questionId];
+    var visible = Array.isArray(ans) ? ans.indexOf(q.conditionValue) !== -1 : ans === q.conditionValue;
+    wrapEl.style.display = visible ? '' : 'none';
+    if (!visible) clearAnswerFor(q);
+  });
+}
+function clearAnswerFor(q) {
+  if (q.questionType === 'text' || q.questionType === 'textarea' || q.questionType === 'dropdown') {
+    var el = document.getElementById('q-' + q.questionId);
+    if (el) el.value = '';
+  } else if (q.questionType === 'radio') {
+    document.querySelectorAll('input[name="q-' + CSS.escape(q.questionId) + '"]:checked').forEach(function (i) { i.checked = false; });
+  } else if (q.questionType === 'checkbox') {
+    var group = document.querySelector('[data-qid="' + CSS.escape(q.questionId) + '"][data-qtype="checkbox"]');
+    if (group) group.querySelectorAll('input:checked').forEach(function (i) { i.checked = false; });
+  }
+}
+function collectAnswers(includeHidden) {
   var answers = {};
   (FORM_DEF.questions || []).forEach(function (q) {
+    // On submit (includeHidden falsy) a hidden question contributes
+    // nothing — it was never shown, so there is no answer to record.
+    if (!includeHidden) {
+      var wrapEl = document.querySelector('[data-question-wrap="' + CSS.escape(q.questionId) + '"]');
+      if (wrapEl && wrapEl.style.display === 'none') return;
+    }
     var qid = q.questionId;
     if (q.questionType === 'text' || q.questionType === 'textarea' || q.questionType === 'dropdown') {
       var el = document.getElementById('q-' + qid);

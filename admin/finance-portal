@@ -2904,9 +2904,17 @@ function renderInvoicesTable() {
   const pageItems = items.slice(pageStart, pageStart + invPageSize);
   tbody.innerHTML = pageItems.map(function (item) {
     if (item.type === 'single') return renderInvoiceRow(item.invoice, false);
-    const isExpanded = expandedInvoiceSeries.has(item.seriesId);
+    const isExpanded = expandedInvoiceSeries.has(item.groupKey || item.seriesId);
     const isPerOccurrence = item.invoiceMode === 'per_occurrence';
-    const nameCell = '<td onclick="toggleInvoiceSeries(\'' + item.seriesId + '\')" style="cursor:pointer;"><div class="renter-name">' + (isExpanded ? '&#9660; ' : '&#9654; ') + escHtml(item.renterName) + ' <span class="discount-chip" style="margin-left:4px;">' + item.occurrences.length + ' occurrences</span></div></td>';
+    // Spell out how the series bills. Without this a per-occurrence group
+    // looks identical to a combined one when collapsed — a single row —
+    // which reads as "it made one invoice" even though expanding it shows
+    // an independently-sendable invoice per occurrence.
+    const modeLabel = item.invoiceMode === 'per_occurrence' ? 'invoice per occurrence'
+      : item.invoiceMode === 'monthly' ? 'invoice per month'
+      : 'one combined invoice';
+    const modeChip = '<span class="method-tag" style="margin-left:4px;">' + modeLabel + '</span>';
+    const nameCell = '<td onclick="toggleInvoiceSeries(\'' + (item.groupKey || item.seriesId) + '\')" style="cursor:pointer;"><div class="renter-name">' + (isExpanded ? '&#9660; ' : '&#9654; ') + escHtml(item.renterName) + ' <span class="discount-chip" style="margin-left:4px;">' + item.occurrences.length + ' occurrences</span>' + modeChip + '</div></td>';
     let seriesRow;
     if (isPerOccurrence) {
       // Each occurrence bills independently - the group row itself has

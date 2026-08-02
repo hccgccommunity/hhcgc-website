@@ -2879,9 +2879,13 @@ function groupInvoicesIntoDisplayItems(list) {
     // the whole series render — and send — as one combined invoice, even
     // when the rest of the occurrences were explicitly per-occurrence.
     // Treat the series as per-occurrence if ANY occurrence says so.
-    item.invoiceMode = occ.some(function (o) { return o.invoiceMode === 'per_occurrence'; }) ? 'per_occurrence'
-      : occ.some(function (o) { return o.invoiceMode === 'monthly'; }) ? 'monthly'
-      : (first.invoiceMode || 'combined');
+    // Must match the Facility Rental portal EXACTLY or the two group the
+    // same booking differently. Both now take the earliest occurrence's
+    // mode. The old "any per_occurrence wins" rule diverged whenever a
+    // series had mixed values — e.g. after switching a per-occurrence
+    // series to monthly — so Finance kept rendering it per-occurrence
+    // while Facility Bookings correctly showed months.
+    item.invoiceMode = first.invoiceMode || 'combined';
     item.invoiceModeMixed = occ.some(function (o) { return (o.invoiceMode || null) !== (first.invoiceMode || null); });
   });
   return items;

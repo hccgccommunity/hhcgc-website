@@ -2824,18 +2824,17 @@ function groupInvoicesIntoDisplayItems(list) {
   const items = [];
   list.forEach(function (inv) {
     if (inv.seriesId) {
-      // A monthly series produces one invoice PER MONTH, so the group key
-      // includes the month — otherwise every month would collapse into a
-      // single row and send as one invoice for the whole series.
-      const key = inv.invoiceMode === 'monthly'
-        ? inv.seriesId + '::' + String(inv.eventDate || '').slice(0, 7)
-        : inv.seriesId;
-      if (!seriesMap[key]) {
-        const item = { type: 'series', seriesId: inv.seriesId, groupKey: key, occurrences: [] };
-        seriesMap[key] = item;
+      // ALWAYS one top-level row per series, whatever the billing mode.
+      // Splitting monthly into a row per month made Finance show 3 rows
+      // where Facility Bookings showed one series of 8 — the two portals
+      // must agree. Monthly gets an extra MONTH level inside the expansion
+      // instead (see renderInvoicesTable).
+      if (!seriesMap[inv.seriesId]) {
+        const item = { type: 'series', seriesId: inv.seriesId, groupKey: inv.seriesId, occurrences: [] };
+        seriesMap[inv.seriesId] = item;
         items.push(item);
       }
-      seriesMap[key].occurrences.push(inv);
+      seriesMap[inv.seriesId].occurrences.push(inv);
     } else {
       items.push({ type: 'single', invoice: inv });
     }
@@ -2854,9 +2853,27 @@ function groupInvoicesIntoDisplayItems(list) {
     item.paymentStatus = occ.every(function (o) { return o.paymentStatus === first.paymentStatus; }) ? first.paymentStatus : 'mixed';
     item.paidCount = occ.filter(function (o) { return o.paymentStatus === 'paid'; }).length;
     item.invoiceSentAt = occ.reduce(function (latest, o) { return (!latest || (o.invoiceSentAt && o.invoiceSentAt > latest)) ? o.invoiceSentAt : latest; }, first.invoiceSentAt);
-    item.recurrenceSummary = item.invoiceMode === 'monthly'
-      ? (new Date(String(first.eventDate).slice(0, 10) + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) + ' \u00b7 ' + occ.length + ' occurrence' + (occ.length === 1 ? '' : 's'))
-      : (first.recurrenceSummary || (occ.length + ' occurrences'));
+    item.recurrenceSummary = first.recurrenceSummary || (occ.length + ' occurrences');
+    // For monthly, pre-bucket the occurrences by calendar month. Each
+    // bucket is one invoice.
+    if (item.invoiceMode === 'monthly') {
+      const buckets = {};
+      occ.forEach(function (o) {
+        const m = String(o.eventDate || '').slice(0, 7);
+        if (!buckets[m]) buckets[m] = { month: m, occurrences: [] };
+        buckets[m].occurrences.push(o);
+      });
+      item.months = Object.keys(buckets).sort().map(function (m) {
+        const b = buckets[m];
+        b.amount = b.occurrences.reduce(function (s, o) { return s + Number(o.amount); }, 0);
+        b.rep = b.occurrences[0];
+        b.invoiceSentAt = b.occurrences.reduce(function (l, o) { return (!l || (o.invoiceSentAt && o.invoiceSentAt > l)) ? o.invoiceSentAt : l; }, null);
+        b.receiptSentAt = b.occurrences.reduce(function (l, o) { return (!l || (o.receiptSentAt && o.receiptSentAt > l)) ? o.receiptSentAt : l; }, null);
+        b.allPaid = b.occurrences.every(function (o) { return o.paymentStatus === 'paid'; });
+        b.label = new Date(m + '-02T00:00:00').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        return b;
+      });
+    }
     // Derived from EVERY occurrence, not just occ[0]. Reading one row
     // meant a single NULL or stale value at the front of the group made
     // the whole series render — and send — as one combined invoice, even
@@ -2906,6 +2923,10 @@ function renderInvoicesTable() {
     if (item.type === 'single') return renderInvoiceRow(item.invoice, false);
     const isExpanded = expandedInvoiceSeries.has(item.groupKey || item.seriesId);
     const isPerOccurrence = item.invoiceMode === 'per_occurrence';
+    const isMonthly = item.invoiceMode === 'monthly';
+    // Monthly and per-occurrence both bill BELOW the series level, so the
+    // series row carries no invoice/receipt action in either case.
+    const billsBelowSeries = isPerOccurrence || isMonthly;
     // Spell out how the series bills. Without this a per-occurrence group
     // looks identical to a combined one when collapsed — a single row —
     // which reads as "it made one invoice" even though expanding it shows
@@ -2916,8 +2937,8 @@ function renderInvoicesTable() {
     const modeChip = '<span class="method-tag" style="margin-left:4px;">' + modeLabel + '</span>';
     const nameCell = '<td onclick="toggleInvoiceSeries(\'' + (item.groupKey || item.seriesId) + '\')" style="cursor:pointer;"><div class="renter-name">' + (isExpanded ? '&#9660; ' : '&#9654; ') + escHtml(item.renterName) + ' <span class="discount-chip" style="margin-left:4px;">' + item.occurrences.length + ' occurrences</span>' + modeChip + '</div></td>';
     let seriesRow;
-    if (isPerOccurrence) {
-      // Each occurrence bills independently - the group row itself has
+    if (billsBelowSeries) {
+      // Each occurrence (or month) bills independently - the group row itself has
       // no single invoice/receipt/payment action, just notes plus the
       // toggle to expand into the individually-actionable occurrences.
       const repOcc = item.occurrences[0];
@@ -2964,7 +2985,43 @@ function renderInvoicesTable() {
           : '<span title="Not linked to any transaction" style="color:var(--muted);font-size:0.85rem;">Not linked</span>') + '</td>' +
       '</tr>';
     }
-    const subRows = isExpanded ? item.occurrences.map(function (o) { return renderInvoiceRow(o, true, isPerOccurrence); }).join('') : '';
+    let subRows = '';
+    if (isExpanded && isMonthly) {
+      // Month level: one row per month with that month's invoice/receipt
+      // actions, expanding again into just that month's occurrences.
+      subRows = (item.months || []).map(function (b) {
+        const mKey = item.seriesId + '::' + b.month;
+        const mOpen = expandedInvoiceSeries.has(mKey);
+        const noteBtn = '<button type="button" class="btn-note' + (b.rep.notes ? ' has-content' : '') + '" title="' + (b.rep.notes ? 'Note: ' + escHtml(b.rep.notes) : 'Add a note') + '" data-invoice-note-booking="' + b.rep.bookingId + '">\ud83d\udcdd</button>';
+        const invIcon = b.invoiceSentAt
+          ? '<button type="button" class="btn-invoice sent" title="Invoice sent ' + formatTimestampDate(b.invoiceSentAt) + '" data-invoice-popup-booking="' + b.rep.bookingId + '">\ud83d\udcc4</button>'
+          : '<button type="button" class="btn-invoice attached" title="Not sent yet" data-invoice-popup-booking="' + b.rep.bookingId + '">\ud83d\udcc4</button>';
+        const rcptIcon = b.receiptSentAt
+          ? '<button type="button" class="btn-receipt sent" title="Receipt sent ' + formatTimestampDate(b.receiptSentAt) + '" data-receipt-popup-booking="' + b.rep.bookingId + '">\ud83e\uddfe</button>'
+          : (b.allPaid
+              ? '<button type="button" class="btn-receipt attached" title="Not sent yet" data-receipt-popup-booking="' + b.rep.bookingId + '">\ud83e\uddfe</button>'
+              : '<button type="button" class="btn-receipt greyed" disabled title="Confirm as paid first">\ud83e\uddfe</button>');
+        const payCell = b.allPaid
+          ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid</span>'
+          : (b.invoiceSentAt
+              ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + b.rep.bookingId + '">Mark paid</button>'
+              : '<span style="color:var(--muted);font-size:0.78rem;" title="Send the invoice first">&mdash;</span>');
+        const monthRow = '<tr class="series-row" style="background:var(--surface-soft, #fff6ea);">' +
+          '<td onclick="toggleInvoiceSeries(\'' + mKey + '\')" style="cursor:pointer;padding-left:26px;"><div class="renter-name">' + (mOpen ? '&#9660; ' : '&#9654; ') + escHtml(b.label) + ' <span class="discount-chip" style="margin-left:4px;">' + b.occurrences.length + ' occurrence' + (b.occurrences.length === 1 ? '' : 's') + '</span></div></td>' +
+          '<td>' + escHtml(item.eventName || '') + '</td>' +
+          '<td class="amount">' + money(b.amount) + ' <span class="method-tag">month total</span></td>' +
+          '<td>' + noteBtn + '</td>' +
+          '<td>' + invIcon + '</td>' +
+          '<td>' + rcptIcon + '</td>' +
+          '<td>' + payCell + '</td>' +
+          '<td></td>' +
+        '</tr>';
+        const occRows = mOpen ? b.occurrences.map(function (o) { return renderInvoiceRow(o, true, false); }).join('') : '';
+        return monthRow + occRows;
+      }).join('');
+    } else if (isExpanded) {
+      subRows = item.occurrences.map(function (o) { return renderInvoiceRow(o, true, isPerOccurrence); }).join('');
+    }
     return seriesRow + subRows;
   }).join('');
   renderInvoicesPaginationBar(totalPages);

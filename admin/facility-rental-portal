@@ -2958,6 +2958,35 @@ document.getElementById('btn-save-edit').addEventListener('click', async functio
   } catch (err) {
     resultBox.style.display = 'block'; resultBox.className = 'result-box error';
     resultBox.textContent = 'Could not reach the booking system: ' + err.message;
+    // Billing method is a separate endpoint with its own admin check, and
+    // it resets sent invoices. It must run even if the occurrence edit
+    // above was rejected (e.g. an invoice is already out) — otherwise
+    // picking a new billing method appears to work but silently does
+    // nothing, and the series keeps billing the old way.
+    const pickedMode = (document.querySelector('input[name="series-edit-invoice-mode"]:checked') || {}).value;
+    if (pickedMode && SERIES_EDIT_ORIGINAL_INVOICE_MODE && pickedMode !== SERIES_EDIT_ORIGINAL_INVOICE_MODE) {
+      try {
+        const mRes = await authedFetch(API_BASE + '/bookings/series/' + encodeURIComponent(editingSeriesId) + '/invoice-mode', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ invoiceMode: pickedMode })
+        });
+        const mData = await mRes.json();
+        if (!mRes.ok) {
+          resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+          resultBox.textContent = 'Billing method NOT changed: ' + ((mData.errors || [mData.error]).join(' ') || 'unknown error');
+        } else {
+          resultBox.style.display = 'block'; resultBox.className = 'result-box success';
+          resultBox.textContent = mData.invoicesReset
+            ? 'Billing method changed — the sent invoice was reset to generated and needs re-sending.'
+            : 'Billing method updated.';
+          SERIES_EDIT_ORIGINAL_INVOICE_MODE = pickedMode;
+          await loadBookings();
+        }
+      } catch (mErr) {
+        resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+        resultBox.textContent = 'Billing method NOT changed: ' + mErr.message;
+      }
+    }
   } finally {
     btn.disabled = false; btn.textContent = 'Save changes';
   }
@@ -3154,29 +3183,6 @@ document.getElementById('btn-save-series-edit').addEventListener('click', async 
       msg += '.';
       if (data.occurrenceErrors && data.occurrenceErrors.length) msg += ' Some rows had issues: ' + data.occurrenceErrors.join(' ');
 
-      // Billing method is a separate endpoint — it has its own admin check
-      // and resets sent invoices, so it isn't folded into the general edit.
-      const pickedMode = (document.querySelector('input[name="series-edit-invoice-mode"]:checked') || {}).value;
-      if (pickedMode && SERIES_EDIT_ORIGINAL_INVOICE_MODE && pickedMode !== SERIES_EDIT_ORIGINAL_INVOICE_MODE) {
-        try {
-          const mRes = await authedFetch(API_BASE + '/bookings/series/' + encodeURIComponent(editingSeriesId) + '/invoice-mode', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ invoiceMode: pickedMode })
-          });
-          const mData = await mRes.json();
-          if (!mRes.ok) {
-            resultBox.className = 'result-box error';
-            msg += ' Billing method NOT changed: ' + ((mData.errors || [mData.error]).join(' ') || 'unknown error');
-          } else {
-            msg += mData.invoicesReset
-              ? ' Billing method changed — the sent invoice was reset to generated and needs re-sending.'
-              : ' Billing method updated.';
-          }
-        } catch (mErr) {
-          resultBox.className = 'result-box error';
-          msg += ' Billing method NOT changed: ' + mErr.message;
-        }
-      }
       resultBox.textContent = msg;
       await loadBookings();
       setTimeout(closeSeriesEditModal, 2200);

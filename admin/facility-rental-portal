@@ -1831,7 +1831,7 @@ function isWholeFacility(b) {
   return ALL_ROOM_NAMES.every(function (r) { return b.rooms.includes(r); });
 }
 
-const STATUS_CATEGORIES = ['requested', 'invoiced', 'pending', 'paid', 'internal', 'cancelled', 'rejected'];
+const STATUS_CATEGORIES = ['requested', 'invoiced', 'pending', 'paid', 'voided', 'internal', 'cancelled', 'rejected'];
 function matchesStatusCategory(b, category) {
   if (category === 'invoiced') return b.payment_status === 'invoiced' || b.payment_status === 'pending';
   if (category === 'paid') return b.payment_status === 'paid';
@@ -1840,6 +1840,7 @@ function matchesStatusCategory(b, category) {
   if (category === 'internal') return b.is_internal || b.payment_status === 'n/a';
   if (category === 'requested') return b.payment_status === 'requested';
   if (category === 'rejected') return b.payment_status === 'rejected';
+  if (category === 'voided') return b.payment_status === 'voided';
   return false;
 }
 

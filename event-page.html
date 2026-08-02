@@ -443,6 +443,8 @@ function renderPage(e) {
       if (!ev.data || ev.data.type !== 'hccgc-form-height') return;
       var f = document.getElementById('hccgc-form-embed');
       var h = Number(ev.data.height) || 0;
+      // Accept later, larger reports too — the first one can arrive before
+      // the questions have rendered, which previously left the form cut off.
       if (f && h > 100) f.style.height = h + 'px';
     });
   }

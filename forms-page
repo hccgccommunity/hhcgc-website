@@ -617,6 +617,17 @@ async function loadSharedResponses(formId, token) {
   }
 }
 var __sharedToken = sharedTokenFromUrl();
+// When embedded, report height to the host page so it can size the
+// iframe — otherwise the form is either clipped or trailed by dead space.
+if (IS_EMBED) {
+  var __reportHeight = function () {
+    var h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+    try { window.parent.postMessage({ type: 'hccgc-form-height', height: h }, '*'); } catch (e) {}
+  };
+  window.addEventListener('load', __reportHeight);
+  setInterval(__reportHeight, 800);
+  if (window.ResizeObserver) new ResizeObserver(__reportHeight).observe(document.body);
+}
 if (__sharedToken) loadSharedResponses(getFormIdFromUrl(), __sharedToken);
 else loadForm();
 </script>

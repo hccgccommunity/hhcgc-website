@@ -199,7 +199,7 @@ function renderPage(e) {
   if (e.tagline) heroHtml += '<p class="hero-tagline">' + esc(e.tagline) + '</p>';
   if (e.heroDescription) heroHtml += '<p class="hero-copy">' + esc(e.heroDescription) + '</p>';
   heroHtml += '<div class="hero-actions">';
-  heroHtml += e.zeffyUrl ? '<a class="btn btn-primary" href="#tickets">Register Now</a>' : '';
+  heroHtml += (e.zeffyUrl || e.formId) ? '<a class="btn btn-primary" href="#tickets">Register Now</a>' : '';
   heroHtml += '<a class="btn btn-secondary" href="#about">About ' + (isInit?'the Initiative':'the Event') + '</a>';
   heroHtml += '</div></div>';
 
@@ -350,7 +350,18 @@ function renderPage(e) {
   var zeffyScriptSrc = 'https://www.zeffy.com/embed/v2/zeffy-embed.js';
   var hasZeffy = !!e.zeffyUrl;
 
-  if (e.zeffyUrl) {
+  // An HCCGC form is the alternative to a Zeffy embed — never both. It's
+  // loaded with ?embed=1 so it renders inline without its own hero,
+  // header or footer, which this page already provides.
+  if (e.formId) {
+    regHtml += '<div class="tickets-form">' +
+      '<iframe id="hccgc-form-embed" src="/forms/' + encodeURIComponent(e.formId) + '?embed=1" ' +
+      'style="width:100%;border:0;min-height:900px;display:block;background:transparent;" ' +
+      'title="Registration form" scrolling="no"></iframe>' +
+      '</div>';
+  }
+
+  if (e.zeffyUrl && !e.formId) {
     // Extract the iframe src from the stored embed code.
     // Zeffy's embed code uses either src='...' or data-zeffy-embed-src='...'
     var iframeSrc = '';
@@ -389,8 +400,40 @@ function renderPage(e) {
   regHtml += '</div></div></section>';
 
   var content = document.getElementById('page-content');
-  content.innerHTML = heroHtml + scheduleHtml + aboutHtml + performersHtml + instructorHtml + curriculumHtml + regHtml;
+  // Drop any section with no real content. Previously an unfilled section
+  // still emitted its wrapper and heading, leaving a visibly empty band on
+  // the page. A section counts as empty when, with all tags removed and
+  // whitespace collapsed, nothing but its own heading text remains.
+  function sectionHasContent(html, headings) {
+    if (!html) return false;
+    var text = html.replace(/<[^>]*>/g, ' ');
+    (headings || []).forEach(function (h) { text = text.split(h).join(' '); });
+    return text.replace(/&[a-z]+;/gi, ' ').replace(/\s+/g, ' ').trim().length > 0;
+  }
+  var sections = [
+    heroHtml,
+    sectionHasContent(scheduleHtml, ['Schedule']) ? scheduleHtml : '',
+    sectionHasContent(aboutHtml, ['About the Initiative', 'About the Event', esc(e.aboutTitle || title)]) ? aboutHtml : '',
+    sectionHasContent(performersHtml, ['Performers', 'Featured Performers']) ? performersHtml : '',
+    sectionHasContent(instructorHtml, ['Instructor', 'Your Instructor']) ? instructorHtml : '',
+    sectionHasContent(curriculumHtml, ['Curriculum', "What You'll Learn"]) ? curriculumHtml : '',
+    // Registration only shows when there is actually something to register
+    // with — otherwise "Reserve Your Spot" sat there with nothing under it.
+    (e.zeffyUrl || e.formId || e.flyerImageUrl || e.registrationNote) ? regHtml : ''
+  ];
+  content.innerHTML = sections.join('');
   content.style.display = 'block';
+
+  // The embedded form is a fixed-height iframe by default, which either
+  // clips the form or leaves blank space under it. It posts its height as
+  // it renders; resize to match so it reads as part of the page.
+  if (e.formId) {
+    window.addEventListener('message', function (ev) {
+      if (!ev.data || ev.data.type !== 'hccgc-form-height') return;
+      var f = document.getElementById('hccgc-form-embed');
+      if (f && ev.data.height) f.style.minHeight = (ev.data.height + 20) + 'px';
+    });
+  }
   document.getElementById('loading-state').style.display = 'none';
 
   // Inject Zeffy script dynamically

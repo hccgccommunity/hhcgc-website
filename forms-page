@@ -257,8 +257,8 @@
        Any leftover spacing here shows up on the host page as the form
        starting lower than the flyer and stopping short of the container's
        right edge. */
-    html.is-embed-root { margin: 0; padding: 0; overflow: hidden; }
-    html.is-embed-root body { margin: 0; padding: 0; background: transparent; min-height: 0; overflow: hidden; }
+    html.is-embed-root { margin: 0; padding: 0; }
+    html.is-embed-root body { margin: 0; padding: 0; background: transparent; min-height: 0; }
     html.is-embed-root body .container,
     html.is-embed-root body .container.wide { width: 100%; max-width: none; margin: 0; padding: 0; }
     html.is-embed-root body .layout { display: block; margin: 0; gap: 0; }
@@ -645,30 +645,6 @@ async function loadSharedResponses(formId, token) {
   }
 }
 var __sharedToken = sharedTokenFromUrl();
-// When embedded, report height to the host page so it can size the
-// iframe — otherwise the form is either clipped or trailed by dead space.
-if (IS_EMBED) {
-  // Measure the CONTENT, not the document. body.scrollHeight reflects the
-  // iframe the content sits in, so once the parent resized the iframe the
-  // next reading came back larger — each cycle grew the page a little
-  // more, forever. getBoundingClientRect on the content wrapper is
-  // independent of the frame size, so it settles.
-  var __lastReported = 0;
-  var __reportHeight = function () {
-    var el = document.querySelector('.layout') || document.querySelector('.container') || document.body;
-    var h = Math.ceil(el.getBoundingClientRect().height) + 24;
-    if (Math.abs(h - __lastReported) < 24) return;
-    __lastReported = h;
-    try { window.parent.postMessage({ type: 'hccgc-form-height', height: h }, '*'); } catch (e) {}
-  };
-  window.addEventListener('load', __reportHeight);
-  // Only on real interaction, not on a timer — a timer kept the loop alive
-  // even after the height had settled.
-  document.addEventListener('change', function () { setTimeout(__reportHeight, 60); });
-  document.addEventListener('click', function () { setTimeout(__reportHeight, 60); });
-  setTimeout(__reportHeight, 400);
-  setTimeout(__reportHeight, 1200);
-}
 if (__sharedToken) loadSharedResponses(getFormIdFromUrl(), __sharedToken);
 else loadForm();
 </script>

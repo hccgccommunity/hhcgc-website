@@ -625,7 +625,10 @@ document.getElementById('btn-email-diagnostics').addEventListener('click', async
   out.textContent = 'Checking\u2026';
   btn.disabled = true;
   try {
-    var res = await authedFetch(API_BASE + '/admin/email-diagnostics');
+    var testTo = window.prompt('Send a diagnostic test email to which address?\n(Leave blank to only check the connection.)', '');
+    if (testTo === null) { out.style.display = 'none'; btn.disabled = false; return; }
+    var url = API_BASE + '/admin/email-diagnostics' + (testTo.trim() ? '?to=' + encodeURIComponent(testTo.trim()) : '');
+    var res = await authedFetch(url);
     var data = await res.json();
     out.textContent = JSON.stringify(data, null, 2);
   } catch (err) {

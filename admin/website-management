@@ -1194,6 +1194,15 @@ textarea{resize:vertical;}
           <div class="field-error" id="err-form-event-end">End time must be after the start time.</div>
         </div>
       </div>
+      <div class="form-group">
+        <label for="form-slug">Custom link <span style="font-weight:400;color:var(--muted);">(optional)</span></label>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <span style="font-size:.84rem;color:var(--muted);">hccgc.org/forms/</span>
+          <input type="text" id="form-slug" placeholder="sangeet-sandhya-08162026-rsvp" style="flex:1;min-width:200px;">
+        </div>
+        <div class="field-hint">Lowercase letters, numbers and hyphens only. Leave blank to use the default link. Changing it breaks any link already shared.</div>
+        <div class="field-error" id="err-form-slug">Use lowercase letters, numbers and hyphens only.</div>
+      </div>
       <div class="toggle-row">
         <input type="checkbox" id="form-is-active" checked>
         <label for="form-is-active">Form is accepting responses</label>
@@ -2454,7 +2463,8 @@ function showStatusForms(msg, kind) {
   bar.textContent = msg;
   setTimeout(function () { bar.className = 'status-bar'; }, 4000);
 }
-function formPublicUrl(formId) { return 'https://hccgc.org/forms/' + formId; }
+function formPublicUrl(formIdOrSlug) { return 'https://hccgc.org/forms/' + formIdOrSlug; }
+function formLinkFor(f) { return formPublicUrl(f.slug || f.formId); }
 // <input type="date"> only accepts exactly YYYY-MM-DD and silently
 // blanks itself on anything else — including a full ISO timestamp. The
 // backend normalizes this now, but trimming here too means a stray
@@ -2507,7 +2517,7 @@ async function loadForms() {
             escF(f.eventName) + ' &nbsp;·&nbsp; ' + escF(dateStr) +
             ' &nbsp;·&nbsp; ' + f.responseCount + ' response' + (f.responseCount === 1 ? '' : 's') +
             ' &nbsp;·&nbsp; <a href="' + escF(formPublicUrl(f.formId)) + '" target="_blank">' +
-            escF(formPublicUrl(f.formId)) + ' \u2197</a>' +
+            escF(formLinkFor(f)) + ' \u2197</a>' +
           '</div>' +
         '</div>' +
         '<div class="page-row-actions">' +
@@ -2529,7 +2539,8 @@ async function loadForms() {
 document.getElementById('forms-list').addEventListener('click', async function (e) {
   var copyBtn = e.target.closest('[data-copy-form-link]');
   if (copyBtn) {
-    var url = formPublicUrl(copyBtn.dataset.copyFormLink);
+    var cf = FORMS_CACHE.find(function (x) { return x.formId === copyBtn.dataset.copyFormLink; });
+    var url = formPublicUrl((cf && cf.slug) || copyBtn.dataset.copyFormLink);
     try {
       await navigator.clipboard.writeText(url);
       showStatusForms('Link copied: ' + url, 'success');
@@ -2675,7 +2686,7 @@ document.getElementById('questions-builder').addEventListener('change', function
 
 async function openFormBuilder(formId) {
   document.getElementById('form-builder-result').className = 'status-bar';
-  ['err-form-name','err-form-event-name','err-form-event-date','err-form-event-start','err-form-event-end']
+  ['err-form-name','err-form-event-name','err-form-event-date','err-form-event-start','err-form-event-end','err-form-slug']
     .forEach(function (id) { document.getElementById(id).classList.remove('show'); });
   document.getElementById('err-form-questions').style.display = 'none';
   document.getElementById('edit-form-id').value = formId || '';
@@ -2687,6 +2698,7 @@ async function openFormBuilder(formId) {
     document.getElementById('form-event-date').value = '';
     document.getElementById('form-event-start').value = '';
     document.getElementById('form-event-end').value = '';
+    document.getElementById('form-slug').value = '';
     document.getElementById('form-is-active').checked = true;
     BUILDER_QUESTIONS = [];
     renderQuestionsBuilder();
@@ -2704,6 +2716,7 @@ async function openFormBuilder(formId) {
     document.getElementById('form-event-date').value = toDateInputValue(f.eventDate);
     document.getElementById('form-event-start').value = f.eventStartTime || '';
     document.getElementById('form-event-end').value = f.eventEndTime || '';
+    document.getElementById('form-slug').value = f.slug || '';
     document.getElementById('form-is-active').checked = f.isActive !== false;
     BUILDER_QUESTIONS = (f.questions || []).map(function (q) {
       return { questionText: q.questionText, questionType: q.questionType, options: q.options || [], isRequired: q.isRequired };
@@ -2742,6 +2755,9 @@ document.getElementById('btn-save-form').addEventListener('click', async functio
   var eventStartTime = document.getElementById('form-event-start').value || '';
   var eventEndTime = document.getElementById('form-event-end').value || '';
   var isActive = document.getElementById('form-is-active').checked;
+  var slug = document.getElementById('form-slug').value.trim().toLowerCase();
+  var slugBad = !!slug && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
+  document.getElementById('err-form-slug').classList.toggle('show', slugBad);
   var formId = document.getElementById('edit-form-id').value;
 
   var badEnd = !eventEndTime || (eventStartTime && eventEndTime <= eventStartTime);
@@ -2760,7 +2776,7 @@ document.getElementById('btn-save-form').addEventListener('click', async functio
   var qErrEl = document.getElementById('err-form-questions');
   if (qErrors.length) { qErrEl.textContent = qErrors.join(' '); qErrEl.style.display = 'block'; }
   else { qErrEl.style.display = 'none'; }
-  if (!formName || !eventName || !eventDate || !eventStartTime || badEnd || qErrors.length) return;
+  if (!formName || !eventName || !eventDate || !eventStartTime || badEnd || slugBad || qErrors.length) return;
 
   var orig = btn.textContent;
   btn.disabled = true; btn.textContent = 'Saving\u2026';
@@ -2769,7 +2785,7 @@ document.getElementById('btn-save-form').addEventListener('click', async functio
     var payload = {
       formName: formName, eventName: eventName, eventDate: eventDate,
       eventStartTime: eventStartTime, eventEndTime: eventEndTime,
-      isActive: isActive, questions: BUILDER_QUESTIONS
+      slug: slug, isActive: isActive, questions: BUILDER_QUESTIONS
     };
     var url = formId ? FORMS_API_BASE + '/forms/' + encodeURIComponent(formId) : FORMS_API_BASE + '/forms';
     var res = await formsAuthedFetch(url, {
@@ -2784,7 +2800,7 @@ document.getElementById('btn-save-form').addEventListener('click', async functio
       return;
     }
     closeFormBuilder();
-    showStatusForms(formId ? 'Form updated.' : 'Form created \u2014 share it at ' + formPublicUrl(data.formId), 'success');
+    showStatusForms(formId ? 'Form updated.' : 'Form created \u2014 share it at ' + formPublicUrl(slug || data.formId), 'success');
     loadForms();
   } catch (err) {
     resultBox.className = 'status-bar error show';

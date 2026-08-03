@@ -328,7 +328,7 @@ input:focus { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 3px
 
       <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border, #eee2d3);">
         <div style="font-weight:700;margin-bottom:4px;">Outgoing email configuration</div>
-        <div class="field-hint" style="margin:0 0 14px;">Which address each type of email is sent from, and who is copied. External mail defaults to DoNotReply@hccgc.org. Leave a CC blank for none. Note: a From address only takes effect once it is a verified "Send as" alias on facility-bookings@hccgc.org — otherwise Gmail silently replaces it.</div>
+        <div class="field-hint" style="margin:0 0 14px;">The display name and address each type of email is sent from, and who is copied. External mail defaults to DoNotReply@hccgc.org. Leave a CC blank for none. Note: a From address only takes effect once it is a verified "Send as" alias on facility-bookings@hccgc.org — otherwise Gmail silently replaces it.</div>
         <div id="email-config-list"><div class="field-hint">Loading&hellip;</div></div>
         <button type="button" class="btn-secondary" id="btn-email-diagnostics" style="margin-top:12px;">Run email diagnostics</button>
         <pre id="email-diagnostics-out" style="display:none;margin-top:10px;padding:12px;background:#f7f3ec;border:1px solid var(--border, #eee2d3);border-radius:8px;font-size:.75rem;white-space:pre-wrap;word-break:break-word;"></pre>
@@ -601,14 +601,15 @@ async function loadEmailConfig() {
       if (!groups[g]) groups[g] = [];
       groups[g].push(a);
     });
-    var head = '<div style="display:grid;grid-template-columns:1.4fr 1.2fr 1.2fr;gap:8px;font-size:.76rem;font-weight:700;color:var(--muted);padding-bottom:6px;">' +
-      '<div>Action</div><div>Sent from</div><div>CC</div></div>';
+    var head = '<div style="display:grid;grid-template-columns:1.3fr 1fr 1.1fr 1.1fr;gap:8px;font-size:.76rem;font-weight:700;color:var(--muted);padding-bottom:6px;">' +
+      '<div>Action</div><div>Display name</div><div>Sent from</div><div>CC</div></div>';
     box.innerHTML = head + Object.keys(groups).map(function (g) {
       return '<div style="margin:10px 0 4px;font-size:.78rem;font-weight:700;color:var(--saffron-dark, #8d3e0d);">' + g + '</div>' +
         groups[g].map(function (a) {
           var cfg = emailConfig[a.key] || {};
-          return '<div style="display:grid;grid-template-columns:1.4fr 1.2fr 1.2fr;gap:8px;align-items:center;padding:3px 0;">' +
+          return '<div style="display:grid;grid-template-columns:1.3fr 1fr 1.1fr 1.1fr;gap:8px;align-items:center;padding:3px 0;">' +
             '<div style="font-size:.82rem;padding-left:10px;">' + a.label + '</div>' +
+            '<input type="text" data-ec-name="' + a.key + '" value="' + (cfg.fromName || '') + '" placeholder="display name" style="font-size:.8rem;padding:5px 8px;">' +
             '<input type="email" data-ec-from="' + a.key + '" value="' + (cfg.fromEmail || '') + '" style="font-size:.8rem;padding:5px 8px;">' +
             '<input type="email" data-ec-cc="' + a.key + '" value="' + (cfg.cc || '') + '" placeholder="none" style="font-size:.8rem;padding:5px 8px;">' +
           '</div>';
@@ -726,7 +727,8 @@ document.getElementById('btn-save-settings').addEventListener('click', async fun
         emailActions.forEach(function (a) {
           var f = document.querySelector('[data-ec-from="' + a.key + '"]');
           var cc = document.querySelector('[data-ec-cc="' + a.key + '"]');
-          out[a.key] = { fromEmail: f ? f.value.trim() : '', cc: cc ? cc.value.trim() : '' };
+          var nm = document.querySelector('[data-ec-name="' + a.key + '"]');
+          out[a.key] = { fromName: nm ? nm.value.trim() : '', fromEmail: f ? f.value.trim() : '', cc: cc ? cc.value.trim() : '' };
         });
         return out;
       })()) }

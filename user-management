@@ -1,0 +1,1409 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin of Admin – HCCGC Admin Portal</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#8d3e0d">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' x='50%25' text-anchor='middle' font-size='82'%3E%E0%A5%90%3C/text%3E%3C/svg%3E">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F5ZHQ4CDR9');</script>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-TPBF5VKB');</script>
+
+<style>
+:root {
+  --bg: #fff9f1;
+  --surface: #ffffff;
+  --surface-soft: #fff6ea;
+  --border: rgba(121,62,17,0.14);
+  --text: #2c1b10;
+  --muted: #6a5141;
+  --saffron: #b55a18;
+  --saffron-dark: #8d3e0d;
+  --maroon: #7f2e16;
+  --radius: 22px;
+  --shadow: 0 18px 45px rgba(93,43,14,0.10);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%),
+    radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%),
+    var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.container { width: min(calc(100% - 32px), 1000px); margin: 0 auto; }
+
+/* Header partial styling — required by header.html's markup. */
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(255, 249, 241, 0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+}
+.nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    min-height: 92px;
+    padding: 12px 0;
+}
+.site-header a.brand,
+.site-header a.brand:link,
+.site-header a.brand:visited {
+  text-decoration: none;
+  color: inherit;
+}
+.brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.brand-logo-wrap {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 8px;
+    box-shadow: var(--shadow);
+    flex-shrink: 0;
+}
+.brand-logo { width: 88px; height: auto; border-radius: 12px; object-fit: contain; }
+.brand-text h1 { margin: 0; font-size: 1.2rem; line-height: 1.15; color: var(--maroon); }
+.site-header nav ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+    justify-content: flex-end;
+}
+.site-header nav a,
+.site-header nav a:link,
+.site-header nav a:visited { font-weight: 700; color: var(--text); font-size: 0.96rem; text-decoration: none; }
+.site-header nav a:hover { color: var(--saffron-dark); }
+.menu-toggle {
+    display: none;
+    border: 0;
+    background: transparent;
+    padding: 6px 0;
+    cursor: pointer;
+    color: #2c1b10;
+    align-self: flex-end;
+}
+.menu-toggle .bar { display: block; width: 26px; height: 2px; margin: 5px 0; background: currentColor; }
+@media (max-width: 768px) {
+    .nav { flex-direction: column; align-items: stretch; gap: 8px; }
+    .menu-toggle { display: inline-block; }
+    .site-header nav {
+        display: none;
+        width: 100%;
+        background: rgba(255, 249, 241, 0.95);
+        padding: 10px 0;
+    }
+    .site-header nav.is-open { display: block; }
+    .site-header nav ul { flex-direction: column; gap: 14px; }
+}
+
+.back-link-row {
+  padding: 16px 0 0;
+  font-size: 0.82rem;
+}
+.back-link-row a { color: var(--saffron-dark); text-decoration: none; }
+.back-link-row a:hover { text-decoration: underline; }
+
+#gate { padding: 60px 16px; display: flex; justify-content: center; }
+.gate-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 2.5rem 2rem; max-width: 420px; width: 100%; text-align: center; box-shadow: var(--shadow);
+}
+.gate-card h3 { font-family: Georgia, serif; font-size: 1.3rem; color: var(--maroon); margin-bottom: 0.5rem; }
+.gate-card p { color: var(--muted); font-size: 0.88rem; line-height: 1.6; }
+.gate-card a { color: var(--saffron-dark); }
+
+#app { display: none; }
+
+.page-header { padding: 40px 0 20px; }
+.tab-nav { background: var(--surface); border-bottom: 1px solid var(--border); }
+.tab-nav ul { list-style: none; display: flex; gap: 4px; padding: 10px 0; flex-wrap: wrap; }
+.tab-nav button { display: inline-block; padding: 8px 16px; border-radius: 999px; font-size: 0.86rem; font-weight: 700; color: var(--muted); background: none; border: none; cursor: pointer; transition: background 0.15s, color 0.15s; font-family: inherit; }
+.tab-nav button.active { background: var(--surface-soft); color: var(--saffron-dark); }
+.tab-nav button:not(.active):hover { background: var(--surface-soft); }
+.tab-panel { display: none; padding: 24px 0 60px; }
+.tab-panel.active { display: block; }
+.page-header h1 { font-family: Georgia, "Times New Roman", serif; font-size: 1.8rem; color: var(--maroon); margin-bottom: 8px; }
+.page-header p { color: var(--muted); font-size: 0.9rem; }
+
+.status-bar {
+  display: none; align-items: center; gap: 10px;
+  padding: 0.75rem 1.1rem; border-radius: 12px;
+  font-size: 0.86rem; font-weight: 600; margin: 0 0 1.25rem;
+}
+.status-bar.show { display: flex; }
+.status-bar.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+.status-bar.error { background: #fdecea; color: #c0392b; border: 1px solid #f5c6cb; }
+
+.btn-add {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 0.7rem 1.4rem; background: var(--maroon); color: #fff;
+  border: none; border-radius: 999px; font-size: 0.9rem; font-weight: 700;
+  cursor: pointer; font-family: Arial, Helvetica, sans-serif; margin-bottom: 1.5rem;
+}
+.btn-add:hover { background: #5a1e0a; }
+
+.user-table { display: flex; flex-direction: column; gap: 12px; padding-bottom: 60px; }
+
+.user-row {
+  background: #fff; border: 1px solid var(--border); border-radius: 14px;
+  padding: 1.1rem 1.4rem; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+
+.user-avatar-sm {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--maroon); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; font-weight: 700; flex-shrink: 0;
+}
+
+.user-info { flex: 1; min-width: 180px; }
+.user-info .name { font-weight: 700; font-size: 0.92rem; }
+.user-info .email { font-size: 0.8rem; color: var(--muted); }
+
+.admin-pill {
+  font-size: 0.68rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.04em; color: var(--saffron-dark);
+  background: rgba(217,138,30,0.14); padding: 2px 9px; border-radius: 999px; margin-left: 8px;
+}
+
+.app-checkboxes { display: flex; flex-wrap: wrap; gap: 10px; flex: 2; min-width: 220px; }
+
+.app-check {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.82rem; color: var(--text);
+  background: var(--surface-soft); border: 1px solid var(--border);
+  padding: 5px 10px; border-radius: 8px; cursor: pointer;
+}
+.app-check input { cursor: pointer; }
+
+.row-actions { display: flex; align-items: center; gap: 8px; }
+.admin-toggle { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--muted); cursor: pointer; }
+
+.btn-icon {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 0.4rem 0.75rem; border: 1px solid var(--border); border-radius: 8px;
+  background: #fff; font-size: 0.76rem; font-weight: 600; color: var(--muted);
+  cursor: pointer; font-family: Arial, Helvetica, sans-serif;
+}
+.btn-icon:hover { border-color: var(--saffron); color: var(--saffron-dark); }
+.btn-icon.danger:hover { border-color: #c0392b; color: #c0392b; }
+.btn-icon:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.empty-state {
+  text-align: center; padding: 50px 20px; color: var(--muted);
+  background: #fff; border: 1px dashed var(--border); border-radius: 16px;
+}
+
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(44,27,16,0.45);
+  z-index: 200; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.show { display: flex; }
+.modal-card { background: #fff; border-radius: 18px; max-width: 460px; width: 100%; box-shadow: var(--shadow); }
+.modal-header {
+  padding: 1.4rem 1.6rem; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-header h3 { font-family: Georgia, serif; color: var(--maroon); font-size: 1.15rem; }
+.modal-close { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 1.3rem; }
+.modal-body { padding: 1.5rem 1.6rem; }
+.form-group { margin-bottom: 1.1rem; }
+label { display: block; font-size: 0.82rem; font-weight: 700; margin-bottom: 0.4rem; }
+input[type="text"], input[type="email"] {
+  width: 100%; padding: 0.6rem 0.85rem; border: 1.5px solid var(--border);
+  border-radius: 10px; font-size: 0.9rem; font-family: Arial, Helvetica, sans-serif;
+}
+input:focus { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 3px rgba(181,90,24,0.14); }
+.modal-footer {
+  padding: 1.2rem 1.6rem 1.5rem; display: flex; justify-content: flex-end;
+  gap: 10px; border-top: 1px solid var(--border);
+}
+.btn-secondary {
+  padding: 0.6rem 1.2rem; border-radius: 10px; border: 1.5px solid var(--border);
+  background: #fff; color: var(--muted); font-weight: 700; font-size: 0.86rem; cursor: pointer;
+}
+.btn-small {
+  padding: 3px 10px; border-radius: 8px; border: 1.5px solid var(--border);
+  background: #fff; color: var(--muted); font-weight: 700; font-size: 0.78rem; cursor: pointer;
+}
+.btn-save {
+  padding: 0.6rem 1.4rem; border-radius: 10px; border: none;
+  background: var(--maroon); color: #fff; font-weight: 700; font-size: 0.86rem; cursor: pointer;
+}
+.btn-save:hover { background: #5a1e0a; }
+.field-hint { font-size: 0.76rem; color: var(--muted); margin-top: 4px; }
+
+@media (max-width: 640px) {
+  .user-row { flex-direction: column; align-items: stretch; }
+}
+</style>
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TPBF5VKB" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<div id="site-header"></div>
+
+<div class="container back-link-row">
+  <a href="admin-portal">&larr; Back to apps</a>
+</div>
+
+<div id="gate">
+  <div class="gate-card">
+    <h3>Checking access&hellip;</h3>
+    <p>Please sign in from the <a href="admin-portal">main portal page</a> first.</p>
+  </div>
+</div>
+
+<div id="app">
+  <div class="container">
+    <div class="page-header">
+      <h1>Admin of Admin</h1>
+      <p>User access, system settings, and admin-only data management for HCCGC staff.</p>
+    </div>
+  </div>
+
+  <div class="tab-nav">
+    <div class="container">
+      <ul>
+        <li><button class="tab-btn active" data-tab="users">User Management</button></li>
+        <li><button class="tab-btn" data-tab="settings">System Settings</button></li>
+        <li><button class="tab-btn" data-tab="delete-renter">Data Management</button></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container">
+
+  <div class="tab-panel active" id="tab-users">
+    <div class="status-bar" id="status-bar"></div>
+
+    <button class="btn-add" id="btn-add-user">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add User
+    </button>
+
+    <div class="user-table" id="user-table">
+      <div class="empty-state">Loading users&hellip;</div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-settings">
+    <div class="user-table" style="padding:20px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <input type="checkbox" id="setting-test-mode" style="width:18px;height:18px;">
+        <label for="setting-test-mode" style="font-weight:700;">Test mode</label>
+      </div>
+      <div class="field-hint" style="margin:-10px 0 16px 28px;">When on, every external email from Finance Portal and the Facility Rental Portal (invoices, receipts, approvals, reminders, everything) goes to the pseudo email below instead of the real renter.</div>
+      <div class="form-group">
+        <label for="setting-test-email">Pseudo/test email (used only while test mode is on)</label>
+        <input type="email" id="setting-test-email" placeholder="tech-admin@hccgc.org">
+      </div>
+
+      <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border, #eee2d3);">
+        <div style="font-weight:700;margin-bottom:4px;">User-based test mode</div>
+        <div class="field-hint" style="margin:0 0 14px;">Different from test mode above: while checked for a user, nothing they trigger — creating a booking, editing one, cancelling one, approving/rejecting a request, sending an invoice or receipt — reaches the real external or internal recipient. It redirects to that user's own inbox instead, so they can see exactly what would have gone out. Everyone else's actions keep sending normally, unaffected.</div>
+        <div id="user-test-mode-list"></div>
+      </div>
+
+      <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border, #eee2d3);">
+        <div style="font-weight:700;margin-bottom:4px;">Outgoing email configuration</div>
+        <div class="field-hint" style="margin:0 0 14px;">The display name and address each type of email is sent from, and who is copied. External mail defaults to DoNotReply@hccgc.org. Leave a CC blank for none. Note: a From address only takes effect once it is a verified "Send as" alias on facility-bookings@hccgc.org — otherwise Gmail silently replaces it.</div>
+        <div id="email-config-list"><div class="field-hint">Loading&hellip;</div></div>
+        <button type="button" class="btn-secondary" id="btn-email-diagnostics" style="margin-top:12px;">Run email diagnostics</button>
+        <pre id="email-diagnostics-out" style="display:none;margin-top:10px;padding:12px;background:#f7f3ec;border:1px solid var(--border, #eee2d3);border-radius:8px;font-size:.75rem;white-space:pre-wrap;word-break:break-word;"></pre>
+      </div>
+
+      <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border, #eee2d3);">
+        <div style="font-weight:700;margin-bottom:4px;">Public test emails (Facility Rental request form)</div>
+        <div class="field-hint" style="margin:0 0 14px;">When someone submits a facility request using one of these email addresses, the request still goes through every normal flow — created, still needs approval, still shows in All Bookings — but the internal "new request" alert email is skipped, and it won't count toward the pending-request notification badge. The renter-facing confirmation email still sends as usual.</div>
+        <div id="public-test-emails-list" style="margin-bottom:10px;"></div>
+        <div style="display:flex;gap:8px;">
+          <input type="email" id="public-test-email-input" placeholder="test@example.com" style="flex:1;">
+          <button type="button" class="btn-secondary" id="btn-add-public-test-email">Add</button>
+        </div>
+      </div>
+
+      <button class="btn-add" id="btn-save-settings" style="margin-top:20px;">Save settings</button>
+      <div class="field-hint" id="settings-save-result" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-delete-renter">
+    <div class="user-table" style="padding:20px;">
+      <p class="field-hint" style="margin:0 0 16px;color:var(--red, #b3382c);font-weight:700;">Admin only. This permanently deletes a renter and every one of their bookings — invoices, receipts, payment history, all of it. There is no undo. Intended for cleaning up test or duplicate records, not real customer data.</p>
+
+      <div class="form-group">
+        <label for="dr-renter-select">Renter</label>
+        <select id="dr-renter-select">
+          <option value="">Select a renter&hellip;</option>
+        </select>
+      </div>
+
+      <div id="dr-preview" style="display:none;margin-top:16px;">
+        <div class="field-hint" id="dr-preview-summary" style="margin-bottom:10px;"></div>
+        <div class="field-hint" style="margin-bottom:8px;">Check specific bookings to delete just those and keep the renter, or leave all checked and use "Delete renter & all bookings" below to remove everything.</div>
+        <div id="dr-bookings-list" style="max-height:240px;overflow-y:auto;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:0.86rem;"></div>
+
+        <div class="form-group">
+          <label for="dr-confirm-name">Type the renter's name exactly to confirm: <strong id="dr-confirm-target"></strong></label>
+          <input type="text" id="dr-confirm-name" placeholder="Type name here">
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn-add" id="btn-delete-selected-bookings" style="background:var(--red, #b3382c);margin-top:8px;">Delete selected booking(s) only</button>
+          <button class="btn-add" id="btn-delete-renter" style="background:var(--red, #b3382c);margin-top:8px;">Permanently delete renter &amp; all bookings</button>
+        </div>
+        <div class="field-hint" id="dr-delete-result" style="margin-top:10px;"></div>
+      </div>
+    </div>
+
+    <div class="user-table" style="padding:20px;margin-top:28px;">
+      <p class="field-hint" style="margin:0 0 16px;color:var(--red, #b3382c);font-weight:700;">Admin only. Deletes an internal HCCGC event/program — no renter is attached to these, so they're selected here separately. If the event recurs, every occurrence in the series is deleted together. There is no undo.</p>
+
+      <div class="form-group">
+        <label for="di-event-select">Internal event</label>
+        <select id="di-event-select">
+          <option value="">Select an internal event&hellip;</option>
+        </select>
+      </div>
+
+      <div id="di-preview" style="display:none;margin-top:16px;">
+        <div class="field-hint" id="di-preview-summary" style="margin-bottom:10px;"></div>
+        <div id="di-bookings-list" style="max-height:240px;overflow-y:auto;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:0.86rem;"></div>
+
+        <div class="form-group">
+          <label for="di-confirm-name">Type the event's name exactly to confirm: <strong id="di-confirm-target"></strong></label>
+          <input type="text" id="di-confirm-name" placeholder="Type name here">
+        </div>
+        <button class="btn-add" id="btn-delete-internal" style="background:var(--red, #b3382c);margin-top:8px;">Permanently delete this internal event</button>
+        <div class="field-hint" id="di-delete-result" style="margin-top:10px;"></div>
+      </div>
+    </div>
+
+    <div class="user-table" style="padding:20px;margin-top:28px;border:2px solid var(--red, #b3382c);">
+      <h2 style="font-size:1.1rem;margin:0 0 10px;color:var(--red, #b3382c);">Delete All Data</h2>
+      <p class="field-hint" style="margin:0 0 16px;color:var(--red, #b3382c);font-weight:700;">Admin only. Wipes every renter and every booking in the entire system — not one record, all of them. There is no undo, no backup taken here. Only use this if you intend to fully reload from a Picktime export immediately after.</p>
+      <div class="field-hint" id="da-counts" style="margin-bottom:12px;">Loading current counts&hellip;</div>
+      <div class="form-group">
+        <label for="da-confirm-phrase">Type <strong>DELETE ALL DATA</strong> exactly to confirm</label>
+        <input type="text" id="da-confirm-phrase" placeholder="DELETE ALL DATA">
+      </div>
+      <button class="btn-add" id="btn-delete-all-data" style="background:var(--red, #b3382c);margin-top:8px;">Permanently delete all renters &amp; bookings</button>
+      <div class="field-hint" id="da-result" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="user-table" style="padding:20px;margin-top:28px;">
+      <h2 style="font-size:1.1rem;margin:0 0 10px;">Picktime Import</h2>
+      <p class="field-hint" style="margin:0 0 16px;">Upload a Picktime export (CSV). Nothing is written to the database until you review the preview below and separately confirm — column matching is a best guess (Picktime's exact export format hasn't been verified against a real file), so check the preview carefully before importing, especially the first time.</p>
+      <div class="form-group">
+        <label for="pi-file-input">Picktime export file (CSV)</label>
+        <input type="file" id="pi-file-input" accept=".csv">
+      </div>
+      <button class="btn-add" id="btn-parse-picktime" style="margin-top:8px;">Parse &amp; preview</button>
+      <div class="field-hint" id="pi-parse-result" style="margin-top:10px;"></div>
+
+      <div id="pi-preview" style="display:none;margin-top:20px;">
+        <div class="field-hint" id="pi-preview-summary" style="margin-bottom:10px;font-weight:700;"></div>
+        <div id="pi-warnings" style="margin-bottom:12px;"></div>
+        <div id="pi-rows-table" style="max-height:320px;overflow-y:auto;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:0.82rem;"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+          <input type="checkbox" id="pi-skip-duplicates" checked style="width:18px;height:18px;">
+          <label for="pi-skip-duplicates" style="font-weight:700;">Skip rows already imported (incremental load)</label>
+        </div>
+        <p class="field-hint" style="margin:0 0 14px;">Uncheck this only right after Delete All Data, when there's nothing to skip — otherwise duplicates will be created.</p>
+        <button class="btn-add" id="btn-commit-picktime" style="margin-top:0;">Import these bookings</button>
+        <div class="field-hint" id="pi-commit-result" style="margin-top:10px;"></div>
+      </div>
+    </div>
+
+    <div class="user-table" style="padding:20px;margin-top:28px;">
+      <h2 style="font-size:1.1rem;margin:0 0 10px;">Test Payments</h2>
+      <p class="field-hint" style="margin:0 0 16px;">Creates a fake bank transaction (marked clearly as a test) so you can test payment matching, reconciliation, and invoice linking without waiting for a real payment. Edit or delete any test payment below at any time.</p>
+
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:20px;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label for="tp-date">Date</label>
+          <input type="date" id="tp-date">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label for="tp-amount">Amount</label>
+          <input type="number" id="tp-amount" step="0.01" min="0" placeholder="0.00">
+        </div>
+        <div class="form-group" style="margin-bottom:0;flex:1;min-width:200px;">
+          <label for="tp-email">Renter email</label>
+          <input type="email" id="tp-email" placeholder="renter@example.com">
+        </div>
+        <div class="form-group" style="margin-bottom:0;flex:1;min-width:200px;">
+          <label for="tp-note">Note (optional)</label>
+          <input type="text" id="tp-note" placeholder="e.g. testing Zelle matching">
+        </div>
+      </div>
+      <button class="btn-add" id="btn-save-test-payment">Add test payment</button>
+      <input type="hidden" id="tp-editing-key" value="">
+      <button class="btn-add" id="btn-cancel-edit-test-payment" style="display:none;background:#fff;color:var(--saffron-dark, #8d3e0d);border:1.5px solid var(--saffron-dark, #8d3e0d);">Cancel edit</button>
+      <div class="field-hint" id="tp-save-result" style="margin-top:10px;"></div>
+
+      <div id="tp-list" style="margin-top:20px;"></div>
+    </div>
+  </div>
+
+  </div>
+</div>
+
+
+<div id="site-footer"></div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 id="modal-title">Add User</h3>
+      <button class="modal-close" id="modal-close-btn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="user-email">Email address *</label>
+        <input type="email" id="user-email" placeholder="name@hccgc.org">
+        <div class="field-hint">Must be an @hccgc.org address. They'll get access the next time they sign in.</div>
+      </div>
+      <div class="form-group">
+        <label for="user-name">Name (optional)</label>
+        <input type="text" id="user-name" placeholder="Full name">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="modal-cancel-btn">Cancel</button>
+      <button class="btn-save" id="btn-save-user">Add User</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA6IzLjWTg7Rq04HsTH-iA3eDmSzKI7xME",
+  authDomain: "hccgc-a7a54.firebaseapp.com",
+  projectId: "hccgc-a7a54",
+  storageBucket: "hccgc-a7a54.firebasestorage.app",
+  messagingSenderId: "75757201418",
+  appId: "1:75757201418:web:c31e9361921242145717f3",
+  measurementId: "G-F9K6GVD5CS"
+};
+
+const ALLOWED_DOMAIN = "hccgc.org";
+const USERS_COLLECTION = "portalUsers";
+
+const fbApp = initializeApp(firebaseConfig);
+const auth = getAuth(fbApp);
+const db = getFirestore(fbApp);
+
+window.__hccgcUM = { auth, db, doc, getDoc, setDoc, deleteDoc, collection, getDocs, serverTimestamp, USERS_COLLECTION };
+
+onAuthStateChanged(auth, function (user) {
+  if (!user) {
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('gate').style.display = 'flex';
+    return;
+  }
+
+  var email = (user.email || '').toLowerCase();
+  if (!email.endsWith('@' + ALLOWED_DOMAIN)) {
+    document.getElementById('gate').innerHTML =
+      '<div class="gate-card"><h3>Access denied</h3><p>Please sign in with an @' + ALLOWED_DOMAIN + ' account.</p></div>';
+    return;
+  }
+
+  getDoc(doc(db, USERS_COLLECTION, email)).then(function (snap) {
+    var isAdmin = snap.exists() && !!snap.data().isAdmin;
+    if (!isAdmin) {
+      document.getElementById('gate').innerHTML =
+        '<div class="gate-card"><h3>Admins only</h3><p>You do not have permission to manage users. Contact an existing admin if you believe this is a mistake.</p></div>';
+      document.getElementById('gate').style.display = 'flex';
+      return;
+    }
+
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    window.dispatchEvent(new CustomEvent('hccgc-um-ready', { detail: { currentUserEmail: email } }));
+  });
+});
+</script>
+
+<script>
+var APP_REGISTRY = [
+  { key: 'website-management', name: 'Website Management' },
+  { key: 'marketing-assistant', name: 'Hey HCCGC' },
+  { key: 'bookings-finance', name: 'Facility Booking' },
+  { key: 'org-finance', name: 'Finance' },
+  { key: 'org-communications', name: 'Communications' },
+  { key: 'issue-reporting', name: 'Issue Reporting' },
+  { key: 'logs-app', name: 'Logs' }
+];
+
+var allUsers = [];
+var currentUserEmail = null;
+
+const API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';
+async function authedFetch(url, options) {
+  options = options || {};
+  var user = window.__hccgcUM.auth.currentUser;
+  if (!user) throw new Error('Not signed in.');
+  var token = await user.getIdToken();
+  options.headers = Object.assign({}, options.headers, { 'Authorization': 'Bearer ' + token });
+  return fetch(url, options);
+}
+
+window.addEventListener('hccgc-um-ready', function (e) {
+  currentUserEmail = e.detail.currentUserEmail;
+  loadUsers();
+  loadSettings();
+});
+
+var emailConfig = {};
+var emailActions = [];
+async function loadEmailConfig() {
+  var box = document.getElementById('email-config-list');
+  try {
+    var res = await authedFetch(API_BASE + '/admin/email-config');
+    var data = await res.json();
+    if (!res.ok) throw new Error((data.errors || [data.error]).join(' '));
+    emailActions = data.actions || [];
+    emailConfig = data.config || {};
+    // Grouped by the app/page the action belongs to, so it's obvious where
+    // each email originates rather than one flat list.
+    var groups = {};
+    emailActions.forEach(function (a) {
+      var g = a.app || 'Other';
+      if (!groups[g]) groups[g] = [];
+      groups[g].push(a);
+    });
+    var head = '<div style="display:grid;grid-template-columns:1.3fr 1fr 1.1fr 1.1fr;gap:8px;font-size:.76rem;font-weight:700;color:var(--muted);padding-bottom:6px;">' +
+      '<div>Action</div><div>Display name</div><div>Sent from</div><div>CC</div></div>';
+    box.innerHTML = head + Object.keys(groups).map(function (g) {
+      return '<div style="margin:10px 0 4px;font-size:.78rem;font-weight:700;color:var(--saffron-dark, #8d3e0d);">' + g + '</div>' +
+        groups[g].map(function (a) {
+          var cfg = emailConfig[a.key] || {};
+          return '<div style="display:grid;grid-template-columns:1.3fr 1fr 1.1fr 1.1fr;gap:8px;align-items:center;padding:3px 0;">' +
+            '<div style="font-size:.82rem;padding-left:10px;">' + a.label + '</div>' +
+            '<input type="text" data-ec-name="' + a.key + '" value="' + (cfg.fromName || '') + '" placeholder="display name" style="font-size:.8rem;padding:5px 8px;">' +
+            '<input type="email" data-ec-from="' + a.key + '" value="' + (cfg.fromEmail || '') + '" style="font-size:.8rem;padding:5px 8px;">' +
+            '<input type="email" data-ec-cc="' + a.key + '" value="' + (cfg.cc || '') + '" placeholder="none" style="font-size:.8rem;padding:5px 8px;">' +
+          '</div>';
+        }).join('');
+    }).join('');
+  } catch (err) {
+    box.innerHTML = '<div class="field-hint">Could not load: ' + err.message + '</div>';
+  }
+}
+document.getElementById('btn-email-diagnostics').addEventListener('click', async function () {
+  var out = document.getElementById('email-diagnostics-out');
+  var btn = this;
+  out.style.display = 'block';
+  out.textContent = 'Checking\u2026';
+  btn.disabled = true;
+  try {
+    var testTo = window.prompt('Send a diagnostic test email to which address?\n(Leave blank to only check the connection.)', '');
+    if (testTo === null) { out.style.display = 'none'; btn.disabled = false; return; }
+    var testMailbox = window.prompt('Send AS which mailbox?\n\nLeave blank to use the current sender. Enter DoNotReply@hccgc.org to test whether sending directly as that account works before switching to it.', '');
+    if (testMailbox === null) { out.style.display = 'none'; btn.disabled = false; return; }
+    var qs = [];
+    if (testTo.trim()) qs.push('to=' + encodeURIComponent(testTo.trim()));
+    if (testMailbox.trim()) qs.push('mailbox=' + encodeURIComponent(testMailbox.trim()));
+    var url = API_BASE + '/admin/email-diagnostics' + (qs.length ? '?' + qs.join('&') : '');
+    var res = await authedFetch(url);
+    var data = await res.json();
+    out.textContent = JSON.stringify(data, null, 2);
+  } catch (err) {
+    out.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false;
+  }
+});
+async function loadSettings() {
+  try {
+    var res = await authedFetch(API_BASE + '/admin/settings');
+    var settings = await res.json();
+    var byKey = {};
+    settings.forEach(function (s) { byKey[s.key] = s.value; });
+    document.getElementById('setting-test-mode').checked = byKey.test_mode === 'true';
+    document.getElementById('setting-test-email').value = byKey.test_mode_email || '';
+    try { savedUserTestModeEmails = JSON.parse(byKey.user_test_mode_emails || '[]'); } catch (e) { savedUserTestModeEmails = []; }
+    // Seeded default, same as the backend - active immediately even
+    // before anyone explicitly saves this setting once.
+    var defaultPublicTestEmails = '["tonilaj@gmail.com","nilajr@yahoo.com","nilaj.rukadikar@gmail.com"]';
+    try { publicTestEmails = JSON.parse(byKey.public_test_emails || defaultPublicTestEmails); } catch (e) { publicTestEmails = []; }
+    if (!Array.isArray(publicTestEmails)) publicTestEmails = [];
+    renderPublicTestEmailsList();
+    loadEmailConfig();
+    settingsLoaded = true;
+    renderUserTestModeList();
+  } catch (err) {
+    document.getElementById('settings-save-result').textContent = 'Could not load settings: ' + err.message;
+  }
+}
+var publicTestEmails = [];
+function renderPublicTestEmailsList() {
+  var container = document.getElementById('public-test-emails-list');
+  if (!publicTestEmails.length) { container.innerHTML = '<div class="field-hint">None yet.</div>'; return; }
+  container.innerHTML = publicTestEmails.map(function (email, idx) {
+    return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0;">' +
+      '<span>' + email.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>' +
+      '<button type="button" class="btn-small" data-remove-test-email-idx="' + idx + '">Remove</button>' +
+    '</div>';
+  }).join('');
+}
+document.getElementById('public-test-emails-list').addEventListener('click', function (e) {
+  var btn = e.target.closest('[data-remove-test-email-idx]');
+  if (!btn) return;
+  publicTestEmails.splice(Number(btn.dataset.removeTestEmailIdx), 1);
+  renderPublicTestEmailsList();
+});
+document.getElementById('btn-add-public-test-email').addEventListener('click', function () {
+  var input = document.getElementById('public-test-email-input');
+  var email = input.value.trim().toLowerCase();
+  if (!email) return;
+  if (publicTestEmails.map(function (e) { return e.toLowerCase(); }).indexOf(email) !== -1) { input.value = ''; return; }
+  publicTestEmails.push(email);
+  input.value = '';
+  renderPublicTestEmailsList();
+});
+// Needs both the full user roster (from loadUsers) and the saved setting
+// (from loadSettings) before it can render - both load independently and
+// in no guaranteed order, so each one calls this and it's a no-op until
+// both have actually completed.
+var savedUserTestModeEmails = [];
+var settingsLoaded = false;
+function renderUserTestModeList() {
+  var container = document.getElementById('user-test-mode-list');
+  if (!settingsLoaded || !allUsers || !allUsers.length) return;
+  var savedLower = savedUserTestModeEmails.map(function (e) { return String(e).toLowerCase(); });
+  var sorted = allUsers.slice().sort(function (a, b) { return (a.email || '').localeCompare(b.email || ''); });
+  container.innerHTML = sorted.map(function (u) {
+    var checked = savedLower.indexOf((u.email || '').toLowerCase()) !== -1 ? 'checked' : '';
+    var id = 'utm-' + btoa(unescape(encodeURIComponent(u.email || ''))).replace(/[^a-zA-Z0-9]/g, '');
+    return '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">' +
+      '<input type="checkbox" id="' + id + '" data-user-email="' + (u.email || '').replace(/"/g, '&quot;') + '" ' + checked + '>' +
+      '<label for="' + id + '">' + (u.name || u.email || '') + (u.name ? ' <span class="field-hint" style="margin:0;">(' + u.email + ')</span>' : '') + '</label>' +
+    '</div>';
+  }).join('') || '<div class="field-hint">No users yet.</div>';
+}
+document.getElementById('btn-save-settings').addEventListener('click', async function () {
+  var btn = this;
+  var resultEl = document.getElementById('settings-save-result');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  var checkedEmails = Array.prototype.slice.call(document.querySelectorAll('#user-test-mode-list input[type="checkbox"]:checked'))
+    .map(function (cb) { return cb.dataset.userEmail; });
+  var toSave = [
+    { key: 'test_mode', value: document.getElementById('setting-test-mode').checked ? 'true' : 'false' },
+    { key: 'test_mode_email', value: document.getElementById('setting-test-email').value },
+    { key: 'user_test_mode_emails', value: JSON.stringify(checkedEmails) },
+    { key: 'public_test_emails', value: JSON.stringify(publicTestEmails) },
+    { key: 'email_config', value: JSON.stringify((function () {
+        var out = {};
+        emailActions.forEach(function (a) {
+          var f = document.querySelector('[data-ec-from="' + a.key + '"]');
+          var cc = document.querySelector('[data-ec-cc="' + a.key + '"]');
+          var nm = document.querySelector('[data-ec-name="' + a.key + '"]');
+          out[a.key] = { fromName: nm ? nm.value.trim() : '', fromEmail: f ? f.value.trim() : '', cc: cc ? cc.value.trim() : '' };
+        });
+        return out;
+      })()) }
+  ];
+  try {
+    for (var i = 0; i < toSave.length; i++) {
+      var res = await authedFetch(API_BASE + '/admin/settings', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(toSave[i])
+      });
+      if (!res.ok) { var data = await res.json().catch(function () { return {}; }); throw new Error((data.errors || [data.error]).join(' ') || 'unknown error'); }
+    }
+    savedUserTestModeEmails = checkedEmails;
+    resultEl.style.color = 'var(--green)';
+    resultEl.textContent = 'Saved.';
+  } catch (err) {
+    resultEl.style.color = 'var(--red)';
+    resultEl.textContent = 'Could not save: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save settings';
+  }
+});
+
+function showStatus(message, type) {
+  var bar = document.getElementById('status-bar');
+  bar.textContent = message;
+  bar.className = 'status-bar show ' + type;
+  if (type !== 'error') {
+    setTimeout(function () { bar.classList.remove('show'); }, 3500);
+  }
+}
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function loadUsers() {
+  var fb = window.__hccgcUM;
+  fb.getDocs(fb.collection(fb.db, fb.USERS_COLLECTION))
+    .then(function (snapshot) {
+      allUsers = [];
+      snapshot.forEach(function (docSnap) {
+        var data = docSnap.data();
+        data.id = docSnap.id;
+        allUsers.push(data);
+      });
+      renderUsers();
+      renderUserTestModeList();
+    })
+    .catch(function (err) {
+      console.error(err);
+      document.getElementById('user-table').innerHTML = '<div class="empty-state">Could not load users.</div>';
+    });
+}
+
+function renderUsers() {
+  var container = document.getElementById('user-table');
+
+  if (allUsers.length === 0) {
+    container.innerHTML = '<div class="empty-state">No users yet.</div>';
+    return;
+  }
+
+  var sorted = allUsers.slice().sort(function (a, b) {
+    return (a.email || '').localeCompare(b.email || '');
+  });
+
+  var html = '';
+  sorted.forEach(function (u) {
+    var allowedApps = Array.isArray(u.allowedApps) ? u.allowedApps : [];
+    var initials = (u.name || u.email || '?').charAt(0).toUpperCase();
+
+    var checkboxes = APP_REGISTRY.map(function (app) {
+      var checked = allowedApps.indexOf(app.key) !== -1 ? 'checked' : '';
+      return (
+        '<label class="app-check">' +
+          '<input type="checkbox" data-user-id="' + escHtml(u.id) + '" data-app-key="' + escHtml(app.key) + '" ' + checked + '>' +
+          escHtml(app.name) +
+        '</label>'
+      );
+    }).join('');
+
+    html +=
+      '<div class="user-row">' +
+        '<div class="user-avatar-sm">' + initials + '</div>' +
+        '<div class="user-info">' +
+          '<div class="name">' + escHtml(u.name || u.email) + (u.isAdmin ? '<span class="admin-pill">Admin</span>' : '') + '</div>' +
+          '<div class="email">' + escHtml(u.email) + '</div>' +
+        '</div>' +
+        '<div class="app-checkboxes">' + checkboxes + '</div>' +
+        '<div class="row-actions">' +
+          '<label class="admin-toggle">' +
+            '<input type="checkbox" class="admin-checkbox" data-user-id="' + escHtml(u.id) + '" ' + (u.isAdmin ? 'checked' : '') + (u.id === currentUserEmail ? ' disabled title="You cannot remove your own admin access"' : '') + '>' +
+            'Admin' +
+          '</label>' +
+          '<button class="btn-icon danger btn-remove-user" data-user-id="' + escHtml(u.id) + '"' + (u.id === currentUserEmail ? ' disabled title="You cannot remove yourself"' : '') + '>Remove</button>' +
+        '</div>' +
+      '</div>';
+  });
+
+  container.innerHTML = html;
+}
+
+document.getElementById('user-table').addEventListener('change', function (evt) {
+  if (evt.target.matches('input[data-app-key]')) {
+    var userId = evt.target.getAttribute('data-user-id');
+    var appKey = evt.target.getAttribute('data-app-key');
+    toggleAppAccess(userId, appKey, evt.target.checked);
+  } else if (evt.target.matches('.admin-checkbox')) {
+    var userId = evt.target.getAttribute('data-user-id');
+    toggleAdmin(userId, evt.target.checked);
+  }
+});
+
+document.getElementById('user-table').addEventListener('click', function (evt) {
+  var btn = evt.target.closest('.btn-remove-user');
+  if (btn && !btn.disabled) {
+    removeUser(btn.getAttribute('data-user-id'));
+  }
+});
+
+function toggleAppAccess(userId, appKey, granted) {
+  var fb = window.__hccgcUM;
+  var user = allUsers.find(function (u) { return u.id === userId; });
+  if (!user) return;
+
+  var allowedApps = Array.isArray(user.allowedApps) ? user.allowedApps.slice() : [];
+  if (granted && allowedApps.indexOf(appKey) === -1) {
+    allowedApps.push(appKey);
+  } else if (!granted) {
+    allowedApps = allowedApps.filter(function (k) { return k !== appKey; });
+  }
+
+  fb.setDoc(fb.doc(fb.db, fb.USERS_COLLECTION, userId), { allowedApps: allowedApps }, { merge: true })
+    .then(function () {
+      user.allowedApps = allowedApps;
+      showStatus('Access updated for ' + user.email + '.', 'success');
+    })
+    .catch(function (err) {
+      console.error(err);
+      showStatus('Error updating access: ' + (err.message || 'unknown error'), 'error');
+      renderUsers();
+    });
+}
+
+function toggleAdmin(userId, isAdmin) {
+  var fb = window.__hccgcUM;
+  var user = allUsers.find(function (u) { return u.id === userId; });
+  if (!user) return;
+
+  fb.setDoc(fb.doc(fb.db, fb.USERS_COLLECTION, userId), { isAdmin: isAdmin }, { merge: true })
+    .then(function () {
+      user.isAdmin = isAdmin;
+      showStatus((isAdmin ? 'Granted' : 'Removed') + ' admin access for ' + user.email + '.', 'success');
+      renderUsers();
+    })
+    .catch(function (err) {
+      console.error(err);
+      showStatus('Error updating admin status: ' + (err.message || 'unknown error'), 'error');
+      renderUsers();
+    });
+}
+
+function removeUser(userId) {
+  if (!confirm('Remove ' + userId + ' from the portal? They will lose all app access.')) return;
+
+  var fb = window.__hccgcUM;
+  fb.deleteDoc(fb.doc(fb.db, fb.USERS_COLLECTION, userId))
+    .then(function () {
+      showStatus('User removed.', 'success');
+      loadUsers();
+    })
+    .catch(function (err) {
+      console.error(err);
+      showStatus('Error removing user: ' + (err.message || 'unknown error'), 'error');
+    });
+}
+
+document.getElementById('btn-add-user').addEventListener('click', function () {
+  document.getElementById('user-email').value = '';
+  document.getElementById('user-name').value = '';
+  document.getElementById('modal-overlay').classList.add('show');
+});
+document.getElementById('modal-close-btn').addEventListener('click', closeAddModal);
+document.getElementById('modal-cancel-btn').addEventListener('click', closeAddModal);
+
+function closeAddModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+}
+
+document.getElementById('btn-save-user').addEventListener('click', function () {
+  var email = document.getElementById('user-email').value.trim().toLowerCase();
+  var name = document.getElementById('user-name').value.trim();
+
+  if (!email || !email.endsWith('@hccgc.org')) {
+    alert('Please enter a valid @hccgc.org email address.');
+    return;
+  }
+
+  var fb = window.__hccgcUM;
+  fb.setDoc(fb.doc(fb.db, fb.USERS_COLLECTION, email), {
+    email: email,
+    name: name,
+    allowedApps: [],
+    isAdmin: false,
+    createdAt: fb.serverTimestamp()
+  }, { merge: true })
+    .then(function () {
+      closeAddModal();
+      showStatus('User added. Grant them app access below.', 'success');
+      loadUsers();
+    })
+    .catch(function (err) {
+      console.error(err);
+      alert('Error adding user: ' + (err.message || 'unknown error'));
+    });
+});
+
+function loadPartial(id, file) {
+  var target = document.getElementById(id);
+  if (!target) return;
+  fetch(file)
+    .then(function (r) { return r.text(); })
+    .then(function (html) {
+      target.innerHTML = html;
+      if (id === 'site-header') {
+        fixHeaderLinksForSubfolder(target);
+      }
+    })
+    .catch(function () {});
+}
+
+// header.html uses paths relative to the calling page (e.g.
+// src="hccgc-logo.jpeg"), which breaks from a subfolder like /admin/.
+// We patch the loaded copy here rather than editing the shared file.
+function fixHeaderLinksForSubfolder(headerEl) {
+  var logo = headerEl.querySelector('.brand-logo');
+  if (logo && logo.getAttribute('src') && !logo.getAttribute('src').startsWith('/') && !logo.getAttribute('src').startsWith('http')) {
+    logo.setAttribute('src', '/' + logo.getAttribute('src'));
+  }
+
+  var links = headerEl.querySelectorAll('a[href]');
+  links.forEach(function (link) {
+    var href = link.getAttribute('href');
+    if (!href) return;
+    if (href.startsWith('http') || href.startsWith('/') || href.startsWith('#')) return;
+    link.setAttribute('href', '/' + href);
+  });
+}
+
+document.querySelectorAll('.tab-btn').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+    document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'delete-renter' && !window.__drLoaded) { window.__drLoaded = true; loadRentersForDelete(); loadInternalEventsForDelete(); loadDeleteAllCounts(); loadTestPayments(); }
+  });
+});
+
+var drSelectedRenterId = null;
+async function loadRentersForDelete() {
+  var select = document.getElementById('dr-renter-select');
+  try {
+    var res = await authedFetch(API_BASE + '/renters?all=true');
+    var renters = await res.json();
+    renters.sort(function (a, b) { return (a.contact_name || '').localeCompare(b.contact_name || ''); });
+    select.innerHTML = '<option value="">Select a renter&hellip;</option>' + renters.map(function (r) {
+      return '<option value="' + r.renter_id + '">' + (r.contact_name || 'Unnamed') + (r.email ? ' (' + r.email + ')' : '') + '</option>';
+    }).join('');
+  } catch (err) {
+    select.innerHTML = '<option value="">Could not load renters</option>';
+  }
+}
+document.getElementById('dr-renter-select').addEventListener('change', async function () {
+  var renterId = this.value;
+  var preview = document.getElementById('dr-preview');
+  drSelectedRenterId = null;
+  document.getElementById('dr-delete-result').textContent = '';
+  document.getElementById('dr-confirm-name').value = '';
+  if (!renterId) { preview.style.display = 'none'; return; }
+  try {
+    var res = await authedFetch(API_BASE + '/renters/' + encodeURIComponent(renterId) + '/delete-preview');
+    var data = await res.json();
+    if (!res.ok) {
+      preview.style.display = 'block';
+      document.getElementById('dr-preview-summary').textContent = (data.errors || [data.error]).join(' ') || 'Could not load this renter.';
+      document.getElementById('dr-bookings-list').innerHTML = '';
+      return;
+    }
+    drSelectedRenterId = renterId;
+    document.getElementById('dr-confirm-target').textContent = data.renter.contactName;
+    document.getElementById('dr-preview-summary').textContent = 'This will permanently delete ' + data.renter.contactName +
+      (data.renter.email ? ' (' + data.renter.email + ')' : '') + ' and ' + data.bookingCount + ' booking' + (data.bookingCount === 1 ? '' : 's') + '.';
+    document.getElementById('dr-bookings-list').innerHTML = data.bookings.length
+      ? data.bookings.map(function (b) {
+          return '<div style="padding:4px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;">' +
+            '<input type="checkbox" class="dr-booking-checkbox" value="' + b.bookingId + '" checked>' +
+            '<span>' + (b.eventName || 'Untitled event') + ' — ' + (b.eventDate || '') + ' <span style="color:var(--muted);">(' + b.paymentStatus + ')</span></span>' +
+            '</div>';
+        }).join('')
+      : '<div style="color:var(--muted);">No bookings on file for this renter.</div>';
+    preview.style.display = 'block';
+  } catch (err) {
+    preview.style.display = 'block';
+    document.getElementById('dr-preview-summary').textContent = 'Could not reach the server: ' + err.message;
+  }
+});
+document.getElementById('btn-delete-renter').addEventListener('click', async function () {
+  if (!drSelectedRenterId) return;
+  var confirmName = document.getElementById('dr-confirm-name').value.trim();
+  var resultEl = document.getElementById('dr-delete-result');
+  if (!confirmName) { resultEl.style.color = 'var(--red, #b3382c)'; resultEl.textContent = 'Type the renter\'s name to confirm first.'; return; }
+  if (!confirm('This is permanent and cannot be undone. Delete this renter and all their bookings now?')) return;
+  var btn = this;
+  btn.disabled = true; btn.textContent = 'Deleting…';
+  try {
+    var res = await authedFetch(API_BASE + '/renters/' + encodeURIComponent(drSelectedRenterId) + '/delete', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ confirmName: confirmName })
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      resultEl.style.color = 'var(--red, #b3382c)';
+      resultEl.textContent = (data.errors || [data.error]).join(' ') || 'Could not delete.';
+      return;
+    }
+    resultEl.style.color = 'var(--green, #2e7d4f)';
+    resultEl.textContent = 'Deleted — ' + data.bookingsDeleted + ' booking(s) removed along with the renter.';
+    document.getElementById('dr-preview').style.display = 'none';
+    document.getElementById('dr-renter-select').value = '';
+    loadRentersForDelete();
+  } catch (err) {
+    resultEl.style.color = 'var(--red, #b3382c)';
+    resultEl.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Permanently delete renter & all bookings';
+  }
+});
+document.getElementById('btn-delete-selected-bookings').addEventListener('click', async function () {
+  if (!drSelectedRenterId) return;
+  var checkedBoxes = Array.from(document.querySelectorAll('.dr-booking-checkbox:checked'));
+  var bookingIds = checkedBoxes.map(function (cb) { return cb.value; });
+  var confirmName = document.getElementById('dr-confirm-name').value.trim();
+  var resultEl = document.getElementById('dr-delete-result');
+  if (!bookingIds.length) { resultEl.style.color = 'var(--red, #b3382c)'; resultEl.textContent = 'Check at least one booking to delete.'; return; }
+  if (!confirmName) { resultEl.style.color = 'var(--red, #b3382c)'; resultEl.textContent = 'Type the renter\'s name to confirm first.'; return; }
+  if (!confirm('This is permanent and cannot be undone. Delete ' + bookingIds.length + ' selected booking(s) now? The renter record itself will stay.')) return;
+  var btn = this;
+  btn.disabled = true; btn.textContent = 'Deleting…';
+  try {
+    var res = await authedFetch(API_BASE + '/renters/' + encodeURIComponent(drSelectedRenterId) + '/delete-bookings', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bookingIds: bookingIds, confirmName: confirmName })
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      resultEl.style.color = 'var(--red, #b3382c)';
+      resultEl.textContent = (data.errors || [data.error]).join(' ') || 'Could not delete.';
+      return;
+    }
+    resultEl.style.color = 'var(--green, #2e7d4f)';
+    resultEl.textContent = 'Deleted ' + data.bookingsDeleted + ' booking(s) — the renter record was kept.';
+    document.getElementById('dr-renter-select').dispatchEvent(new Event('change'));
+  } catch (err) {
+    resultEl.style.color = 'var(--red, #b3382c)';
+    resultEl.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Delete selected booking(s) only';
+  }
+});
+
+// ── Delete Internal Event ──
+async function loadInternalEventsForDelete() {
+  var select = document.getElementById('di-event-select');
+  try {
+    var res = await authedFetch(API_BASE + '/bookings/internal-list');
+    var events = await res.json();
+    select.innerHTML = '<option value="">Select an internal event&hellip;</option>' + events.map(function (e) {
+      return '<option value="' + e.key + '">' + (e.eventName || 'Untitled event') + ' — ' + e.eventDate + (e.isSeries ? ' (recurring series)' : '') + '</option>';
+    }).join('');
+  } catch (err) {
+    select.innerHTML = '<option value="">Could not load internal events</option>';
+  }
+}
+var diSelectedKey = null;
+document.getElementById('di-event-select').addEventListener('change', async function () {
+  var key = this.value;
+  var preview = document.getElementById('di-preview');
+  diSelectedKey = null;
+  document.getElementById('di-delete-result').textContent = '';
+  document.getElementById('di-confirm-name').value = '';
+  if (!key) { preview.style.display = 'none'; return; }
+  try {
+    var res = await authedFetch(API_BASE + '/bookings/internal-delete-preview?key=' + encodeURIComponent(key));
+    var data = await res.json();
+    if (!res.ok) {
+      preview.style.display = 'block';
+      document.getElementById('di-preview-summary').textContent = (data.errors || [data.error]).join(' ') || 'Could not load this event.';
+      document.getElementById('di-bookings-list').innerHTML = '';
+      return;
+    }
+    diSelectedKey = key;
+    document.getElementById('di-confirm-target').textContent = data.eventName;
+    document.getElementById('di-preview-summary').textContent = 'This will permanently delete ' + data.eventName + ' — ' + data.bookingCount + ' occurrence' + (data.bookingCount === 1 ? '' : 's') + '.';
+    document.getElementById('di-bookings-list').innerHTML = data.bookings.map(function (b) {
+      return '<div style="padding:4px 0;border-bottom:1px solid var(--border);">' + (b.eventDate || '') + ' <span style="color:var(--muted);">(' + b.paymentStatus + ')</span></div>';
+    }).join('');
+    preview.style.display = 'block';
+  } catch (err) {
+    preview.style.display = 'block';
+    document.getElementById('di-preview-summary').textContent = 'Could not reach the server: ' + err.message;
+  }
+});
+document.getElementById('btn-delete-internal').addEventListener('click', async function () {
+  if (!diSelectedKey) return;
+  var confirmName = document.getElementById('di-confirm-name').value.trim();
+  var resultEl = document.getElementById('di-delete-result');
+  if (!confirmName) { resultEl.style.color = 'var(--red, #b3382c)'; resultEl.textContent = 'Type the event\'s name to confirm first.'; return; }
+  if (!confirm('This is permanent and cannot be undone. Delete this internal event and all its occurrences now?')) return;
+  var btn = this;
+  btn.disabled = true; btn.textContent = 'Deleting…';
+  try {
+    var res = await authedFetch(API_BASE + '/bookings/internal-delete', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: diSelectedKey, confirmName: confirmName })
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      resultEl.style.color = 'var(--red, #b3382c)';
+      resultEl.textContent = (data.errors || [data.error]).join(' ') || 'Could not delete.';
+      return;
+    }
+    resultEl.style.color = 'var(--green, #2e7d4f)';
+    resultEl.textContent = 'Deleted — ' + data.bookingsDeleted + ' occurrence(s) removed.';
+    document.getElementById('di-preview').style.display = 'none';
+    document.getElementById('di-event-select').value = '';
+    loadInternalEventsForDelete();
+  } catch (err) {
+    resultEl.style.color = 'var(--red, #b3382c)';
+    resultEl.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Permanently delete this internal event';
+  }
+});
+
+// ── Delete All Data ──
+async function loadDeleteAllCounts() {
+  var el = document.getElementById('da-counts');
+  try {
+    var res = await authedFetch(API_BASE + '/admin/delete-all-preview');
+    var data = await res.json();
+    if (!res.ok) { el.textContent = (data.errors || [data.error]).join(' ') || 'Could not load counts.'; return; }
+    el.innerHTML = 'Currently in the system: <strong>' + data.renterCount + ' renter(s)</strong>, <strong>' + data.bookingCount + ' booking(s)</strong>.';
+  } catch (err) {
+    el.textContent = 'Could not reach the server: ' + err.message;
+  }
+}
+document.getElementById('btn-delete-all-data').addEventListener('click', async function () {
+  var phrase = document.getElementById('da-confirm-phrase').value.trim();
+  var resultEl = document.getElementById('da-result');
+  if (phrase !== 'DELETE ALL DATA') {
+    resultEl.style.color = 'var(--red, #b3382c)';
+    resultEl.textContent = 'Type the exact phrase "DELETE ALL DATA" to confirm.';
+    return;
+  }
+  if (!confirm('This deletes every renter and every booking in the entire system, permanently, with no way back. Are you completely sure?')) return;
+  if (!confirm('Really sure? This cannot be undone.')) return;
+  var btn = this;
+  btn.disabled = true; btn.textContent = 'Deleting everything…';
+  try {
+    var res = await authedFetch(API_BASE + '/admin/delete-all-data', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ confirmPhrase: phrase })
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      resultEl.style.color = 'var(--red, #b3382c)';
+      resultEl.textContent = (data.errors || [data.error]).join(' ') || 'Could not delete.';
+      return;
+    }
+    resultEl.style.color = 'var(--green, #2e7d4f)';
+    resultEl.textContent = 'Deleted ' + data.rentersDeleted + ' renter(s) and ' + data.bookingsDeleted + ' booking(s).';
+    document.getElementById('da-confirm-phrase').value = '';
+    loadDeleteAllCounts();
+  } catch (err) {
+    resultEl.style.color = 'var(--red, #b3382c)';
+    resultEl.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Permanently delete all renters & bookings';
+  }
+});
+
+// ── Picktime Import ──
+var piParsedRows = [];
+document.getElementById('btn-parse-picktime').addEventListener('click', async function () {
+  var fileInput = document.getElementById('pi-file-input');
+  var resultEl = document.getElementById('pi-parse-result');
+  var preview = document.getElementById('pi-preview');
+  preview.style.display = 'none';
+  if (!fileInput.files || !fileInput.files[0]) {
+    resultEl.style.color = 'var(--red, #b3382c)';
+    resultEl.textContent = 'Choose a CSV file first.';
+    return;
+  }
+  var btn = this;
+  btn.disabled = true; btn.textContent = 'Parsing…';
+  resultEl.style.color = ''; resultEl.textContent = '';
+  try {
+    var text = await fileInput.files[0].text();
+    var res = await authedFetch(API_BASE + '/admin/parse-picktime-csv', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ csvText: text })
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      resultEl.style.color = 'var(--red, #b3382c)';
+      resultEl.textContent = (data.errors || [data.error]).join(' ') || 'Could not parse this file.';
+      return;
+    }
+    piParsedRows = data.preview;
+    document.getElementById('pi-preview-summary').textContent =
+      data.parsedCount + ' of ' + data.totalRows + ' rows parsed \u2014 ' + data.duplicateCount + ' already imported, ' + data.newRenterCount + ' new renter(s) would be created.';
+    document.getElementById('pi-warnings').innerHTML = data.warnings.length
+      ? '<div style="color:var(--red, #b3382c);font-size:0.82rem;">' + data.warnings.map(function (w) { return escHtml(w); }).join('<br>') + '</div>'
+      : '';
+    document.getElementById('pi-rows-table').innerHTML = piParsedRows.map(function (r) {
+      return '<div style="padding:4px 0;border-bottom:1px solid var(--border);' + (r.isDuplicate ? 'color:var(--muted);' : '') + '">' +
+        escHtml(r.customerName) + ' \u2014 ' + escHtml(r.date) + (r.room ? ' \u2014 ' + escHtml(r.room) : '') +
+        (r.amount ? ' \u2014 ' + escHtml(r.amount) : '') +
+        (r.isDuplicate ? ' <span style="color:var(--red, #b3382c);">(already imported)</span>' : '') +
+        (r.isNewRenter ? ' <span style="color:var(--saffron-dark);">(new renter)</span>' : '') +
+        '</div>';
+    }).join('') || '<div style="color:var(--muted);">No rows parsed.</div>';
+    preview.style.display = 'block';
+  } catch (err) {
+    resultEl.style.color = 'var(--red, #b3382c)';
+    resultEl.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Parse & preview';
+  }
+});
+document.getElementById('btn-commit-picktime').addEventListener('click', async function () {
+  var resultEl = document.getElementById('pi-commit-result');
+  var skipDuplicates = document.getElementById('pi-skip-duplicates').checked;
+  if (!piParsedRows.length) return;
+  if (!confirm('Import ' + piParsedRows.length + ' row(s) now' + (skipDuplicates ? ' (already-imported rows will be skipped)' : ' (including anything marked already imported \u2014 this can create duplicates)') + '?')) return;
+  var btn = this;
+  btn.disabled = true; btn.textContent = 'Importing…';
+  try {
+    var res = await authedFetch(API_BASE + '/admin/commit-picktime-import', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rows: piParsedRows, skipDuplicates: skipDuplicates })
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      resultEl.style.color = 'var(--red, #b3382c)';
+      resultEl.textContent = (data.errors || [data.error]).join(' ') || 'Could not import.';
+      return;
+    }
+    resultEl.style.color = 'var(--green, #2e7d4f)';
+    resultEl.textContent = 'Imported ' + data.bookingsInserted + ' booking(s), created ' + data.rentersCreated + ' new renter(s)' + (data.bookingsSkipped ? ', skipped ' + data.bookingsSkipped + ' already-imported row(s)' : '') + '.';
+    document.getElementById('pi-preview').style.display = 'none';
+    document.getElementById('pi-file-input').value = '';
+    piParsedRows = [];
+    loadDeleteAllCounts();
+  } catch (err) {
+    resultEl.style.color = 'var(--red, #b3382c)';
+    resultEl.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Import these bookings';
+  }
+});
+// ── Test Payments ──
+async function loadTestPayments() {
+  var listEl = document.getElementById('tp-list');
+  listEl.innerHTML = '<div class="field-hint">Loading&hellip;</div>';
+  try {
+    var res = await authedFetch(API_BASE + '/admin/test-payments');
+    var data = await res.json();
+    if (!res.ok) { listEl.innerHTML = '<div class="field-hint">' + ((data.errors || [data.error]).join(' ') || 'Could not load.') + '</div>'; return; }
+    if (!data.length) { listEl.innerHTML = '<div class="field-hint" style="color:var(--muted);">No test payments yet.</div>'; return; }
+    listEl.innerHTML = data.map(function (p) {
+      var actions = p.key
+        ? '<button type="button" class="tp-edit-btn" data-key="' + p.key + '" data-date="' + p.date + '" data-amount="' + p.amount + '" data-email="' + escHtml(p.email) + '" data-note="' + escHtml(p.note) + '" style="margin-right:8px;">Edit</button>' +
+          '<button type="button" class="tp-delete-btn" data-key="' + p.key + '" style="color:var(--red, #b3382c);">Delete</button>'
+        : '<span style="color:var(--muted);" title="This test payment was created before edit/delete existed and needs a one-time database update to enable it — see backfill-test-payment-keys.sql">Not editable yet</span>';
+      return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.86rem;">' +
+        '<span>' + p.date + ' — $' + Number(p.amount).toFixed(2) + ' — ' + escHtml(p.description) + '</span>' +
+        '<span style="white-space:nowrap;">' + actions + '</span></div>';
+    }).join('');
+  } catch (err) {
+    listEl.innerHTML = '<div class="field-hint">Could not reach the server: ' + err.message + '</div>';
+  }
+}
+document.getElementById('tp-list').addEventListener('click', async function (e) {
+  var editBtn = e.target.closest('.tp-edit-btn');
+  var deleteBtn = e.target.closest('.tp-delete-btn');
+  if (editBtn) {
+    document.getElementById('tp-date').value = editBtn.dataset.date;
+    document.getElementById('tp-amount').value = editBtn.dataset.amount;
+    document.getElementById('tp-email').value = editBtn.dataset.email;
+    document.getElementById('tp-note').value = editBtn.dataset.note;
+    document.getElementById('tp-editing-key').value = editBtn.dataset.key;
+    document.getElementById('btn-save-test-payment').textContent = 'Update test payment';
+    document.getElementById('btn-cancel-edit-test-payment').style.display = 'inline-block';
+    document.getElementById('tp-save-result').textContent = '';
+  }
+  if (deleteBtn) {
+    if (!confirm('Delete this test payment? This cannot be undone.')) return;
+    var resultEl = document.getElementById('tp-save-result');
+    try {
+      var delRes = await authedFetch(API_BASE + '/admin/test-payments/delete', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: deleteBtn.dataset.key })
+      });
+      var delData = await delRes.json();
+      if (!delRes.ok) { resultEl.style.color = 'var(--red, #b3382c)'; resultEl.textContent = (delData.errors || [delData.error]).join(' ') || 'Could not delete.'; return; }
+      loadTestPayments();
+    } catch (err) {
+      resultEl.style.color = 'var(--red, #b3382c)';
+      resultEl.textContent = 'Could not reach the server: ' + err.message;
+    }
+  }
+});
+function resetTestPaymentForm() {
+  document.getElementById('tp-date').value = '';
+  document.getElementById('tp-amount').value = '';
+  document.getElementById('tp-email').value = '';
+  document.getElementById('tp-note').value = '';
+  document.getElementById('tp-editing-key').value = '';
+  document.getElementById('btn-save-test-payment').textContent = 'Add test payment';
+  document.getElementById('btn-cancel-edit-test-payment').style.display = 'none';
+}
+document.getElementById('btn-cancel-edit-test-payment').addEventListener('click', function () {
+  resetTestPaymentForm();
+  document.getElementById('tp-save-result').textContent = '';
+});
+document.getElementById('btn-save-test-payment').addEventListener('click', async function () {
+  var resultEl = document.getElementById('tp-save-result');
+  var date = document.getElementById('tp-date').value;
+  var amount = document.getElementById('tp-amount').value;
+  var email = document.getElementById('tp-email').value.trim();
+  var note = document.getElementById('tp-note').value.trim();
+  var editingKey = document.getElementById('tp-editing-key').value;
+  if (!date || !amount || !email) {
+    resultEl.style.color = 'var(--red, #b3382c)';
+    resultEl.textContent = 'Date, amount, and email are all required.';
+    return;
+  }
+  var btn = this;
+  btn.disabled = true;
+  var isEditing = !!editingKey;
+  var url = API_BASE + '/admin/test-payments/' + (isEditing ? 'update' : 'create');
+  var payload = { date: date, amount: amount, email: email, note: note };
+  if (isEditing) payload.key = editingKey;
+  try {
+    var res = await authedFetch(url, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      resultEl.style.color = 'var(--red, #b3382c)';
+      resultEl.textContent = (data.errors || [data.error]).join(' ') || 'Could not save.';
+      return;
+    }
+    resultEl.style.color = 'var(--green, #2e7d4f)';
+    resultEl.textContent = isEditing ? 'Test payment updated.' : 'Test payment added.';
+    resetTestPaymentForm();
+    loadTestPayments();
+  } catch (err) {
+    resultEl.style.color = 'var(--red, #b3382c)';
+    resultEl.textContent = 'Could not reach the server: ' + err.message;
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+loadPartial('site-header', '/header.html');
+loadPartial('site-footer', '/footer.html');
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/service-worker.js').catch(function () {});
+</script>
+</body>
+</html>

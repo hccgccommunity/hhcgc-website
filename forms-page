@@ -258,6 +258,10 @@
        starting lower than the flyer and stopping short of the container's
        right edge. */
     html.is-embed-root { margin: 0; padding: 0; }
+    /* Never clip. If the host iframe is briefly shorter than the content
+       (between an expansion and the resize landing), scrolling is far
+       better than silently hiding form fields. */
+    html.is-embed-root body { overflow-y: auto; }
     html.is-embed-root body { margin: 0; padding: 0; background: transparent; min-height: 0; }
     html.is-embed-root body .container,
     html.is-embed-root body .container.wide { width: 100%; max-width: none; margin: 0; padding: 0; }
@@ -671,6 +675,16 @@ function reportHeightOnce() {
 if (IS_EMBED) {
   // A change can reveal a conditional question, which changes the height.
   document.addEventListener('change', function () { setTimeout(reportHeightOnce, 80); });
+  // Catches every height change, not just ones following a 'change' event —
+  // conditional questions appearing, validation messages, text wrapping.
+  // Observing the CARD is safe: its height comes from its own content and
+  // is unaffected by the iframe being resized, so there is no feedback
+  // loop (observing the body would create one).
+  if (window.ResizeObserver) {
+    var __ro = new ResizeObserver(function () { reportHeightOnce(); });
+    var __card = document.getElementById('form-card');
+    if (__card) __ro.observe(__card);
+  }
 }
 if (__sharedToken) loadSharedResponses(getFormIdFromUrl(), __sharedToken);
 else loadForm();

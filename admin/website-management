@@ -2682,6 +2682,7 @@ async function loadForms() {
         '<div class="page-row-actions">' +
           '<button class="btn-row" data-copy-form-link="' + f.formId + '">Copy link</button>' +
           '<button class="btn-row" data-view-responses="' + f.formId + '">Responses</button>' +
+          '<button class="btn-row" data-share-responses="' + f.formId + '">Share link</button>' +
           '<button class="btn-row" data-duplicate-form="' + f.formId + '">Duplicate</button>' +
           '<button class="btn-row" data-edit-form="' + f.formId + '">' +
             '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit' +
@@ -2710,6 +2711,8 @@ document.getElementById('forms-list').addEventListener('click', async function (
   }
   var respBtn = e.target.closest('[data-view-responses]');
   if (respBtn) { openResponsesModal(respBtn.dataset.viewResponses); return; }
+  var shareBtn = e.target.closest('[data-share-responses]');
+  if (shareBtn) { openShareLinkModal(shareBtn.dataset.shareResponses); return; }
   var dupBtn = e.target.closest('[data-duplicate-form]');
   if (dupBtn) {
     dupBtn.disabled = true; dupBtn.textContent = 'Duplicating\u2026';
@@ -3074,6 +3077,60 @@ document.getElementById('btn-save-form').addEventListener('click', async functio
     btn.disabled = false; btn.textContent = orig;
   }
 });
+
+/* ---- Share response links ---- */
+// A link an admin hands to specific people over WhatsApp/text. The token
+// is the credential, so links can be scoped to one answer, given an
+// expiry, and revoked.
+async function openShareLinkModal(formId) {
+  var def;
+  try {
+    var r = await formsAuthedFetch(FORMS_API_BASE + '/forms/' + encodeURIComponent(formId));
+    def = await r.json();
+    if (!r.ok) throw new Error((def.errors || [def.error]).join(' '));
+  } catch (err) { alert('Could not load the form: ' + err.message); return; }
+
+  var choiceQs = (def.questions || []).map(function (q, i) { return { q: q, i: i }; })
+    .filter(function (x) { return TYPES_WITH_OPTIONS.indexOf(x.q.questionType) !== -1; });
+
+  var scopeQ = '';
+  if (choiceQs.length) {
+    var opts = choiceQs.map(function (x) { return (x.i + 1) + ') ' + x.q.questionText; }).join('\n');
+    var pick = window.prompt('Limit this link to one answer? Enter the question number, or leave blank for ALL responses.\n\n' + opts, '');
+    if (pick === null) return;
+    scopeQ = pick.trim();
+  }
+  var filterQuestionIndex = null, filterValue = null;
+  if (scopeQ) {
+    var qi = Number(scopeQ) - 1;
+    var chosen = (def.questions || [])[qi];
+    if (chosen && chosen.options && chosen.options.length) {
+      var ansPick = window.prompt('Which answer?\n\n' + chosen.options.map(function (o, n) { return (n + 1) + ') ' + o; }).join('\n'), '');
+      if (ansPick === null) return;
+      var ai = Number(ansPick) - 1;
+      if (chosen.options[ai]) { filterQuestionIndex = qi; filterValue = chosen.options[ai]; }
+    }
+  }
+  var label = window.prompt('Who is this link for? (a note for your own reference)', '') || '';
+  var includeContact = window.confirm('Include email and phone in this view?\n\nOK = yes, include contact details.\nCancel = names and answers only.');
+
+  try {
+    var res = await formsAuthedFetch(FORMS_API_BASE + '/forms/' + encodeURIComponent(formId) + '/share-links', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ label: label, filterQuestionIndex: filterQuestionIndex, filterValue: filterValue, includeContact: includeContact })
+    });
+    var data = await res.json();
+    if (!res.ok) { alert((data.errors || [data.error]).join(' ') || 'Could not create the link.'); return; }
+    try {
+      await navigator.clipboard.writeText(data.url);
+      showStatusForms('Link copied \u2014 paste it into WhatsApp or a text message.', 'success');
+    } catch (e) {
+      window.prompt('Copy this link:', data.url);
+    }
+  } catch (err) {
+    alert('Could not reach the server: ' + err.message);
+  }
+}
 
 /* ---- Responses ---- */
 let CURRENT_RESPONSES = null;

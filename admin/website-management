@@ -2416,9 +2416,14 @@ function openModalMP(page) {
   document.getElementById('page-schedule-text').value = page ? (page.scheduleText||'') : '';
   document.getElementById('page-contact-name').value = page ? ((page.contact&&page.contact.name)||'') : '';
   document.getElementById('page-contact-phone').value = page ? ((page.contact&&page.contact.phone)||'') : '';
-  document.getElementById('sync-to-events').checked = false;
-  document.getElementById('event-sync-fields').classList.remove('show');
-  document.getElementById('sync-description').value = '';
+  // Restored from the page rather than reset. These were previously
+  // cleared on every open, so reopening a page always showed the box
+  // unticked and the description blank even though an event entry
+  // existed — and re-saving silently dropped the setting.
+  var syncOn = !!(page && page.syncToEvents);
+  document.getElementById('sync-to-events').checked = syncOn;
+  document.getElementById('event-sync-fields').classList.toggle('show', syncOn);
+  document.getElementById('sync-description').value = page ? (page.syncDescription || '') : '';
 
   // Step 3
   document.getElementById('page-about-title').value = page ? (page.aboutTitle||'') : '';
@@ -2504,6 +2509,8 @@ document.getElementById('btn-save').addEventListener('click', async function() {
     whoShouldAttend: parseLines('page-who-should-attend'),
     // Only one registration method is stored, so switching modes can't
     // leave a stale Zeffy embed rendering next to a form.
+    syncToEvents: document.getElementById('sync-to-events').checked,
+    syncDescription: document.getElementById('sync-description').value.trim(),
     formId: ((document.querySelector('input[name="page-reg-mode"]:checked') || {}).value === 'form')
       ? (document.getElementById('page-form-id').value || '') : '',
     zeffyUrl: ((document.querySelector('input[name="page-reg-mode"]:checked') || {}).value === 'zeffy')

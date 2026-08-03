@@ -655,6 +655,56 @@ async function loadSharedResponses(formId, token) {
     document.getElementById('state-msg').textContent = 'Could not load: ' + err.message;
   }
 }
+// /forms/<id>/responses/<token> — an admin-issued link. Distinct from
+// /shared/<token>, which is a respondent viewing their own group.
+function shareTokenFromUrl() {
+  var parts = window.location.pathname.split('/').filter(Boolean);
+  var i = parts.indexOf('responses');
+  return (i !== -1 && parts[i + 1]) ? decodeURIComponent(parts[i + 1]) : null;
+}
+async function loadShareLinkResponses(formId, token) {
+  document.getElementById('state-msg').textContent = 'Loading\u2026';
+  try {
+    var res = await fetch(API_BASE + '/public/forms/' + encodeURIComponent(formId) + '/responses/' + encodeURIComponent(token));
+    var data = await res.json();
+    if (!res.ok) {
+      document.getElementById('hero-title').textContent = 'Not available';
+      document.getElementById('state-msg').textContent = (data.errors || [data.error || 'Not available.']).join(' ');
+      return;
+    }
+    document.getElementById('hero-title').textContent = data.eventName || data.formName || 'Responses';
+    document.getElementById('hero-sub').textContent = data.filterLabel || (data.responses.length + ' response' + (data.responses.length === 1 ? '' : 's'));
+    document.title = (data.eventName || 'Responses') + ' | HCCGC';
+    document.getElementById('state-msg').style.display = 'none';
+    if (!data.responses.length) {
+      document.getElementById('form-card').innerHTML = '<div class="closed-note">No responses yet.</div>';
+      return;
+    }
+    var html = '<div class="section-label">' + data.responses.length + ' response' + (data.responses.length === 1 ? '' : 's') + '</div><div class="shared-list">';
+    html += data.responses.map(function (r) {
+      var bits = [];
+      if (data.includeContact) {
+        if (r.email) bits.push(esc(r.email));
+        if (r.phone) bits.push(esc(r.phone));
+      }
+      (data.questions || []).forEach(function (q, i) {
+        var a = r.answers[i];
+        if (a === '' || a === null || a === undefined) return;
+        bits.push(esc(q) + ': ' + esc(Array.isArray(a) ? a.join(', ') : a));
+      });
+      return '<div class="shared-item">' +
+        '<div class="shared-name">' + esc(r.name) +
+        (r.statusFlag ? ' <span style="font-size:.76rem;color:var(--green);font-weight:700;">' + esc(r.statusFlag) + '</span>' : '') + '</div>' +
+        (bits.length ? '<div class="shared-meta">' + bits.join(' &middot; ') + '</div>' : '') +
+      '</div>';
+    }).join('');
+    html += '</div>';
+    document.getElementById('form-card').innerHTML = html;
+  } catch (err) {
+    document.getElementById('state-msg').textContent = 'Could not load: ' + err.message;
+  }
+}
+var __shareToken = shareTokenFromUrl();
 var __sharedToken = sharedTokenFromUrl();
 // One-shot height report. Deliberately fires only ONCE per render and
 // never re-measures after the host resizes the frame — that feedback path
@@ -686,7 +736,8 @@ if (IS_EMBED) {
     if (__card) __ro.observe(__card);
   }
 }
-if (__sharedToken) loadSharedResponses(getFormIdFromUrl(), __sharedToken);
+if (__shareToken) loadShareLinkResponses(getFormIdFromUrl(), __shareToken);
+else if (__sharedToken) loadSharedResponses(getFormIdFromUrl(), __sharedToken);
 else loadForm();
 </script>
 </body>

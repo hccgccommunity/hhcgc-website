@@ -355,13 +355,45 @@ tr.series-row:hover td { background: var(--surface-soft); }
   <!-- ── SOCIAL BROADCAST TAB ── -->
   <div class="tab-panel" id="tab-broadcast">
     <div class="card">
-      <h2 style="margin-bottom:8px;">Social Broadcast</h2>
-      <p style="font-size:0.92rem;color:var(--muted);line-height:1.6;max-width:640px;">
-        Not built yet — posting to Facebook, Instagram, and WhatsApp Business needs real API credentials
-        set up on the Meta side first (a Developer app, Page access token, and — for WhatsApp specifically —
-        pre-approved message templates, since Meta doesn't allow free-form broadcast messaging there).
-        Once that's in place, this tab is ready to be built out.
-      </p>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <h2 style="margin:0;">Social Broadcast</h2>
+        <div id="social-status" style="font-size:0.82rem;color:var(--muted);"></div>
+      </div>
+      <p style="font-size:0.88rem;color:var(--muted);margin:6px 0 16px;">Post an announcement to HCCGC's Facebook Page and Instagram at once.</p>
+
+      <div class="field">
+        <label>Message</label>
+        <textarea id="social-message" rows="5" placeholder="Join us for Sangeet Sandhya on Saturday, August 16..."></textarea>
+        <div class="card-sub" style="margin:4px 0 0;"><span id="social-char-count">0</span> characters</div>
+      </div>
+
+      <div class="field">
+        <label>Image <span style="font-weight:400;color:var(--muted);">(required for Instagram)</span></label>
+        <input type="file" id="social-image-file" accept="image/*">
+        <div class="card-sub" id="social-image-hint" style="margin:4px 0 0;">Upload the image directly — it will be hosted for you.</div>
+        <input type="hidden" id="social-image-url">
+        <div id="social-image-preview" style="display:none;margin-top:8px;">
+          <img id="social-image-img" style="max-width:240px;border-radius:10px;border:1px solid var(--border);display:block;">
+          <button type="button" class="btn-secondary" id="social-remove-image" style="margin-top:6px;padding:4px 10px;font-size:0.78rem;">Remove image</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Post to</label>
+        <label style="display:flex;align-items:center;gap:8px;font-weight:400;"><input type="checkbox" id="social-fb" checked style="width:16px;height:16px;"> Facebook Page</label>
+        <label style="display:flex;align-items:center;gap:8px;font-weight:400;margin-top:6px;"><input type="checkbox" id="social-ig" style="width:16px;height:16px;"> Instagram</label>
+      </div>
+
+      <button type="button" class="btn-primary" id="btn-social-post">Post now</button>
+      <div class="result-box" id="social-result" style="display:none;margin-top:14px;"></div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <h2 style="margin:0;">Recent posts</h2>
+        <button type="button" class="btn-secondary" id="btn-social-refresh">Refresh</button>
+      </div>
+      <div id="social-history"></div>
     </div>
   </div>
 
@@ -704,6 +736,129 @@ onAuthStateChanged(auth, function(user) {
     loadCommunicationsDashboard();
   }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });
 });
+/* ── Social Broadcast ───────────────────────────────────────────────── */
+async function loadSocialStatus() {
+  var el = document.getElementById('social-status');
+  try {
+    var res = await authedFetch(API_BASE + '/social/status');
+    var d = await res.json();
+    if (!d.tokenConfigured) {
+      el.innerHTML = '<span style="color:var(--red);font-weight:700;">Not connected</span> — add a Page access token in Admin of Admin \u2192 System Settings.';
+      return;
+    }
+    if (!d.ready) {
+      // Tokens expire roughly every 60 days; say so plainly rather than
+      // letting the first failed post be the discovery.
+      el.innerHTML = '<span style="color:var(--red);font-weight:700;">Token problem</span> — ' + escHtml(d.reason || 'unknown') + '. It may have expired; generate a new one.';
+      return;
+    }
+    el.innerHTML = '<span style="color:var(--green);font-weight:700;">Connected</span> \u00b7 ' + escHtml(d.pageName || 'Page') +
+      (d.instagramConnected ? ' \u00b7 Instagram linked' : ' \u00b7 <span style="color:var(--amber,#b5750a);">no Instagram linked</span>');
+    if (!d.instagramConnected) document.getElementById('social-ig').disabled = true;
+  } catch (err) {
+    el.textContent = 'Could not check connection: ' + err.message;
+  }
+}
+document.querySelectorAll('[data-tab="broadcast"]').forEach(function (b) {
+  b.addEventListener('click', function () { loadSocialStatus(); loadSocialHistory(); });
+});
+document.getElementById('social-message').addEventListener('input', function () {
+  document.getElementById('social-char-count').textContent = this.value.length;
+});
+document.getElementById('social-image-file').addEventListener('change', async function (e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var hint = document.getElementById('social-image-hint');
+  var orig = hint.textContent;
+  hint.textContent = 'Uploading\u2026';
+  try {
+    var base64 = await new Promise(function (resolve, reject) {
+      var r = new FileReader();
+      r.onload = function () { resolve(String(r.result).split(',')[1]); };
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+    var res = await authedFetch(API_BASE + '/pages/image-upload', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ base64: base64, filename: file.name, mimeType: file.type })
+    });
+    var data = await res.json();
+    if (!res.ok) { hint.textContent = (data.errors || [data.error]).join(' ') || 'Upload failed.'; return; }
+    document.getElementById('social-image-url').value = data.imageUrl;
+    document.getElementById('social-image-img').src = data.imageUrl;
+    document.getElementById('social-image-preview').style.display = 'block';
+    hint.textContent = orig;
+  } catch (err) { hint.textContent = 'Upload failed: ' + err.message; }
+});
+document.getElementById('social-remove-image').addEventListener('click', function () {
+  document.getElementById('social-image-url').value = '';
+  document.getElementById('social-image-file').value = '';
+  document.getElementById('social-image-preview').style.display = 'none';
+});
+document.getElementById('btn-social-post').addEventListener('click', async function () {
+  var btn = this;
+  var box = document.getElementById('social-result');
+  var platforms = [];
+  if (document.getElementById('social-fb').checked) platforms.push('facebook');
+  if (document.getElementById('social-ig').checked) platforms.push('instagram');
+  var payload = {
+    message: document.getElementById('social-message').value,
+    imageUrl: document.getElementById('social-image-url').value,
+    platforms: platforms
+  };
+  box.style.display = 'block'; box.className = 'result-box';
+  box.textContent = 'Posting\u2026';
+  btn.disabled = true;
+  try {
+    var res = await authedFetch(API_BASE + '/social/post', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    var data = await res.json();
+    if (!res.ok) { box.className = 'result-box error'; box.textContent = (data.errors || [data.error]).join(' '); return; }
+    // Each platform reports separately — one can succeed while the other
+    // fails, and hiding that behind a single status would be misleading.
+    var lines = Object.keys(data.results).map(function (k) {
+      var r = data.results[k];
+      return (r.status === 'sent' ? '\u2713 ' : '\u2717 ') + k + (r.status === 'sent' ? ' posted' : ': ' + r.error);
+    });
+    var anyFailed = Object.keys(data.results).some(function (k) { return data.results[k].status !== 'sent'; });
+    box.className = 'result-box ' + (anyFailed ? 'error' : 'success');
+    box.textContent = lines.join('  |  ');
+    if (!anyFailed) {
+      document.getElementById('social-message').value = '';
+      document.getElementById('social-char-count').textContent = '0';
+      document.getElementById('social-remove-image').click();
+    }
+    loadSocialHistory();
+  } catch (err) {
+    box.className = 'result-box error'; box.textContent = 'Could not reach the server: ' + err.message;
+  } finally { btn.disabled = false; }
+});
+document.getElementById('btn-social-refresh').addEventListener('click', loadSocialHistory);
+async function loadSocialHistory() {
+  var el = document.getElementById('social-history');
+  el.innerHTML = '<div class="empty-state">Loading\u2026</div>';
+  try {
+    var res = await authedFetch(API_BASE + '/social/history');
+    var rows = await res.json();
+    if (!rows.length) { el.innerHTML = '<div class="empty-state">Nothing posted yet.</div>'; return; }
+    el.innerHTML = rows.map(function (r) {
+      return '<div style="border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;">' +
+        '<div style="display:flex;justify-content:space-between;gap:10px;">' +
+          '<strong style="font-size:.86rem;">' + escHtml(r.platform) + '</strong>' +
+          '<span style="font-size:.78rem;color:' + (r.status === 'sent' ? 'var(--green)' : 'var(--red)') + ';font-weight:700;">' + escHtml(r.status) + '</span>' +
+        '</div>' +
+        '<div style="font-size:.84rem;margin-top:4px;white-space:pre-wrap;">' + escHtml((r.message || '').slice(0, 160)) + '</div>' +
+        (r.errorMessage ? '<div style="font-size:.78rem;color:var(--red);margin-top:4px;">' + escHtml(r.errorMessage) + '</div>' : '') +
+        '<div style="font-size:.76rem;color:var(--muted);margin-top:4px;">' + escHtml(r.postedBy) + ' \u00b7 ' + formatTimestampDate(r.postedAt) + '</div>' +
+      '</div>';
+    }).join('');
+  } catch (err) {
+    el.innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
+  }
+}
+
 </script>
 </body>
 </html>

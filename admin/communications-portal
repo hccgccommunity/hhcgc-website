@@ -653,6 +653,18 @@ let recipientPreview = [];
 //  Its functions referenced elements that no longer exist, so they were
 //  removed rather than left to throw on load.)
 
+// Restored: this was removed along with the old Mass Email block, which
+// left every call to it throwing and the page stuck on "Checking access".
+function showGate(title, msg) {
+  var g = document.getElementById('gate');
+  if (!g) return;
+  var h = g.querySelector('h3'); if (h) h.textContent = title;
+  var p = g.querySelector('p'); if (p) p.innerHTML = msg;
+  g.style.display = 'flex';
+  var app = document.getElementById('app');
+  if (app) app.style.display = 'none';
+}
+
 onAuthStateChanged(auth, function(user) {
   if (!user) { showGate('Sign in required', 'Please sign in from the <a href="'+PORTAL_URL+'">Admin Portal</a> first.'); return; }
   var email = (user.email||'').toLowerCase();
@@ -670,6 +682,16 @@ onAuthStateChanged(auth, function(user) {
     loadCommunicationsDashboard();
   }).catch(function() { showGate('Error', 'Could not verify access. Please try again.'); });
 });
+// Used by the Social Broadcast and Email Blast history lists. It was
+// referenced but never defined, which threw at load and left the page
+// stuck on "Checking access".
+function formatTimestampDate(ts) {
+  if (!ts) return '';
+  var d = new Date(ts);
+  if (isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) +
+    ' ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
 /* ── Social Broadcast ───────────────────────────────────────────────── */
 async function loadSocialStatus() {
   var el = document.getElementById('social-status');

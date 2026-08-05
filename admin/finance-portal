@@ -2861,6 +2861,7 @@ function groupInvoicesIntoDisplayItems(list) {
     // Must match the Facility Rental portal EXACTLY, or the two group the
     // same booking differently. Both take the earliest occurrence's mode.
     item.invoiceMode = first.invoiceMode || 'combined';
+    item.isPicktimeImport = !!first.isPicktimeImport;
     // For monthly, pre-bucket the occurrences by calendar month. Each
     // bucket is one invoice.
     if (item.invoiceMode === 'monthly') {
@@ -3400,6 +3401,12 @@ function openFinanceInvoicePopup(bookingId) {
   // Voiding is what unlocks editing a booking whose invoice the renter
   // already holds, so it only appears once something has actually been
   // sent — and only for admins, matching the server-side restriction.
+  // Picktime bookings were invoiced before this system existed, so the
+  // customer already has one. Offer a way to clear the red state without
+  // emailing them a second invoice.
+  if (!alreadySent && inv.isPicktimeImport && window.__hccgcIsAdmin) {
+    html += '<button type="button" class="invoice-action-btn" data-fin-inv-action="mark-sent">Mark as sent (no email)</button>';
+  }
   if (alreadySent && window.__hccgcIsAdmin) {
     html += '<button type="button" class="invoice-action-btn" data-fin-inv-action="void" style="color:var(--red);border-color:var(--red);">Void invoice</button>';
   }
@@ -3418,6 +3425,20 @@ document.getElementById('invoice-action-body').addEventListener('click', async f
   const bookingId = this.dataset.bookingId;
   if (btn.dataset.finInvAction === 'view') { document.getElementById('invoice-action-overlay').style.display = 'none'; viewDocument(bookingId, 'invoice'); return; }
   if (btn.dataset.finInvAction === 'download') { document.getElementById('invoice-action-overlay').style.display = 'none'; downloadDocument(bookingId, 'invoice'); return; }
+  if (btn.dataset.finInvAction === 'mark-sent') {
+    var mInv = INVOICES.find(function (i) { return i.bookingId === bookingId; });
+    if (!window.confirm('Mark this invoice as sent WITHOUT emailing the customer?\n\n' +
+        (mInv ? mInv.renterName + ' \u2014 ' : '') +
+        'Use this only for Picktime bookings the customer was already invoiced for outside this system.')) return;
+    document.getElementById('invoice-action-overlay').style.display = 'none';
+    try {
+      var msRes = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/mark-invoice-sent', { method: 'POST' });
+      var msData = await msRes.json();
+      if (!msRes.ok) { alert((msData.errors || [msData.error]).join(' ') || 'Could not mark as sent.'); return; }
+      await loadInvoices();
+    } catch (err) { alert('Could not reach the server: ' + err.message); }
+    return;
+  }
   if (btn.dataset.finInvAction === 'void') {
     const inv = INVOICES.find(function (i) { return i.bookingId === bookingId; });
     // The note is mandatory server-side and goes into the email the

@@ -311,6 +311,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
     <ul>
       <li><button class="tab-btn active" data-tab="dashboard">Dashboard</button></li>
       <li><button class="tab-btn" data-tab="broadcast">Social Broadcast</button></li>
+      <li><button class="tab-btn" data-tab="marketing">Prepare Marketing Material</button></li>
       <li><button class="tab-btn" data-tab="mass-email">Mass Email</button></li>
     </ul>
   </div>
@@ -349,6 +350,23 @@ tr.series-row:hover td { background: var(--surface-soft); }
         <h2 style="margin-bottom:8px;">Top 10 donors by frequency</h2>
         <div id="dash-top-frequency"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- ── PREPARE MARKETING MATERIAL TAB ── -->
+  <div class="tab-panel" id="tab-marketing">
+    <div class="card">
+      <h2 style="margin-bottom:8px;">Prepare Marketing Material</h2>
+      <p style="font-size:0.92rem;color:var(--muted);line-height:1.6;max-width:640px;">
+        Opens HCCGC's shared marketing project in ChatGPT, where you can draft flyers, announcements,
+        emails and social posts in our own voice. It opens in your own ChatGPT account &mdash; you'll need
+        access to the shared project.
+      </p>
+      <p style="font-size:0.86rem;color:var(--muted);margin:10px 0 16px;">
+        Bring what you write back here to <strong>Social Broadcast</strong> to publish it to Facebook and Instagram.
+      </p>
+      <a class="btn-primary" href="https://chatgpt.com/g/g-p-69cb29f976888191b23098aff1f8f8ca" target="_blank" rel="noopener"
+         style="display:inline-block;text-decoration:none;width:auto;padding:13px 24px;">Open in ChatGPT &nearr;</a>
     </div>
   </div>
 
@@ -743,7 +761,7 @@ async function loadSocialStatus() {
     var res = await authedFetch(API_BASE + '/social/status');
     var d = await res.json();
     if (!d.tokenConfigured) {
-      el.innerHTML = '<span style="color:var(--red);font-weight:700;">Not connected</span> — add a Page access token in Admin of Admin \u2192 System Settings.';
+      el.innerHTML = '<span style="color:var(--red);font-weight:700;">Not connected</span> — add a Page access token in God of God \u2192 System Settings.';
       return;
     }
     if (!d.ready) {

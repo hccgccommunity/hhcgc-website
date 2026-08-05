@@ -394,16 +394,8 @@ body {
     "icon": "globe"
   },
   {
-    "key": "marketing-assistant",
-    "name": "Hey HCCGC",
-    "description": "Your AI marketing assistant — generate flyers, WhatsApp announcements, emails, and social posts. Opens in ChatGPT.",
-    "url": "https://chatgpt.com/g/g-6a4517d567ec8191998bc6c43891728a-hey-hccgc",
-    "icon": "sparkles",
-    "external": true
-  },
-  {
     "key": "user-management",
-    "name": "Admin of Admin",
+    "name": "God of God",
     "description": "User access, system settings, and admin-only data management. Admins only.",
     "url": "user-management",
     "icon": "users"

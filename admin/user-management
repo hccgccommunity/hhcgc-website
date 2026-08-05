@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin of Admin – HCCGC Admin Portal</title>
+<title>God of God – HCCGC Admin Portal</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -278,7 +278,7 @@ input:focus { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 3px
 <div id="app">
   <div class="container">
     <div class="page-header">
-      <h1>Admin of Admin</h1>
+      <h1>God of God</h1>
       <p>User access, system settings, and admin-only data management for HCCGC staff.</p>
     </div>
   </div>
@@ -563,7 +563,6 @@ onAuthStateChanged(auth, function (user) {
 <script>
 var APP_REGISTRY = [
   { key: 'website-management', name: 'Website Management' },
-  { key: 'marketing-assistant', name: 'Hey HCCGC' },
   { key: 'bookings-finance', name: 'Facility Booking' },
   { key: 'org-finance', name: 'Finance' },
   { key: 'org-communications', name: 'Communications' },

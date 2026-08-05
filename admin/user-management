@@ -335,6 +335,13 @@ input:focus { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 3px
       </div>
 
       <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border, #eee2d3);">
+        <div style="font-weight:700;margin-bottom:4px;">Social broadcast (Facebook / Instagram)</div>
+        <div class="field-hint" style="margin:0 0 10px;">Page access token used to post from Communications &rarr; Social Broadcast. Meta's long-lived Page tokens last about 60 days &mdash; when posting starts failing, generate a new one and paste it here. No redeploy needed.</div>
+        <input type="password" id="setting-meta-token" placeholder="Paste Page access token" autocomplete="off" style="width:100%;">
+        <div class="field-hint" style="margin-top:4px;">Stored securely; leave blank to keep the existing token.</div>
+      </div>
+
+      <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border, #eee2d3);">
         <div style="font-weight:700;margin-bottom:4px;">Public test emails (Facility Rental request form)</div>
         <div class="field-hint" style="margin:0 0 14px;">When someone submits a facility request using one of these email addresses, the request still goes through every normal flow — created, still needs approval, still shows in All Bookings — but the internal "new request" alert email is skipped, and it won't count toward the pending-request notification badge. The renter-facing confirmation email still sends as usual.</div>
         <div id="public-test-emails-list" style="margin-bottom:10px;"></div>
@@ -717,6 +724,9 @@ document.getElementById('btn-save-settings').addEventListener('click', async fun
   btn.disabled = true; btn.textContent = 'Saving…';
   var checkedEmails = Array.prototype.slice.call(document.querySelectorAll('#user-test-mode-list input[type="checkbox"]:checked'))
     .map(function (cb) { return cb.dataset.userEmail; });
+  // Blank means "leave the existing token alone" — otherwise every settings
+  // save would clear it, since the field never shows the current value.
+  var metaToken = document.getElementById('setting-meta-token').value.trim();
   var toSave = [
     { key: 'test_mode', value: document.getElementById('setting-test-mode').checked ? 'true' : 'false' },
     { key: 'test_mode_email', value: document.getElementById('setting-test-email').value },
@@ -733,6 +743,9 @@ document.getElementById('btn-save-settings').addEventListener('click', async fun
         return out;
       })()) }
   ];
+  // Only sent when non-empty — the field never displays the current token,
+  // so saving settings with it blank must not wipe what's stored.
+  if (metaToken) toSave.push({ key: 'meta_page_access_token', value: metaToken });
   try {
     for (var i = 0; i < toSave.length; i++) {
       var res = await authedFetch(API_BASE + '/admin/settings', {

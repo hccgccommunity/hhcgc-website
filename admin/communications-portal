@@ -749,7 +749,9 @@ async function loadSocialStatus() {
     if (!d.ready) {
       // Tokens expire roughly every 60 days; say so plainly rather than
       // letting the first failed post be the discovery.
-      el.innerHTML = '<span style="color:var(--red);font-weight:700;">Token problem</span> — ' + escHtml(d.reason || 'unknown') + '. It may have expired; generate a new one.';
+      // The reason from the server is already specific; appending a generic
+      // "it may have expired" contradicted it and read as two messages.
+      el.innerHTML = '<span style="color:var(--red);font-weight:700;">Token problem</span> — ' + escHtml(d.reason || 'Unknown problem with the saved token.');
       return;
     }
     el.innerHTML = '<span style="color:var(--green);font-weight:700;">Connected</span> \u00b7 ' + escHtml(d.pageName || 'Page') +

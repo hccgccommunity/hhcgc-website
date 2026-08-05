@@ -310,8 +310,8 @@ tr.series-row:hover td { background: var(--surface-soft); }
   <div class="container">
     <ul>
       <li><button class="tab-btn active" data-tab="dashboard">Dashboard</button></li>
-      <li><button class="tab-btn" data-tab="broadcast">Social Broadcast</button></li>
       <li><button class="tab-btn" data-tab="marketing">Prepare Marketing Material</button></li>
+      <li><button class="tab-btn" data-tab="broadcast">Social Broadcast</button></li>
       <li><button class="tab-btn" data-tab="mass-email">Mass Email</button></li>
     </ul>
   </div>

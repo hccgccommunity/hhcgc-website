@@ -310,6 +310,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
   <div class="container">
     <ul>
       <li><button class="tab-btn active" data-tab="dashboard">Dashboard</button></li>
+      <li><button class="tab-btn" data-tab="patrons-import">Import Patrons</button></li>
       <li><button class="tab-btn" data-tab="marketing">Prepare Marketing Material</button></li>
       <li><button class="tab-btn" data-tab="broadcast">Social Broadcast</button></li>
       <li><button class="tab-btn" data-tab="mass-email">Mass Email</button></li>
@@ -350,6 +351,42 @@ tr.series-row:hover td { background: var(--surface-soft); }
         <h2 style="margin-bottom:8px;">Top 10 donors by frequency</h2>
         <div id="dash-top-frequency"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- ── IMPORT PATRONS TAB ── -->
+  <div class="tab-panel" id="tab-patrons-import">
+    <div class="card">
+      <h2 style="margin-bottom:6px;">Import Patrons</h2>
+      <p style="font-size:0.9rem;color:var(--muted);margin-bottom:16px;max-width:660px;">
+        Upload a Google Form export (CSV). Columns are matched automatically where the names are
+        recognisable &mdash; check them before importing. Existing patrons are matched on email and
+        updated; blank cells never overwrite what we already know.
+      </p>
+      <div class="field">
+        <label>CSV file</label>
+        <input type="file" id="pi-file" accept=".csv,text/csv">
+        <div class="card-sub" style="margin:4px 0 0;">Export from Google Sheets as CSV (File &rarr; Download &rarr; .csv).</div>
+      </div>
+      <div class="field" id="pi-source-field" style="display:none;">
+        <label>Tag these patrons as</label>
+        <input type="text" id="pi-source" placeholder="e.g. sangeet-sandhya-marathi">
+        <div class="card-sub" style="margin:4px 0 0;">Recorded as a source on each patron, so you can segment by where they came from.</div>
+      </div>
+      <div id="pi-mapping"></div>
+      <div id="pi-actions" style="display:none;margin-top:14px;">
+        <button type="button" class="btn-primary" id="btn-pi-import" style="width:auto;padding:13px 24px;">Import</button>
+      </div>
+      <div class="result-box" id="pi-result" style="display:none;margin-top:14px;"></div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-bottom:6px;">Recalculate patron value</h2>
+      <p style="font-size:0.88rem;color:var(--muted);margin-bottom:12px;max-width:660px;">
+        Refreshes lifetime giving and event counts from Zeffy payments and event history. Run after an import.
+      </p>
+      <button type="button" class="btn-secondary" id="btn-pi-recompute">Recalculate now</button>
+      <div class="result-box" id="pi-recompute-result" style="display:none;margin-top:12px;"></div>
     </div>
   </div>
 
@@ -878,6 +915,142 @@ async function loadSocialHistory() {
     el.innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
   }
 }
+
+/* ── Import Patrons ─────────────────────────────────────────────────── */
+var PI_FIELDS = [], PI_ROWS = [], PI_HEADERS = [];
+
+// Header names vary across exports — "Name" vs "First Name", "Language"
+// vs "Languages", "Event" vs "Event Name". Guess from the header text so
+// six files don't need mapping by hand, but always show the result for
+// checking rather than importing on a guess.
+function guessField(header) {
+  var h = String(header || '').trim().toLowerCase().replace(/[^a-z ]/g, '');
+  if (/^e ?mail/.test(h) || h === 'email address') return 'email';
+  if (h === 'first name' || h === 'firstname') return 'first_name';
+  if (h === 'last name' || h === 'lastname' || h === 'surname') return 'last_name';
+  if (h === 'name' || h === 'full name') return 'full_name';
+  if (/phone|mobile|contact number/.test(h)) return 'phone';
+  if (h === 'address' || /street/.test(h)) return 'address';
+  if (h === 'city') return 'city';
+  if (h === 'state') return 'state';
+  if (/^zip|postal/.test(h)) return 'zip';
+  if (h === 'age') return 'age';
+  if (/^language/.test(h)) return 'languages';
+  if (/interest/.test(h)) return 'interests';
+  if (/event date/.test(h)) return 'event_date';
+  if (/^event/.test(h)) return 'event_name';
+  if (/note|comment/.test(h)) return 'notes';
+  return '';
+}
+
+// Minimal CSV parser that respects quoted fields — Google exports quote
+// any cell containing a comma, which a naive split would mangle.
+function parseCsv(text) {
+  var rows = [], row = [], cur = '', inQ = false;
+  for (var i = 0; i < text.length; i++) {
+    var ch = text[i];
+    if (inQ) {
+      if (ch === '"') { if (text[i+1] === '"') { cur += '"'; i++; } else inQ = false; }
+      else cur += ch;
+    } else if (ch === '"') inQ = true;
+    else if (ch === ',') { row.push(cur); cur = ''; }
+    else if (ch === '\n') { row.push(cur); rows.push(row); row = []; cur = ''; }
+    else if (ch !== '\r') cur += ch;
+  }
+  if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+  return rows.filter(function (r) { return r.some(function (v) { return String(v).trim() !== ''; }); });
+}
+
+document.getElementById('pi-file').addEventListener('change', async function (e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  if (!PI_FIELDS.length) {
+    try {
+      var fr = await authedFetch(API_BASE + '/patrons/import-fields');
+      PI_FIELDS = (await fr.json()).fields || [];
+    } catch (err) { alert('Could not load field list: ' + err.message); return; }
+  }
+  var text = await file.text();
+  var grid = parseCsv(text);
+  if (grid.length < 2) { alert('That file has no data rows.'); return; }
+  PI_HEADERS = grid[0].map(function (h) { return String(h).trim(); });
+  PI_ROWS = grid.slice(1).map(function (r) {
+    var o = {};
+    PI_HEADERS.forEach(function (h, i) { o[h] = r[i] === undefined ? '' : String(r[i]).trim(); });
+    return o;
+  });
+
+  var opts = '<option value="">\u2014 ignore this column \u2014</option>' +
+    PI_FIELDS.map(function (f) { return '<option value="' + f.key + '">' + f.label + '</option>'; }).join('');
+  document.getElementById('pi-mapping').innerHTML =
+    '<div style="margin:16px 0 8px;font-weight:700;font-size:0.9rem;">Column mapping <span style="font-weight:400;color:var(--muted);">(' + PI_ROWS.length + ' rows)</span></div>' +
+    PI_HEADERS.map(function (h, i) {
+      var guess = guessField(h);
+      var sample = (PI_ROWS[0] && PI_ROWS[0][h]) || '';
+      return '<div style="display:grid;grid-template-columns:1fr 1.2fr;gap:10px;align-items:center;padding:4px 0;">' +
+        '<div style="font-size:0.86rem;"><strong>' + escHtml(h) + '</strong>' +
+          (sample ? '<div style="font-size:0.76rem;color:var(--muted);">e.g. ' + escHtml(sample.slice(0, 40)) + '</div>' : '') + '</div>' +
+        '<select data-pi-col="' + escHtml(h) + '" style="font-size:0.84rem;padding:6px 8px;">' + opts + '</select>' +
+      '</div>';
+    }).join('');
+  PI_HEADERS.forEach(function (h) {
+    var sel = document.querySelector('[data-pi-col="' + h.replace(/"/g, '\\"') + '"]');
+    if (sel) sel.value = guessField(h);
+  });
+  // Default the source tag to the file name — usually the event, which is
+  // exactly how you'd want to segment later.
+  document.getElementById('pi-source').value = file.name.replace(/\.[^.]+$/, '')
+    .replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase().slice(0, 60);
+  document.getElementById('pi-source-field').style.display = 'block';
+  document.getElementById('pi-actions').style.display = 'block';
+});
+
+document.getElementById('btn-pi-import').addEventListener('click', async function () {
+  var btn = this, box = document.getElementById('pi-result');
+  var mapping = {};
+  PI_HEADERS.forEach(function (h) {
+    var sel = document.querySelector('[data-pi-col="' + h.replace(/"/g, '\\"') + '"]');
+    if (sel && sel.value) mapping[h] = sel.value;
+  });
+  if (!Object.keys(mapping).some(function (k) { return mapping[k] === 'email'; })) {
+    box.style.display = 'block'; box.className = 'result-box error';
+    box.textContent = 'Map one column to Email — it is what identifies a patron.';
+    return;
+  }
+  btn.disabled = true; btn.textContent = 'Importing\u2026';
+  box.style.display = 'block'; box.className = 'result-box'; box.textContent = 'Importing\u2026';
+  try {
+    var res = await authedFetch(API_BASE + '/patrons/import', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        filename: document.getElementById('pi-file').files[0].name,
+        sourceTag: document.getElementById('pi-source').value.trim() || 'import',
+        mapping: mapping, rows: PI_ROWS
+      })
+    });
+    var d = await res.json();
+    if (!res.ok) { box.className = 'result-box error'; box.textContent = (d.errors || [d.error]).join(' '); return; }
+    box.className = 'result-box success';
+    box.textContent = d.rowCount + ' rows read \u2192 ' + d.uniqueEmails + ' unique people \u00b7 ' +
+      d.created + ' new, ' + d.updated + ' updated' + (d.skipped ? ', ' + d.skipped + ' skipped (no valid email)' : '') + '.';
+  } catch (err) {
+    box.className = 'result-box error'; box.textContent = 'Could not reach the server: ' + err.message;
+  } finally { btn.disabled = false; btn.textContent = 'Import'; }
+});
+
+document.getElementById('btn-pi-recompute').addEventListener('click', async function () {
+  var btn = this, box = document.getElementById('pi-recompute-result');
+  btn.disabled = true;
+  box.style.display = 'block'; box.className = 'result-box'; box.textContent = 'Recalculating\u2026';
+  try {
+    var res = await authedFetch(API_BASE + '/patrons/recompute-value', { method: 'POST' });
+    var d = await res.json();
+    box.className = res.ok ? 'result-box success' : 'result-box error';
+    box.textContent = res.ok ? 'Lifetime value and event counts updated.' : (d.errors || [d.error]).join(' ');
+  } catch (err) {
+    box.className = 'result-box error'; box.textContent = 'Could not reach the server: ' + err.message;
+  } finally { btn.disabled = false; }
+});
 
 </script>
 </body>

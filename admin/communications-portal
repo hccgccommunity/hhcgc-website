@@ -313,7 +313,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
       <li><button class="tab-btn" data-tab="patrons-import">Import Patrons</button></li>
       <li><button class="tab-btn" data-tab="marketing">Prepare Marketing Material</button></li>
       <li><button class="tab-btn" data-tab="broadcast">Social Broadcast</button></li>
-      <li><button class="tab-btn" data-tab="mass-email">Mass Email</button></li>
+      <li><button class="tab-btn" data-tab="mass-email">Email Blast</button></li>
     </ul>
   </div>
 </div>
@@ -452,53 +452,78 @@ tr.series-row:hover td { background: var(--surface-soft); }
     </div>
   </div>
 
-  <!-- ── MASS EMAIL TAB ── -->
+  <!-- ── EMAIL BLAST TAB ── -->
   <div class="tab-panel" id="tab-mass-email">
     <div class="card">
-      <h2 style="margin-bottom:4px;">1. Choose a template</h2>
-      <div class="card-sub" style="font-size:0.86rem;color:var(--muted);margin-bottom:12px;">Pick the layout, then fill in your content below.</div>
-      <div class="template-grid" id="template-grid"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <h2 style="margin:0;">Email Blast</h2>
+        <div id="eb-reach" style="font-size:0.86rem;font-weight:700;color:var(--saffron-dark);"></div>
+      </div>
+      <div style="margin:14px 0 6px;font-weight:700;font-size:0.9rem;">Who should receive this?</div>
+      <div class="eb-seg-grid">
+        <div><label style="font-size:0.8rem;color:var(--muted);">Language</label><div class="eb-chips" id="eb-languages"></div></div>
+        <div><label style="font-size:0.8rem;color:var(--muted);">Attended event</label><div class="eb-chips" id="eb-events"></div></div>
+        <div><label style="font-size:0.8rem;color:var(--muted);">Source</label><div class="eb-chips" id="eb-sources"></div></div>
+      </div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:10px;">
+        <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:0.84rem;"><input type="checkbox" id="eb-has-given" style="width:15px;height:15px;"> Has donated before</label>
+        <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:0.84rem;">Age <input type="number" id="eb-min-age" placeholder="min" style="width:70px;padding:4px 6px;font-size:0.82rem;"> to <input type="number" id="eb-max-age" placeholder="max" style="width:70px;padding:4px 6px;font-size:0.82rem;"></label>
+        <button type="button" class="btn-secondary" id="eb-clear-seg" style="padding:5px 12px;font-size:0.8rem;">Clear filters</button>
+      </div>
+      <div class="card-sub" style="margin-top:6px;">No filters selected means everyone who hasn&rsquo;t unsubscribed.</div>
     </div>
 
-    <div class="card" id="email-content-card" style="display:none;">
-      <h2 style="margin-bottom:4px;">2. Write your message</h2>
-      <div class="field">
-        <label>Subject line</label>
-        <input type="text" id="em-subject" placeholder="What patrons will see in their inbox">
-      </div>
-      <div id="email-dynamic-fields"></div>
-      <div style="display:flex;gap:24px;margin-top:12px;">
-        <div style="flex:1;">
-          <label style="font-size:0.84rem;font-weight:700;display:block;margin-bottom:8px;">Live preview</label>
-          <div class="email-preview-frame" id="email-preview"></div>
+    <div class="card">
+      <div class="field"><label for="eb-subject">Subject</label><input type="text" id="eb-subject" placeholder="Join us for Sangeet Sandhya on August 16"></div>
+      <div class="eb-compose">
+        <div>
+          <label style="font-size:0.8rem;color:var(--muted);">Message</label>
+          <div class="eb-toolbar">
+            <button type="button" data-eb-cmd="bold"><strong>B</strong></button>
+            <button type="button" data-eb-cmd="italic"><em>I</em></button>
+            <button type="button" data-eb-cmd="underline"><u>U</u></button>
+            <span class="eb-sep"></span>
+            <button type="button" data-eb-block="h2">H</button>
+            <button type="button" data-eb-cmd="insertUnorderedList">&bull;</button>
+            <span class="eb-sep"></span>
+            <input type="color" id="eb-color" value="#7f2e16" title="Text colour">
+            <select id="eb-size"><option value="">Size</option><option value="2">Small</option><option value="3">Normal</option><option value="5">Large</option></select>
+            <span class="eb-sep"></span>
+            <button type="button" id="eb-add-link">Link</button>
+            <button type="button" id="eb-add-button">Button</button>
+            <button type="button" id="eb-add-image">Image</button>
+            <span class="eb-sep"></span>
+            <select id="eb-var"><option value="">Insert variable&hellip;</option><option value="@first_name">@first_name</option><option value="@name">@name</option></select>
+          </div>
+          <div id="eb-body" class="eb-editor" contenteditable="true" data-placeholder="Namaste @first_name, ..."></div>
+          <div class="card-sub" style="margin-top:6px;">Type <code>@first_name</code> or <code>@name</code> anywhere &mdash; replaced per person when sending.</div>
+        </div>
+        <div>
+          <label style="font-size:0.8rem;color:var(--muted);">Preview</label>
+          <div class="eb-preview-frame">
+            <div class="eb-preview-subject" id="eb-preview-subject">(no subject)</div>
+            <div class="eb-preview-body" id="eb-preview-body"></div>
+            <div class="eb-preview-footer">Hindu Community Center of Greater Cincinnati<br><span style="text-decoration:underline;">Unsubscribe from these emails</span></div>
+          </div>
+          <div class="card-sub" style="margin-top:6px;">Shown as a sample recipient would see it.</div>
         </div>
       </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;">
+        <button type="button" class="btn-secondary" id="btn-eb-test" style="width:auto;padding:12px 20px;">Send test to me</button>
+        <button type="button" class="btn-primary" id="btn-eb-send" style="width:auto;padding:12px 24px;">Send blast</button>
+      </div>
+      <div class="result-box" id="eb-result" style="display:none;margin-top:14px;"></div>
     </div>
 
-    <div class="card" id="email-recipients-card" style="display:none;">
-      <h2 style="margin-bottom:4px;">3. Choose recipients</h2>
-      <div class="card-sub" style="font-size:0.86rem;color:var(--muted);margin-bottom:12px;">Unsubscribed patrons are always excluded automatically.</div>
-      <div class="field" style="max-width:400px;">
-        <label>Search patrons (optional — leave blank to send to everyone eligible)</label>
-        <input type="text" id="em-patron-search" placeholder="Search by name or email">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <h2 style="margin:0;">Sent blasts</h2>
+        <button type="button" class="btn-secondary" id="btn-eb-refresh" style="padding:5px 12px;font-size:0.8rem;">Refresh</button>
       </div>
-      <div id="em-recipient-summary" style="font-size:0.92rem;font-weight:700;color:var(--maroon);margin:8px 0;"></div>
-      <div id="em-recipient-list" style="max-height:240px;overflow-y:auto;border:1.5px solid var(--border);border-radius:12px;padding:10px;display:none;"></div>
-    </div>
-
-    <div class="card" id="email-send-card" style="display:none;">
-      <h2 style="margin-bottom:8px;">4. Send</h2>
-      <button type="button" class="btn-primary" id="btn-send-campaign">Send campaign</button>
-      <div id="em-send-progress" style="display:none;margin-top:16px;">
-        <div class="progress-bar-track"><div class="progress-bar-fill" id="em-progress-fill" style="width:0%;"></div></div>
-        <div id="em-progress-label" style="font-size:0.86rem;color:var(--muted);"></div>
-      </div>
-      <div id="em-send-result" style="margin-top:12px;"></div>
+      <div id="eb-history"></div>
     </div>
   </div>
-
 </div>
-
 </div>
 
 <div id="site-footer"></div>
@@ -624,155 +649,9 @@ let EMAIL_TEMPLATES_CACHE = [];
 let selectedTemplateId = null;
 let recipientPreview = [];
 
-async function loadEmailTemplates() {
-  const res = await authedFetch(API_BASE + '/communications/templates');
-  EMAIL_TEMPLATES_CACHE = await res.json();
-  document.getElementById('template-grid').innerHTML = EMAIL_TEMPLATES_CACHE.map(function (t) {
-    return '<div class="template-card" data-template-id="' + t.id + '"><h3>' + escHtml(t.name) + '</h3><p>' + escHtml(t.description) + '</p></div>';
-  }).join('');
-  document.querySelectorAll('.template-card').forEach(function (card) {
-    card.addEventListener('click', function () { selectTemplate(card.dataset.templateId); });
-  });
-}
-const FIELD_LABELS = {
-  headline: 'Headline', bodyText: 'Message', imageUrl: 'Image URL', ctaText: 'Button text',
-  ctaUrl: 'Button link', eventDetails: 'Date / location line'
-};
-const FIELD_TYPES = { bodyText: 'textarea' };
-function selectTemplate(id) {
-  selectedTemplateId = id;
-  document.querySelectorAll('.template-card').forEach(function (c) { c.classList.toggle('selected', c.dataset.templateId === id); });
-  const template = EMAIL_TEMPLATES_CACHE.find(function (t) { return t.id === id; });
-  document.getElementById('email-content-card').style.display = 'block';
-  document.getElementById('email-recipients-card').style.display = 'block';
-  document.getElementById('email-send-card').style.display = 'block';
-  document.getElementById('email-dynamic-fields').innerHTML = template.fields.map(function (f) {
-    const type = FIELD_TYPES[f] || 'text';
-    return '<div class="field"><label>' + (FIELD_LABELS[f] || f) + '</label>' +
-      (type === 'textarea' ? '<textarea data-field="' + f + '"></textarea>' : '<input type="text" data-field="' + f + '">') +
-      '</div>';
-  }).join('');
-  document.querySelectorAll('#email-dynamic-fields [data-field]').forEach(function (el) {
-    el.addEventListener('input', updateEmailPreview);
-  });
-  updateEmailPreview();
-}
-function updateEmailPreview() {
-  if (!selectedTemplateId) return;
-  const template = EMAIL_TEMPLATES_CACHE.find(function (t) { return t.id === selectedTemplateId; });
-  const data = { subject: document.getElementById('em-subject').value };
-  document.querySelectorAll('#email-dynamic-fields [data-field]').forEach(function (el) { data[el.dataset.field] = el.value; });
-  // Client-side preview mirrors the server's render() logic closely enough
-  // for a visual check — the actual sent HTML is always built server-side
-  // at send time, this is preview only.
-  const esc = function (s) { return escHtml(s || ''); };
-  let html = '<div style="font-family:Arial,Helvetica,sans-serif;">';
-  if (data.imageUrl) html += '<img src="' + esc(data.imageUrl) + '" style="width:100%;border-radius:12px;" alt="">';
-  html += '<h1 style="color:#7f2e16;font-size:22px;margin-top:12px;">' + esc(data.headline || data.subject) + '</h1>';
-  if (data.eventDetails) html += '<p style="font-size:14px;color:#8d3e0d;font-weight:bold;">' + esc(data.eventDetails) + '</p>';
-  html += '<p style="font-size:15px;line-height:1.6;color:#2c1b10;white-space:pre-wrap;">' + esc(data.bodyText) + '</p>';
-  if (data.ctaUrl) html += '<p><a href="#" style="display:inline-block;background:#b55a18;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;">' + esc(data.ctaText || 'Learn more') + '</a></p>';
-  html += '<p style="font-size:11px;color:#999;margin-top:24px;">You are receiving this because you have supported or attended an HCCGC program. <a href="#">Unsubscribe</a>.</p></div>';
-  document.getElementById('email-preview').innerHTML = html;
-}
-document.getElementById('em-subject').addEventListener('input', updateEmailPreview);
-
-async function refreshRecipientPreview() {
-  const search = document.getElementById('em-patron-search').value;
-  const res = await authedFetch(API_BASE + '/communications/patrons?search=' + encodeURIComponent(search));
-  const patrons = await res.json();
-  recipientPreview = patrons.filter(function (p) { return !p.unsubscribed; });
-  const excluded = patrons.length - recipientPreview.length;
-  document.getElementById('em-recipient-summary').textContent = recipientPreview.length + ' will receive this' +
-    (excluded ? ' (' + excluded + ' excluded — unsubscribed)' : '');
-}
-document.getElementById('em-patron-search').addEventListener('input', debounce(refreshRecipientPreview, 300));
-function debounce(fn, ms) { let t; return function () { clearTimeout(t); const args = arguments; t = setTimeout(function () { fn.apply(null, args); }, ms); }; }
-
-document.getElementById('btn-send-campaign').addEventListener('click', async function () {
-  const subject = document.getElementById('em-subject').value.trim();
-  if (!selectedTemplateId) { alert('Choose a template first.'); return; }
-  if (!subject) { alert('Enter a subject line.'); return; }
-  if (!recipientPreview.length) { alert('No eligible recipients match — check your search filter.'); return; }
-  if (!confirm('Send this to ' + recipientPreview.length + ' patron' + (recipientPreview.length === 1 ? '' : 's') + '? This cannot be undone.')) return;
-
-  const btn = this;
-  btn.disabled = true;
-  const resultEl = document.getElementById('em-send-result');
-  resultEl.textContent = '';
-  try {
-    const startRes = await authedFetch(API_BASE + '/communications/start-campaign', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ templateId: selectedTemplateId, subject: subject, patronIds: recipientPreview.map(function (p) { return p.patronId; }) })
-    });
-    const startData = await startRes.json();
-    if (!startRes.ok) throw new Error((startData.errors || ['Could not start campaign']).join(' '));
-
-    const progressWrap = document.getElementById('em-send-progress');
-    const fill = document.getElementById('em-progress-fill');
-    const label = document.getElementById('em-progress-label');
-    progressWrap.style.display = 'block';
-    const total = startData.recipientCount;
-    let sentSoFar = 0, failedSoFar = 0, remaining = total;
-    while (remaining > 0) {
-      const batchRes = await authedFetch(API_BASE + '/communications/send-campaign-batch?campaignId=' + startData.campaignId + '&limit=20', { method: 'POST' });
-      const batchData = await batchRes.json();
-      if (!batchRes.ok) throw new Error((batchData.errors || ['Send batch failed']).join(' '));
-      sentSoFar += batchData.sent;
-      failedSoFar += batchData.failed;
-      remaining = batchData.remaining;
-      const pct = Math.round(((total - remaining) / total) * 100);
-      fill.style.width = pct + '%';
-      label.textContent = (total - remaining) + ' of ' + total + ' processed' + (failedSoFar ? ' (' + failedSoFar + ' failed)' : '');
-    }
-    resultEl.innerHTML = '<div style="color:var(--green);font-weight:700;">Done — ' + sentSoFar + ' sent' + (failedSoFar ? ', ' + failedSoFar + ' failed' : '') + '.</div>';
-  } catch (err) {
-    resultEl.innerHTML = '<div style="color:var(--red);font-weight:700;">' + escHtml(err.message) + '</div>';
-  } finally {
-    btn.disabled = false;
-  }
-});
-
-// ── Tabs ──
-document.querySelectorAll('.tab-btn').forEach(function (btn) {
-  btn.addEventListener('click', function () {
-    document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
-    document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
-    btn.classList.add('active');
-    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-    if (btn.dataset.tab === 'mass-email' && !window.__emailTabLoaded) { loadEmailTemplates(); refreshRecipientPreview(); window.__emailTabLoaded = true; }
-  });
-});
-</script>
-
-<script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js';
-import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
-
-var firebaseConfig = {
-  apiKey: 'AIzaSyA6IzLjWTg7Rq04HsTH-iA3eDmSzKI7xME',
-  authDomain: 'hccgc-a7a54.firebaseapp.com',
-  projectId: 'hccgc-a7a54',
-  storageBucket: 'hccgc-a7a54.firebasestorage.app',
-  messagingSenderId: '75757201418',
-  appId: '1:75757201418:web:c31e9361921242145717f3'
-};
-
-var ALLOWED_DOMAIN = 'hccgc.org';
-var REQUIRED_APP_KEY = 'org-communications';
-var PORTAL_URL = '/admin/admin-portal';
-
-var fbApp = initializeApp(firebaseConfig);
-var auth = getAuth(fbApp);
-var db = getFirestore(fbApp);
-
-function showGate(title, msg) {
-  document.getElementById('gate').querySelector('h3').textContent = title;
-  document.getElementById('gate').querySelector('p').innerHTML = msg;
-  document.getElementById('gate').style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
-}
+// (The previous template-based Mass Email UI was replaced by Email Blast.
+//  Its functions referenced elements that no longer exist, so they were
+//  removed rather than left to throw on load.)
 
 onAuthStateChanged(auth, function(user) {
   if (!user) { showGate('Sign in required', 'Please sign in from the <a href="'+PORTAL_URL+'">Admin Portal</a> first.'); return; }
@@ -1050,6 +929,200 @@ document.getElementById('btn-pi-recompute').addEventListener('click', async func
   } catch (err) {
     box.className = 'result-box error'; box.textContent = 'Could not reach the server: ' + err.message;
   } finally { btn.disabled = false; }
+});
+
+/* ── Email Blast ────────────────────────────────────────────────────── */
+var EB_SEG = { languages: [], events: [], sources: [] };
+var EB_REACH_TIMER = null;
+
+async function loadBlastOptions() {
+  try {
+    var res = await authedFetch(API_BASE + '/blast/segment-options');
+    var d = await res.json();
+    function chips(elId, values, key) {
+      document.getElementById(elId).innerHTML = values.map(function (v) {
+        var label = typeof v === 'object' ? v.name : v;
+        var extra = typeof v === 'object' ? ' (' + v.patrons + ')' : '';
+        return '<button type="button" class="eb-chip" data-eb-seg="' + key + '" data-eb-val="' + escHtml(label) + '">' + escHtml(label) + extra + '</button>';
+      }).join('') || '<span style="font-size:0.78rem;color:var(--muted);">none yet</span>';
+    }
+    chips('eb-languages', d.languages || [], 'languages');
+    chips('eb-events', d.events || [], 'events');
+    chips('eb-sources', d.sources || [], 'sources');
+    refreshReach();
+  } catch (err) {
+    document.getElementById('eb-reach').textContent = 'Could not load segments';
+  }
+}
+
+function currentSegment() {
+  var seg = {
+    languages: EB_SEG.languages.slice(),
+    events: EB_SEG.events.slice(),
+    sources: EB_SEG.sources.slice()
+  };
+  if (document.getElementById('eb-has-given').checked) seg.hasGiven = true;
+  var mn = document.getElementById('eb-min-age').value;
+  var mx = document.getElementById('eb-max-age').value;
+  if (mn) seg.minAge = Number(mn);
+  if (mx) seg.maxAge = Number(mx);
+  return seg;
+}
+
+// Debounced: the reach query hits BigQuery, and firing on every keystroke
+// of the age boxes would be wasteful.
+function refreshReach() {
+  clearTimeout(EB_REACH_TIMER);
+  EB_REACH_TIMER = setTimeout(async function () {
+    var el = document.getElementById('eb-reach');
+    el.textContent = 'Counting\u2026';
+    try {
+      var res = await authedFetch(API_BASE + '/blast/reach', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ segment: currentSegment() })
+      });
+      var d = await res.json();
+      el.textContent = res.ok ? ('Reaches ' + d.reach + ' ' + (d.reach === 1 ? 'person' : 'people')) : 'Could not count';
+    } catch (e) { el.textContent = 'Could not count'; }
+  }, 300);
+}
+
+document.addEventListener('click', function (e) {
+  var chip = e.target.closest('[data-eb-seg]');
+  if (!chip) return;
+  var key = chip.dataset.ebSeg, val = chip.dataset.ebVal;
+  var i = EB_SEG[key].indexOf(val);
+  if (i === -1) { EB_SEG[key].push(val); chip.classList.add('on'); }
+  else { EB_SEG[key].splice(i, 1); chip.classList.remove('on'); }
+  refreshReach();
+});
+['eb-has-given', 'eb-min-age', 'eb-max-age'].forEach(function (id) {
+  document.getElementById(id).addEventListener('input', refreshReach);
+  document.getElementById(id).addEventListener('change', refreshReach);
+});
+document.getElementById('eb-clear-seg').addEventListener('click', function () {
+  EB_SEG = { languages: [], events: [], sources: [] };
+  document.querySelectorAll('.eb-chip.on').forEach(function (c) { c.classList.remove('on'); });
+  document.getElementById('eb-has-given').checked = false;
+  document.getElementById('eb-min-age').value = '';
+  document.getElementById('eb-max-age').value = '';
+  refreshReach();
+});
+
+/* Editor */
+var ebBody = document.getElementById('eb-body');
+function ebExec(cmd, val) { ebBody.focus(); document.execCommand(cmd, false, val || null); syncPreview(); }
+document.querySelectorAll('[data-eb-cmd]').forEach(function (b) {
+  b.addEventListener('click', function () { ebExec(this.dataset.ebCmd); });
+});
+document.querySelectorAll('[data-eb-block]').forEach(function (b) {
+  b.addEventListener('click', function () { ebExec('formatBlock', '<' + this.dataset.ebBlock + '>'); });
+});
+document.getElementById('eb-color').addEventListener('input', function () { ebExec('foreColor', this.value); });
+document.getElementById('eb-size').addEventListener('change', function () { if (this.value) ebExec('fontSize', this.value); this.value = ''; });
+document.getElementById('eb-var').addEventListener('change', function () {
+  if (!this.value) return;
+  ebBody.focus();
+  document.execCommand('insertText', false, this.value);
+  this.value = '';
+  syncPreview();
+});
+document.getElementById('eb-add-link').addEventListener('click', function () {
+  var url = window.prompt('Link address:', 'https://hccgc.org/');
+  if (!url) return;
+  ebExec('createLink', url);
+});
+document.getElementById('eb-add-image').addEventListener('click', function () {
+  var url = window.prompt('Image URL (it must be publicly reachable):', '');
+  if (!url) return;
+  ebExec('insertHTML', '<img src="' + url.replace(/"/g, '&quot;') + '" style="max-width:100%;border-radius:8px;">');
+});
+document.getElementById('eb-add-button').addEventListener('click', function () {
+  var label = window.prompt('Button text:', 'RSVP now');
+  if (!label) return;
+  var url = window.prompt('Where should it link to?', 'https://hccgc.org/forms/');
+  if (!url) return;
+  // Inline styles and a table-free anchor: email clients strip <style>
+  // blocks and many ignore CSS classes entirely.
+  ebExec('insertHTML',
+    '<div style="text-align:center;margin:22px 0;">' +
+    '<a href="' + url.replace(/"/g, '&quot;') + '" style="display:inline-block;background:#b55a18;color:#ffffff;' +
+    'padding:13px 30px;border-radius:999px;font-weight:bold;text-decoration:none;font-family:Arial,Helvetica,sans-serif;">' +
+    escHtml(label) + '</a></div><p><br></p>');
+});
+
+function syncPreview() {
+  var subj = document.getElementById('eb-subject').value.trim();
+  document.getElementById('eb-preview-subject').textContent = subj || '(no subject)';
+  // Substitute with a sample name so the preview reads like a real email
+  // rather than showing raw placeholders.
+  var html = ebBody.innerHTML
+    .replace(/(^|[^\w@])@first_name\b/g, '$1Priya')
+    .replace(/(^|[^\w@])@name\b/g, '$1Priya Deshpande')
+    .split('{{first_name}}').join('Priya')
+    .split('{{name}}').join('Priya Deshpande');
+  document.getElementById('eb-preview-body').innerHTML = html || '<span style="color:#a89684;">Your message will appear here\u2026</span>';
+}
+ebBody.addEventListener('input', syncPreview);
+ebBody.addEventListener('blur', syncPreview);
+document.getElementById('eb-subject').addEventListener('input', syncPreview);
+
+async function doBlastSend(testOnly) {
+  var box = document.getElementById('eb-result');
+  var subject = document.getElementById('eb-subject').value.trim();
+  var bodyHtml = ebBody.innerHTML.trim();
+  if (!subject) { box.style.display='block'; box.className='result-box error'; box.textContent='Add a subject.'; return; }
+  if (!bodyHtml) { box.style.display='block'; box.className='result-box error'; box.textContent='The message is empty.'; return; }
+  if (!testOnly) {
+    var reach = document.getElementById('eb-reach').textContent;
+    if (!window.confirm('Send this blast?\n\n' + reach + '\n\nThis cannot be undone.')) return;
+  }
+  box.style.display='block'; box.className='result-box'; box.textContent = testOnly ? 'Sending test\u2026' : 'Sending\u2026';
+  try {
+    var res = await authedFetch(API_BASE + '/blast/send', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subject: subject, bodyHtml: bodyHtml, segment: currentSegment(), testOnly: !!testOnly })
+    });
+    var d = await res.json();
+    if (!res.ok) { box.className='result-box error'; box.textContent=(d.errors||[d.error]).join(' '); return; }
+    box.className='result-box success';
+    box.textContent = 'Sent to ' + d.sent + ' of ' + d.recipientCount + (d.failed ? ' \u00b7 ' + d.failed + ' failed' : '') + '.';
+    loadBlastHistory();
+  } catch (err) {
+    box.className='result-box error'; box.textContent='Could not reach the server: ' + err.message;
+  }
+}
+document.getElementById('btn-eb-send').addEventListener('click', function () { doBlastSend(false); });
+document.getElementById('btn-eb-test').addEventListener('click', function () { doBlastSend(true); });
+document.getElementById('btn-eb-refresh').addEventListener('click', loadBlastHistory);
+
+async function loadBlastHistory() {
+  var el = document.getElementById('eb-history');
+  el.innerHTML = '<div class="empty-state">Loading\u2026</div>';
+  try {
+    var res = await authedFetch(API_BASE + '/blast/history');
+    var rows = await res.json();
+    if (!rows.length) { el.innerHTML = '<div class="empty-state">Nothing sent yet.</div>'; return; }
+    el.innerHTML = rows.map(function (r) {
+      var pct = function (n) { return r.sentCount ? Math.round(n / r.sentCount * 100) : 0; };
+      return '<div style="border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;">' +
+        '<div style="font-weight:700;font-size:0.9rem;">' + escHtml(r.subject) + '</div>' +
+        '<div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;font-size:0.8rem;">' +
+          '<span>Sent <strong>' + r.sentCount + '</strong></span>' +
+          '<span style="color:var(--green);">Opened <strong>' + r.opened + '</strong> (' + pct(r.opened) + '%)</span>' +
+          '<span style="color:var(--saffron-dark);">Clicked <strong>' + r.clicked + '</strong> (' + pct(r.clicked) + '%)</span>' +
+          (r.unsubscribed ? '<span style="color:var(--red);">Unsubscribed <strong>' + r.unsubscribed + '</strong></span>' : '') +
+          (r.failedCount ? '<span style="color:var(--red);">Failed <strong>' + r.failedCount + '</strong></span>' : '') +
+        '</div>' +
+        '<div style="font-size:0.76rem;color:var(--muted);margin-top:4px;">' + escHtml(r.sentBy || '') + ' \u00b7 ' + formatTimestampDate(r.sentAt) + '</div>' +
+      '</div>';
+    }).join('');
+  } catch (err) {
+    el.innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
+  }
+}
+document.querySelectorAll('[data-tab="mass-email"]').forEach(function (b) {
+  b.addEventListener('click', function () { loadBlastOptions(); loadBlastHistory(); });
 });
 
 </script>

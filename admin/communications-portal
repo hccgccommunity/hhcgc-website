@@ -381,7 +381,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
       <div class="field">
         <label>Post to</label>
         <label style="display:flex;align-items:center;gap:8px;font-weight:400;"><input type="checkbox" id="social-fb" checked style="width:16px;height:16px;"> Facebook Page</label>
-        <label style="display:flex;align-items:center;gap:8px;font-weight:400;margin-top:6px;"><input type="checkbox" id="social-ig" style="width:16px;height:16px;"> Instagram</label>
+        <label style="display:flex;align-items:center;gap:8px;font-weight:400;margin-top:6px;"><input type="checkbox" id="social-ig" checked style="width:16px;height:16px;"> Instagram</label>
       </div>
 
       <button type="button" class="btn-primary" id="btn-social-post">Post now</button>

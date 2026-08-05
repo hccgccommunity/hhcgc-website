@@ -688,9 +688,6 @@ async function loadSocialStatus() {
     el.textContent = 'Could not check connection: ' + err.message;
   }
 }
-document.querySelectorAll('[data-tab="broadcast"]').forEach(function (b) {
-  b.addEventListener('click', function () { loadSocialStatus(); loadSocialHistory(); });
-});
 document.getElementById('social-message').addEventListener('input', function () {
   document.getElementById('social-char-count').textContent = this.value.length;
 });
@@ -1114,8 +1111,20 @@ async function loadBlastHistory() {
     el.innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
   }
 }
-document.querySelectorAll('[data-tab="mass-email"]').forEach(function (b) {
-  b.addEventListener('click', function () { loadBlastOptions(); loadBlastHistory(); });
+
+
+// Tab switching. This was removed along with the old Mass Email code,
+// which left every tab except the default one unreachable.
+document.querySelectorAll('.tab-btn').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+    document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    var panel = document.getElementById('tab-' + btn.dataset.tab);
+    if (panel) panel.classList.add('active');
+    if (btn.dataset.tab === 'broadcast') { loadSocialStatus(); loadSocialHistory(); }
+    if (btn.dataset.tab === 'mass-email') { loadBlastOptions(); loadBlastHistory(); }
+  });
 });
 
 </script>

@@ -454,65 +454,73 @@ tr.series-row:hover td { background: var(--surface-soft); }
 
   <!-- ── EMAIL BLAST TAB ── -->
   <div class="tab-panel" id="tab-mass-email">
-    <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+    <div class="card eb-audience">
+      <div class="eb-aud-head">
         <h2 style="margin:0;">Email Blast</h2>
-        <div id="eb-reach" style="font-size:0.86rem;font-weight:700;color:var(--saffron-dark);"></div>
+        <div id="eb-reach"></div>
       </div>
-      <div style="margin:14px 0 6px;font-weight:700;font-size:0.9rem;">Who should receive this?</div>
-      <div class="eb-seg-grid">
-        <div><label style="font-size:0.8rem;color:var(--muted);">Language</label><div class="eb-chips" id="eb-languages"></div></div>
-        <div><label style="font-size:0.8rem;color:var(--muted);">Attended event</label><div class="eb-chips" id="eb-events"></div></div>
-        <div><label style="font-size:0.8rem;color:var(--muted);">Source</label><div class="eb-chips" id="eb-sources"></div></div>
+      <div class="eb-filters">
+        <div class="eb-ms">
+          <label>Language</label>
+          <button type="button" class="eb-ms-toggle" data-ms-toggle="languages"><span>All languages</span><i>&#9662;</i></button>
+          <div class="eb-ms-menu" id="eb-ms-languages"></div>
+        </div>
+        <div class="eb-ms">
+          <label>Attended event</label>
+          <button type="button" class="eb-ms-toggle" data-ms-toggle="events"><span>All events</span><i>&#9662;</i></button>
+          <div class="eb-ms-menu" id="eb-ms-events"></div>
+        </div>
+        <div class="eb-ms">
+          <label>Zeffy campaign</label>
+          <button type="button" class="eb-ms-toggle" data-ms-toggle="campaigns"><span>All campaigns</span><i>&#9662;</i></button>
+          <div class="eb-ms-menu" id="eb-ms-campaigns"></div>
+        </div>
+        <div class="eb-ms-extra">
+          <label class="eb-inline"><input type="checkbox" id="eb-has-given"> Donated before</label>
+          <label class="eb-inline">Age <input type="number" id="eb-min-age" placeholder="min">&ndash;<input type="number" id="eb-max-age" placeholder="max"></label>
+          <button type="button" class="btn-secondary eb-clear" id="eb-clear-seg">Clear</button>
+        </div>
       </div>
-      <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:10px;">
-        <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:0.84rem;"><input type="checkbox" id="eb-has-given" style="width:15px;height:15px;"> Has donated before</label>
-        <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:0.84rem;">Age <input type="number" id="eb-min-age" placeholder="min" style="width:70px;padding:4px 6px;font-size:0.82rem;"> to <input type="number" id="eb-max-age" placeholder="max" style="width:70px;padding:4px 6px;font-size:0.82rem;"></label>
-        <button type="button" class="btn-secondary" id="eb-clear-seg" style="padding:5px 12px;font-size:0.8rem;">Clear filters</button>
-      </div>
-      <div class="card-sub" style="margin-top:6px;">No filters selected means everyone who hasn&rsquo;t unsubscribed.</div>
     </div>
 
-    <div class="card">
-      <div class="field"><label for="eb-subject">Subject</label><input type="text" id="eb-subject" placeholder="Join us for Sangeet Sandhya on August 16"></div>
-      <div class="eb-compose">
-        <div>
-          <label style="font-size:0.8rem;color:var(--muted);">Message</label>
-          <div class="eb-toolbar">
-            <button type="button" data-eb-cmd="bold"><strong>B</strong></button>
-            <button type="button" data-eb-cmd="italic"><em>I</em></button>
-            <button type="button" data-eb-cmd="underline"><u>U</u></button>
-            <span class="eb-sep"></span>
-            <button type="button" data-eb-block="h2">H</button>
-            <button type="button" data-eb-cmd="insertUnorderedList">&bull;</button>
-            <span class="eb-sep"></span>
-            <input type="color" id="eb-color" value="#7f2e16" title="Text colour">
-            <select id="eb-size"><option value="">Size</option><option value="2">Small</option><option value="3">Normal</option><option value="5">Large</option></select>
-            <span class="eb-sep"></span>
-            <button type="button" id="eb-add-link">Link</button>
-            <button type="button" id="eb-add-button">Button</button>
-            <button type="button" id="eb-add-image">Image</button>
-            <span class="eb-sep"></span>
-            <select id="eb-var"><option value="">Insert variable&hellip;</option><option value="@first_name">@first_name</option><option value="@name">@name</option></select>
-          </div>
-          <div id="eb-body" class="eb-editor" contenteditable="true" data-placeholder="Namaste @first_name, ..."></div>
-          <div class="card-sub" style="margin-top:6px;">Type <code>@first_name</code> or <code>@name</code> anywhere &mdash; replaced per person when sending.</div>
+    <div class="eb-split">
+      <div class="card eb-pane">
+        <div class="field"><label for="eb-subject">Subject</label><input type="text" id="eb-subject" placeholder="Join us for Sangeet Sandhya on August 16"></div>
+        <label style="font-size:0.8rem;color:var(--muted);">Message</label>
+        <div class="eb-toolbar">
+          <button type="button" data-eb-cmd="bold" title="Bold"><strong>B</strong></button>
+          <button type="button" data-eb-cmd="italic" title="Italic"><em>I</em></button>
+          <button type="button" data-eb-cmd="underline" title="Underline"><u>U</u></button>
+          <span class="eb-sep"></span>
+          <button type="button" data-eb-block="h2" title="Heading">H</button>
+          <button type="button" data-eb-cmd="insertUnorderedList" title="List">&bull;</button>
+          <span class="eb-sep"></span>
+          <label class="eb-color" title="Text colour"><span>A</span><input type="color" id="eb-color" value="#7f2e16"></label>
+          <label class="eb-color" title="Highlight"><span>&#9646;</span><input type="color" id="eb-highlight" value="#ffe9a8"></label>
+          <select id="eb-size" title="Size"><option value="">Size</option><option value="2">Small</option><option value="3">Normal</option><option value="5">Large</option></select>
+          <span class="eb-sep"></span>
+          <button type="button" id="eb-add-link">Link</button>
+          <button type="button" id="eb-add-button">Button</button>
+          <button type="button" id="eb-add-image">Image</button>
+          <select id="eb-var" title="Variable"><option value="">@variable</option><option value="@first_name">@first_name</option><option value="@name">@name</option></select>
         </div>
-        <div>
-          <label style="font-size:0.8rem;color:var(--muted);">Preview</label>
-          <div class="eb-preview-frame">
-            <div class="eb-preview-subject" id="eb-preview-subject">(no subject)</div>
-            <div class="eb-preview-body" id="eb-preview-body"></div>
-            <div class="eb-preview-footer">Hindu Community Center of Greater Cincinnati<br><span style="text-decoration:underline;">Unsubscribe from these emails</span></div>
-          </div>
-          <div class="card-sub" style="margin-top:6px;">Shown as a sample recipient would see it.</div>
+        <div id="eb-body" class="eb-editor" contenteditable="true" data-placeholder="Namaste @first_name, ..."></div>
+        <div class="card-sub" style="margin-top:6px;">Type <code>@first_name</code> or <code>@name</code> &mdash; replaced per person.</div>
+        <div class="eb-actions">
+          <button type="button" class="btn-secondary" id="btn-eb-test">Send test to me</button>
+          <button type="button" class="btn-primary" id="btn-eb-send">Send blast</button>
+        </div>
+        <div class="result-box" id="eb-result" style="display:none;margin-top:12px;"></div>
+      </div>
+
+      <div class="card eb-pane">
+        <label style="font-size:0.8rem;color:var(--muted);">Preview</label>
+        <div class="eb-preview-frame">
+          <div class="eb-preview-subject" id="eb-preview-subject">(no subject)</div>
+          <div class="eb-preview-body" id="eb-preview-body"></div>
+          <div class="eb-preview-footer">Hindu Community Center of Greater Cincinnati<br><span style="text-decoration:underline;">Unsubscribe from these emails</span></div>
         </div>
       </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;">
-        <button type="button" class="btn-secondary" id="btn-eb-test" style="width:auto;padding:12px 20px;">Send test to me</button>
-        <button type="button" class="btn-primary" id="btn-eb-send" style="width:auto;padding:12px 24px;">Send blast</button>
-      </div>
-      <div class="result-box" id="eb-result" style="display:none;margin-top:14px;"></div>
     </div>
 
     <div class="card">
@@ -922,34 +930,89 @@ document.getElementById('btn-pi-recompute').addEventListener('click', async func
 });
 
 /* ── Email Blast ────────────────────────────────────────────────────── */
-var EB_SEG = { languages: [], events: [], sources: [] };
+var EB_SEG = { languages: [], events: [], campaigns: [] };
+var EB_OPTS = { languages: [], events: [], campaigns: [] };
 var EB_REACH_TIMER = null;
 
 async function loadBlastOptions() {
   try {
     var res = await authedFetch(API_BASE + '/blast/segment-options');
     var d = await res.json();
-    function chips(elId, values, key) {
-      document.getElementById(elId).innerHTML = values.map(function (v) {
-        var label = typeof v === 'object' ? v.name : v;
-        var extra = typeof v === 'object' ? ' (' + v.patrons + ')' : '';
-        return '<button type="button" class="eb-chip" data-eb-seg="' + key + '" data-eb-val="' + escHtml(label) + '">' + escHtml(label) + extra + '</button>';
-      }).join('') || '<span style="font-size:0.78rem;color:var(--muted);">none yet</span>';
-    }
-    chips('eb-languages', d.languages || [], 'languages');
-    chips('eb-events', d.events || [], 'events');
-    chips('eb-sources', d.sources || [], 'sources');
+    EB_OPTS.languages = (d.languages || []).map(function (v) { return { name: v }; });
+    EB_OPTS.events = d.events || [];
+    EB_OPTS.campaigns = d.campaigns || [];
+    ['languages', 'events', 'campaigns'].forEach(renderMultiSelect);
     refreshReach();
   } catch (err) {
-    document.getElementById('eb-reach').textContent = 'Could not load segments';
+    document.getElementById('eb-reach').textContent = 'Could not load filters';
   }
 }
+
+// Multi-select with an explicit "All" row. A dropdown keeps long lists
+// manageable — chips wrapped over several rows once there were more than
+// a handful of events.
+function renderMultiSelect(key) {
+  var menu = document.getElementById('eb-ms-' + key);
+  var opts = EB_OPTS[key] || [];
+  if (!opts.length) { menu.innerHTML = '<div style="padding:8px;font-size:0.8rem;color:var(--muted);">None available</div>'; return; }
+  var allOn = EB_SEG[key].length === 0;
+  menu.innerHTML =
+    '<label class="eb-ms-opt all"><input type="checkbox" data-ms-all="' + key + '"' + (allOn ? ' checked' : '') + '> All</label>' +
+    opts.map(function (o) {
+      var on = EB_SEG[key].indexOf(o.name) !== -1;
+      return '<label class="eb-ms-opt"><input type="checkbox" data-ms-key="' + key + '" value="' + escHtml(o.name) + '"' + (on ? ' checked' : '') + '>' +
+        escHtml(o.name) + (o.patrons ? '<span class="n">' + o.patrons + '</span>' : '') + '</label>';
+    }).join('');
+  updateMultiLabel(key);
+}
+function updateMultiLabel(key) {
+  var btn = document.querySelector('[data-ms-toggle="' + key + '"] span');
+  if (!btn) return;
+  var sel = EB_SEG[key];
+  var noun = key === 'languages' ? 'languages' : (key === 'events' ? 'events' : 'campaigns');
+  btn.textContent = !sel.length ? ('All ' + noun)
+    : (sel.length === 1 ? sel[0] : sel.length + ' ' + noun + ' selected');
+}
+document.addEventListener('click', function (e) {
+  var toggle = e.target.closest('[data-ms-toggle]');
+  document.querySelectorAll('.eb-ms-menu.open').forEach(function (m) {
+    if (!toggle || m.id !== 'eb-ms-' + toggle.dataset.msToggle) m.classList.remove('open');
+  });
+  if (toggle) {
+    document.getElementById('eb-ms-' + toggle.dataset.msToggle).classList.toggle('open');
+    return;
+  }
+  if (e.target.closest('.eb-ms-menu')) return;
+});
+document.addEventListener('change', function (e) {
+  var all = e.target.closest('[data-ms-all]');
+  if (all) {
+    var k = all.dataset.msAll;
+    EB_SEG[k] = [];
+    renderMultiSelect(k);
+    document.getElementById('eb-ms-' + k).classList.add('open');
+    refreshReach();
+    return;
+  }
+  var opt = e.target.closest('[data-ms-key]');
+  if (opt) {
+    var key = opt.dataset.msKey, val = opt.value;
+    var i = EB_SEG[key].indexOf(val);
+    if (opt.checked && i === -1) EB_SEG[key].push(val);
+    if (!opt.checked && i !== -1) EB_SEG[key].splice(i, 1);
+    // Keep the "All" row honest without redrawing the open menu.
+    var allBox = document.querySelector('[data-ms-all="' + key + '"]');
+    if (allBox) allBox.checked = EB_SEG[key].length === 0;
+    updateMultiLabel(key);
+    refreshReach();
+  }
+});
 
 function currentSegment() {
   var seg = {
     languages: EB_SEG.languages.slice(),
     events: EB_SEG.events.slice(),
-    sources: EB_SEG.sources.slice()
+    campaigns: EB_SEG.campaigns.slice()
   };
   if (document.getElementById('eb-has-given').checked) seg.hasGiven = true;
   var mn = document.getElementById('eb-min-age').value;
@@ -958,9 +1021,6 @@ function currentSegment() {
   if (mx) seg.maxAge = Number(mx);
   return seg;
 }
-
-// Debounced: the reach query hits BigQuery, and firing on every keystroke
-// of the age boxes would be wasteful.
 function refreshReach() {
   clearTimeout(EB_REACH_TIMER);
   EB_REACH_TIMER = setTimeout(async function () {
@@ -976,23 +1036,12 @@ function refreshReach() {
     } catch (e) { el.textContent = 'Could not count'; }
   }, 300);
 }
-
-document.addEventListener('click', function (e) {
-  var chip = e.target.closest('[data-eb-seg]');
-  if (!chip) return;
-  var key = chip.dataset.ebSeg, val = chip.dataset.ebVal;
-  var i = EB_SEG[key].indexOf(val);
-  if (i === -1) { EB_SEG[key].push(val); chip.classList.add('on'); }
-  else { EB_SEG[key].splice(i, 1); chip.classList.remove('on'); }
-  refreshReach();
-});
 ['eb-has-given', 'eb-min-age', 'eb-max-age'].forEach(function (id) {
   document.getElementById(id).addEventListener('input', refreshReach);
-  document.getElementById(id).addEventListener('change', refreshReach);
 });
 document.getElementById('eb-clear-seg').addEventListener('click', function () {
-  EB_SEG = { languages: [], events: [], sources: [] };
-  document.querySelectorAll('.eb-chip.on').forEach(function (c) { c.classList.remove('on'); });
+  EB_SEG = { languages: [], events: [], campaigns: [] };
+  ['languages', 'events', 'campaigns'].forEach(renderMultiSelect);
   document.getElementById('eb-has-given').checked = false;
   document.getElementById('eb-min-age').value = '';
   document.getElementById('eb-max-age').value = '';
@@ -1009,52 +1058,48 @@ document.querySelectorAll('[data-eb-block]').forEach(function (b) {
   b.addEventListener('click', function () { ebExec('formatBlock', '<' + this.dataset.ebBlock + '>'); });
 });
 document.getElementById('eb-color').addEventListener('input', function () { ebExec('foreColor', this.value); });
+// hiliteColor is the standard; some engines only honour backColor.
+document.getElementById('eb-highlight').addEventListener('input', function () {
+  ebBody.focus();
+  if (!document.execCommand('hiliteColor', false, this.value)) document.execCommand('backColor', false, this.value);
+  syncPreview();
+});
 document.getElementById('eb-size').addEventListener('change', function () { if (this.value) ebExec('fontSize', this.value); this.value = ''; });
 document.getElementById('eb-var').addEventListener('change', function () {
   if (!this.value) return;
-  ebBody.focus();
-  document.execCommand('insertText', false, this.value);
-  this.value = '';
-  syncPreview();
+  ebBody.focus(); document.execCommand('insertText', false, this.value); this.value = ''; syncPreview();
 });
 document.getElementById('eb-add-link').addEventListener('click', function () {
   var url = window.prompt('Link address:', 'https://hccgc.org/');
-  if (!url) return;
-  ebExec('createLink', url);
+  if (url) ebExec('createLink', url);
 });
 document.getElementById('eb-add-image').addEventListener('click', function () {
-  var url = window.prompt('Image URL (it must be publicly reachable):', '');
-  if (!url) return;
-  ebExec('insertHTML', '<img src="' + url.replace(/"/g, '&quot;') + '" style="max-width:100%;border-radius:8px;">');
+  var url = window.prompt('Image URL (must be publicly reachable):', '');
+  if (url) ebExec('insertHTML', '<img src="' + url.replace(/"/g, '&quot;') + '" style="max-width:100%;border-radius:8px;">');
 });
 document.getElementById('eb-add-button').addEventListener('click', function () {
   var label = window.prompt('Button text:', 'RSVP now');
   if (!label) return;
   var url = window.prompt('Where should it link to?', 'https://hccgc.org/forms/');
   if (!url) return;
-  // Inline styles and a table-free anchor: email clients strip <style>
-  // blocks and many ignore CSS classes entirely.
+  // Inline styles: email clients strip <style> blocks and ignore classes.
   ebExec('insertHTML',
-    '<div style="text-align:center;margin:22px 0;">' +
-    '<a href="' + url.replace(/"/g, '&quot;') + '" style="display:inline-block;background:#b55a18;color:#ffffff;' +
-    'padding:13px 30px;border-radius:999px;font-weight:bold;text-decoration:none;font-family:Arial,Helvetica,sans-serif;">' +
-    escHtml(label) + '</a></div><p><br></p>');
+    '<div style="text-align:center;margin:22px 0;"><a href="' + url.replace(/"/g, '&quot;') +
+    '" style="display:inline-block;background:#b55a18;color:#ffffff;padding:13px 30px;border-radius:999px;' +
+    'font-weight:bold;text-decoration:none;font-family:Arial,Helvetica,sans-serif;">' + escHtml(label) + '</a></div><p><br></p>');
 });
 
 function syncPreview() {
   var subj = document.getElementById('eb-subject').value.trim();
   document.getElementById('eb-preview-subject').textContent = subj || '(no subject)';
-  // Substitute with a sample name so the preview reads like a real email
-  // rather than showing raw placeholders.
   var html = ebBody.innerHTML
     .replace(/(^|[^\w@])@first_name\b/g, '$1Priya')
     .replace(/(^|[^\w@])@name\b/g, '$1Priya Deshpande')
-    .split('{{first_name}}').join('Priya')
-    .split('{{name}}').join('Priya Deshpande');
+    .split('{{first_name}}').join('Priya').split('{{name}}').join('Priya Deshpande');
   document.getElementById('eb-preview-body').innerHTML = html || '<span style="color:#a89684;">Your message will appear here\u2026</span>';
 }
 ebBody.addEventListener('input', syncPreview);
-ebBody.addEventListener('blur', syncPreview);
+ebBody.addEventListener('keyup', syncPreview);
 document.getElementById('eb-subject').addEventListener('input', syncPreview);
 
 async function doBlastSend(testOnly) {
@@ -1063,10 +1108,7 @@ async function doBlastSend(testOnly) {
   var bodyHtml = ebBody.innerHTML.trim();
   if (!subject) { box.style.display='block'; box.className='result-box error'; box.textContent='Add a subject.'; return; }
   if (!bodyHtml) { box.style.display='block'; box.className='result-box error'; box.textContent='The message is empty.'; return; }
-  if (!testOnly) {
-    var reach = document.getElementById('eb-reach').textContent;
-    if (!window.confirm('Send this blast?\n\n' + reach + '\n\nThis cannot be undone.')) return;
-  }
+  if (!testOnly && !window.confirm('Send this blast?\n\n' + document.getElementById('eb-reach').textContent + '\n\nThis cannot be undone.')) return;
   box.style.display='block'; box.className='result-box'; box.textContent = testOnly ? 'Sending test\u2026' : 'Sending\u2026';
   try {
     var res = await authedFetch(API_BASE + '/blast/send', {
@@ -1102,7 +1144,6 @@ async function loadBlastHistory() {
           '<span style="color:var(--green);">Opened <strong>' + r.opened + '</strong> (' + pct(r.opened) + '%)</span>' +
           '<span style="color:var(--saffron-dark);">Clicked <strong>' + r.clicked + '</strong> (' + pct(r.clicked) + '%)</span>' +
           (r.unsubscribed ? '<span style="color:var(--red);">Unsubscribed <strong>' + r.unsubscribed + '</strong></span>' : '') +
-          (r.failedCount ? '<span style="color:var(--red);">Failed <strong>' + r.failedCount + '</strong></span>' : '') +
         '</div>' +
         '<div style="font-size:0.76rem;color:var(--muted);margin-top:4px;">' + escHtml(r.sentBy || '') + ' \u00b7 ' + formatTimestampDate(r.sentAt) + '</div>' +
       '</div>';
@@ -1112,9 +1153,6 @@ async function loadBlastHistory() {
   }
 }
 
-
-// Tab switching. This was removed along with the old Mass Email code,
-// which left every tab except the default one unreachable.
 document.querySelectorAll('.tab-btn').forEach(function (btn) {
   btn.addEventListener('click', function () {
     document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });

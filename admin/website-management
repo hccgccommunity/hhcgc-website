@@ -3412,7 +3412,11 @@ async function hpLoad() {
 function hpRenderSlides() {
   var el = document.getElementById('hp-slides');
   var slides = HP.hero.slides || [];
-  if (!slides.length) { el.innerHTML = '<div class="card-sub">No images yet.</div>'; return; }
+  if (!slides.length) {
+    el.innerHTML = '<div class="card-sub" style="padding:14px;border:1px dashed var(--border);border-radius:10px;">' +
+      'No images yet \u2014 click <strong>Load current page</strong> to pull in the five carousel images already on the site, or add your own.</div>';
+    return;
+  }
   el.innerHTML = slides.map(function (s, i) {
     return '<div class="hp-slide">' +
       '<img src="' + escF(s.src) + '" alt="">' +
@@ -3433,7 +3437,12 @@ var HP_TYPE_LABEL = { cards: 'Cards grid', imageGrid: 'Image grid', twoColumn: '
 
 function hpRenderSections() {
   var el = document.getElementById('hp-sections');
-  if (!HP.sections.length) { el.innerHTML = '<div class="card-sub" style="margin-top:10px;">No sections yet. Use “Load current page” to start from what is live today.</div>'; return; }
+  if (!HP.sections.length) {
+    el.innerHTML = '<div class="card-sub" style="margin-top:10px;padding:14px;border:1px dashed var(--border);border-radius:10px;">' +
+      'Nothing loaded yet. Click <strong>Load current page</strong> above to pull in the sections that are live on hccgc.org right now, ' +
+      'then review and Publish.</div>';
+    return;
+  }
   el.innerHTML = HP.sections.map(function (s, i) {
     return '<div class="hp-sec" data-hp-sec="' + i + '">' +
       '<div class="hp-sec-head" data-hp-toggle="' + i + '">' +

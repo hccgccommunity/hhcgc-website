@@ -714,6 +714,46 @@ textarea{resize:vertical;}
 .tab-nav button:not(.active):hover { background: var(--surface-soft); }
 .tab-panel { display: none; padding: 24px 0 60px; }
 .tab-panel.active { display: block; }
+
+/* ── Manage Home Page ──────────────────────────────────────────────── */
+.hp-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.hp-head-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.hp-head-actions button{width:auto;padding:10px 20px;}
+.hp-h3{margin:0 0 4px;font-size:1.05rem;color:var(--maroon);}
+.hp-slides{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin:14px 0;}
+.hp-slide{border:1.5px solid var(--border);border-radius:12px;overflow:hidden;background:#fff;}
+.hp-slide img{width:100%;height:110px;object-fit:cover;display:block;background:var(--surface-soft);}
+.hp-slide-body{padding:8px;}
+.hp-slide-body input{width:100%;font-size:0.76rem;padding:5px 7px;border:1.5px solid var(--border);border-radius:7px;}
+.hp-slide-actions{display:flex;gap:4px;margin-top:6px;}
+.hp-slide-actions button{flex:1;font-family:inherit;font-size:0.74rem;padding:4px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;color:var(--muted);width:auto;}
+.hp-slide-actions button:hover{border-color:var(--saffron);color:var(--text);}
+.hp-slide-actions button.danger:hover{border-color:var(--red);color:var(--red);}
+.hp-add-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px;}
+.hp-add-row button{width:auto;padding:8px 16px;font-size:0.84rem;}
+.hp-add-row select{width:auto;padding:8px 12px;font-size:0.84rem;border:1.5px solid var(--border);border-radius:9px;background:#fff;}
+.hp-sec{border:1.5px solid var(--border);border-radius:12px;margin:12px 0;background:#fff;overflow:hidden;}
+.hp-sec-head{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--surface-soft);cursor:pointer;}
+.hp-sec-head .t{font-weight:700;font-size:0.9rem;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hp-sec-head .ty{font-size:0.72rem;color:var(--muted);background:#fff;border:1px solid var(--border);border-radius:999px;padding:2px 9px;flex-shrink:0;}
+.hp-sec-head .off{font-size:0.72rem;color:var(--red);font-weight:700;flex-shrink:0;}
+.hp-sec-tools{display:flex;gap:4px;flex-shrink:0;}
+.hp-sec-tools button{font-family:inherit;font-size:0.76rem;padding:4px 9px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;color:var(--muted);width:auto;line-height:1.2;}
+.hp-sec-tools button:hover{border-color:var(--saffron);color:var(--text);}
+.hp-sec-tools button.danger:hover{border-color:var(--red);color:var(--red);}
+.hp-sec-body{display:none;padding:14px;border-top:1px solid var(--border);}
+.hp-sec.open .hp-sec-body{display:block;}
+.hp-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.hp-f{margin-bottom:10px;}
+.hp-f label{display:block;font-size:0.76rem;color:var(--muted);margin-bottom:4px;}
+.hp-f input,.hp-f textarea{width:100%;font-family:inherit;font-size:0.86rem;padding:8px 11px;border:1.5px solid var(--border);border-radius:9px;background:#fff;}
+.hp-f textarea{min-height:70px;resize:vertical;}
+.hp-item{border:1px dashed var(--border);border-radius:10px;padding:11px;margin-bottom:9px;background:var(--surface-soft);}
+.hp-item-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;}
+.hp-item-head strong{font-size:0.82rem;}
+.hp-item-head button{font-family:inherit;font-size:0.74rem;padding:3px 8px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;color:var(--muted);width:auto;}
+.hp-item-head button:hover{border-color:var(--red);color:var(--red);}
+@media(max-width:820px){.hp-row{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -771,9 +811,44 @@ textarea{resize:vertical;}
     </div>
 
     <div class="tab-panel" id="wm-tab-homepage">
-      <div class="card" style="padding:40px;text-align:center;">
-        <h2 style="margin-bottom:8px;">Homepage Management</h2>
-        <p style="color:var(--muted);max-width:480px;margin:0 auto;">Not built yet — carousel images, logo, and menu editing will go here. Note: adding programs and initiatives already works today, in the Manage Pages tab.</p>
+      <div class="card">
+        <div class="hp-head">
+          <div>
+            <h2 style="margin:0 0 4px;">Manage Home Page</h2>
+            <div class="card-sub" style="margin:0;">Carousel and sections on hccgc.org. Changes go live when you publish.</div>
+          </div>
+          <div class="hp-head-actions">
+            <button type="button" class="btn-secondary" id="hp-seed">Load current page</button>
+            <button type="button" class="btn-primary" id="hp-publish">Publish</button>
+          </div>
+        </div>
+        <div class="result-box" id="hp-result" style="display:none;margin-top:12px;"></div>
+      </div>
+
+      <div class="card">
+        <h3 class="hp-h3">Carousel</h3>
+        <div class="card-sub">Images rotating at the top of the page. Drag order with the arrows.</div>
+        <div id="hp-slides" class="hp-slides"></div>
+        <div class="hp-add-row">
+          <input type="file" id="hp-slide-file" accept="image/*" style="display:none;">
+          <button type="button" class="btn-secondary" id="hp-add-slide">Add image</button>
+          <span class="card-sub" id="hp-slide-hint" style="margin:0;"></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="hp-h3">Sections</h3>
+        <div class="card-sub">Everything below the carousel, in the order shown.</div>
+        <div id="hp-sections"></div>
+        <div class="hp-add-row">
+          <select id="hp-new-type">
+            <option value="cards">Cards grid</option>
+            <option value="imageGrid">Image grid</option>
+            <option value="twoColumn">Two columns</option>
+            <option value="richText">Text block</option>
+          </select>
+          <button type="button" class="btn-secondary" id="hp-add-section">Add section</button>
+        </div>
       </div>
     </div>
 
@@ -3304,6 +3379,267 @@ document.querySelectorAll('[data-wm-tab="forms"]').forEach(function (btn) {
   btn.addEventListener('click', function () {
     if (window.__hccgcUser) { if (!FORMS_LOADED) { FORMS_LOADED = true; } loadForms(); }
   });
+});
+
+/* ── Manage Home Page ──────────────────────────────────────────────────
+   Edits one Firestore document, siteContent/homepage, which the public
+   page renders from. Nothing is written until Publish, so a half-finished
+   edit can't reach the live site. */
+var HP = { hero: { enabled: true, intervalMs: 5500, slides: [] }, sections: [] };
+
+function hpStatus(msg, kind) {
+  var box = document.getElementById('hp-result');
+  box.style.display = 'block';
+  box.className = 'result-box' + (kind ? ' ' + kind : '');
+  box.textContent = msg;
+}
+
+async function hpLoad() {
+  try {
+    var MP = window.__hccgcMP;
+    var snap = await MP.getDoc(MP.doc(MP.db, 'siteContent', 'homepage'));
+    if (snap.exists()) {
+      var d = snap.data();
+      HP.hero = d.hero || HP.hero;
+      HP.sections = Array.isArray(d.sections) ? d.sections : [];
+    }
+  } catch (e) { hpStatus('Could not load saved content: ' + e.message, 'error'); }
+  hpRenderSlides();
+  hpRenderSections();
+}
+
+/* Carousel */
+function hpRenderSlides() {
+  var el = document.getElementById('hp-slides');
+  var slides = HP.hero.slides || [];
+  if (!slides.length) { el.innerHTML = '<div class="card-sub">No images yet.</div>'; return; }
+  el.innerHTML = slides.map(function (s, i) {
+    return '<div class="hp-slide">' +
+      '<img src="' + escF(s.src) + '" alt="">' +
+      '<div class="hp-slide-body">' +
+        '<input type="text" data-hp-alt="' + i + '" value="' + escF(s.alt || '') + '" placeholder="Describe the image">' +
+        '<div class="hp-slide-actions">' +
+          '<button type="button" data-hp-slide-up="' + i + '" title="Move left">&#8592;</button>' +
+          '<button type="button" data-hp-slide-down="' + i + '" title="Move right">&#8594;</button>' +
+          '<button type="button" class="danger" data-hp-slide-del="' + i + '">Remove</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+/* Sections */
+var HP_TYPE_LABEL = { cards: 'Cards grid', imageGrid: 'Image grid', twoColumn: 'Two columns', richText: 'Text block' };
+
+function hpRenderSections() {
+  var el = document.getElementById('hp-sections');
+  if (!HP.sections.length) { el.innerHTML = '<div class="card-sub" style="margin-top:10px;">No sections yet. Use “Load current page” to start from what is live today.</div>'; return; }
+  el.innerHTML = HP.sections.map(function (s, i) {
+    return '<div class="hp-sec" data-hp-sec="' + i + '">' +
+      '<div class="hp-sec-head" data-hp-toggle="' + i + '">' +
+        '<span class="t">' + escF(s.heading || s.kicker || s.id || 'Untitled section') + '</span>' +
+        '<span class="ty">' + escF(HP_TYPE_LABEL[s.type] || s.type) + '</span>' +
+        (s.enabled === false ? '<span class="off">Hidden</span>' : '') +
+        '<span class="hp-sec-tools">' +
+          '<button type="button" data-hp-up="' + i + '" title="Move up">&#8593;</button>' +
+          '<button type="button" data-hp-down="' + i + '" title="Move down">&#8595;</button>' +
+          '<button type="button" data-hp-toggle-vis="' + i + '">' + (s.enabled === false ? 'Show' : 'Hide') + '</button>' +
+          '<button type="button" class="danger" data-hp-del="' + i + '">Delete</button>' +
+        '</span>' +
+      '</div>' +
+      '<div class="hp-sec-body">' + hpSectionForm(s, i) + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function hpField(label, key, i, val, ta) {
+  return '<div class="hp-f"><label>' + label + '</label>' +
+    (ta ? '<textarea data-hp-f="' + key + '" data-hp-i="' + i + '">' + escF(val || '') + '</textarea>'
+        : '<input type="text" data-hp-f="' + key + '" data-hp-i="' + i + '" value="' + escF(val || '') + '">') +
+  '</div>';
+}
+
+function hpSectionForm(s, i) {
+  var h = '<div class="hp-row">' +
+    hpField('Kicker (small label above)', 'kicker', i, s.kicker) +
+    hpField('Anchor (used in links)', 'anchor', i, s.anchor || s.id) +
+  '</div>' +
+  hpField('Heading', 'heading', i, s.heading) +
+  hpField('Intro text', 'intro', i, s.intro, true);
+
+  if (s.type === 'cards') {
+    h += '<div class="hp-row">' + hpField('Columns (2 or 3)', 'columns', i, s.columns) +
+         hpField('Card style (value or contact)', 'cardStyle', i, s.cardStyle) + '</div>';
+    h += (s.cards || []).map(function (cd, j) {
+      return '<div class="hp-item"><div class="hp-item-head"><strong>Card ' + (j + 1) + '</strong>' +
+        '<button type="button" data-hp-item-del="' + i + ':' + j + '">Remove</button></div>' +
+        hpItemField('Title', 'title', i, j, cd.title) +
+        hpItemField('Text', 'body', i, j, cd.body, true) +
+        '<div class="hp-row">' + hpItemField('Button label', 'buttonLabel', i, j, cd.buttonLabel) +
+        hpItemField('Button link', 'buttonUrl', i, j, cd.buttonUrl) + '</div></div>';
+    }).join('') + '<button type="button" class="btn-secondary" data-hp-item-add="' + i + '" style="width:auto;padding:7px 14px;font-size:0.8rem;">Add card</button>';
+  } else if (s.type === 'imageGrid') {
+    h += (s.items || []).map(function (it, j) {
+      return '<div class="hp-item"><div class="hp-item-head"><strong>Item ' + (j + 1) + '</strong>' +
+        '<button type="button" data-hp-item-del="' + i + ':' + j + '">Remove</button></div>' +
+        hpItemField('Image file or URL', 'image', i, j, it.image) +
+        '<div class="hp-row">' + hpItemField('Title', 'title', i, j, it.title) +
+        hpItemField('Subtitle', 'subtitle', i, j, it.subtitle) + '</div></div>';
+    }).join('') + '<button type="button" class="btn-secondary" data-hp-item-add="' + i + '" style="width:auto;padding:7px 14px;font-size:0.8rem;">Add item</button>';
+  } else if (s.type === 'twoColumn') {
+    h += (s.columns || []).map(function (cl, j) {
+      return '<div class="hp-item"><div class="hp-item-head"><strong>Column ' + (j + 1) + '</strong>' +
+        '<button type="button" data-hp-item-del="' + i + ':' + j + '">Remove</button></div>' +
+        hpItemField('Title', 'title', i, j, cl.title) +
+        hpItemField('Text', 'body', i, j, cl.body, true) +
+        '<div class="hp-row">' + hpItemField('Button label', 'buttonLabel', i, j, cl.buttonLabel) +
+        hpItemField('Button link', 'buttonUrl', i, j, cl.buttonUrl) + '</div></div>';
+    }).join('') + '<button type="button" class="btn-secondary" data-hp-item-add="' + i + '" style="width:auto;padding:7px 14px;font-size:0.8rem;">Add column</button>';
+  } else if (s.type === 'richText') {
+    h += hpField('HTML content', 'html', i, s.html, true);
+  }
+  return h;
+}
+function hpItemField(label, key, i, j, val, ta) {
+  return '<div class="hp-f"><label>' + label + '</label>' +
+    (ta ? '<textarea data-hp-if="' + key + '" data-hp-ij="' + i + ':' + j + '">' + escF(val || '') + '</textarea>'
+        : '<input type="text" data-hp-if="' + key + '" data-hp-ij="' + i + ':' + j + '" value="' + escF(val || '') + '">') +
+  '</div>';
+}
+
+// Items live under a different key per type; one accessor keeps the
+// add/remove/edit handlers from needing to know which.
+function hpItems(s) {
+  if (s.type === 'cards') { s.cards = s.cards || []; return s.cards; }
+  if (s.type === 'imageGrid') { s.items = s.items || []; return s.items; }
+  if (s.type === 'twoColumn') { s.columns = Array.isArray(s.columns) ? s.columns : []; return s.columns; }
+  return [];
+}
+
+document.getElementById('wm-tab-homepage').addEventListener('input', function (e) {
+  var f = e.target.closest('[data-hp-f]');
+  if (f) {
+    var i = Number(f.dataset.hpI), k = f.dataset.hpF;
+    HP.sections[i][k] = (k === 'columns' && HP.sections[i].type === 'cards') ? Number(f.value) || f.value : f.value;
+    return;
+  }
+  var itf = e.target.closest('[data-hp-if]');
+  if (itf) {
+    var parts = itf.dataset.hpIj.split(':');
+    var sec = HP.sections[Number(parts[0])];
+    hpItems(sec)[Number(parts[1])][itf.dataset.hpIf] = itf.value;
+    return;
+  }
+  var alt = e.target.closest('[data-hp-alt]');
+  if (alt) HP.hero.slides[Number(alt.dataset.hpAlt)].alt = alt.value;
+});
+
+document.getElementById('wm-tab-homepage').addEventListener('click', function (e) {
+  var t = e.target;
+  var move = function (arr, from, to) {
+    if (to < 0 || to >= arr.length) return false;
+    arr.splice(to, 0, arr.splice(from, 1)[0]);
+    return true;
+  };
+  var b;
+  if ((b = t.closest('[data-hp-slide-up]'))) { var i = Number(b.dataset.hpSlideUp); if (move(HP.hero.slides, i, i - 1)) hpRenderSlides(); return; }
+  if ((b = t.closest('[data-hp-slide-down]'))) { var i2 = Number(b.dataset.hpSlideDown); if (move(HP.hero.slides, i2, i2 + 1)) hpRenderSlides(); return; }
+  if ((b = t.closest('[data-hp-slide-del]'))) { HP.hero.slides.splice(Number(b.dataset.hpSlideDel), 1); hpRenderSlides(); return; }
+  if ((b = t.closest('[data-hp-up]'))) { var i3 = Number(b.dataset.hpUp); if (move(HP.sections, i3, i3 - 1)) hpRenderSections(); return; }
+  if ((b = t.closest('[data-hp-down]'))) { var i4 = Number(b.dataset.hpDown); if (move(HP.sections, i4, i4 + 1)) hpRenderSections(); return; }
+  if ((b = t.closest('[data-hp-toggle-vis]'))) { var s = HP.sections[Number(b.dataset.hpToggleVis)]; s.enabled = s.enabled === false; hpRenderSections(); return; }
+  if ((b = t.closest('[data-hp-del]'))) {
+    var di = Number(b.dataset.hpDel);
+    if (window.confirm('Delete “' + (HP.sections[di].heading || HP.sections[di].id) + '”? It will disappear from the home page when you publish.')) {
+      HP.sections.splice(di, 1); hpRenderSections();
+    }
+    return;
+  }
+  if ((b = t.closest('[data-hp-item-add]'))) { hpItems(HP.sections[Number(b.dataset.hpItemAdd)]).push({}); hpRenderSections(); return; }
+  if ((b = t.closest('[data-hp-item-del]'))) {
+    var pr = b.dataset.hpItemDel.split(':');
+    hpItems(HP.sections[Number(pr[0])]).splice(Number(pr[1]), 1);
+    hpRenderSections(); return;
+  }
+  if ((b = t.closest('[data-hp-toggle]'))) {
+    if (t.closest('.hp-sec-tools')) return;   // tool clicks shouldn't collapse
+    b.parentElement.classList.toggle('open');
+  }
+});
+
+var HP_LOADED = false;
+document.querySelectorAll('[data-wm-tab="homepage"]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    if (HP_LOADED || !window.__hccgcMP) return;
+    HP_LOADED = true;
+    hpLoad();
+  });
+});
+
+document.getElementById('hp-add-section').addEventListener('click', function () {
+  var type = document.getElementById('hp-new-type').value;
+  HP.sections.push({
+    id: 'section-' + Date.now(), type: type, enabled: true,
+    kicker: '', heading: 'New section', intro: '',
+    columns: type === 'cards' ? 3 : [], cardStyle: 'contact',
+    cards: [], items: []
+  });
+  hpRenderSections();
+  var last = document.querySelector('.hp-sec[data-hp-sec="' + (HP.sections.length - 1) + '"]');
+  if (last) { last.classList.add('open'); last.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+});
+
+document.getElementById('hp-add-slide').addEventListener('click', function () {
+  document.getElementById('hp-slide-file').click();
+});
+document.getElementById('hp-slide-file').addEventListener('change', async function (e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var hint = document.getElementById('hp-slide-hint');
+  hint.textContent = 'Uploading…';
+  try {
+    var base64 = await fileToBase64Forms(file);
+    var res = await formsAuthedFetch(FORMS_API_BASE + '/pages/image-upload', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ base64: base64, filename: file.name, mimeType: file.type })
+    });
+    var data = await res.json();
+    if (!res.ok) { hint.textContent = (data.errors || [data.error]).join(' ') || 'Upload failed.'; return; }
+    HP.hero.slides.push({ src: data.imageUrl, alt: '' });
+    hpRenderSlides();
+    hint.textContent = '';
+    this.value = '';
+  } catch (err) { hint.textContent = 'Upload failed: ' + err.message; }
+});
+
+document.getElementById('hp-seed').addEventListener('click', async function () {
+  if (HP.sections.length && !window.confirm('Replace what you have here with the sections currently on the live page?')) return;
+  try {
+    var res = await fetch('/homepage-seed.json');
+    if (!res.ok) throw new Error('homepage-seed.json not found on the site');
+    var d = await res.json();
+    HP.hero = d.hero; HP.sections = d.sections;
+    hpRenderSlides(); hpRenderSections();
+    hpStatus('Loaded the current page structure. Review it, then Publish.', 'success');
+  } catch (err) {
+    hpStatus('Could not load: ' + err.message, 'error');
+  }
+});
+
+document.getElementById('hp-publish').addEventListener('click', async function () {
+  if (!HP.sections.length) { hpStatus('Nothing to publish yet.', 'error'); return; }
+  if (!window.confirm('Publish these changes to hccgc.org?')) return;
+  var btn = this; btn.disabled = true;
+  hpStatus('Publishing…');
+  try {
+    var MP = window.__hccgcMP;
+    await MP.setDoc(MP.doc(MP.db, 'siteContent', 'homepage'), {
+      hero: HP.hero, sections: HP.sections, updatedAt: MP.serverTimestamp()
+    });
+    hpStatus('Published. The home page is updated.', 'success');
+  } catch (err) {
+    hpStatus('Could not publish: ' + err.message, 'error');
+  } finally { btn.disabled = false; }
 });
 
 </script>

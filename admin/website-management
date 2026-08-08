@@ -818,7 +818,7 @@ textarea{resize:vertical;}
             <div class="card-sub" style="margin:0;">Carousel and sections on hccgc.org. Changes go live when you publish.</div>
           </div>
           <div class="hp-head-actions">
-            <button type="button" class="btn-secondary" id="hp-seed">Load current page</button>
+            <button type="button" class="btn-secondary" id="hp-seed">Reset to original</button>
             <button type="button" class="btn-primary" id="hp-publish">Publish</button>
           </div>
         </div>
@@ -3640,14 +3640,20 @@ document.getElementById('hp-slide-file').addEventListener('change', async functi
 });
 
 document.getElementById('hp-seed').addEventListener('click', async function () {
-  if (HP.sections.length && !window.confirm('Replace what you have here with the sections currently on the live page?')) return;
+  // This loads the ORIGINAL snapshot taken from index.html, not what is
+  // currently published — it's a reset, and the old label implied the
+  // opposite.
+  if (HP.sections.length && !window.confirm(
+      'Discard what is here and start again from the original page layout?\n\n' +
+      'This does NOT load your published content — it resets to how the page looked before ' +
+      'it became editable. Nothing changes on the live site until you Publish.')) return;
   try {
     var res = await fetch('/homepage-seed.json');
     if (!res.ok) throw new Error('homepage-seed.json not found on the site');
     var d = await res.json();
     HP.hero = d.hero; HP.sections = d.sections;
     hpRenderSlides(); hpRenderSections();
-    hpStatus('Loaded the current page structure. Review it, then Publish.', 'success');
+    hpStatus('Reset to the original layout. Nothing is live until you Publish.', 'success');
   } catch (err) {
     hpStatus('Could not load: ' + err.message, 'error');
   }

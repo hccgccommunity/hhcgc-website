@@ -823,6 +823,15 @@ textarea{resize:vertical;}
           </div>
         </div>
         <div class="result-box" id="hp-result" style="display:none;margin-top:12px;"></div>
+        <div id="hp-rules-help" style="display:none;margin-top:12px;padding:14px;background:var(--surface-soft);border:1px solid var(--border);border-radius:10px;font-size:0.84rem;line-height:1.6;">
+          <strong>Firestore needs a rule for this collection.</strong> In the Firebase console &rarr; Firestore &rarr; Rules, add inside <code>match /databases/{database}/documents</code>:
+          <pre style="margin:8px 0 0;padding:10px;background:#fff;border:1px solid var(--border);border-radius:8px;overflow-x:auto;font-size:0.78rem;">match /siteContent/{docId} {
+  allow read: if true;
+  allow write: if request.auth != null
+    &amp;&amp; request.auth.token.email.matches('.*@hccgc[.]org');
+}</pre>
+          <span style="color:var(--muted);">Public read is needed so the home page can render; writes stay limited to signed-in @hccgc.org accounts.</span>
+        </div>
       </div>
 
       <div class="card">
@@ -3395,15 +3404,23 @@ function hpStatus(msg, kind) {
 }
 
 async function hpLoad() {
+  var MP = window.__hccgcMP;
+  if (!MP) { hpStatus('Still connecting to Firestore — try the tab again in a moment.', 'error'); return; }
   try {
-    var MP = window.__hccgcMP;
     var snap = await MP.getDoc(MP.doc(MP.db, 'siteContent', 'homepage'));
     if (snap.exists()) {
-      var d = snap.data();
-      HP.hero = d.hero || HP.hero;
+      var d = snap.data() || {};
+      HP.hero = d.hero || { enabled: true, intervalMs: 5500, slides: [] };
       HP.sections = Array.isArray(d.sections) ? d.sections : [];
+      hpStatus('Loaded ' + HP.sections.length + ' saved section(s).', 'success');
+    } else {
+      // Distinguish "no document yet" from "read failed" — they look the
+      // same on screen otherwise, and the fixes are completely different.
+      hpStatus('No saved homepage yet. Use “Load current page”, then Publish.', '');
     }
-  } catch (e) { hpStatus('Could not load saved content: ' + e.message, 'error'); }
+  } catch (e) {
+    hpStatus('Could not read saved content: ' + e.message, 'error');
+  }
   hpRenderSlides();
   hpRenderSections();
 }
@@ -3576,13 +3593,14 @@ document.getElementById('wm-tab-homepage').addEventListener('click', function (e
   }
 });
 
-var HP_LOADED = false;
 document.querySelectorAll('[data-wm-tab="homepage"]').forEach(function (b) {
-  b.addEventListener('click', function () {
-    if (HP_LOADED || !window.__hccgcMP) return;
-    HP_LOADED = true;
-    hpLoad();
-  });
+  b.addEventListener('click', function () { hpLoad(); });
+});
+// Also load once Firestore is ready, in case the tab is opened before the
+// module finishes initialising.
+window.addEventListener('hccgc-mp-ready', function () {
+  var panel = document.getElementById('wm-tab-homepage');
+  if (panel && panel.classList.contains('active')) hpLoad();
 });
 
 document.getElementById('hp-add-section').addEventListener('click', function () {
@@ -3645,9 +3663,25 @@ document.getElementById('hp-publish').addEventListener('click', async function (
     await MP.setDoc(MP.doc(MP.db, 'siteContent', 'homepage'), {
       hero: HP.hero, sections: HP.sections, updatedAt: MP.serverTimestamp()
     });
-    hpStatus('Published. The home page is updated.', 'success');
+    // Read it straight back. "Published" should mean "confirmed stored",
+    // not just "the call didn't throw".
+    var check = await MP.getDoc(MP.doc(MP.db, 'siteContent', 'homepage'));
+    if (check.exists() && Array.isArray((check.data() || {}).sections)) {
+      hpStatus('Published \u2014 ' + check.data().sections.length + ' section(s) saved. Reload hccgc.org to see it.', 'success');
+    } else {
+      hpStatus('The write reported success but nothing was stored. Check Firestore rules for siteContent.', 'error');
+    }
   } catch (err) {
-    hpStatus('Could not publish: ' + err.message, 'error');
+    // "Missing or insufficient permissions" here almost always means the
+    // Firestore rules don't cover siteContent yet — it's a new collection,
+    // so an existing ruleset written for pages/events will reject it.
+    var msg = err && err.message ? err.message : String(err);
+    if (/permission|insufficient/i.test(msg)) {
+      msg = 'Firestore rejected the write. The siteContent collection likely needs a rule added — ' +
+            'see the note below the Publish button.';
+      document.getElementById('hp-rules-help').style.display = 'block';
+    }
+    hpStatus('Could not publish: ' + msg, 'error');
   } finally { btn.disabled = false; }
 });
 

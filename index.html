@@ -870,13 +870,46 @@ const SAHYOGMILAN_LINK = "sahyog-milan-participation-form.html";
             const carousel = document.getElementById("heroCarousel");
             if (!carousel) return;
 
-            const images = [
+            // Carousel slides come from Manage Home Page when published;
+            // the list below is the fallback used before any content is
+            // saved, so the page never depends on Firestore to work.
+            const images = (Array.isArray(window.__hccgcHeroSlides) && window.__hccgcHeroSlides.length)
+                ? window.__hccgcHeroSlides
+                : [
                 { src: "hero-1.jpg", alt: "Khel Sandhya game night with chess, carrom, table tennis, and darts" },
                 { src: "hero-2.jpg", alt: "Parisa Sparsha musical evening with violin, tabla, harmonium, and guitar performers" },
                 { src: "hero-3.jpg", alt: "Yoga For All community session at HCCGC" },
                 { src: "hero-4.jpg", alt: "Sangeet Sandhya community singers performing on stage" },
                 { src: "hero-5.jpg", alt: "Children taking part in an HCCGC cultural and educational program" }
             ];
+
+            // Lets the content renderer swap the slides after it loads —
+            // it runs as a module, so it resolves after this carousel has
+            // already initialised.
+            window.__hccgcRefreshHero = function () {
+                if (!Array.isArray(window.__hccgcHeroSlides) || !window.__hccgcHeroSlides.length) return;
+                images.length = 0;
+                window.__hccgcHeroSlides.forEach(function (s) { images.push(s); });
+                total = images.length;
+                current = 0;
+                // The dot markup is fixed at five in the HTML; rebuild it so
+                // the count matches however many slides are published.
+                const dotWrap = carousel.querySelector(".hero-dots");
+                if (dotWrap) {
+                    dotWrap.innerHTML = images.map(function (_, i) {
+                        return '<button class="hero-dot' + (i === 0 ? ' is-active' : '') +
+                               '" type="button" aria-label="Show slide ' + (i + 1) +
+                               '" aria-selected="' + (i === 0) + '"></button>';
+                    }).join("");
+                    dots.length = 0;
+                    Array.prototype.push.apply(dots, Array.from(dotWrap.querySelectorAll(".hero-dot")));
+                    dots.forEach(function (dot, index) {
+                        dot.addEventListener("click", function () { goTo(index); startAutoplay(); });
+                    });
+                }
+                applySize();
+                render();
+            };
 
             const imgPrev = document.getElementById("heroImgPrev");
             const imgCurrent = document.getElementById("heroImgCurrent");
@@ -887,7 +920,7 @@ const SAHYOGMILAN_LINK = "sahyog-milan-participation-form.html";
             const prevBtn = carousel.querySelector(".hero-prev");
             const nextBtn = carousel.querySelector(".hero-next");
             const intervalMs = 5500;
-            const total = images.length;
+            let total = images.length;
             let current = 0;
             let timer = null;
 

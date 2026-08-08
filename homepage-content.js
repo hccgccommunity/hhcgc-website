@@ -128,13 +128,22 @@ const RENDERERS = {
 async function applyHomepageContent() {
   const app = initializeApp(firebaseConfig, 'homepage-content');
   const db = getFirestore(app);
+  // Verbose on purpose: every early return below leaves the page looking
+  // untouched, which is indistinguishable from "the script never ran".
+  // Say which branch was taken so a silent no-op can be diagnosed.
+  console.log('[homepage] reading siteContent/homepage…');
   const snap = await getDoc(doc(db, 'siteContent', 'homepage'));
-  if (!snap.exists()) return;                 // nothing saved yet — leave the page as-is
+  if (!snap.exists()) { console.warn('[homepage] no document — leaving page as-is'); return; }
   const data = snap.data();
-  if (!data || !Array.isArray(data.sections) || !data.sections.length) return;
+  console.log('[homepage] document found. sections:', (data && data.sections) ? data.sections.length : 0,
+              'types:', (data && data.sections) ? data.sections.map(s => s && s.type) : []);
+  if (!data || !Array.isArray(data.sections) || !data.sections.length) {
+    console.warn('[homepage] document has no sections array — leaving page as-is');
+    return;
+  }
 
   const main = document.getElementById('home');
-  if (!main) return;
+  if (!main) { console.warn('[homepage] <main id="home"> not found'); return; }
 
   // The hero carousel keeps its own markup and script; only its image list
   // is driven from content, via a global the existing initHeroCarousel()
@@ -146,13 +155,23 @@ async function applyHomepageContent() {
   }
 
   const html = data.sections
-    .filter(s => s && s.enabled !== false && RENDERERS[s.type])
+    .filter(s => {
+      if (!s) return false;
+      if (s.enabled === false) { console.log('[homepage] skipping hidden section:', s.id); return false; }
+      if (!RENDERERS[s.type]) { console.warn('[homepage] unknown section type:', s.type, 'on', s.id); return false; }
+      return true;
+    })
     .map(s => {
       try { return RENDERERS[s.type](s); }
       catch (e) { console.error('Section failed to render:', s.id, e); return ''; }
     })
     .join('');
-  if (!html.trim()) return;                   // never blank the page
+  if (!html.trim()) {
+    console.warn('[homepage] every section rendered empty — leaving page as-is. ' +
+      'Section types must be one of: ' + Object.keys(RENDERERS).join(', '));
+    return;
+  }
+  console.log('[homepage] applying', data.sections.length, 'section(s)');
 
   // Replace everything after the hero banner, leaving the carousel intact.
   const hero = main.querySelector('.hero-banner');

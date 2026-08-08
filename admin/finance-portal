@@ -2090,6 +2090,13 @@ document.getElementById('btn-load-tx').addEventListener('click', loadTransaction
     if (checked.length) {
       bar.style.display = 'flex';
       document.getElementById(prefix + '-selected-count').textContent = checked.length;
+      // Split takes one transaction apart; Merge combines several. Showing
+      // both regardless meant picking an action that couldn't apply to the
+      // current selection and only finding out after clicking.
+      var splitBtn = bar.querySelector('[data-bulk-split-prefix]');
+      var mergeBtn = bar.querySelector('[data-bulk-merge-prefix]');
+      if (splitBtn) splitBtn.style.display = checked.length === 1 ? '' : 'none';
+      if (mergeBtn) mergeBtn.style.display = checked.length > 1 ? '' : 'none';
     } else {
       bar.style.display = 'none';
     }

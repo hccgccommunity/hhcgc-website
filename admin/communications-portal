@@ -555,8 +555,9 @@ tr.series-row:hover td { background: var(--surface-soft); }
         <div id="eb-body" class="eb-editor" contenteditable="true" data-placeholder="Namaste @first_name, ..."></div>
         <div class="card-sub" style="margin-top:6px;">Type <code>@first_name</code> or <code>@name</code> &mdash; replaced per person.</div>
         <div class="eb-actions">
+          <button type="button" class="btn-secondary" id="btn-eb-draft">Save draft</button>
           <button type="button" class="btn-secondary" id="btn-eb-test">Send test to me</button>
-          <button type="button" class="btn-primary" id="btn-eb-send">Send blast</button>
+          <button type="button" class="btn-primary" id="btn-eb-send">Send to everyone</button>
         </div>
         <div class="result-box" id="eb-result" style="display:none;margin-top:12px;"></div>
       </div>
@@ -1199,7 +1200,9 @@ async function doBlastSend(testOnly) {
   var bodyHtml = ebBody.innerHTML.trim();
   if (!subject) { box.style.display='block'; box.className='result-box error'; box.textContent='Add a subject.'; return; }
   if (!bodyHtml) { box.style.display='block'; box.className='result-box error'; box.textContent='The message is empty.'; return; }
-  if (!testOnly && !window.confirm('Send this blast?\n\n' + document.getElementById('eb-reach').textContent + '\n\nThis cannot be undone.')) return;
+  if (!testOnly && !window.confirm(
+      'Send this to the FULL list?\n\n' + document.getElementById('eb-reach').textContent +
+      '\n\nThis is not a test. It cannot be undone.')) return;
   box.style.display='block'; box.className='result-box'; box.textContent = testOnly ? 'Sending test\u2026' : 'Sending\u2026';
   try {
     var res = await authedFetch(API_BASE + '/blast/send', {
@@ -1209,14 +1212,48 @@ async function doBlastSend(testOnly) {
     var d = await res.json();
     if (!res.ok) { box.className='result-box error'; box.textContent=(d.errors||[d.error]).join(' '); return; }
     box.className='result-box success';
-    box.textContent = 'Sent to ' + d.sent + ' of ' + d.recipientCount + (d.failed ? ' \u00b7 ' + d.failed + ' failed' : '') + '.';
-    loadBlastHistory();
+    box.textContent = d.test
+      ? 'Test sent to you only (' + d.sent + ' of 1). Nobody else received it.'
+      : 'Sent to ' + d.sent + ' of ' + d.recipientCount + (d.failed ? ' \u00b7 ' + d.failed + ' failed' : '') + '.';
+    if (!d.test) loadBlastHistory();
   } catch (err) {
     box.className='result-box error'; box.textContent='Could not reach the server: ' + err.message;
   }
 }
 document.getElementById('btn-eb-send').addEventListener('click', function () { doBlastSend(false); });
 document.getElementById('btn-eb-test').addEventListener('click', function () { doBlastSend(true); });
+document.getElementById('btn-eb-draft').addEventListener('click', async function () {
+  var box = document.getElementById('eb-result');
+  box.style.display = 'block'; box.className = 'result-box'; box.textContent = 'Saving\u2026';
+  try {
+    var res = await authedFetch(API_BASE + '/blast/draft', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        subject: document.getElementById('eb-subject').value,
+        bodyHtml: ebBody.innerHTML,
+        segment: currentSegment()
+      })
+    });
+    var d = await res.json();
+    box.className = res.ok ? 'result-box success' : 'result-box error';
+    box.textContent = res.ok ? 'Draft saved. It will be here when you come back.' : (d.errors || [d.error]).join(' ');
+  } catch (err) {
+    box.className = 'result-box error'; box.textContent = 'Could not save: ' + err.message;
+  }
+});
+async function loadBlastDraft() {
+  try {
+    var res = await authedFetch(API_BASE + '/blast/draft');
+    var d = await res.json();
+    if (!res.ok || !d.draft) return;
+    if (document.getElementById('eb-subject').value || ebBody.innerHTML.trim()) return; // don't clobber work in progress
+    document.getElementById('eb-subject').value = d.draft.subject || '';
+    ebBody.innerHTML = d.draft.bodyHtml || '';
+    var s = d.draft.segment || {};
+    EB_SEG.languages = s.languages || []; EB_SEG.events = s.events || []; EB_SEG.campaigns = s.campaigns || [];
+    syncPreview();
+  } catch (e) { /* a missing draft must never block the tab */ }
+}
 document.getElementById('btn-eb-refresh').addEventListener('click', loadBlastHistory);
 
 async function loadBlastHistory() {
@@ -1252,7 +1289,7 @@ document.querySelectorAll('.tab-btn').forEach(function (btn) {
     var panel = document.getElementById('tab-' + btn.dataset.tab);
     if (panel) panel.classList.add('active');
     if (btn.dataset.tab === 'broadcast') { loadSocialStatus(); loadSocialHistory(); }
-    if (btn.dataset.tab === 'mass-email') { loadBlastOptions(); loadBlastHistory(); }
+    if (btn.dataset.tab === 'mass-email') { loadBlastOptions(); loadBlastHistory(); loadBlastDraft(); }
   });
 });
 

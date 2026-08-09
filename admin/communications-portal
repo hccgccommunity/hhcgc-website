@@ -740,7 +740,11 @@ async function loadSocialStatus() {
     }
     el.innerHTML = '<span style="color:var(--green);font-weight:700;">Connected</span> \u00b7 ' + escHtml(d.pageName || 'Page') +
       (d.instagramConnected ? ' \u00b7 Instagram linked' : ' \u00b7 <span style="color:var(--amber,#b5750a);">no Instagram linked</span>');
-    if (!d.instagramConnected) document.getElementById('social-ig').disabled = true;
+    if (!d.instagramConnected) {
+      document.getElementById('social-ig').disabled = true;
+      document.getElementById('social-ig').checked = false;
+      if (d.instagramReason) el.innerHTML += '<div style="font-size:0.78rem;color:var(--muted);margin-top:4px;">' + escHtml(d.instagramReason) + '</div>';
+    }
   } catch (err) {
     el.textContent = 'Could not check connection: ' + err.message;
   }

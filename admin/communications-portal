@@ -538,6 +538,10 @@ tr.series-row:hover td { background: var(--surface-soft); }
           <button type="button" data-eb-block="h2" title="Heading">H</button>
           <button type="button" data-eb-cmd="insertUnorderedList" title="List">&bull;</button>
           <span class="eb-sep"></span>
+          <button type="button" data-eb-cmd="justifyLeft" title="Align left">&#8801;</button>
+          <button type="button" data-eb-cmd="justifyCenter" title="Align centre">&#8803;</button>
+          <button type="button" data-eb-cmd="justifyRight" title="Align right">&#8802;</button>
+          <span class="eb-sep"></span>
           <label class="eb-color" title="Text colour"><span>A</span><input type="color" id="eb-color" value="#7f2e16"></label>
           <label class="eb-color" title="Highlight"><span>&#9646;</span><input type="color" id="eb-highlight" value="#ffe9a8"></label>
           <select id="eb-size" title="Size"><option value="">Size</option><option value="2">Small</option><option value="3">Normal</option><option value="5">Large</option></select>

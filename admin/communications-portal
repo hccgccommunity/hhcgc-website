@@ -545,6 +545,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
           <button type="button" id="eb-add-link">Link</button>
           <button type="button" id="eb-add-button">Button</button>
           <button type="button" id="eb-add-image">Image</button>
+          <input type="file" id="eb-image-file" accept="image/*" style="display:none;">
           <select id="eb-var" title="Variable"><option value="">@variable</option><option value="@first_name">@first_name</option><option value="@name">@name</option></select>
         </div>
         <div id="eb-body" class="eb-editor" contenteditable="true" data-placeholder="Namaste @first_name, ..."></div>
@@ -1117,8 +1118,51 @@ document.getElementById('eb-add-link').addEventListener('click', function () {
   if (url) ebExec('createLink', url);
 });
 document.getElementById('eb-add-image').addEventListener('click', function () {
-  var url = window.prompt('Image URL (must be publicly reachable):', '');
-  if (url) ebExec('insertHTML', '<img src="' + url.replace(/"/g, '&quot;') + '" style="max-width:100%;border-radius:8px;">');
+  // Remember where the cursor was: opening the file picker moves focus out
+  // of the editor, and without this the image lands at the start instead
+  // of where the person was typing.
+  var sel = window.getSelection();
+  EB_SAVED_RANGE = (sel && sel.rangeCount && ebBody.contains(sel.anchorNode)) ? sel.getRangeAt(0).cloneRange() : null;
+  document.getElementById('eb-image-file').click();
+});
+var EB_SAVED_RANGE = null;
+document.getElementById('eb-image-file').addEventListener('change', async function (e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var box = document.getElementById('eb-result');
+  box.style.display = 'block'; box.className = 'result-box'; box.textContent = 'Uploading image\u2026';
+  try {
+    var base64 = await new Promise(function (resolve, reject) {
+      var r = new FileReader();
+      r.onload = function () { resolve(String(r.result).split(',')[1]); };
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+    var res = await authedFetch(API_BASE + '/pages/image-upload', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ base64: base64, filename: file.name, mimeType: file.type })
+    });
+    var data = await res.json();
+    if (!res.ok) { box.className = 'result-box error'; box.textContent = (data.errors || [data.error]).join(' ') || 'Upload failed.'; return; }
+
+    ebBody.focus();
+    if (EB_SAVED_RANGE) {
+      var s = window.getSelection();
+      s.removeAllRanges(); s.addRange(EB_SAVED_RANGE);
+    }
+    // Width is set as an attribute as well as a style: Outlook ignores
+    // max-width on images, and an unconstrained flyer blows the layout out.
+    document.execCommand('insertHTML', false,
+      '<img src="' + data.imageUrl.replace(/"/g, '&quot;') + '" width="560" ' +
+      'style="max-width:100%;height:auto;border-radius:8px;display:block;margin:14px auto;">');
+    syncPreview();
+    box.style.display = 'none';
+  } catch (err) {
+    box.className = 'result-box error'; box.textContent = 'Upload failed: ' + err.message;
+  } finally {
+    this.value = '';
+    EB_SAVED_RANGE = null;
+  }
 });
 document.getElementById('eb-add-button').addEventListener('click', function () {
   var label = window.prompt('Button text:', 'RSVP now');

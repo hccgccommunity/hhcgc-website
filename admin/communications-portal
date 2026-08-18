@@ -774,7 +774,15 @@ document.getElementById('social-image-file').addEventListener('change', async fu
     document.getElementById('social-image-url').value = data.imageUrl;
     document.getElementById('social-image-img').src = data.imageUrl;
     document.getElementById('social-image-preview').style.display = 'block';
-    hint.textContent = orig;
+    // Instagram accepts JPEG only. Flag it here rather than letting the
+    // post fail after the fact with an opaque Meta error.
+    var isJpeg = /jpe?g$/i.test(file.name) || /jpeg/i.test(file.type);
+    if (!isJpeg && document.getElementById('social-ig').checked) {
+      hint.innerHTML = '<span style="color:var(--red);">This is not a JPEG. Instagram only accepts JPEG images \u2014 ' +
+        'Facebook will be fine, but Instagram will reject it. Convert it, or untick Instagram.</span>';
+    } else {
+      hint.textContent = orig;
+    }
   } catch (err) { hint.textContent = 'Upload failed: ' + err.message; }
 });
 document.getElementById('social-remove-image').addEventListener('click', function () {

@@ -1773,6 +1773,14 @@ function formatDateTime(iso) {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/New_York' }) + ', ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' });
 }
 
+// Editing an OCCURRENCE that has already happened is now open to admins,
+// not just tech-admin — correcting a past date in a recurring series is a
+// normal records fix. Creating a brand-new backdated booking stays
+// tech-admin only, so this is deliberately not used there.
+function canEditPastOccurrence() {
+  if (window.__hccgcIsAdmin) return true;
+  return !!(window.__hccgcCurrentUser && window.__hccgcCurrentUser.email === 'tech-admin@hccgc.org');
+}
 function isPastDue(b) {
   return (b.payment_status === 'invoiced' || b.payment_status === 'pending') && new Date(b.event_date) < new Date();
 }
@@ -3543,7 +3551,7 @@ function renderOccTable() {
   invoiceModeField.style.display = isInternal ? 'none' : 'block';
   tbody.innerHTML = occurrences.map(function (occ, i) {
     return '<tr>' +
-      '<td><input type="date" value="' + occ.date + '" data-i="' + i + '" data-f="date"' + (window.__hccgcCurrentUser && window.__hccgcCurrentUser.email !== 'tech-admin@hccgc.org' ? ' min="' + new Date().toISOString().slice(0, 10) + '"' : '') + '></td>' +
+      '<td><input type="date" value="' + occ.date + '" data-i="' + i + '" data-f="date"' + (canEditPastOccurrence() ? '' : ' min="' + new Date().toISOString().slice(0, 10) + '"') + '></td>' +
       '<td><input type="time" value="' + occ.startTime + '" data-i="' + i + '" data-f="startTime" list="nb-common-times"></td>' +
       '<td><input type="time" value="' + occ.endTime + '" data-i="' + i + '" data-f="endTime" list="nb-common-times"></td>' +
       '<td><button type="button" class="occ-remove" data-remove="' + i + '" title="Remove this date">&times;</button></td>' +

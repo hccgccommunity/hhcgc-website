@@ -2265,8 +2265,13 @@
 
     // Times are offered in 15-minute steps. A free-typed minute value is
     // rarely intended and complicates room turnover.
-    const RF_TIME_STEP_MIN = 15;
+    //
+    // Deliberately a function, not a const: addDateRow() runs earlier in
+    // this script than these definitions, and a const would still be in
+    // its temporal dead zone at that point.
+    function rfTimeStep() { return 15; }
     function rfTimeOptions(afterHHMM) {
+      const RF_TIME_STEP_MIN = rfTimeStep();
       const out = [];
       let startMinutes = 0;
       if (afterHHMM) {
@@ -2286,6 +2291,7 @@
     // Rebuild the end-time list so it only offers slots after the chosen
     // start, keeping the current value when it is still valid.
     function rfSyncEndTimes(row) {
+      const RF_TIME_STEP_MIN = rfTimeStep();
       const startEl = row.querySelector('.rf-start-input');
       const endEl = row.querySelector('.rf-end-input');
       if (!startEl || !endEl) return;

@@ -844,7 +844,19 @@
       .room-selector { grid-template-columns: 1fr 1fr; }
       .embed-frame { height: 1820px; }
     }
-  </style>
+  
+.request-disclaimer{
+  font-size:0.72rem;
+  line-height:1.55;
+  color:#8a7a68;
+  margin:18px 0 14px;
+  padding:12px 14px;
+  background:rgba(0,0,0,0.02);
+  border-left:2px solid var(--border,#e8dcc8);
+  border-radius:0 8px 8px 0;
+}
+.request-disclaimer strong{color:#6b5a48;}
+</style>
 </head>
 <body>
 
@@ -1382,6 +1394,14 @@
             </div>
             <div class="request-field"><label>Additional requests or notes (optional)</label><textarea id="rf-notes" placeholder="Anything else we should know?"></textarea></div>
 
+            <p class="request-disclaimer">
+              Submitting this form is a <strong>request</strong>, not a confirmed booking. HCCGC reviews every
+              request and reserves the right to decline any request, or to cancel or reschedule a booking, at its
+              sole discretion. Your reservation is only confirmed once you receive a written approval email from
+              us. Rates shown are estimates and may be adjusted before approval. Use of the facility is subject to
+              HCCGC&rsquo;s <a href="https://hccgc.org/hccgc_rental_conditions.html" target="_blank" rel="noopener">Terms &amp; Conditions</a>, and the person named on this request is responsible for their group&rsquo;s
+              conduct and for any damage to the premises.
+            </p>
             <button type="submit" class="request-submit-btn" id="rf-submit-btn">Submit request</button>
             <div class="request-result-box" id="rf-result-box" style="display:none;"></div>
             </div>

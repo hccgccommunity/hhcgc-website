@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -356,7 +357,44 @@
         min-height: 800px;
       }
     }
-  </style>
+  
+    /* Renters have repeatedly paid Zeffy's optional contribution by
+       accident, because it is pre-set to a percentage and reads as part of
+       the total. Warn ABOVE the form, before the amount is entered. */
+    .zeffy-tip-warning {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      max-width: 760px;
+      margin: 0 auto 22px;
+      padding: 16px 18px;
+      background: #fff6e5;
+      border: 1.5px solid #e0a52e;
+      border-left: 5px solid #e0a52e;
+      border-radius: 12px;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: #5c4326;
+    }
+    .zeffy-tip-icon {
+      flex-shrink: 0;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #e0a52e;
+      color: #fff;
+      font-weight: 800;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    .zeffy-tip-warning strong { color: #7f2e16; }
+    @media (max-width: 560px) {
+      .zeffy-tip-warning { font-size: 0.86rem; padding: 14px; }
+    }
+</style>
 </head>
 
 <body>
@@ -437,15 +475,32 @@ src="https://www.facebook.com/tr?id=967958922481959&ev=PageView&noscript=1"
           </p>
         </div>
 
+        <div class="zeffy-tip-warning">
+          <span class="zeffy-tip-icon" aria-hidden="true">!</span>
+          <div>
+            <strong>Note:</strong>
+            Zeffy adds an <em>optional contribution to Zeffy</em> &mdash; often around 17% &mdash; on top of your
+            amount. <strong>That contribution goes to Zeffy, not to HCCGC.</strong>
+            <br>
+            To pay HCCGC invoice only, open the percentage dropdown, choose <strong>Other</strong>, and enter
+            <strong>$0</strong>. Your total should then match the amount on your invoice exactly.
+            <br><br>
+            <strong>Please enter the exact invoice number</strong> shown in the email you received from
+            <a href="mailto:facility-rental@hccgc.org">facility-rental@hccgc.org</a>, so we can match your
+            payment to the right booking.
+          </div>
+        </div>
+
         <div class="payment-shell">
-          <div class="payment-frame">
-            <iframe
-              title="Donation form powered by Zeffy"
-              src="https://www.zeffy.com/embed/donation-form/facility-rental-payment-portal"
-              allowpaymentrequest
-              allowTransparency="true"
-              scrolling="yes">
-            </iframe>
+          <div>
+            <div data-zeffy-embed data-form-url="/embed/donation-form/facility-rental-payments"></div>
+            <div data-zeffy-embed-fallback style="display:none;">
+              <div style="position:relative;overflow:hidden;height:450px;width:100%;"><iframe title='Donation form powered by Zeffy' style='position: absolute; border: 0; top:0;left:0;bottom:0;right:0;width:100%;height:100%' data-zeffy-embed-src='https://www.zeffy.com/embed/donation-form/facility-rental-payments' allowpaymentrequest allowTransparency="true"></iframe></div>
+            </div>
+            <script
+              src="https://www.zeffy.com/embed/v2/zeffy-embed.js"
+              onerror="document.querySelectorAll('[data-zeffy-embed-fallback]').forEach(function(el){el.style.display='block';el.querySelectorAll('iframe[data-zeffy-embed-src]').forEach(function(f){f.src=f.getAttribute('data-zeffy-embed-src');});});">
+            </script>
           </div>
         </div>
       </div>

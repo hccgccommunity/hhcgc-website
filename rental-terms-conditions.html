@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -205,6 +206,25 @@
       color: var(--muted);
     }
 
+    /* Groups the booking/approval clauses so they read as a distinct block
+       from the venue-use rules that follow. */
+    .terms-group-label {
+      margin: 0 0 18px;
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--saffron);
+    }
+
+    .terms-group-label + .term { margin-top: 0; }
+
+    .terms-group-label:not(:first-of-type) {
+      margin-top: 34px;
+      padding-top: 26px;
+      border-top: 2px solid rgba(121, 62, 17, 0.14);
+    }
+
     .term {
       margin-bottom: 24px;
       padding-bottom: 18px;
@@ -228,6 +248,8 @@
       margin: 0;
       color: var(--muted);
     }
+
+    .term p + p { margin-top: 10px; }
 
     .site-footer .footer-top {
       display: grid;
@@ -410,10 +432,63 @@
         <div class="terms-card">
           <div class="intro">
             <p>
-              By renting and using this venue, the renter and all guests agree to follow
+              By requesting, renting and using this venue, the renter and all guests agree to follow
               the rules and conditions listed below.
             </p>
           </div>
+
+          <p class="terms-group-label">Booking &amp; Approval</p>
+
+          <section class="term">
+            <h3>Requests Are Not Confirmed Bookings</h3>
+            <p>
+              Submitting a rental request does not reserve the facility. Every request is reviewed by
+              the Hindu Community Center of Greater Cincinnati (HCCGC). A reservation exists only once
+              HCCGC has sent a written approval email confirming the date, time and space. Until then,
+              the date remains available to others.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Right to Refuse a Request</h3>
+            <p>
+              HCCGC reserves the right to decline any rental request at its sole discretion, and is not
+              required to provide a reason for doing so.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Right to Cancel or Reschedule</h3>
+            <p>
+              HCCGC reserves the right to cancel or reschedule a confirmed booking where the space is
+              required for a religious observance, community event, emergency, maintenance, or any other
+              circumstance beyond our reasonable control.
+            </p>
+            <p>
+              Where HCCGC cancels a booking, any rental fee already paid for the cancelled date is
+              refunded in full. HCCGC is not responsible for any other costs, losses, or third-party
+              arrangements made by the renter in connection with the event.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Rates and Estimates</h3>
+            <p>
+              Amounts shown when submitting a request are estimates based on the information provided,
+              and may be adjusted before approval. The amount payable is the one stated on the approved
+              invoice issued by HCCGC.
+            </p>
+          </section>
+
+          <section class="term">
+            <h3>Cancellation by the Renter</h3>
+            <p>
+              If the renter needs to cancel or change an approved booking, HCCGC must be notified in
+              writing as early as possible so the space can be released for others.
+            </p>
+          </section>
+
+          <p class="terms-group-label">Using the Venue</p>
 
           <section class="term">
             <h3>Responsibility of the Renter</h3>
@@ -509,8 +584,10 @@
           <section class="term">
             <h3>Right to Terminate Event</h3>
             <p>
-              The venue owner reserves the right to end the event if these rules are violated,
-              if illegal activity occurs, or if the property is being misused.
+              HCCGC reserves the right to end an event in progress and require the group to vacate
+              the premises if these rules are violated, if illegal activity occurs, if the property is
+              being misused, or if the activity is unsafe or inconsistent with the values and purpose
+              of the Center.
             </p>
           </section>
         </div>

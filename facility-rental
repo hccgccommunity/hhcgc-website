@@ -2107,15 +2107,22 @@
       row.className = 'rf-date-row';
       row.dataset.rowId = id;
       row.innerHTML =
-        '<div class="request-field"><label>Date</label><input type="date" class="rf-date-input" min="' + todayLocalISO() + '" required></div>' +
-        '<div class="request-field"><label>Start time</label><input type="time" class="rf-start-input" value="14:00" required></div>' +
-        '<div class="request-field"><label>End time</label><input type="time" class="rf-end-input" value="16:00" required></div>' +
+        '<div class="request-field"><label>Date</label><input type="date" class="rf-date-input" min="' + earliestBookableISO() + '" required></div>' +
+        '<div class="request-field"><label>Start time</label><select class="rf-start-input" required>' + rfTimeOptions() + '</select></div>' +
+        '<div class="request-field"><label>End time</label><select class="rf-end-input" required></select></div>' +
         '<div class="rf-remove-date-wrap"><button type="button" class="rf-remove-date" title="Remove this date">&times;</button></div>';
       row.querySelector('.rf-remove-date').addEventListener('click', () => {
         if (document.querySelectorAll('.rf-date-row').length === 1) return; // keep at least one row
         row.remove();
         updateLiveEstimate();
       });
+      // Sensible default, then keep the end list valid whenever the start
+      // moves — an end time before the start should never be selectable.
+      const startSel = row.querySelector('.rf-start-input');
+      if (startSel.querySelector('option[value="14:00"]')) startSel.value = '14:00';
+      rfSyncEndTimes(row);
+      startSel.addEventListener('change', () => { rfSyncEndTimes(row); updateLiveEstimate(); });
+      row.querySelector('.rf-end-input').addEventListener('change', updateLiveEstimate);
       document.getElementById('rf-dates-list').appendChild(row);
     }
     addDateRow(); // start with one row
@@ -2137,7 +2144,7 @@
     document.getElementById('rf-recur-end-type').addEventListener('change', function () {
       document.getElementById('rf-recur-count-field').style.display = this.value === 'count' ? 'block' : 'none';
       document.getElementById('rf-recur-until-field').style.display = this.value === 'until' ? 'block' : 'none';
-      document.getElementById('rf-recur-until').min = todayLocalISO();
+      document.getElementById('rf-recur-until').min = earliestBookableISO();
     });
     document.getElementById('rf-generate-dates-btn').addEventListener('click', function () {
       const firstRow = document.querySelector('.rf-date-row');
@@ -2243,6 +2250,58 @@
       const m = String(d.getMonth() + 1).padStart(2, '0');
       const day = String(d.getDate()).padStart(2, '0');
       return d.getFullYear() + '-' + m + '-' + day;
+    }
+
+    // Requests need review before the date arrives, so same-day bookings
+    // can't realistically be honoured. The earliest selectable date is
+    // tomorrow.
+    function earliestBookableISO() {
+      const d = new Date();
+      d.setDate(d.getDate() + 1);
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return d.getFullYear() + '-' + m + '-' + day;
+    }
+
+    // Times are offered in 15-minute steps. A free-typed minute value is
+    // rarely intended and complicates room turnover.
+    const RF_TIME_STEP_MIN = 15;
+    function rfTimeOptions(afterHHMM) {
+      const out = [];
+      let startMinutes = 0;
+      if (afterHHMM) {
+        const [h, mi] = afterHHMM.split(':').map(Number);
+        startMinutes = h * 60 + mi + RF_TIME_STEP_MIN;   // strictly after
+      }
+      for (let t = startMinutes; t <= 24 * 60 - RF_TIME_STEP_MIN; t += RF_TIME_STEP_MIN) {
+        const hh = String(Math.floor(t / 60)).padStart(2, '0');
+        const mm = String(t % 60).padStart(2, '0');
+        const h12 = ((Math.floor(t / 60) + 11) % 12) + 1;
+        const ampm = Math.floor(t / 60) < 12 ? 'AM' : 'PM';
+        out.push('<option value="' + hh + ':' + mm + '">' + h12 + ':' + mm + ' ' + ampm + '</option>');
+      }
+      return out.join('');
+    }
+
+    // Rebuild the end-time list so it only offers slots after the chosen
+    // start, keeping the current value when it is still valid.
+    function rfSyncEndTimes(row) {
+      const startEl = row.querySelector('.rf-start-input');
+      const endEl = row.querySelector('.rf-end-input');
+      if (!startEl || !endEl) return;
+      const prev = endEl.value;
+      endEl.innerHTML = rfTimeOptions(startEl.value);
+      if (prev && endEl.querySelector('option[value="' + prev + '"]')) {
+        endEl.value = prev;
+      } else if (endEl.options.length) {
+        // Default to two hours after the start where that exists.
+        const [h, mi] = startEl.value.split(':').map(Number);
+        const target = h * 60 + mi + 120;
+        const hh = String(Math.floor(target / 60)).padStart(2, '0');
+        const mm = String(target % 60).padStart(2, '0');
+        const want = endEl.querySelector('option[value="' + hh + ':' + mm + '"]');
+        endEl.value = want ? hh + ':' + mm : endEl.options[endEl.options.length - 1].value;
+      }
     }
 
     document.getElementById('requestForm').addEventListener('submit', async (e) => {

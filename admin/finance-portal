@@ -1161,6 +1161,15 @@ tr.series-row:hover td { background: var(--surface-soft); }
 .exp-submission-card .exp-sub-total { font-weight: 700; color: var(--maroon); font-size: 1rem; }
 .result-box.success { background: var(--green-bg); color: var(--green); border: 1px solid rgba(46,125,79,0.25); }
 .result-box.error { background: var(--red-bg); color: var(--red); border: 1px solid rgba(179,56,44,0.25); }
+
+    /* Y-axis scale for the income/expense trend. */
+    .trend-plot { position: relative; padding-left: 62px; }
+    .trend-axis { position: absolute; left: 0; bottom: 26px; width: 62px; height: 150px; }
+    .trend-tick { position: absolute; right: 8px; transform: translateY(50%);
+      font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
+    .trend-tick::after { content: ''; position: absolute; left: 100%; margin-left: 8px;
+      bottom: 50%; width: 100vw; max-width: 900px; border-top: 1px dashed var(--border); }
+    .trend-chart { position: relative; z-index: 1; }
 </style>
 
 <script>
@@ -1598,9 +1607,23 @@ function renderTrendChart(monthlyTrend) {
   if (!monthlyTrend.length) { container.innerHTML = '<div class="empty-state" style="padding:20px;">No categorized activity in this range yet.</div>'; return; }
   const max = Math.max.apply(null, monthlyTrend.map(function (m) { return Math.max(m.income, m.expense); })) || 1;
   const legend = '<div class="trend-legend"><span><span class="dot income"></span>Income</span><span><span class="dot expense"></span>Expenses</span></div>';
+  // Y axis: four gridlines at rounded values. Without a scale the bars
+  // showed relative size only — you could see one month was bigger, but
+  // not by how much, or what any of them were worth.
+  function niceMax(v) {
+    if (v <= 0) return 1;
+    const pow = Math.pow(10, Math.floor(Math.log10(v)));
+    return Math.ceil(v / pow) * pow;
+  }
+  const axisMax = niceMax(max);
+  const ticks = [1, 0.75, 0.5, 0.25, 0]
+    .map(function (f) {
+      return '<div class="trend-tick" style="bottom:' + (f * 150) + 'px;">' +
+             '<span>' + moneyRound(axisMax * f) + '</span></div>';
+    }).join('');
   const bars = monthlyTrend.map(function (m) {
-    const incomeH = Math.max(2, (m.income / max) * 150);
-    const expenseH = Math.max(2, (m.expense / max) * 150);
+    const incomeH = Math.max(2, (m.income / axisMax) * 150);
+    const expenseH = Math.max(2, (m.expense / axisMax) * 150);
     const label = new Date(m.month + '-02').toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
     return '<div class="trend-month">' +
       '<div class="trend-bars">' +
@@ -1610,7 +1633,9 @@ function renderTrendChart(monthlyTrend) {
       '<div class="trend-month-label">' + label + '</div>' +
     '</div>';
   }).join('');
-  container.innerHTML = legend + '<div class="trend-chart">' + bars + '</div>';
+  container.innerHTML = legend +
+    '<div class="trend-plot"><div class="trend-axis">' + ticks + '</div>' +
+    '<div class="trend-chart">' + bars + '</div></div>';
 }
 function renderContributorList(containerId, items, emptyMessage) {
   const container = document.getElementById(containerId);
@@ -2112,7 +2137,9 @@ document.getElementById('btn-load-tx').addEventListener('click', loadTransaction
       var splitBtn = bar.querySelector('[data-bulk-split-prefix]');
       var mergeBtn = bar.querySelector('[data-bulk-merge-prefix]');
       if (splitBtn) splitBtn.style.display = checked.length === 1 ? '' : 'none';
-      if (mergeBtn) mergeBtn.style.display = checked.length > 1 ? '' : 'none';
+      // Merge combines exactly two transactions — with three or more there
+      // is no defined result, so don't offer it.
+      if (mergeBtn) mergeBtn.style.display = checked.length === 2 ? '' : 'none';
     } else {
       bar.style.display = 'none';
     }

@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -407,7 +408,25 @@
         border-radius: 22px;
       }
     }
-  </style>
+  
+    /* The v1.1 terms are bulleted rather than prose, matching the PDF. */
+    .term ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+    .term li { margin-bottom: 7px; }
+    .term li:last-child { margin-bottom: 0; }
+    .term li strong { color: var(--saffron-dark); }
+    .terms-version {
+      margin: 30px 0 0;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+</style>
 </head>
 <body>
   <div id="header-placeholder"></div>
@@ -432,164 +451,131 @@
         <div class="terms-card">
           <div class="intro">
             <p>
-              By requesting, renting and using this venue, the renter and all guests agree to follow
-              the rules and conditions listed below.
+              By confirming the facility rental and using the HCCGC facility, the renter acknowledges
+              that they have read, understood, and agree to comply with the policies below.
             </p>
           </div>
 
-          <p class="terms-group-label">Booking &amp; Approval</p>
-
-          <section class="term">
-            <h3>Requests Are Not Confirmed Bookings</h3>
-            <p>
-              Submitting a rental request does not reserve the facility. Every request is reviewed by
-              the Hindu Community Center of Greater Cincinnati (HCCGC). A reservation exists only once
-              HCCGC has sent a written approval email confirming the date, time and space. Until then,
-              the date remains available to others.
-            </p>
-          </section>
-
-          <section class="term">
-            <h3>Right to Refuse a Request</h3>
-            <p>
-              HCCGC reserves the right to decline any rental request at its sole discretion, and is not
-              required to provide a reason for doing so.
-            </p>
-          </section>
-
-          <section class="term">
-            <h3>Right to Cancel or Reschedule</h3>
-            <p>
-              HCCGC reserves the right to cancel or reschedule a confirmed booking where the space is
-              required for a religious observance, community event, emergency, maintenance, or any other
-              circumstance beyond our reasonable control.
-            </p>
-            <p>
-              Where HCCGC cancels a booking, any rental fee already paid for the cancelled date is
-              refunded in full. HCCGC is not responsible for any other costs, losses, or third-party
-              arrangements made by the renter in connection with the event.
-            </p>
-          </section>
-
-          <section class="term">
-            <h3>Rates and Estimates</h3>
-            <p>
-              Amounts shown when submitting a request are estimates based on the information provided,
-              and may be adjusted before approval. The amount payable is the one stated on the approved
-              invoice issued by HCCGC.
-            </p>
-          </section>
-
-          <section class="term">
-            <h3>Cancellation by the Renter</h3>
-            <p>
-              If the renter needs to cancel or change an approved booking, HCCGC must be notified in
-              writing as early as possible so the space can be released for others.
-            </p>
-          </section>
-
-          <p class="terms-group-label">Using the Venue</p>
-
-          <section class="term">
+                    <section class="term">
             <h3>Responsibility of the Renter</h3>
-            <p>
-              The renter is fully responsible for the conduct of all guests attending the event.
-              Any violation of these rules by guests will be considered the responsibility of the renter.
-            </p>
+            <ul>
+              <li>The renter is responsible for the conduct, supervision, and safety of all guests, vendors, decorators, entertainers, contractors, and other individuals attending or participating in the event.</li>
+              <li>Any violation of facility policies by these individuals is the responsibility of the renter.</li>
+              <li>To the extent permitted by law, HCCGC is not responsible for injuries, accidents, or losses arising from the event or the actions of the renter, guests, vendors, or other participants.</li>
+            </ul>
           </section>
 
           <section class="term">
-            <h3>Care of the Property</h3>
-            <p>
-              All guests must respect the venue property. Damaging furniture, walls, floors,
-              equipment, decorations, or facilities is strictly prohibited.
-            </p>
+            <h3>Food &amp; Beverage Policy</h3>
+            <ul>
+              <li>Only vegetarian food may be served or consumed on the premises. The preparation, serving, or consumption of non-vegetarian food and alcoholic beverages is strictly prohibited.</li>
+              <li>Renters are responsible for ensuring all guests comply with this policy.</li>
+            </ul>
           </section>
 
           <section class="term">
-            <h3>Cleanliness Requirement</h3>
-            <p>
-              The venue must be kept reasonably clean during and after the event. All trash must
-              be disposed of properly, and food or drinks should not be left on tables, floors,
-              or outdoor areas.
-            </p>
+            <h3>Smoking, Vaping &amp; Substance Policy</h3>
+            <ul>
+              <li>Smoking, vaping, tobacco products, recreational drugs, and illegal substances are prohibited anywhere inside the facility and on facility grounds.</li>
+              <li>Violations may result in immediate termination of the event without refund.</li>
+              <li>Running in hallways, climbing on furniture, or engaging in unsafe activities is not permitted.</li>
+            </ul>
           </section>
 
           <section class="term">
-            <h3>Supervision of Children</h3>
-            <p>
-              Children must be supervised by parents or guardians at all times. Running, climbing
-              on furniture, or unsafe activities are not permitted inside the venue.
-            </p>
+            <h3>Noise &amp; Community Respect</h3>
+            <ul>
+              <li>Please maintain reasonable noise levels and be respectful of neighboring properties and other facility users.</li>
+              <li>Excessive noise or disruptive behavior may result in the event being stopped.</li>
+            </ul>
           </section>
 
           <section class="term">
-            <h3>Noise and Community Respect</h3>
-            <p>
-              Guests must maintain reasonable noise levels and respect neighboring properties.
-              Excessive noise or disruptive behavior may result in the event being stopped.
-            </p>
-          </section>
-
-          <section class="term">
-            <h3>Event Time Limit</h3>
-            <p>
-              The event must begin and end within the agreed rental time. All guests must vacate
-              the premises by the scheduled end time.
-            </p>
+            <h3>Event Time Limits</h3>
+            <ul>
+              <li>Events must begin and end within the approved rental period.</li>
+              <li>Set-up and cleanup time must be included within the reserved hours unless otherwise approved.</li>
+              <li>All guests must vacate the facility by the scheduled end time.</li>
+            </ul>
           </section>
 
           <section class="term">
             <h3>Parking Regulations</h3>
-            <p>
-              Vehicles must be parked only in designated parking areas. Blocking entrances,
-              driveways, or emergency exits is strictly prohibited.
-            </p>
+            <ul>
+              <li>Vehicles must be parked only in designated parking areas.</li>
+              <li>Blocking entrances, driveways, fire lanes, or emergency exits is strictly prohibited.</li>
+            </ul>
           </section>
 
           <section class="term">
-            <h3>Smoking, Alcohol, and Illegal Activities</h3>
-            <p>
-              Smoking inside the venue is not permitted. Alcohol is only allowed if approved by
-              the venue and must comply with local laws. Illegal activities of any kind are
-              strictly prohibited.
-            </p>
+            <h3>Decorations &amp; Setup</h3>
+            <ul>
+              <li>Decorations are permitted only with prior approval.</li>
+              <li>Furniture, stage pieces, equipment, and other facility property may not be moved without prior approval from HCCGC. If approved, the renter and their guests move such items at their own risk. HCCGC is not responsible for injuries arising from moving, arranging, or handling these items.</li>
+              <li>Nails, screws, staples, tacks, adhesives, command strips, glitter, confetti, rice, birdseed, sparklers, smoke machines, and open flames are prohibited unless specifically approved by HCCGC.</li>
+              <li>Decorations or materials may not be attached to walls, ceilings, doors, windows, furniture, or fixtures without permission.</li>
+              <li>The renter must remove all personal belongings, decorations, food, and trash and return the facility, furniture, and approved equipment to their original condition and arrangement before the rental period ends. Additional cleaning or restoration charges may apply.</li>
+            </ul>
           </section>
 
           <section class="term">
-            <h3>Decorations and Setup</h3>
-            <p>
-              Decorations are allowed only with prior approval. No tape, nails, staples, or
-              adhesives may be used on walls, ceilings, or furniture without permission.
-            </p>
+            <h3>Facility Usage Guidelines</h3>
+            <ul>
+              <li>Guests are only permitted in authorized rental areas.</li>
+              <li>Please do not allow children to run in hallways, lobbies, or other common areas.</li>
+              <li>Please help us maintain a respectful, safe, and welcoming environment for everyone using the facility.</li>
+              <li>HCCGC cameras, audiovisual equipment, television screens, sound systems, and other electronic equipment may not be operated, disconnected, relocated, or adjusted without prior authorization.</li>
+            </ul>
           </section>
 
           <section class="term">
             <h3>Security Deposit</h3>
-            <p>
-              A security deposit will be collected prior to the event. The deposit will be returned
-              after the event once the venue has been inspected and no damage has been found.
-            </p>
+            <ul>
+              <li>A $100 security deposit is required for each rental.</li>
+              <li>Deposits may be withheld partially or fully for damages, excessive cleaning, late departure, or policy violations.</li>
+              <li>Security deposits will be returned within 14 business days after the event, provided the facility is left in satisfactory condition and no additional charges apply.</li>
+            </ul>
           </section>
 
           <section class="term">
-            <h3>Damage and Repair Costs</h3>
-            <p>
-              If any damage occurs to the venue, furniture, equipment, or property, the cost of
-              repair or replacement will be deducted from the security deposit. If the damage
-              exceeds the deposit amount, the renter agrees to pay the remaining balance.
-            </p>
+            <h3>Damage &amp; Repair Costs</h3>
+            <ul>
+              <li>Costs associated with damage, repair, replacement, or excessive cleaning may be deducted from the security deposit.</li>
+              <li>If costs exceed the security deposit amount, the renter agrees to pay the remaining balance.</li>
+              <li>The renter is responsible for the full cost of repairing or replacing any HCCGC property damaged during the rental period, including furniture, cameras, television screens, whiteboards, stage pieces, fixtures, and other equipment, regardless of whether the cost exceeds the security deposit.</li>
+              <li>Any repair, replacement, cleaning, or other charges exceeding the security deposit must be paid by the renter within 10 days of receiving an invoice from HCCGC.</li>
+            </ul>
           </section>
 
           <section class="term">
-            <h3>Right to Terminate Event</h3>
-            <p>
-              HCCGC reserves the right to end an event in progress and require the group to vacate
-              the premises if these rules are violated, if illegal activity occurs, if the property is
-              being misused, or if the activity is unsafe or inconsistent with the values and purpose
-              of the Center.
-            </p>
+            <h3>Cancellation Policy</h3>
+            <ul>
+              <li><strong>14 days or more</strong> before the event: full refund.</li>
+              <li><strong>7&ndash;13 days</strong> before the event: 50% refund.</li>
+              <li><strong>Less than 7 days</strong> before the event: no refund.</li>
+              <li>The cancellation refund percentages apply to the rental fee. The security deposit will be refunded in full for canceled events, provided no other charges are due.</li>
+            </ul>
           </section>
+
+          <section class="term">
+            <h3>Policy Compliance</h3>
+            <ul>
+              <li>Renters and their guests are expected to comply with all HCCGC facility policies and guidelines.</li>
+              <li>Failure to comply with one or more policies may result in corrective action, including the immediate suspension or termination of the event without refund when necessary to protect the facility, guests, or community.</li>
+              <li>Repeated or significant policy violations may affect eligibility for future facility rentals at the discretion of HCCGC.</li>
+            </ul>
+          </section>
+
+          <section class="term">
+            <h3>Right to Refuse or Terminate Event</h3>
+            <ul>
+              <li>HCCGC reserves the right to refuse, suspend, or terminate any event that violates these policies, causes damage to the facility, disrupts the community, or involves unsafe or unlawful conduct.</li>
+            </ul>
+          </section>
+
+          <p class="terms-version">
+            Version 1.1 &middot; Effective January 1, 2026 &middot; Last revised August 15, 2026
+          </p>
         </div>
       </div>
     </section>

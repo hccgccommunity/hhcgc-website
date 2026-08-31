@@ -1301,13 +1301,13 @@ tbody input[type="text"], tbody input[type="number"] {
 <div class="container">
   <div class="card" style="margin-bottom:20px;">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-      <h2 class="section-title" style="margin:0;">Revenue by month</h2>
+      <h2 class="section-title" style="margin:0;">Utilization by month</h2>
       <div class="sub-tabs" style="display:flex;gap:6px;">
-        <button type="button" class="sub-tab-btn active" id="rbm-toggle-revenue" data-metric="revenue">$$</button>
+        <button type="button" class="sub-tab-btn active" id="rbm-toggle-occupancy" data-metric="occupancy" title="Share of bookable room-hours used (12 hours per room per day)">% occupancy</button>
         <button type="button" class="sub-tab-btn" id="rbm-toggle-count" data-metric="count"># of bookings</button>
       </div>
     </div>
-    <p class="card-sub" style="margin:8px 0 14px;">Always the trailing 6 months, this month, and the next 6 — paid and unpaid, not affected by the filters below.</p>
+    <p class="card-sub" style="margin:8px 0 14px;">Always the trailing 6 months, this month, and the next 6 — paid and unpaid, not affected by the filters below. Occupancy assumes 12 bookable hours per room per day.</p>
     <div id="revenue-by-month"></div>
   </div>
 
@@ -4245,7 +4245,7 @@ async function loadDashboard() {
 }
 document.getElementById('dash-source-filter').addEventListener('change', loadDashboard);
 let MONTHLY_TREND_DATA = null;
-let MONTHLY_TREND_METRIC = 'revenue';
+let MONTHLY_TREND_METRIC = 'occupancy';
 async function loadMonthlyTrend() {
   try {
     var res = await authedFetch(API_BASE + '/bookings-monthly-trend');
@@ -4257,11 +4257,11 @@ async function loadMonthlyTrend() {
     document.getElementById('revenue-by-month').innerHTML = '<div class="empty-state">Could not load: ' + escHtml(err.message) + '</div>';
   }
 }
-document.getElementById('rbm-toggle-revenue').addEventListener('click', function () { setMonthlyTrendMetric('revenue'); });
+document.getElementById('rbm-toggle-occupancy').addEventListener('click', function () { setMonthlyTrendMetric('occupancy'); });
 document.getElementById('rbm-toggle-count').addEventListener('click', function () { setMonthlyTrendMetric('count'); });
 function setMonthlyTrendMetric(metric) {
   MONTHLY_TREND_METRIC = metric;
-  document.getElementById('rbm-toggle-revenue').classList.toggle('active', metric === 'revenue');
+  document.getElementById('rbm-toggle-occupancy').classList.toggle('active', metric === 'occupancy');
   document.getElementById('rbm-toggle-count').classList.toggle('active', metric === 'count');
   if (MONTHLY_TREND_DATA) renderVerticalTrendChart('revenue-by-month', MONTHLY_TREND_DATA, 'No booking activity in this window.', metric);
 }
@@ -4273,9 +4273,15 @@ function renderVerticalTrendChart(containerId, months, emptyMessage, metric) {
   metric = metric || 'revenue';
   var container = document.getElementById(containerId);
   if (!months.length) { container.innerHTML = '<div class="empty-state">' + emptyMessage + '</div>'; return; }
-  var formatVal = metric === 'count' ? function (v) { return String(v); } : money;
+  var formatVal = metric === 'count' ? function (v) { return String(v); }
+    : metric === 'occupancy' ? function (v) { return (Math.round(v * 10) / 10) + '%'; }
+    : money;
   var rawMax = Math.max.apply(null, months.map(function (m) { return m[metric]; })) || 1;
-  var axisMax = metric === 'count' ? Math.max(1, Math.ceil(rawMax * 1.2)) : niceMax(rawMax);
+  // Occupancy is a percentage, so cap the axis at 100 and step in tens —
+  // scaling it to the data would make 4% look like a full bar.
+  var axisMax = metric === 'count' ? Math.max(1, Math.ceil(rawMax * 1.2))
+    : metric === 'occupancy' ? Math.min(100, Math.max(10, Math.ceil(rawMax / 10) * 10))
+    : niceMax(rawMax);
   var chartHeight = 150;
   var gridlineCount = 4;
   var yAxisHtml = '<div class="trend-yaxis" style="height:' + chartHeight + 'px;">' +

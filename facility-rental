@@ -1272,6 +1272,7 @@
                   <label>Which organization is this booking for? <span class="req-star">*</span></label>
                   <select id="rf-org-picker">
                     <option value="">Select…</option>
+                    <option value="__none__">Not on behalf of an organization</option>
                     <option value="__new__">+ Create a new organization</option>
                   </select>
                 </div>
@@ -1848,6 +1849,7 @@
     function populateOrgPicker() {
       const picker = document.getElementById('rf-org-picker');
       picker.innerHTML = '<option value="">Select…</option>' +
+        '<option value="__none__">Not on behalf of an organization</option>' +
         knownOrganizations.map(function (o) { return '<option value="' + o.organization_id + '">' + escapeHtmlLocal(o.organization_name) + (o.is_nonprofit ? ' (nonprofit)' : '') + '</option>'; }).join('') +
         '<option value="__new__">+ Create a new organization</option>';
     }
@@ -1863,6 +1865,11 @@
       if (!val) {
         document.getElementById('rf-address-section').style.display = 'none';
         document.getElementById('rf-your-event-section').style.display = 'none';
+      } else if (val === '__none__') {
+        // Personal booking: no organization fields at all, and no address
+        // section — we already hold the renter's own address on file.
+        document.getElementById('rf-address-section').style.display = 'none';
+        document.getElementById('rf-your-event-section').style.display = 'block';
       } else if (val === '__new__') {
         document.getElementById('rf-new-org-fields').style.display = 'block';
         document.getElementById('rf-new-org-name-row').style.display = 'flex';
@@ -2197,7 +2204,7 @@
       const roomValues = selectedRoomValues();
       const rows = Array.from(document.querySelectorAll('.rf-date-row'));
       const orgPickerVal = document.getElementById('rf-org-picker') ? document.getElementById('rf-org-picker').value : '';
-      const selectedExistingOrg = orgPickerVal && orgPickerVal !== '__new__'
+      const selectedExistingOrg = orgPickerVal && orgPickerVal !== '__new__' && orgPickerVal !== '__none__'
         ? knownOrganizations.find(function (o) { return o.organization_id === orgPickerVal; }) : null;
       const isNonprofit = selectedExistingOrg ? !!selectedExistingOrg.is_nonprofit : document.getElementById('rf-is-nonprofit').value === 'yes';
       if (!roomValues.length || !rows.length) { box.style.display = 'none'; return; }
@@ -2361,8 +2368,13 @@
 
         if (knownRenter) {
           const orgPickerVal = document.getElementById('rf-org-picker').value;
-          if (!orgPickerVal) { showRequestResult('Please select an organization for this booking.'); return; }
-          if (orgPickerVal === '__new__') {
+          if (!orgPickerVal) { showRequestResult('Please choose an organization, or select \u201cNot on behalf of an organization\u201d.'); return; }
+          if (orgPickerVal === '__none__') {
+            // A returning renter booking personally. New renters could
+            // already leave this blank; requiring it only for returning
+            // ones was backwards.
+            organizationMode = 'none';
+          } else if (orgPickerVal === '__new__') {
             organizationMode = 'new';
             organizationName = document.getElementById('rf-org-known-path').value;
             if (!organizationName.trim()) { showRequestResult('Organization name is required.'); return; }

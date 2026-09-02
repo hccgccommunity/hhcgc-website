@@ -566,6 +566,7 @@ var APP_REGISTRY = [
   { key: 'bookings-finance', name: 'Facility Booking' },
   { key: 'org-finance', name: 'Finance' },
   { key: 'org-communications', name: 'Communications' },
+  { key: 'newsletter', name: 'Newsletter' },
   { key: 'issue-reporting', name: 'Issue Reporting' },
   { key: 'logs-app', name: 'Logs' }
 ];

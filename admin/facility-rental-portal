@@ -737,6 +737,71 @@ tbody input[type="text"], tbody input[type="number"] {
 .tab-panel { display: none; padding: 24px 0 60px; }
 .tab-panel.active { display: block; }
 
+/* ---- Customer Email ---- */
+.ce-layout { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 1080px) { .ce-layout { grid-template-columns: 1fr; } }
+.ce-list-tools { display: flex; gap: 8px; margin-bottom: 12px; }
+.ce-list-tools input { flex: 1; min-width: 0; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 10px; font-family: inherit; font-size: 0.84rem; background: #fff; color: var(--text); }
+.ce-list-tools button { width: auto; padding: 9px 14px; font-size: 0.8rem; margin-top: 0; }
+.ce-threads { max-height: 620px; overflow-y: auto; margin: 0 -6px; }
+.ce-thread-item { width: 100%; text-align: left; font-family: inherit; background: #fff; border: 1.5px solid var(--border); border-radius: 12px; padding: 11px 13px; margin: 0 6px 8px; cursor: pointer; display: block; color: var(--text); }
+.ce-thread-item:hover { border-color: var(--saffron); }
+.ce-thread-item.active { border-color: var(--saffron-dark); background: var(--surface-soft); }
+.ce-thread-item.unread { border-left: 4px solid var(--saffron-dark); }
+.ce-ti-top { display: flex; align-items: baseline; gap: 8px; }
+.ce-ti-name { font-weight: 700; font-size: 0.86rem; color: var(--maroon); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ce-ti-date { font-size: 0.7rem; color: var(--muted); flex-shrink: 0; }
+.ce-ti-subject { font-size: 0.8rem; color: var(--text); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ce-ti-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
+.ce-pill { font-size: 0.66rem; font-weight: 700; border-radius: 999px; padding: 2px 8px; letter-spacing: 0.02em; }
+.ce-pill.opened { background: var(--green-bg); color: var(--green); }
+.ce-pill.unopened { background: var(--grey-bg); color: var(--muted); }
+.ce-pill.unread { background: var(--amber-bg); color: var(--amber); }
+.ce-pill.failed { background: var(--red-bg); color: var(--red); }
+.ce-pill.warn { background: var(--red-bg); color: var(--red); }
+
+.ce-toolbar { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; padding: 7px; border: 1.5px solid var(--border); border-bottom: none; border-radius: 10px 10px 0 0; background: var(--surface-soft); margin-top: 5px; }
+.ce-toolbar button { font-family: inherit; font-size: 0.8rem; padding: 5px 10px; border: 1px solid var(--border); background: #fff; border-radius: 7px; cursor: pointer; color: var(--text); line-height: 1; width: auto; margin-top: 0; }
+.ce-toolbar button:hover { border-color: var(--saffron); }
+.ce-toolbar select { font-size: 0.78rem; padding: 5px 6px; border: 1px solid var(--border); border-radius: 7px; background: #fff; width: auto; }
+.ce-color { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 28px; border: 1px solid var(--border); border-radius: 7px; background: #fff; cursor: pointer; font-size: 0.82rem; font-weight: 700; }
+.ce-color input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.ce-sep { width: 1px; height: 18px; background: var(--border); margin: 0 3px; }
+.ce-editor { min-height: 260px; border: 1.5px solid var(--border); border-radius: 0 0 10px 10px; padding: 16px; background: #fff; font-size: 0.92rem; line-height: 1.65; overflow-y: auto; color: var(--text); }
+.ce-editor:empty:before { content: attr(data-placeholder); color: var(--muted); }
+.ce-editor:focus { outline: none; border-color: var(--saffron); }
+.ce-editor.reply { min-height: 150px; }
+.ce-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; align-items: center; }
+.ce-actions button { width: auto; padding: 11px 22px; margin-top: 0; }
+
+.ce-thread-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 4px; }
+.ce-thread-head h2 { flex: 1; min-width: 0; margin: 0; }
+.ce-msg { border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; }
+.ce-msg.outbound { background: var(--surface-soft); }
+.ce-msg.inbound { background: #fff; border-left: 4px solid var(--saffron-dark); }
+.ce-msg-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+.ce-msg-from { font-weight: 700; font-size: 0.82rem; color: var(--maroon); }
+.ce-msg-date { font-size: 0.72rem; color: var(--muted); margin-left: auto; }
+.ce-msg-body { font-size: 0.88rem; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; }
+.ce-msg-body.rich { white-space: normal; }
+.ce-msg-body.rich img { max-width: 100%; height: auto; }
+.ce-quote-toggle { margin-top: 8px; font-size: 0.74rem; color: var(--saffron-dark); background: none; border: none; padding: 0; cursor: pointer; font-family: inherit; text-decoration: underline; width: auto; }
+.ce-attach { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.ce-attach button { width: auto; padding: 8px 14px; font-size: 0.8rem; margin-top: 0; }
+.ce-attach-hint { font-size: 0.72rem; color: var(--muted); flex: 1; min-width: 220px; }
+.ce-attach-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.ce-chip { display: inline-flex; align-items: center; gap: 8px; font-size: 0.76rem; background: var(--surface-soft); border: 1px solid var(--border); border-radius: 999px; padding: 5px 8px 5px 12px; color: var(--text); }
+.ce-chip.drive { border-color: var(--amber); }
+.ce-chip .sz { color: var(--muted); font-size: 0.7rem; }
+.ce-chip button { border: none; background: none; color: var(--red); cursor: pointer; font-size: 0.95rem; line-height: 1; padding: 0 4px; width: auto; margin-top: 0; font-family: inherit; }
+.ce-att-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.ce-att { display: inline-flex; align-items: center; gap: 6px; font-size: 0.76rem; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; color: var(--text); text-decoration: none; }
+a.ce-att { color: var(--saffron-dark); }
+a.ce-att:hover { border-color: var(--saffron); }
+.ce-att-size { color: var(--muted); font-size: 0.7rem; }
+.ce-danger { color: var(--red); border-color: var(--red) !important; }
+.ce-diag { margin-top: 10px; padding: 12px; background: var(--surface-soft); border: 1px solid var(--border); border-radius: 10px; font-size: 0.7rem; line-height: 1.5; white-space: pre-wrap; word-break: break-word; max-height: 340px; overflow-y: auto; color: var(--text); }
+
 </style>
 </head>
 <body>
@@ -767,6 +832,7 @@ tbody input[type="text"], tbody input[type="number"] {
     <li><button class="tab-btn active" data-tab="all-bookings" id="nav-all-bookings">All Bookings</button></li>
     <li><button class="tab-btn" data-tab="rooms-rates">Rooms &amp; Rates</button></li>
     <li><button class="tab-btn" data-tab="add-renter" id="nav-add-renter">Customers</button></li>
+    <li><button class="tab-btn" data-tab="customer-email" id="nav-customer-email">Customer Email</button></li>
   </ul>
   </div>
 </div>
@@ -1447,6 +1513,116 @@ tbody input[type="text"], tbody input[type="number"] {
       <tbody id="renters-tbody"></tbody>
     </table>
     <div class="empty-state" id="empty-state" style="display:none;">No customers here.</div>
+  </div>
+</div>
+
+</div>
+
+  <div class="tab-panel" id="tab-customer-email">
+<div class="container">
+  <div class="ce-layout">
+
+    <div class="ce-list-col">
+      <div class="card">
+        <h2>Conversations</h2>
+        <div class="card-sub">Everything sent to a customer from here, newest activity first.</div>
+        <div class="ce-list-tools">
+          <input type="text" id="ce-search" placeholder="Search customer or subject…" autocomplete="off">
+          <button type="button" class="btn-secondary" id="btn-ce-sync" title="Fetch new replies from facility-rental@hccgc.org">Refresh</button>
+        </div>
+        <!-- Notices live here, not in the composer: the composer is hidden
+             whenever a conversation is open, and an error written into a
+             hidden box is an error nobody sees. -->
+        <div class="result-box" id="ce-notice" style="display:none;margin-top:0;margin-bottom:12px;"></div>
+        <div class="ce-threads" id="ce-thread-list"></div>
+        <div class="empty-state" id="ce-empty" style="display:none;">No emails sent yet.</div>
+        <button type="button" class="ce-quote-toggle" id="btn-ce-diag" style="margin-top:10px;">Why isn’t this working?</button>
+        <pre class="ce-diag" id="ce-diag" style="display:none;"></pre>
+      </div>
+    </div>
+
+    <div class="ce-main-col">
+
+      <div class="card" id="ce-composer-card">
+        <h2>New email</h2>
+        <div class="card-sub">Sent from facility-rental@hccgc.org, so replies come back to a mailbox someone reads — and land in this conversation.</div>
+        <div class="field">
+          <label for="ce-renter">Customer</label>
+          <select id="ce-renter"><option value="">Choose a customer…</option></select>
+        </div>
+        <div class="field">
+          <label for="ce-subject">Subject</label>
+          <input type="text" id="ce-subject" placeholder="Your booking on 14 September">
+        </div>
+        <label style="font-size:0.78rem;font-weight:700;color:var(--muted);">Message</label>
+        <div class="ce-toolbar">
+          <button type="button" data-ce-cmd="bold" title="Bold"><strong>B</strong></button>
+          <button type="button" data-ce-cmd="italic" title="Italic"><em>I</em></button>
+          <button type="button" data-ce-cmd="underline" title="Underline"><u>U</u></button>
+          <span class="ce-sep"></span>
+          <button type="button" data-ce-block="h2" title="Heading">H</button>
+          <button type="button" data-ce-cmd="insertUnorderedList" title="List">&bull;</button>
+          <span class="ce-sep"></span>
+          <button type="button" data-ce-cmd="justifyLeft" title="Align left">&#8801;</button>
+          <button type="button" data-ce-cmd="justifyCenter" title="Align centre">&#8803;</button>
+          <button type="button" data-ce-cmd="justifyRight" title="Align right">&#8802;</button>
+          <span class="ce-sep"></span>
+          <label class="ce-color" title="Text colour"><span>A</span><input type="color" id="ce-color" value="#7f2e16"></label>
+          <label class="ce-color" title="Highlight"><span>&#9646;</span><input type="color" id="ce-highlight" value="#ffe9a8"></label>
+          <select id="ce-size" title="Size"><option value="">Size</option><option value="2">Small</option><option value="3">Normal</option><option value="5">Large</option></select>
+          <span class="ce-sep"></span>
+          <button type="button" id="ce-add-link">Link</button>
+          <button type="button" id="ce-add-button">Button</button>
+          <button type="button" id="ce-add-image">Image</button>
+          <input type="file" id="ce-image-file" accept="image/*" style="display:none;">
+        </div>
+        <div id="ce-body" class="ce-editor" contenteditable="true" data-placeholder="Namaste…"></div>
+        <div class="ce-attach">
+          <button type="button" class="btn-secondary" id="btn-ce-attach">Attach files</button>
+          <input type="file" id="ce-attach-file" multiple style="display:none;">
+          <span class="ce-attach-hint">Documents, photos, video. Up to 20&nbsp;MB per message. Anything over 6&nbsp;MB is shared as a Drive link instead of an attachment — and that link opens for anyone who receives it.</span>
+        </div>
+        <div class="ce-attach-list" id="ce-attach-list"></div>
+        <div class="ce-actions">
+          <button type="button" class="btn-primary" id="btn-ce-send">Send email</button>
+        </div>
+        <div class="result-box" id="ce-result" style="display:none;"></div>
+      </div>
+
+      <div class="card" id="ce-thread-card" style="display:none;">
+        <div class="ce-thread-head">
+          <h2 id="ce-thread-subject"></h2>
+          <button type="button" class="btn-secondary" id="btn-ce-delete" style="width:auto;padding:9px 16px;margin-top:0;display:none;">Delete</button>
+          <button type="button" class="btn-secondary" id="btn-ce-new" style="width:auto;padding:9px 16px;margin-top:0;">New email</button>
+        </div>
+        <div class="card-sub" id="ce-thread-meta"></div>
+        <div id="ce-thread-messages"></div>
+
+        <h2 style="font-size:1rem;margin-top:22px;">Reply</h2>
+        <div class="ce-toolbar">
+          <button type="button" data-ce-rcmd="bold" title="Bold"><strong>B</strong></button>
+          <button type="button" data-ce-rcmd="italic" title="Italic"><em>I</em></button>
+          <button type="button" data-ce-rcmd="underline" title="Underline"><u>U</u></button>
+          <span class="ce-sep"></span>
+          <button type="button" data-ce-rblock="h2" title="Heading">H</button>
+          <button type="button" data-ce-rcmd="insertUnorderedList" title="List">&bull;</button>
+          <span class="ce-sep"></span>
+          <button type="button" id="ce-r-add-link">Link</button>
+        </div>
+        <div id="ce-reply-body" class="ce-editor reply" contenteditable="true" data-placeholder="Write your reply…"></div>
+        <div class="ce-attach">
+          <button type="button" class="btn-secondary" id="btn-ce-r-attach">Attach files</button>
+          <input type="file" id="ce-r-attach-file" multiple style="display:none;">
+          <span class="ce-attach-hint">Same limits as a new email — over 6&nbsp;MB becomes a Drive link.</span>
+        </div>
+        <div class="ce-attach-list" id="ce-r-attach-list"></div>
+        <div class="ce-actions">
+          <button type="button" class="btn-primary" id="btn-ce-reply">Send reply</button>
+        </div>
+        <div class="result-box" id="ce-thread-result" style="display:none;"></div>
+      </div>
+
+    </div>
   </div>
 </div>
 
@@ -4959,6 +5135,660 @@ function initAddRenterTab() {
   loadRenters();
 }
 
+// ==================== CUSTOMER EMAIL ====================
+// One-to-one email with a renter. Deliberately a conversation rather than
+// a send-and-forget: the thread list is the primary view, the composer is
+// just how a new one starts.
+let CE_THREADS = [];
+let CE_ACTIVE_THREAD = null;
+let CE_SAVED_RANGE = null;
+// Files picked but not yet sent, already base64-encoded so the send itself
+// is instant rather than stalling on a 15MB read.
+let CE_FILES = [];
+let CE_REPLY_FILES = [];
+// Mirrors the server's ceilings so an oversized file is refused at the
+// point of picking it, not after a 20MB upload comes back rejected.
+const CE_UPLOAD_MAX_BYTES = 20 * 1024 * 1024;
+const CE_INLINE_MAX_BYTES = 6 * 1024 * 1024;
+// Guards the total check below. Reading a file is async and the picker
+// re-arms the moment it is cleared, so two overlapping picks each measured
+// the total against a store neither had written to yet and both passed.
+let CE_READING_FILES = false;
+// Every file travels base64-encoded inside one JSON request, and base64
+// adds a third. Cloud Run rejects a body over 32MB, so the total matters
+// as much as any single file: two 15MB videos are individually fine and
+// together produce a 40MB request that fails with nothing useful in it.
+const CE_UPLOAD_TOTAL_MAX_BYTES = 20 * 1024 * 1024;
+function ceTotalBytes(store) {
+  return store.reduce(function (n, f) { return n + (f.bytes || 0); }, 0);
+}
+
+function ceFmtBytes(n) {
+  if (!n && n !== 0) return '';
+  return n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB';
+}
+function ceReadFileAsBase64(file) {
+  return new Promise(function (resolve, reject) {
+    const r = new FileReader();
+    r.onload = function () {
+      resolve({
+        name: file.name,
+        mimeType: file.type || 'application/octet-stream',
+        bytes: file.size,
+        base64: String(r.result).split(',')[1]
+      });
+    };
+    r.onerror = function () { reject(new Error('Could not read ' + file.name)); };
+    r.readAsDataURL(file);
+  });
+}
+function ceRenderFileList(store, listId) {
+  const el = document.getElementById(listId);
+  el.innerHTML = store.map(function (f, i) {
+    const viaDrive = f.bytes > CE_INLINE_MAX_BYTES;
+    return '<span class="ce-chip' + (viaDrive ? ' drive' : '') + '"' +
+      (viaDrive ? ' title="Too large to attach — this one will be shared as a Drive link"' : '') + '>' +
+      escHtml(f.name) + ' <span class="sz">' + escHtml(ceFmtBytes(f.bytes)) + (viaDrive ? ' · link' : '') + '</span>' +
+      '<button type="button" data-idx="' + i + '" aria-label="Remove">&times;</button></span>';
+  }).join('');
+  el.querySelectorAll('button[data-idx]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      store.splice(Number(this.dataset.idx), 1);
+      ceRenderFileList(store, listId);
+    });
+  });
+}
+async function ceAddFiles(input, store, listId, resultId) {
+  const picked = Array.prototype.slice.call(input.files || []);
+  input.value = '';
+  if (CE_READING_FILES) {
+    ceResult(resultId, 'error', 'Still reading the last selection — try again in a moment.');
+    return;
+  }
+  CE_READING_FILES = true;
+  try {
+  for (const file of picked) {
+    if (file.size > CE_UPLOAD_MAX_BYTES) {
+      ceResult(resultId, 'error', file.name + ' is ' + ceFmtBytes(file.size) +
+        '. The portal can only carry files up to 20 MB — put this one in Drive yourself and paste the link into the message.');
+      continue;
+    }
+    if (ceTotalBytes(store) + file.size > CE_UPLOAD_TOTAL_MAX_BYTES) {
+      ceResult(resultId, 'error', 'Adding ' + file.name + ' would take this message past 20 MB of files in total. ' +
+        'Send the rest in a follow-up email, or share the large ones from Drive.');
+      continue;
+    }
+    try {
+      store.push(await ceReadFileAsBase64(file));
+    } catch (err) {
+      ceResult(resultId, 'error', err.message);
+    }
+  }
+  } finally {
+    CE_READING_FILES = false;
+    ceRenderFileList(store, listId);
+  }
+}
+function cePayloadFiles(store) {
+  return store.map(function (f) { return { filename: f.name, mimeType: f.mimeType, base64: f.base64 }; });
+}
+// Rendered for stored messages. A Drive entry is only made clickable when
+// the URL is actually an https link — the value comes back from the
+// server, but this is the one place a stored string becomes an href.
+function ceAttachmentsHtml(list) {
+  if (!list || !list.length) return '';
+  return '<div class="ce-att-row">' + list.map(function (a) {
+    const label = escHtml(a.name) + (a.bytes ? ' <span class="ce-att-size">' + escHtml(ceFmtBytes(a.bytes)) + '</span>' : '');
+    if (a.kind === 'drive') {
+      // Said out loud rather than rendered as a plain filename: a shared
+      // file whose link is missing looks identical to an attachment that
+      // is simply not clickable, and nobody would think to chase it.
+      return (typeof a.url === 'string' && /^https:\/\//.test(a.url))
+        ? '<a class="ce-att" href="' + escHtml(a.url) + '" target="_blank" rel="noopener">' + label + '</a>'
+        : '<span class="ce-att" title="Shared from Drive, but the link was not recorded">' + label + ' <span class="ce-att-size">link missing</span></span>';
+    }
+    return '<span class="ce-att">' + label + '</span>';
+  }).join('') + '</div>';
+}
+
+function ceFmtDateTime(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleString('en-US', {
+    month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York'
+  });
+}
+function ceFmtShort(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/New_York' });
+}
+function ceResult(id, kind, msg) {
+  const box = document.getElementById(id);
+  box.style.display = 'block';
+  box.className = 'result-box' + (kind ? ' ' + kind : '');
+  box.textContent = msg;
+}
+function ceHideResult(id) { document.getElementById(id).style.display = 'none'; }
+// Anything the operator must see regardless of which pane is showing.
+//
+// Lifecycle: cleared at the START of each thing the operator clicks, and
+// set only by the outcome of that click. Clearing it inside the loaders
+// instead looked equivalent and wasn't — a click that runs two of them in
+// sequence had the second silently erase the first one's error.
+function ceNotice(kind, msg) { ceResult('ce-notice', kind, msg); }
+function ceClearNotice() { ceHideResult('ce-notice'); }
+// The backend puts the real reason in the body. Reporting only the status
+// code turns every fault into an indistinguishable "Server returned 500"
+// and sends whoever is debugging to the Cloud Run logs for something the
+// response already said.
+async function ceErrorText(res) {
+  try {
+    const data = await res.json();
+    const msg = (data.errors && data.errors.join(' ')) || data.error;
+    if (msg) return msg;
+  } catch (e) { /* not JSON — fall through to the status code */ }
+  return 'Server returned ' + res.status;
+}
+// Matches the backend's emptiness rule: a message that is only an image —
+// a flyer, a rate sheet — is not empty, even though stripping the tags
+// leaves nothing behind.
+function ceIsEmpty(html) {
+  const s = String(html || '');
+  if (/<(img|hr|table)\b/i.test(s)) return false;
+  return !s.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+}
+
+async function ceLoadRenters() {
+  let renters = [];
+  try {
+    const res = await authedFetch(API_BASE + '/renters');
+    if (res.ok) renters = await res.json();
+  } catch (err) { renters = []; }
+  // Same list and same shape as the New Booking picker — a customer with
+  // no email on file is dropped, since there is nowhere to send to.
+  const select = document.getElementById('ce-renter');
+  const previous = select.value;
+  select.innerHTML = '<option value="">Choose a customer…</option>' +
+    renters.filter(function (r) { return r.email; }).map(function (r) {
+      return '<option value="' + escHtml(r.renter_id) + '">' +
+        escHtml(r.contact_name + ' — ' + r.email) + '</option>';
+    }).join('');
+  if (previous) select.value = previous;
+}
+
+async function ceLoadThreads() {
+  try {
+    const res = await authedFetch(API_BASE + '/customer-email/threads');
+    if (!res.ok) throw new Error(await ceErrorText(res));
+    CE_THREADS = await res.json();
+    ceRenderThreads();
+    return true;
+  } catch (err) {
+    CE_THREADS = [];
+    ceNotice('error', 'Could not load conversations: ' + err.message);
+    ceRenderThreads();
+    return false;
+  }
+}
+
+function ceRenderThreads() {
+  const term = (document.getElementById('ce-search').value || '').toLowerCase().trim();
+  const list = CE_THREADS.filter(function (t) {
+    if (!term) return true;
+    return (String(t.toName || '') + ' ' + String(t.toEmail || '') + ' ' + String(t.subject || ''))
+      .toLowerCase().indexOf(term) !== -1;
+  });
+  const empty = document.getElementById('ce-empty');
+  empty.style.display = list.length ? 'none' : 'block';
+  // "No emails sent yet" is only true when there is genuinely nothing —
+  // saying it while a search is filtering everything out reads as data loss.
+  empty.textContent = CE_THREADS.length ? 'Nothing matches that search.' : 'No emails sent yet.';
+  document.getElementById('ce-thread-list').innerHTML = list.map(function (t) {
+    const pills = [];
+    if (t.sendStatus === 'failed') pills.push('<span class="ce-pill failed">Failed to send</span>');
+    else if (t.openCount > 0) pills.push('<span class="ce-pill opened">Opened' + (t.openCount > 1 ? ' ×' + t.openCount : '') + '</span>');
+    else pills.push('<span class="ce-pill unopened">Not opened</span>');
+    if (t.unreadCount > 0) pills.push('<span class="ce-pill unread">' + t.unreadCount + ' new repl' + (t.unreadCount === 1 ? 'y' : 'ies') + '</span>');
+    else if (t.replyCount > 0) pills.push('<span class="ce-pill unopened">' + t.replyCount + ' repl' + (t.replyCount === 1 ? 'y' : 'ies') + '</span>');
+    if (t.attachmentCount > 0) pills.push('<span class="ce-pill unopened">' + t.attachmentCount + ' file' + (t.attachmentCount === 1 ? '' : 's') + '</span>');
+    return '<button type="button" class="ce-thread-item' +
+      (t.unreadCount > 0 ? ' unread' : '') +
+      (t.threadId === CE_ACTIVE_THREAD ? ' active' : '') +
+      '" data-thread="' + escHtml(t.threadId) + '">' +
+      '<div class="ce-ti-top"><span class="ce-ti-name">' + escHtml(t.toName || t.toEmail) + '</span>' +
+      '<span class="ce-ti-date">' + escHtml(ceFmtShort(t.lastReplyAt || t.sentAt)) + '</span></div>' +
+      '<div class="ce-ti-subject">' + escHtml(t.subject) + '</div>' +
+      '<div class="ce-ti-meta">' + pills.join('') + '</div></button>';
+  }).join('');
+  document.querySelectorAll('#ce-thread-list .ce-thread-item').forEach(function (btn) {
+    btn.addEventListener('click', function () { ceClearNotice(); ceOpenThread(this.dataset.thread); });
+  });
+}
+
+function ceShowComposer() {
+  CE_ACTIVE_THREAD = null;
+  document.getElementById('ce-thread-card').style.display = 'none';
+  document.getElementById('ce-composer-card').style.display = 'block';
+  // Deliberately does NOT clear the form. Reading a conversation and
+  // coming back is the normal way to check a date mid-draft, and this is
+  // the only route back — wiping the body here would throw the draft
+  // away. The send handler clears the form itself once a send succeeds,
+  // which is the case that actually needed clearing.
+  ceHideResult('ce-result');
+  ceRenderThreads();
+}
+
+async function ceOpenThread(threadId) {
+  let data;
+  try {
+    const res = await authedFetch(API_BASE + '/customer-email/thread/' + encodeURIComponent(threadId));
+    if (!res.ok) throw new Error(await ceErrorText(res));
+    data = await res.json();
+  } catch (err) {
+    ceNotice('error', 'Could not open that conversation: ' + err.message);
+    return;
+  }
+  CE_ACTIVE_THREAD = threadId;
+  document.getElementById('ce-composer-card').style.display = 'none';
+  document.getElementById('ce-thread-card').style.display = 'block';
+  ceHideResult('ce-thread-result');
+  document.getElementById('ce-reply-body').innerHTML = '';
+  CE_REPLY_FILES = [];
+  ceRenderFileList(CE_REPLY_FILES, 'ce-r-attach-list');
+  ceResetDeleteButton();
+  // Deleting really removes the rows, so it is admin-only and the control
+  // is not rendered at all for anyone else.
+  document.getElementById('btn-ce-delete').style.display = window.__hccgcIsAdmin ? 'inline-block' : 'none';
+  document.getElementById('ce-thread-subject').textContent = data.subject;
+
+  const meta = [escHtml(data.toName || '') + ' &lt;' + escHtml(data.toEmail) + '&gt;',
+    'sent ' + escHtml(ceFmtDateTime(data.sentAt)) + ' by ' + escHtml(data.sentBy)];
+  // Opens are reported with the caveat attached rather than as a bare
+  // number: Gmail and most webmail load images through a caching proxy,
+  // so a pixel hit says the message was rendered somewhere, not that the
+  // customer read it. Stated here so nobody treats it as a read receipt.
+  if (data.sendStatus === 'failed') {
+    meta.push('<span class="ce-pill failed">Send failed: ' + escHtml(data.sendError || '') + '</span>');
+  } else if (data.openCount > 0) {
+    meta.push('<span class="ce-pill opened" title="Counts image loads, not reads — mail clients proxy and cache images, so this over-counts">Opened ' +
+      escHtml(ceFmtDateTime(data.firstOpenedAt)) + ' (' + data.openCount + ' image load' + (data.openCount === 1 ? '' : 's') + ')</span>');
+  } else {
+    meta.push('<span class="ce-pill unopened" title="No image load recorded. Images off in the customer’s mail client would look the same.">Not opened</span>');
+  }
+  if (!data.threadingReady) {
+    meta.push('<span class="ce-pill warn" title="Gmail’s Message-ID was not captured when this was sent, so a reply may arrive as a new conversation on the customer’s side.">Replies may not thread</span>');
+  }
+  document.getElementById('ce-thread-meta').innerHTML = meta.join(' &middot; ');
+
+  const parts = ['<div class="ce-msg outbound">' +
+    '<div class="ce-msg-head"><span class="ce-msg-from">HCCGC Facility Rentals</span>' +
+    '<span class="ce-msg-date">' + escHtml(ceFmtDateTime(data.sentAt)) + '</span></div>' +
+    '<div class="ce-msg-body rich">' + (data.bodyHtml || '') + '</div>' +
+    ceAttachmentsHtml(data.attachments) + '</div>'];
+
+  // Guarded: a throw here would leave the previous thread's messages on
+  // screen under this thread's subject, with the reply box now pointed at
+  // the new conversation — replying to the wrong customer while reading
+  // the wrong transcript.
+  (data.replies || []).forEach(function (r, i) {
+    const who = r.fromName || r.fromEmail || (r.direction === 'outbound' ? 'HCCGC' : 'Customer');
+    // Escaped, always — including messages the From header claims are
+    // ours. Whether a message is "outbound" is decided from a header
+    // during sync, and headers are forgeable, so it is not a basis for
+    // rendering markup. Only the opening message above, which can only be
+    // written by this portal's own send endpoint, renders as HTML.
+    const trimmed = r.bodyTextTrimmed || r.bodyText || '(no text content)';
+    const full = r.bodyText || '';
+    let body = '<div class="ce-msg-body">' + escHtml(trimmed) + '</div>';
+    if (full && full.trim() !== String(trimmed).trim()) {
+      body += '<button type="button" class="ce-quote-toggle" data-full="' + i + '">Show quoted text</button>' +
+        '<div class="ce-msg-body" id="ce-full-' + i + '" style="display:none;margin-top:8px;color:var(--muted);">' + escHtml(full) + '</div>';
+    }
+    parts.push('<div class="ce-msg ' + escHtml(r.direction) + '">' +
+      '<div class="ce-msg-head"><span class="ce-msg-from">' + escHtml(who) + '</span>' +
+      '<span class="ce-msg-date">' + escHtml(ceFmtDateTime(r.receivedAt)) + '</span></div>' + body +
+      ceAttachmentsHtml(r.attachments) + '</div>');
+  });
+  document.getElementById('ce-thread-messages').innerHTML = parts.join('');
+  document.querySelectorAll('#ce-thread-messages .ce-quote-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const el = document.getElementById('ce-full-' + this.dataset.full);
+      const showing = el.style.display !== 'none';
+      el.style.display = showing ? 'none' : 'block';
+      this.textContent = showing ? 'Show quoted text' : 'Hide quoted text';
+    });
+  });
+  ceRenderThreads();
+}
+
+// ---- Editor (same toolbar as Email Blast in the Communications portal) ----
+const ceBody = document.getElementById('ce-body');
+const ceReplyBody = document.getElementById('ce-reply-body');
+function ceExec(target, cmd, val) { target.focus(); document.execCommand(cmd, false, val || null); }
+document.querySelectorAll('[data-ce-cmd]').forEach(function (b) {
+  b.addEventListener('click', function () { ceExec(ceBody, this.dataset.ceCmd); });
+});
+document.querySelectorAll('[data-ce-block]').forEach(function (b) {
+  b.addEventListener('click', function () { ceExec(ceBody, 'formatBlock', '<' + this.dataset.ceBlock + '>'); });
+});
+document.querySelectorAll('[data-ce-rcmd]').forEach(function (b) {
+  b.addEventListener('click', function () { ceExec(ceReplyBody, this.dataset.ceRcmd); });
+});
+document.querySelectorAll('[data-ce-rblock]').forEach(function (b) {
+  b.addEventListener('click', function () { ceExec(ceReplyBody, 'formatBlock', '<' + this.dataset.ceRblock + '>'); });
+});
+document.getElementById('ce-color').addEventListener('input', function () { ceExec(ceBody, 'foreColor', this.value); });
+document.getElementById('ce-highlight').addEventListener('input', function () {
+  // hiliteColor is the standard; some engines only honour backColor.
+  ceBody.focus();
+  if (!document.execCommand('hiliteColor', false, this.value)) document.execCommand('backColor', false, this.value);
+});
+document.getElementById('ce-size').addEventListener('change', function () {
+  if (this.value) ceExec(ceBody, 'fontSize', this.value);
+  this.value = '';
+});
+document.getElementById('ce-add-link').addEventListener('click', function () {
+  const url = window.prompt('Link address:', 'https://hccgc.org/');
+  if (url) ceExec(ceBody, 'createLink', url);
+});
+document.getElementById('ce-r-add-link').addEventListener('click', function () {
+  const url = window.prompt('Link address:', 'https://hccgc.org/');
+  if (url) ceExec(ceReplyBody, 'createLink', url);
+});
+document.getElementById('ce-add-button').addEventListener('click', function () {
+  const label = window.prompt('Button text:', 'View your invoice');
+  if (!label) return;
+  const url = window.prompt('Where should it link to?', 'https://hccgc.org/');
+  if (!url) return;
+  // Inline styles: email clients strip <style> blocks and ignore classes.
+  ceExec(ceBody, 'insertHTML',
+    '<div style="text-align:center;margin:22px 0;"><a href="' + url.replace(/"/g, '&quot;') +
+    '" style="display:inline-block;background:#b55a18;color:#ffffff;padding:13px 30px;border-radius:999px;' +
+    'font-weight:bold;text-decoration:none;font-family:Arial,Helvetica,sans-serif;">' + escHtml(label) + '</a></div><p><br></p>');
+});
+document.getElementById('ce-add-image').addEventListener('click', function () {
+  // Opening the file picker moves focus out of the editor, so the cursor
+  // position is saved first — otherwise the image lands at the very start
+  // instead of where the person was typing.
+  const sel = window.getSelection();
+  CE_SAVED_RANGE = (sel && sel.rangeCount && ceBody.contains(sel.anchorNode)) ? sel.getRangeAt(0).cloneRange() : null;
+  document.getElementById('ce-image-file').click();
+});
+document.getElementById('ce-image-file').addEventListener('change', async function (e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  ceResult('ce-result', '', 'Uploading image…');
+  try {
+    const base64 = await new Promise(function (resolve, reject) {
+      const r = new FileReader();
+      r.onload = function () { resolve(String(r.result).split(',')[1]); };
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+    const res = await authedFetch(API_BASE + '/pages/image-upload', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ base64: base64, filename: file.name, mimeType: file.type })
+    });
+    const data = await res.json();
+    if (!res.ok) { ceResult('ce-result', 'error', (data.errors || [data.error]).join(' ') || 'Upload failed.'); return; }
+    ceBody.focus();
+    if (CE_SAVED_RANGE) {
+      const s = window.getSelection();
+      s.removeAllRanges(); s.addRange(CE_SAVED_RANGE);
+    }
+    // Width as an attribute as well as a style: Outlook ignores max-width
+    // on images and an unconstrained photo blows the layout out.
+    document.execCommand('insertHTML', false,
+      '<img src="' + data.imageUrl.replace(/"/g, '&quot;') + '" width="560" ' +
+      'style="max-width:100%;height:auto;border-radius:8px;display:block;margin:14px auto;">');
+    ceHideResult('ce-result');
+  } catch (err) {
+    ceResult('ce-result', 'error', 'Upload failed: ' + err.message);
+  } finally {
+    this.value = '';
+    CE_SAVED_RANGE = null;
+  }
+});
+
+// ---- Actions ----
+document.getElementById('ce-search').addEventListener('input', ceRenderThreads);
+document.getElementById('btn-ce-new').addEventListener('click', ceShowComposer);
+
+document.getElementById('btn-ce-attach').addEventListener('click', function () {
+  document.getElementById('ce-attach-file').click();
+});
+// Changing the recipient drops the attachments. The draft text is kept on
+// purpose everywhere else in this tab, but a file is different in kind:
+// a document attached for one customer and then silently carried into an
+// email to a different one is a disclosure, not an inconvenience.
+document.getElementById('ce-renter').addEventListener('change', function () {
+  if (!CE_FILES.length) return;
+  CE_FILES = [];
+  ceRenderFileList(CE_FILES, 'ce-attach-list');
+  ceResult('ce-result', 'error', 'Attachments were cleared because you changed the customer. Add them again for this recipient.');
+});
+document.getElementById('ce-attach-file').addEventListener('change', function () {
+  ceAddFiles(this, CE_FILES, 'ce-attach-list', 'ce-result');
+});
+document.getElementById('btn-ce-r-attach').addEventListener('click', function () {
+  document.getElementById('ce-r-attach-file').click();
+});
+document.getElementById('ce-r-attach-file').addEventListener('change', function () {
+  ceAddFiles(this, CE_REPLY_FILES, 'ce-r-attach-list', 'ce-thread-result');
+});
+
+// Two-step rather than a confirm dialog: this deletes the rows outright,
+// and a dialog is dismissed on reflex. The second click has to be a
+// deliberate one on a button that has visibly changed.
+let CE_DELETE_ARMED = false;
+let CE_DELETE_TIMER = null;
+function ceResetDeleteButton() {
+  const wasArmed = CE_DELETE_ARMED;
+  CE_DELETE_ARMED = false;
+  clearTimeout(CE_DELETE_TIMER);
+  const btn = document.getElementById('btn-ce-delete');
+  btn.textContent = 'Delete';
+  btn.classList.remove('ce-danger');
+  // Clears the "click again to confirm" line too, but only when this call
+  // is what disarmed it. Otherwise the button quietly reverts on the
+  // timeout while the screen still says a confirmation is pending — and
+  // only that message is cleared, never someone else's error.
+  if (wasArmed) ceHideResult('ce-thread-result');
+}
+document.getElementById('btn-ce-delete').addEventListener('click', async function () {
+  const btn = this;
+  if (!CE_ACTIVE_THREAD) return;
+  if (!CE_DELETE_ARMED) {
+    CE_DELETE_ARMED = true;
+    btn.textContent = 'Delete permanently?';
+    btn.classList.add('ce-danger');
+    ceResult('ce-thread-result', 'error',
+      'This removes the conversation and its replies from the portal for good. It does not unsend anything — the customer still has the email, and it stays in Gmail. Click again to confirm.');
+    CE_DELETE_TIMER = setTimeout(ceResetDeleteButton, 8000);
+    return;
+  }
+  ceResetDeleteButton();
+  btn.disabled = true;
+  ceClearNotice();
+  try {
+    const res = await authedFetch(API_BASE + '/customer-email/thread/' + encodeURIComponent(CE_ACTIVE_THREAD) + '/delete', { method: 'POST' });
+    if (!res.ok) { ceResult('ce-thread-result', 'error', await ceErrorText(res)); return; }
+    const data = await res.json();
+    ceShowComposer();
+    // Same guard as the send path: if the list reload failed, its error is
+    // the thing worth reading, not a confirmation posted over the top of it.
+    const listed = await ceLoadThreads();
+    if (listed) {
+      ceNotice('success', 'Conversation deleted' +
+        (data.repliesDeleted ? ' along with ' + data.repliesDeleted + ' repl' + (data.repliesDeleted === 1 ? 'y' : 'ies') : '') + '.' +
+        (data.sharedDriveFiles ? ' ' + data.sharedDriveFiles + ' file' + (data.sharedDriveFiles === 1 ? '' : 's') +
+          ' shared from Drive stay shared — their links are in the audit log.' : ''));
+    }
+  } catch (err) {
+    ceResult('ce-thread-result', 'error', 'Could not delete: ' + err.message);
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// Runs the server-side probes and prints them verbatim. The Gmail token
+// error this feature can hit means two unrelated things — a delegation
+// scope that was dropped, or a mailbox that is a group rather than a real
+// user — and the only way to tell them apart is to try each scope against
+// each mailbox separately, which is what this endpoint does.
+document.getElementById('btn-ce-diag').addEventListener('click', async function () {
+  const btn = this;
+  const box = document.getElementById('ce-diag');
+  btn.disabled = true;
+  box.style.display = 'block';
+  box.textContent = 'Checking Gmail delegation, mailboxes and tables…';
+  try {
+    const res = await authedFetch(API_BASE + '/admin/customer-email-diagnostics');
+    const data = await res.json();
+    box.textContent = JSON.stringify(data, null, 2);
+  } catch (err) {
+    box.textContent = 'Diagnostics could not run: ' + err.message;
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+document.getElementById('btn-ce-sync').addEventListener('click', async function () {
+  const btn = this;
+  ceClearNotice();
+  btn.disabled = true;
+  btn.textContent = 'Checking…';
+  try {
+    await ceSyncReplies();
+    await ceLoadThreads();
+    if (CE_ACTIVE_THREAD) await ceOpenThread(CE_ACTIVE_THREAD);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Refresh';
+  }
+});
+
+async function ceSyncReplies() {
+  let added = 0;
+  let offset = 0;
+  let complete = false;
+  try {
+    // The endpoint works through conversations a page at a time so that a
+    // long history can't quietly fall off the end of a single request.
+    // Drained here rather than left to the operator to click twice.
+    for (let page = 0; page < 20; page++) {
+      const res = await authedFetch(API_BASE + '/customer-email/sync-replies?offset=' + offset);
+      if (!res.ok) throw new Error(await ceErrorText(res));
+      const data = await res.json();
+      added += data.added || 0;
+      if (data.nextOffset === null || data.nextOffset === undefined) { complete = true; break; }
+      // Termination can't be left to the server's say-so alone: an offset
+      // that fails to advance would otherwise mean twenty identical
+      // requests on every refresh.
+      if (Number(data.nextOffset) <= offset) break;
+      offset = Number(data.nextOffset);
+    }
+  } catch (err) {
+    // A sync failure must not hide the conversations already stored —
+    // that is the whole reason replies live in BigQuery rather than being
+    // read live from Gmail. Whatever earlier pages did store is still
+    // reported, so the caller knows to reload.
+    console.error('Reply sync failed:', err.message);
+  }
+  return { added: added, complete: complete };
+}
+
+document.getElementById('btn-ce-send').addEventListener('click', async function () {
+  const btn = this;
+  const renterId = document.getElementById('ce-renter').value;
+  const subject = document.getElementById('ce-subject').value.trim();
+  const bodyHtml = ceBody.innerHTML;
+  if (!renterId) { ceResult('ce-result', 'error', 'Choose a customer first.'); return; }
+  if (!subject) { ceResult('ce-result', 'error', 'A subject is required.'); return; }
+  // An email that is only an attachment is a real thing to send.
+  if (!CE_FILES.length && ceIsEmpty(bodyHtml)) { ceResult('ce-result', 'error', 'The message is empty.'); return; }
+  btn.disabled = true;
+  ceClearNotice();
+  ceResult('ce-result', '', CE_FILES.length ? 'Sending, uploading attachments…' : 'Sending…');
+  // Serialising ~27MB of base64 blocks the thread, and without this yield
+  // it happens in the same task that set the message above — so the page
+  // freezes while the composer still reads as idle.
+  if (CE_FILES.length) await new Promise(function (r) { setTimeout(r, 0); });
+  try {
+    const res = await authedFetch(API_BASE + '/customer-email/send', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ renterId: renterId, subject: subject, bodyHtml: bodyHtml, attachments: cePayloadFiles(CE_FILES) })
+    });
+    const data = await res.json();
+    if (!res.ok) { ceResult('ce-result', 'error', (data.errors || [data.error]).join(' ')); return; }
+    document.getElementById('ce-subject').value = '';
+    document.getElementById('ce-renter').value = '';
+    ceBody.innerHTML = '';
+    CE_FILES = [];
+    ceRenderFileList(CE_FILES, 'ce-attach-list');
+    ceHideResult('ce-result');
+    const listed = await ceLoadThreads();
+    // Into the notice box, not the composer's — opening the thread hides
+    // the composer, so a confirmation written there is set and instantly
+    // concealed, taking the threading warning with it. Only posted if the
+    // list actually reloaded: otherwise it would sit above an empty list
+    // reading "No emails sent yet", having overwritten the error that
+    // explains why.
+    if (listed) {
+      ceNotice('success', 'Sent to ' + (data.toName || data.to) + '.' +
+        (data.threadingReady ? '' : ' Gmail’s Message-ID could not be read back on this one, so a later reply may reach them as a new conversation.'));
+    }
+    // …and before opening the thread, so a failure to open replaces the
+    // confirmation with its own error rather than being papered over.
+    if (data.threadId) await ceOpenThread(data.threadId);
+  } catch (err) {
+    ceResult('ce-result', 'error', 'Could not send: ' + err.message);
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+document.getElementById('btn-ce-reply').addEventListener('click', async function () {
+  const btn = this;
+  const bodyHtml = ceReplyBody.innerHTML;
+  if (!CE_ACTIVE_THREAD) return;
+  if (!CE_REPLY_FILES.length && ceIsEmpty(bodyHtml)) { ceResult('ce-thread-result', 'error', 'The reply is empty.'); return; }
+  btn.disabled = true;
+  ceClearNotice();
+  ceResult('ce-thread-result', '', CE_REPLY_FILES.length ? 'Sending, uploading attachments…' : 'Sending…');
+  if (CE_REPLY_FILES.length) await new Promise(function (r) { setTimeout(r, 0); });
+  try {
+    const res = await authedFetch(API_BASE + '/customer-email/reply', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ threadId: CE_ACTIVE_THREAD, bodyHtml: bodyHtml, attachments: cePayloadFiles(CE_REPLY_FILES) })
+    });
+    const data = await res.json();
+    if (!res.ok) { ceResult('ce-thread-result', 'error', (data.errors || [data.error]).join(' ')); return; }
+    ceReplyBody.innerHTML = '';
+    CE_REPLY_FILES = [];
+    ceRenderFileList(CE_REPLY_FILES, 'ce-r-attach-list');
+    ceHideResult('ce-thread-result');
+    // List first, then the thread — the reverse order lets a failure to
+    // re-open the thread be erased by the list reload that follows it.
+    await ceLoadThreads();
+    await ceOpenThread(CE_ACTIVE_THREAD);
+  } catch (err) {
+    ceResult('ce-thread-result', 'error', 'Could not send: ' + err.message);
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+async function initCustomerEmailTab() {
+  window.__ceLoaded = true;
+  await ceLoadRenters();
+  await ceLoadThreads();
+  // Pull anything new out of the mailbox on first open, then refresh the
+  // list. Deliberately after the first render so the tab is usable
+  // immediately rather than waiting on Gmail.
+  const synced = await ceSyncReplies();
+  if (synced && synced.added) await ceLoadThreads();
+}
+
 // ==================== TAB SWITCHING ====================
 document.querySelectorAll('.tab-btn').forEach(function (btn) {
   btn.addEventListener('click', function () {
@@ -4978,6 +5808,24 @@ document.querySelectorAll('.tab-btn').forEach(function (btn) {
     if (btn.dataset.tab === 'dashboard' && window.__dashLoaded) initDashboardTab();
     if (btn.dataset.tab === 'rooms-rates' && window.__rrLoaded) loadRooms();
     if (btn.dataset.tab === 'add-renter' && window.__arLoaded) loadRenters();
+    // Same reasoning as the tabs above — refetch on every visit, and pull
+    // new replies at the same time so the unread badges are current — but
+    // written as one branch rather than two. init sets __ceLoaded before
+    // its first await, so a separate "already loaded" check would fire on
+    // the very first click too and run a second concurrent Gmail sync.
+    if (btn.dataset.tab === 'customer-email') {
+      ceClearNotice();
+      if (!window.__ceLoaded) {
+        initCustomerEmailTab();
+      } else {
+        ceLoadRenters();
+        ceSyncReplies()
+          .then(function () { return ceLoadThreads(); })
+          // The open conversation is refreshed too, or the list shows a
+          // "1 new reply" badge next to a thread pane that doesn't have it.
+          .then(function () { if (CE_ACTIVE_THREAD) return ceOpenThread(CE_ACTIVE_THREAD); });
+      }
+    }
   });
 });
 </script>

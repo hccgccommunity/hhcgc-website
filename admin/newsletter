@@ -181,27 +181,44 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .nl-underline { width: 74px; height: 4px; background: var(--a); border-radius: 2px; margin-bottom: 24px; }
 .nl-text { font-size: 1rem; color: #3a2c22; }
 
-/* Layout: two columns */
-.nl-2col { column-count: 2; column-gap: 34px; font-size: 1rem; color: #3a2c22; }
-.nl-2col p:first-child { margin-top: 0; }
+/* Structural regions. A page is a flex column: the heading takes what it needs
+   and the body region gets the rest, so a column or band actually fills the
+   sheet instead of collapsing to the height of its text. */
+.nl-pad.nl-flex { display: flex; flex-direction: column; }
+.nl-cols { display: flex; gap: 30px; flex: 1; align-items: stretch; min-height: 0; }
+.nl-colcell { display: flex; flex-direction: column; min-width: 0; }
+.nl-colcell.ruled { border-left: 2px solid var(--soft); padding-left: 26px; }
+.nl-rows { display: flex; flex-direction: column; gap: 22px; flex: 1; min-height: 0; }
+.nl-rowcell { display: flex; flex-direction: column; min-width: 0; }
+.nl-rowcell + .nl-rowcell { border-top: 2px solid var(--soft); padding-top: 20px; }
+.nl-subh { font-size: 1.3rem; margin-bottom: 6px; }
+.nl-flow { column-gap: 34px; font-size: 1rem; color: #3a2c22; flex: 1; }
+.nl-flow p:first-child { margin-top: 0; }
 
-/* Layout: image left / right */
-.nl-split { display: flex; gap: 30px; align-items: flex-start; }
-.nl-split .nl-imgslot { width: 300px; height: 380px; border-radius: 10px; flex-shrink: 0; }
+/* Layout: image beside text */
+.nl-split { display: flex; gap: 30px; align-items: flex-start; flex: 1; }
+.nl-split.rev { flex-direction: row-reverse; }
+.nl-split .nl-imgslot { width: 316px; height: 420px; border-radius: 10px; flex-shrink: 0; }
 .nl-split .nl-splitbody { flex: 1; min-width: 0; }
 
-/* Layout: banner */
+/* Layout: banner + full page image */
 .nl-banner .nl-imgslot { width: 100%; height: 340px; }
+.nl-full { position: absolute; inset: 0; }
+.nl-full > .nl-imgslot { position: absolute; inset: 0; }
+.nl-full-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 44px 66px; color: #fff;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.66) 100%); font-family: var(--hf); font-size: 1.5rem; line-height: 1.35; }
 
-/* Layout: highlights */
+/* Layout: photo grid */
+.nl-grid { display: grid; gap: 20px; flex: 1; min-height: 0; }
+.nl-grid-cell { display: flex; flex-direction: column; min-height: 0; }
+.nl-grid-cell .nl-imgslot { width: 100%; flex: 1; min-height: 120px; border-radius: 10px; }
+
+/* Layout: stacked cards */
 .nl-hl { display: flex; flex-direction: column; gap: 18px; }
 .nl-hl-card { border: 2px solid var(--soft); border-left: 7px solid var(--a); border-radius: 10px; padding: 20px 24px; background: #fff; }
 .nl-hl-card h3 { font-size: 1.24rem; margin-bottom: 6px; }
 .nl-hl-card .nl-text { font-size: 0.96rem; }
 
-/* Layout: gallery */
-.nl-gal { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.nl-gal-cell .nl-imgslot { width: 100%; height: 250px; border-radius: 10px; }
 .nl-gal-cap { font-size: 0.86rem; color: #5d4b3d; margin-top: 8px; text-align: center; font-style: italic; }
 
 /* Layout: quote */
@@ -228,6 +245,8 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .nl-theme-chip { width: 52px; height: 34px; border-radius: 8px; border: 2px solid var(--border); cursor: pointer; overflow: hidden; padding: 0; }
 .nl-theme-chip.active { border-color: var(--text); box-shadow: 0 0 0 2px rgba(44,27,16,0.15); }
 .nl-lay-list { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.nl-lay-group { grid-column: 1 / -1; font-size: 0.66rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-top: 8px; }
+.nl-lay-group:first-child { margin-top: 0; }
 .nl-lay-btn { font-family: inherit; font-size: 0.74rem; font-weight: 700; padding: 7px 6px; border-radius: 8px; border: 1.5px solid var(--border); background: #fff; cursor: pointer; text-align: center; }
 .nl-lay-btn.active { background: var(--saffron-dark); color: #fff; border-color: var(--saffron-dark); }
 .nl-side .stack { display: flex; flex-direction: column; gap: 8px; }
@@ -344,8 +363,11 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
         <h4>Theme</h4>
         <div class="nl-theme-row" id="nl-themes"></div>
 
-        <h4>This page</h4>
+        <h4>This page &mdash; layout</h4>
         <div class="nl-lay-list" id="nl-layouts"></div>
+        <label id="nl-head-toggle-wrap" style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:0.82rem;">
+          <input type="checkbox" id="nl-head-toggle" checked> Show heading on this page
+        </label>
         <div class="stack" style="margin-top:10px;">
           <button class="btn-secondary" id="btn-dup-page">Duplicate page</button>
           <div style="display:flex;gap:8px;">
@@ -395,10 +417,21 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
         <label for="new-title">Title (internal name — not printed)</label>
         <input type="text" id="new-title" placeholder="November 2026 Newsletter">
       </div>
-      <div class="field">
-        <label>Start from</label>
-        <div class="nl-lay-list" id="new-starters" style="grid-template-columns:1fr 1fr;"></div>
+      <div style="display:grid;grid-template-columns:130px 1fr;gap:14px;">
+        <div class="field">
+          <label for="new-count">How many pages?</label>
+          <input type="number" id="new-count" min="1" max="60" value="2">
+        </div>
+        <div class="field">
+          <label for="new-inner">Layout for the inside pages</label>
+          <select id="new-inner"></select>
+        </div>
       </div>
+      <div style="display:flex;gap:18px;flex-wrap:wrap;font-size:0.85rem;margin-bottom:14px;">
+        <label style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="new-cover" checked> First page is a cover</label>
+        <label style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="new-back"> Last page is a back page</label>
+      </div>
+      <div class="card-sub" style="margin-bottom:14px;">Nothing here is fixed &mdash; add, delete, reorder or re-lay-out any page afterwards. A one-page flyer and a twenty-page issue are both fine.</div>
       <div class="field">
         <label>Theme</label>
         <div class="nl-theme-row" id="new-themes"></div>
@@ -413,11 +446,11 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 
 <!-- ── Add page modal ───────────────────────────────────────── -->
 <div class="modal-overlay" id="modal-page" style="display:none;">
-  <div class="modal-panel" style="max-width:680px;">
+  <div class="modal-panel" style="max-width:840px;">
     <div class="modal-header"><h2>Add a page</h2><button class="modal-close" data-close="modal-page">&times;</button></div>
     <div class="modal-body">
-      <div class="card-sub" style="margin-bottom:14px;">Pick a layout. You can change it later from the right-hand panel.</div>
-      <div class="nl-lay-list" id="page-layouts" style="grid-template-columns:repeat(3,1fr);gap:10px;"></div>
+      <div class="card-sub" style="margin-bottom:14px;">Pick how the page is divided. You can change it later from the right-hand panel, and nothing you have typed is lost when you do.</div>
+      <div class="nl-lay-list" id="page-layouts" style="grid-template-columns:repeat(4,1fr);gap:10px;"></div>
     </div>
     <div class="modal-footer"><button class="btn-secondary" data-close="modal-page">Cancel</button></div>
   </div>
@@ -561,20 +594,57 @@ const THEMES = [
 ];
 
 /* ── Layouts ─────────────────────────────────────────────────────────
-   Every layout is a pure function of its slot map, so switching layouts
-   keeps whatever text already fits and drops nothing silently — slots the
-   new layout doesn't use stay in the model, ready if you switch back.  */
+   A layout is a *structure*, not a subject: how the sheet is divided, and
+   nothing about what goes in it. Columns split the page vertically, rows
+   split it horizontally, and the image layouts do both. Every one is a pure
+   function of the page's slot map, so switching layouts keeps whatever the
+   new structure has room for and leaves the rest in the model — switch back
+   and the text is still there. Nothing is destroyed by trying a layout.     */
 const LAYOUTS = [
-  { key: 'cover',      name: 'Cover' },
-  { key: 'single',     name: 'One column' },
-  { key: 'two-col',    name: 'Two columns' },
-  { key: 'image-left', name: 'Image + text' },
-  { key: 'banner',     name: 'Banner + text' },
-  { key: 'highlights', name: 'Highlights' },
-  { key: 'gallery',    name: 'Photo grid' },
-  { key: 'quote',      name: 'Pull quote' },
-  { key: 'back',       name: 'Back page' }
+  { key: 'col1',     name: '1 column',        group: 'Columns',    cols: [1] },
+  { key: 'col2',     name: '2 columns',       group: 'Columns',    cols: [1, 1] },
+  { key: 'col3',     name: '3 columns',       group: 'Columns',    cols: [1, 1, 1] },
+  { key: 'colNW',    name: 'Narrow + wide',   group: 'Columns',    cols: [1, 2] },
+  { key: 'colWN',    name: 'Wide + narrow',   group: 'Columns',    cols: [2, 1] },
+  { key: 'flow2',    name: 'Text flows, 2 col', group: 'Columns',  flow: 2 },
+  { key: 'flow3',    name: 'Text flows, 3 col', group: 'Columns',  flow: 3 },
+
+  { key: 'row2',     name: '2 bands',         group: 'Horizontal', rows: [1, 1] },
+  { key: 'row3',     name: '3 bands',         group: 'Horizontal', rows: [1, 1, 1] },
+  { key: 'rowWide',  name: 'Tall + short',    group: 'Horizontal', rows: [2, 1] },
+  { key: 'rowCards', name: 'Stacked cards',   group: 'Horizontal', cards: 3 },
+
+  { key: 'imgTop',   name: 'Image across top', group: 'Image',     img: 'top' },
+  { key: 'imgLeft',  name: 'Image left',       group: 'Image',     img: 'left' },
+  { key: 'imgRight', name: 'Image right',      group: 'Image',     img: 'right' },
+  { key: 'imgFull',  name: 'Full-page image',  group: 'Image',     img: 'full' },
+  { key: 'grid4',    name: '2 × 2 photos',     group: 'Image',     grid: [2, 2] },
+  { key: 'grid6',    name: '3 × 2 photos',     group: 'Image',     grid: [3, 2] },
+
+  { key: 'cover',    name: 'Cover',           group: 'Special' },
+  { key: 'quote',    name: 'Pull quote',      group: 'Special' },
+  { key: 'back',     name: 'Back page',       group: 'Special' }
 ];
+const LAYOUT_GROUPS = ['Columns', 'Horizontal', 'Image', 'Special'];
+
+/* The first cut of this app named layouts after what they were *for*
+   ("Highlights", "Photo grid"). Documents saved then still open. */
+const LEGACY_LAYOUTS = {
+  single: 'col1', 'two-col': 'flow2', 'image-left': 'imgLeft',
+  banner: 'imgTop', highlights: 'rowCards', gallery: 'grid4'
+};
+function layoutOf(key) {
+  var k = LEGACY_LAYOUTS[key] || key;
+  return LAYOUTS.find(function (l) { return l.key === k; }) || LAYOUTS[0];
+}
+function migratePages(pages) {
+  (pages || []).forEach(function (p) {
+    p.slots = p.slots || {};
+    p.opts = p.opts || {};
+    if (LEGACY_LAYOUTS[p.layout]) p.layout = LEGACY_LAYOUTS[p.layout];
+  });
+  return pages;
+}
 
 function imgSlot(page, name, extraClass) {
   var url = page.slots[name] || '';
@@ -583,16 +653,78 @@ function imgSlot(page, name, extraClass) {
     : '<span class="nl-imgph">Click to add<br>a picture</span>';
   return '<div class="nl-imgslot ' + (extraClass || '') + '" data-imgslot="' + name + '">' + inner + '</div>';
 }
-function ed(page, name, fallback, tag, cls) {
+function ed(page, name, fallback, tag, cls, style) {
   tag = tag || 'div';
   var html = page.slots[name];
   if (html === undefined || html === null || html === '') html = fallback;
-  return '<' + tag + (cls ? ' class="' + cls + '"' : '') + ' data-slot="' + name + '" contenteditable="true">' + html + '</' + tag + '>';
+  return '<' + tag + (cls ? ' class="' + cls + '"' : '') + (style ? ' style="' + style + '"' : '') +
+    ' data-slot="' + name + '" contenteditable="true">' + html + '</' + tag + '>';
+}
+
+/* The heading is a property of the page, not of the layout — any structural
+   layout can carry one or go straight into the content. */
+function headBlock(page) {
+  if (page.opts && page.opts.head === false) return '';
+  return ed(page, 'eyebrow', 'In this issue', 'div', 'nl-eyebrow') +
+    ed(page, 'title', 'Page heading', 'h2', 'nl-h') +
+    '<div class="nl-underline"></div>';
+}
+
+function bodyFor(L, page) {
+  if (L.cols) {
+    return '<div class="nl-cols">' + L.cols.map(function (w, i) {
+      return '<div class="nl-colcell' + (i && L.cols.length > 1 ? ' ruled' : '') + '" style="flex:' + w + ';">' +
+        ed(page, 'c' + (i + 1), '<p>Click here and type.</p>', 'div', 'nl-text') +
+      '</div>';
+    }).join('') + '</div>';
+  }
+  if (L.flow) {
+    return ed(page, 'body',
+      '<p>Text poured into this layout flows from one column into the next by itself, so a long write-up fills the page evenly without you balancing it by hand.</p>' +
+      '<p>Keep paragraphs short — a newsletter is skimmed more often than it is read.</p>',
+      'div', 'nl-flow', 'column-count:' + L.flow + ';');
+  }
+  if (L.rows) {
+    return '<div class="nl-rows">' + L.rows.map(function (w, i) {
+      return '<div class="nl-rowcell" style="flex:' + w + ';">' +
+        ed(page, 'r' + (i + 1) + 't', 'Section ' + (i + 1), 'h3', 'nl-subh') +
+        ed(page, 'r' + (i + 1) + 'b', '<p>Click here and type.</p>', 'div', 'nl-text') +
+      '</div>';
+    }).join('') + '</div>';
+  }
+  if (L.cards) {
+    var cards = [];
+    for (var n = 1; n <= L.cards; n++) {
+      cards.push('<div class="nl-hl-card">' +
+        ed(page, 'h' + n + 'title', 'Card ' + n, 'h3') +
+        ed(page, 'h' + n + 'body', '<p>One or two lines.</p>', 'div', 'nl-text') +
+      '</div>');
+    }
+    return '<div class="nl-hl">' + cards.join('') + '</div>';
+  }
+  if (L.grid) {
+    var cols = L.grid[0], rows = L.grid[1], cells = [];
+    for (var i = 1; i <= cols * rows; i++) {
+      cells.push('<div class="nl-grid-cell">' + imgSlot(page, 'image' + i) +
+        ed(page, 'cap' + i, 'Caption', 'div', 'nl-gal-cap') + '</div>');
+    }
+    return '<div class="nl-grid" style="grid-template-columns:repeat(' + cols + ',1fr);grid-template-rows:repeat(' + rows + ',1fr);">' +
+      cells.join('') + '</div>';
+  }
+  if (L.img === 'left' || L.img === 'right') {
+    return '<div class="nl-split' + (L.img === 'right' ? ' rev' : '') + '">' + imgSlot(page, 'image') +
+      '<div class="nl-splitbody">' + ed(page, 'c1', '<p>Click here and type.</p>', 'div', 'nl-text') + '</div>' +
+    '</div>';
+  }
+  return ed(page, 'c1', '<p>Click here and type.</p>', 'div', 'nl-text');
 }
 
 function renderPage(page) {
-  var L = page.layout;
-  if (L === 'cover') {
+  page.slots = page.slots || {};
+  page.opts = page.opts || {};
+  var L = layoutOf(page.layout);
+
+  if (L.key === 'cover') {
     return '<div class="nl-cover">' +
       '<div class="nl-cover-top">' + imgSlot(page, 'image') +
         (page.slots.image ? '<div class="nl-cover-scrim"></div>' : '') +
@@ -609,71 +741,7 @@ function renderPage(page) {
       '</div>' +
     '</div>';
   }
-  if (L === 'single') {
-    return '<div class="nl-pad">' +
-      ed(page, 'eyebrow', 'In this issue', 'div', 'nl-eyebrow') +
-      ed(page, 'title', 'From the board', 'h2', 'nl-h') +
-      '<div class="nl-underline"></div>' +
-      ed(page, 'body', '<p>Write your update here. Select any text to make it bold, change its colour, or turn it into a list.</p>', 'div', 'nl-text') +
-    '</div>';
-  }
-  if (L === 'two-col') {
-    return '<div class="nl-pad">' +
-      ed(page, 'eyebrow', 'Community', 'div', 'nl-eyebrow') +
-      ed(page, 'title', 'What happened this month', 'h2', 'nl-h') +
-      '<div class="nl-underline"></div>' +
-      ed(page, 'body', '<p>Two columns suit longer write-ups &mdash; a festival recap, a volunteer round-up, a note from a programme lead. Text flows from the left column into the right on its own.</p><p>Keep paragraphs short; a newsletter is skimmed more often than it is read.</p>', 'div', 'nl-2col') +
-    '</div>';
-  }
-  if (L === 'image-left') {
-    return '<div class="nl-pad">' +
-      ed(page, 'eyebrow', 'Spotlight', 'div', 'nl-eyebrow') +
-      ed(page, 'title', 'A picture and the story behind it', 'h2', 'nl-h') +
-      '<div class="nl-underline"></div>' +
-      '<div class="nl-split">' + imgSlot(page, 'image') +
-        '<div class="nl-splitbody">' +
-          ed(page, 'body', '<p>Put the photograph on the left and the story beside it. Good for a volunteer profile, a new programme, or a thank-you to a donor.</p>', 'div', 'nl-text') +
-        '</div>' +
-      '</div>' +
-    '</div>';
-  }
-  if (L === 'banner') {
-    return '<div class="nl-banner">' + imgSlot(page, 'image') +
-      '<div class="nl-pad">' +
-        ed(page, 'eyebrow', 'Coming up', 'div', 'nl-eyebrow') +
-        ed(page, 'title', 'Save the date', 'h2', 'nl-h') +
-        '<div class="nl-underline"></div>' +
-        ed(page, 'body', '<p>A wide picture across the top, then the details underneath. Best for an event announcement.</p>', 'div', 'nl-text') +
-      '</div>' +
-    '</div>';
-  }
-  if (L === 'highlights') {
-    var cards = [1, 2, 3].map(function (n) {
-      return '<div class="nl-hl-card">' +
-        ed(page, 'h' + n + 'title', 'Highlight ' + n, 'h3') +
-        ed(page, 'h' + n + 'body', '<p>One or two lines about what happened, or what is coming up.</p>', 'div', 'nl-text') +
-      '</div>';
-    }).join('');
-    return '<div class="nl-pad">' +
-      ed(page, 'eyebrow', 'At a glance', 'div', 'nl-eyebrow') +
-      ed(page, 'title', 'Three things to know', 'h2', 'nl-h') +
-      '<div class="nl-underline"></div>' +
-      '<div class="nl-hl">' + cards + '</div>' +
-    '</div>';
-  }
-  if (L === 'gallery') {
-    var cells = [1, 2, 3, 4].map(function (n) {
-      return '<div class="nl-gal-cell">' + imgSlot(page, 'image' + n) +
-        ed(page, 'cap' + n, 'Caption', 'div', 'nl-gal-cap') + '</div>';
-    }).join('');
-    return '<div class="nl-pad">' +
-      ed(page, 'eyebrow', 'Photographs', 'div', 'nl-eyebrow') +
-      ed(page, 'title', 'Moments from the month', 'h2', 'nl-h') +
-      '<div class="nl-underline"></div>' +
-      '<div class="nl-gal">' + cells + '</div>' +
-    '</div>';
-  }
-  if (L === 'quote') {
+  if (L.key === 'quote') {
     return '<div class="nl-pad nl-quote-page">' +
       '<div class="nl-quote-mark">&ldquo;</div>' +
       ed(page, 'quote', 'A temple is not a building. It is what a community does together, week after week.', 'div', 'nl-quote') +
@@ -681,42 +749,74 @@ function renderPage(page) {
       ed(page, 'role', 'President, HCCGC', 'div', 'nl-quote-role') +
     '</div>';
   }
-  /* back */
-  return '<div class="nl-back">' +
-    '<div class="nl-pad nl-back-body">' +
-      ed(page, 'eyebrow', 'Get involved', 'div', 'nl-eyebrow') +
-      ed(page, 'title', 'Thank you', 'h2', 'nl-h') +
-      '<div class="nl-underline"></div>' +
-      ed(page, 'body', '<p>None of this happens without volunteers and donors. If you would like to help with an event, teach a class, or give, we would love to hear from you.</p>', 'div', 'nl-text') +
-      '<div class="nl-back-panel"><div class="nl-back-grid">' +
-        '<div>' + ed(page, 'c1t', 'Visit', 'h3') + ed(page, 'c1b', '<p>4920 Klatte Rd,<br>Cincinnati, OH 45244</p>', 'div') + '</div>' +
-        '<div>' + ed(page, 'c2t', 'Write', 'h3') + ed(page, 'c2b', '<p>info@hccgc.org</p>', 'div') + '</div>' +
-        '<div>' + ed(page, 'c3t', 'Give', 'h3') + ed(page, 'c3b', '<p>hccgc.org/donate-now</p>', 'div') + '</div>' +
-        '<div>' + ed(page, 'c4t', 'Rent the hall', 'h3') + ed(page, 'c4b', '<p>hccgc.org/facility-rental</p>', 'div') + '</div>' +
-      '</div></div>' +
-    '</div>' +
-    '<div class="nl-footer-bar">' +
-      ed(page, 'footL', 'Hindu Community Center of Greater Cincinnati', 'div') +
-      ed(page, 'footR', 'hccgc.org', 'div') +
-    '</div>' +
-  '</div>';
+  if (L.key === 'back') {
+    return '<div class="nl-back">' +
+      '<div class="nl-pad nl-back-body">' + headBlock(page) +
+        ed(page, 'body', '<p>None of this happens without volunteers and donors. If you would like to help with an event, teach a class, or give, we would love to hear from you.</p>', 'div', 'nl-text') +
+        '<div class="nl-back-panel"><div class="nl-back-grid">' +
+          '<div>' + ed(page, 'c1t', 'Visit', 'h3') + ed(page, 'c1b', '<p>4920 Klatte Rd,<br>Cincinnati, OH 45244</p>', 'div') + '</div>' +
+          '<div>' + ed(page, 'c2t', 'Write', 'h3') + ed(page, 'c2b', '<p>info@hccgc.org</p>', 'div') + '</div>' +
+          '<div>' + ed(page, 'c3t', 'Give', 'h3') + ed(page, 'c3b', '<p>hccgc.org/donate-now</p>', 'div') + '</div>' +
+          '<div>' + ed(page, 'c4t', 'Rent the hall', 'h3') + ed(page, 'c4b', '<p>hccgc.org/facility-rental</p>', 'div') + '</div>' +
+        '</div></div>' +
+      '</div>' +
+      '<div class="nl-footer-bar">' +
+        ed(page, 'footL', 'Hindu Community Center of Greater Cincinnati', 'div') +
+        ed(page, 'footR', 'hccgc.org', 'div') +
+      '</div>' +
+    '</div>';
+  }
+  if (L.img === 'full') {
+    return '<div class="nl-full">' + imgSlot(page, 'image') +
+      '<div class="nl-full-cap">' + ed(page, 'caption', 'A photograph that speaks for itself.', 'div') + '</div>' +
+    '</div>';
+  }
+  if (L.img === 'top') {
+    return '<div class="nl-banner">' + imgSlot(page, 'image') + '</div>' +
+      '<div class="nl-pad nl-flex" style="padding-top:38px;">' + headBlock(page) + bodyFor(L, page) + '</div>';
+  }
+  return '<div class="nl-pad nl-flex">' + headBlock(page) + bodyFor(L, page) + '</div>';
 }
 
-/* Thumbnail schematic — cheap to draw and instantly recognisable, which a
-   scaled-down clone of the real page is not at 110px wide. */
-function thumbSkeleton(layout) {
-  var b = '<i></i><i></i><i></i>';
-  switch (layout) {
-    case 'cover':      return '<i class="img"></i><i class="t"></i><i></i><i></i>';
-    case 'two-col':    return '<i class="t"></i><div class="row"><div>' + b + '</div><div>' + b + '</div></div>';
-    case 'image-left': return '<i class="t"></i><div class="row"><div><i class="img"></i></div><div>' + b + '</div></div>';
-    case 'banner':     return '<i class="img" style="max-height:34px;flex:0 0 34px;"></i><i class="t"></i>' + b;
-    case 'highlights': return '<i class="t"></i><i class="img" style="min-height:18px;"></i><i class="img" style="min-height:18px;"></i><i class="img" style="min-height:18px;"></i>';
-    case 'gallery':    return '<i class="t"></i><div class="row"><div><i class="img"></i><i></i></div><div><i class="img"></i><i></i></div></div>';
-    case 'quote':      return '<i></i><i class="t"></i><i class="t"></i><i></i><i></i>';
-    case 'back':       return '<i class="t"></i>' + b + '<i class="img" style="min-height:22px;"></i>';
-    default:           return '<i class="t"></i>' + b + b;
+/* Thumbnail schematic, derived from the layout spec rather than hand-drawn —
+   a scaled clone of the real page is unreadable at 110px wide. */
+function thumbSkeleton(key) {
+  var L = layoutOf(key);
+  var bars = '<i></i><i></i><i></i>';
+  var t = '<i class="t"></i>';
+  if (L.key === 'cover') return '<i class="img"></i>' + t + '<i></i><i></i>';
+  if (L.key === 'quote') return '<i></i>' + t + t + '<i></i><i></i>';
+  if (L.key === 'back')  return t + bars + '<i class="img" style="min-height:22px;"></i>';
+  if (L.cols) {
+    return t + '<div class="row">' + L.cols.map(function (w) {
+      return '<div style="flex:' + w + ';">' + bars + '</div>';
+    }).join('') + '</div>';
   }
+  if (L.flow) {
+    var c = [];
+    for (var i = 0; i < L.flow; i++) c.push('<div>' + bars + '</div>');
+    return t + '<div class="row">' + c.join('') + '</div>';
+  }
+  if (L.rows) {
+    return t + L.rows.map(function (w) {
+      return '<div style="flex:' + w + ';display:flex;flex-direction:column;gap:3px;"><i class="t" style="height:7px;"></i><i></i><i></i></div>';
+    }).join('');
+  }
+  if (L.cards) return t + '<i class="img" style="min-height:16px;"></i><i class="img" style="min-height:16px;"></i><i class="img" style="min-height:16px;"></i>';
+  if (L.grid) {
+    var rowsHtml = '';
+    for (var r = 0; r < L.grid[1]; r++) {
+      var cells = '';
+      for (var cI = 0; cI < L.grid[0]; cI++) cells += '<div><i class="img"></i></div>';
+      rowsHtml += '<div class="row">' + cells + '</div>';
+    }
+    return t + rowsHtml;
+  }
+  if (L.img === 'full') return '<i class="img" style="flex:1;"></i>';
+  if (L.img === 'top')  return '<i class="img" style="max-height:32px;flex:0 0 32px;"></i>' + t + bars;
+  if (L.img === 'left') return t + '<div class="row"><div><i class="img"></i></div><div>' + bars + '</div></div>';
+  if (L.img === 'right') return t + '<div class="row"><div>' + bars + '</div><div><i class="img"></i></div></div>';
+  return t + bars + bars;
 }
 
 /* ── State ───────────────────────────────────────────────────────── */
@@ -741,14 +841,19 @@ function say(msg, kind) {
 }
 function markDirty() { DIRTY = true; }
 
-function blankPage(layout) { return { layout: layout, slots: {} }; }
+function blankPage(layout) { return { layout: layout || 'col1', slots: {}, opts: {} }; }
 
-const STARTERS = [
-  { key: 'full',    name: 'Full issue (5 pages)', pages: ['cover', 'single', 'highlights', 'gallery', 'back'] },
-  { key: 'short',   name: 'Short issue (3 pages)', pages: ['cover', 'two-col', 'back'] },
-  { key: 'event',   name: 'Event announcement',    pages: ['cover', 'banner', 'back'] },
-  { key: 'blank',   name: 'Blank (cover only)',    pages: ['cover'] }
-];
+/* Build the starting page list from a count, not from a fixed template — a
+   two-page flyer is as ordinary a newsletter as a twelve-page issue. */
+function startingPages(count, wantCover, wantBack, innerLayout) {
+  count = Math.max(1, Math.min(60, Number(count) || 1));
+  var out = [];
+  if (wantCover) out.push(blankPage('cover'));
+  if (wantBack && count > out.length) out.push(blankPage('back'));
+  var inner = count - out.length;
+  for (var i = 0; i < inner; i++) out.splice(wantCover ? 1 + i : i, 0, blankPage(innerLayout));
+  return out.slice(0, count);
+}
 
 /* ── Rendering ───────────────────────────────────────────────────── */
 function renderCanvas() {
@@ -781,10 +886,21 @@ function renderThumbs() {
 }
 
 function renderLayoutButtons() {
-  document.getElementById('nl-layouts').innerHTML = LAYOUTS.map(function (l) {
-    var on = DOC.pages[PAGE_I] && DOC.pages[PAGE_I].layout === l.key;
-    return '<button class="nl-lay-btn' + (on ? ' active' : '') + '" data-setlayout="' + l.key + '">' + escHtml(l.name) + '</button>';
+  var page = DOC.pages[PAGE_I] || {};
+  var cur = layoutOf(page.layout).key;
+  document.getElementById('nl-layouts').innerHTML = LAYOUT_GROUPS.map(function (g) {
+    var items = LAYOUTS.filter(function (l) { return l.group === g; });
+    if (!items.length) return '';
+    return '<div class="nl-lay-group">' + escHtml(g) + '</div>' + items.map(function (l) {
+      return '<button class="nl-lay-btn' + (l.key === cur ? ' active' : '') + '" data-setlayout="' + l.key + '">' + escHtml(l.name) + '</button>';
+    }).join('');
   }).join('');
+
+  var L = layoutOf(page.layout);
+  var wrap = document.getElementById('nl-head-toggle-wrap');
+  var canHead = !(L.key === 'cover' || L.key === 'quote' || L.img === 'full');
+  wrap.style.display = canHead ? 'flex' : 'none';
+  document.getElementById('nl-head-toggle').checked = !(page.opts && page.opts.head === false);
 }
 
 function renderThemeChips(containerId, current, attr) {
@@ -1004,6 +1120,14 @@ document.getElementById('nl-themes').addEventListener('click', function (e) {
 document.getElementById('nl-title').addEventListener('input', function () {
   if (DOC) { DOC.title = this.value; markDirty(); }
 });
+document.getElementById('nl-head-toggle').addEventListener('change', function () {
+  if (!DOC) return;
+  syncFromDom();
+  DOC.pages[PAGE_I].opts = DOC.pages[PAGE_I].opts || {};
+  DOC.pages[PAGE_I].opts.head = this.checked;
+  markDirty();
+  renderCanvas();
+});
 
 /* ── Modals ──────────────────────────────────────────────────────── */
 function openModal(id) { document.getElementById(id).style.display = 'flex'; }
@@ -1098,7 +1222,7 @@ async function openDoc(id) {
   if (!snap.exists()) { alert('That newsletter no longer exists.'); loadLibrary(); return; }
   var d = snap.data();
   DOC = { id: id, title: d.title || 'Untitled', theme: d.theme || 'saffron', pages: (d.pages && d.pages.length ? d.pages : [blankPage('cover')]) };
-  DOC.pages.forEach(function (p) { p.slots = p.slots || {}; });
+  migratePages(DOC.pages);
   PAGE_I = 0; DIRTY = false;
   document.getElementById('nl-title').value = DOC.title;
   renderThemeChips('nl-themes', DOC.theme, 'data-theme');
@@ -1115,17 +1239,15 @@ function showEditor(on) {
 document.getElementById('btn-lib-refresh').addEventListener('click', loadLibrary);
 document.getElementById('btn-new').addEventListener('click', function () {
   document.getElementById('new-title').value = monthYear() + ' Newsletter';
-  document.getElementById('new-starters').innerHTML = STARTERS.map(function (s, i) {
-    return '<button class="nl-lay-btn' + (i === 0 ? ' active' : '') + '" data-starter="' + s.key + '">' + escHtml(s.name) + '</button>';
+  document.getElementById('new-inner').innerHTML = LAYOUT_GROUPS.map(function (g) {
+    var items = LAYOUTS.filter(function (l) { return l.group === g && l.key !== 'cover' && l.key !== 'back'; });
+    if (!items.length) return '';
+    return '<optgroup label="' + escHtml(g) + '">' + items.map(function (l) {
+      return '<option value="' + l.key + '"' + (l.key === 'col1' ? ' selected' : '') + '>' + escHtml(l.name) + '</option>';
+    }).join('') + '</optgroup>';
   }).join('');
   renderThemeChips('new-themes', 'saffron', 'data-newtheme');
   openModal('modal-new');
-});
-document.getElementById('new-starters').addEventListener('click', function (e) {
-  var b = e.target.closest('[data-starter]');
-  if (!b) return;
-  this.querySelectorAll('.nl-lay-btn').forEach(function (x) { x.classList.remove('active'); });
-  b.classList.add('active');
 });
 document.getElementById('new-themes').addEventListener('click', function (e) {
   var b = e.target.closest('[data-newtheme]');
@@ -1136,15 +1258,19 @@ document.getElementById('new-themes').addEventListener('click', function (e) {
 document.getElementById('btn-create').addEventListener('click', async function () {
   var f = fb();
   var title = document.getElementById('new-title').value.trim() || (monthYear() + ' Newsletter');
-  var starterKey = (document.querySelector('#new-starters .nl-lay-btn.active') || {}).dataset;
-  var starter = STARTERS.find(function (s) { return s.key === (starterKey ? starterKey.starter : 'full'); }) || STARTERS[0];
+  var pages = startingPages(
+    document.getElementById('new-count').value,
+    document.getElementById('new-cover').checked,
+    document.getElementById('new-back').checked,
+    document.getElementById('new-inner').value
+  );
   var themeBtn = document.querySelector('#new-themes .nl-theme-chip.active');
   var theme = themeBtn ? themeBtn.dataset.newtheme : 'saffron';
   this.disabled = true;
   try {
     var ref = await f.addDoc(f.collection(f.db, 'newsletters'), {
       title: title, theme: theme,
-      pages: starter.pages.map(blankPage),
+      pages: pages,
       createdAt: f.serverTimestamp(), updatedAt: f.serverTimestamp(),
       createdBy: window.__hccgcCurrentUser.email, updatedBy: window.__hccgcCurrentUser.email
     });
@@ -1451,11 +1577,15 @@ async function loadHistory() {
 document.getElementById('btn-hist-refresh').addEventListener('click', loadHistory);
 
 /* Populate the add-page layout picker once. */
-document.getElementById('page-layouts').innerHTML = LAYOUTS.map(function (l) {
-  return '<button class="nl-lay-btn" data-addlayout="' + l.key + '" style="padding:14px 8px;">' +
-    '<div style="border:1px solid var(--border);border-radius:6px;height:66px;margin-bottom:8px;background:#fff;overflow:hidden;">' +
-      '<div class="sk" style="height:66px;padding:5px;display:flex;flex-direction:column;gap:3px;">' + thumbSkeleton(l.key) + '</div>' +
-    '</div>' + escHtml(l.name) + '</button>';
+document.getElementById('page-layouts').innerHTML = LAYOUT_GROUPS.map(function (g) {
+  var items = LAYOUTS.filter(function (l) { return l.group === g; });
+  if (!items.length) return '';
+  return '<div class="nl-lay-group">' + escHtml(g) + '</div>' + items.map(function (l) {
+    return '<button class="nl-lay-btn nl-thumb" data-addlayout="' + l.key + '" style="padding:0;border-radius:9px;cursor:pointer;">' +
+      '<div class="sk" style="height:80px;">' + thumbSkeleton(l.key) + '</div>' +
+      '<div class="cap" style="justify-content:center;">' + escHtml(l.name) + '</div>' +
+    '</button>';
+  }).join('');
 }).join('');
 
 function nlBoot() {

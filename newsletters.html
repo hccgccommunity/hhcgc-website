@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Newsletter — Hindu Community Center of Greater Cincinnati</title>
+<meta name="description" content="Read the HCCGC newsletter — news, events and gratitude from the Hindu Community Center of Greater Cincinnati.">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#8d3e0d">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F5ZHQ4CDR9');</script>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-TPBF5VKB');</script>
+<style>
+:root {
+  --bg: #fff9f1; --surface: #ffffff; --surface-soft: #fff6ea; --border: rgba(121,62,17,0.14);
+  --text: #2c1b10; --muted: #6a5141; --saffron: #b55a18; --saffron-dark: #8d3e0d; --maroon: #7f2e16;
+  --radius: 22px; --shadow: 0 18px 45px rgba(93,43,14,0.10);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%), radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%), var(--bg); color: var(--text); min-height: 100vh; }
+.container { width: min(calc(100% - 32px), 1100px); margin: 0 auto; }
+.site-header { position: sticky; top: 0; z-index: 50; background: rgba(255,249,241,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 92px; padding: 12px 0; }
+.site-header a.brand, .site-header a.brand:link, .site-header a.brand:visited { text-decoration: none; color: inherit; }
+.brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.brand-logo-wrap { background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 8px; box-shadow: var(--shadow); flex-shrink: 0; }
+.brand-logo { width: 88px; height: auto; border-radius: 12px; object-fit: contain; }
+.brand-text h1 { margin: 0; font-size: 1.2rem; line-height: 1.15; color: var(--maroon); }
+.site-header nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 18px; margin: 0; padding: 0; align-items: center; justify-content: flex-end; }
+.site-header nav a, .site-header nav a:link, .site-header nav a:visited { font-weight: 700; color: var(--text); font-size: 0.96rem; text-decoration: none; }
+.site-header nav a:hover { color: var(--saffron-dark); }
+.menu-toggle { display: none; border: 0; background: transparent; padding: 6px 0; cursor: pointer; color: #2c1b10; align-self: flex-end; }
+.menu-toggle .bar { display: block; width: 26px; height: 2px; margin: 5px 0; background: currentColor; }
+@media (max-width: 768px) {
+  .nav { flex-direction: column; align-items: stretch; gap: 8px; } .menu-toggle { display: inline-block; }
+  .site-header nav { display: none; width: 100%; background: rgba(255,249,241,0.95); padding: 10px 0; }
+  .site-header nav.is-open { display: block; } .site-header nav ul { flex-direction: column; gap: 14px; }
+}
+.page-hero { padding: 42px 0 34px; background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%); color: #fff; }
+.page-hero h1 { font-family: Georgia, "Times New Roman", serif; font-size: 2rem; color: #fff; margin-bottom: 8px; }
+.page-hero p { color: #fff; opacity: 0.9; font-size: 0.95rem; max-width: 620px; }
+.back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.85); text-decoration: none; margin-bottom: 14px; }
+.back-link:hover { color: #fff; text-decoration: underline; }
+
+.pub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; padding: 34px 0 70px; }
+.pub-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column; text-decoration: none; color: inherit; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.pub-card:hover { transform: translateY(-3px); box-shadow: 0 22px 50px rgba(93,43,14,0.16); }
+.pub-cover { height: 200px; background: linear-gradient(135deg, var(--maroon), #4e1a09); background-size: cover; background-position: center; position: relative; }
+.pub-cover::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.45)); }
+.pub-body { padding: 16px 18px 20px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.pub-body h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.12rem; color: var(--maroon); line-height: 1.25; }
+.pub-date { font-size: 0.78rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.pub-sum { font-size: 0.88rem; color: var(--muted); line-height: 1.55; }
+.pub-read { margin-top: auto; padding-top: 10px; font-size: 0.85rem; font-weight: 800; color: var(--saffron-dark); }
+
+.issue-bar { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding: 22px 0 6px; }
+.issue-bar h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.25rem; color: var(--maroon); }
+.issue-bar .meta { font-size: 0.8rem; color: var(--muted); }
+.btn-primary { font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; font-weight: 700; color: #fff; background: linear-gradient(135deg, var(--saffron-dark), var(--maroon)); border: none; border-radius: 10px; padding: 11px 18px; cursor: pointer; text-decoration: none; display: inline-block; }
+.btn-primary:disabled { opacity: 0.55; cursor: default; }
+.btn-secondary { font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; font-weight: 700; color: var(--text); background: #fff; border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 16px; cursor: pointer; text-decoration: none; display: inline-block; }
+.empty-state { text-align: center; padding: 70px 20px; color: var(--muted); }
+.issue-wrap { padding: 10px 0 70px; }
+.pdf-note { font-size: 0.78rem; color: var(--muted); margin-top: 10px; }
+
+/* The page renderer's own stylesheet, byte-for-byte the admin editor's, so a
+   published issue and its PDF cannot drift apart. */
+.nl-canvas { display: flex; flex-direction: column; align-items: center; gap: 26px; padding-bottom: 20px; }
+.nl-page-wrap { position: relative; }
+.nl-page-num { position: absolute; left: -30px; top: 0; font-size: 0.72rem; font-weight: 800; color: var(--muted); }
+.nl-page-wrap { scroll-margin-top: 150px; }
+.nl-page {
+  width: 816px; height: 1056px; background: #fff; position: relative; overflow: hidden;
+  box-shadow: 0 12px 34px rgba(93,43,14,0.18); transform-origin: top left;
+  color: #241a13; font-family: var(--bf); line-height: 1.55;
+}
+.nl-page.focused { outline: 3px solid rgba(181,90,24,0.45); outline-offset: 2px; }
+
+/* Themes */
+.nl-t-saffron { --a: #b55a18; --d: #7f2e16; --soft: #fdf1e3; --ink: #241a13; --hf: Georgia, "Times New Roman", serif; --bf: Arial, Helvetica, sans-serif; }
+.nl-t-indigo  { --a: #4a4a9c; --d: #262657; --soft: #eeeef8; --ink: #1d1d2b; --hf: Georgia, "Times New Roman", serif; --bf: Arial, Helvetica, sans-serif; }
+.nl-t-forest  { --a: #2e7d4f; --d: #1b4b30; --soft: #eaf5ee; --ink: #16241c; --hf: Georgia, "Times New Roman", serif; --bf: Arial, Helvetica, sans-serif; }
+.nl-t-slate   { --a: #4b5563; --d: #1f2937; --soft: #f1f3f5; --ink: #1f2530; --hf: "Helvetica Neue", Arial, sans-serif; --bf: Arial, Helvetica, sans-serif; }
+
+.nl-pad { padding: 62px 66px; }
+.nl-page h1, .nl-page h2, .nl-page h3 { font-family: var(--hf); color: var(--d); line-height: 1.18; }
+.nl-page a { color: var(--a); }
+.nl-page ul, .nl-page ol { padding-left: 22px; margin: 8px 0; }
+.nl-page p { margin: 0 0 10px; }
+
+[data-slot] { outline: none; }
+.nl-editing [data-slot]:hover { background: rgba(181,90,24,0.06); border-radius: 4px; }
+.nl-editing [data-slot]:focus { background: rgba(181,90,24,0.09); box-shadow: 0 0 0 2px rgba(181,90,24,0.25); border-radius: 4px; }
+
+/* Image slots */
+.nl-imgslot { position: relative; background: var(--soft); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.nl-imgslot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.nl-imgph { font-size: 0.82rem; font-weight: 700; color: var(--a); text-align: center; padding: 10px; font-family: Arial, Helvetica, sans-serif; }
+.nl-editing .nl-imgslot { cursor: pointer; }
+.nl-editing .nl-imgslot:hover { box-shadow: inset 0 0 0 3px var(--a); }
+.nl-printing .nl-imgph { display: none; }
+
+/* Cover */
+.nl-cover { height: 1056px; display: flex; flex-direction: column; }
+.nl-cover-top { height: 560px; position: relative; }
+.nl-cover-top .nl-imgslot { position: absolute; inset: 0; }
+.nl-cover-scrim { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.05) 45%, rgba(0,0,0,0.42) 100%); }
+.nl-cover-badge { position: absolute; top: 40px; left: 66px; z-index: 2; background: var(--d); color: #fff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; padding: 9px 18px; border-radius: 999px; font-family: Arial, Helvetica, sans-serif; }
+.nl-cover-bottom { flex: 1; padding: 46px 66px 56px; display: flex; flex-direction: column; }
+.nl-cover-rule { height: 7px; background: linear-gradient(90deg, var(--a), var(--d)); }
+.nl-cover-bottom h1 { font-size: 3.1rem; margin-bottom: 16px; }
+.nl-cover-sub { font-size: 1.12rem; color: #4b3a2d; line-height: 1.5; max-width: 600px; }
+.nl-cover-foot { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; font-size: 0.92rem; color: var(--a); font-weight: 700; gap: 20px; }
+
+/* Section header used on inner pages */
+.nl-eyebrow { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--a); margin-bottom: 10px; font-family: Arial, Helvetica, sans-serif; }
+.nl-h { font-size: 2rem; margin-bottom: 8px; }
+.nl-underline { width: 74px; height: 4px; background: var(--a); border-radius: 2px; margin-bottom: 24px; }
+.nl-text { font-size: 1rem; color: #3a2c22; }
+
+/* Structural regions. A page is a flex column: the heading takes what it needs
+   and the body region gets the rest, so a column or band actually fills the
+   sheet instead of collapsing to the height of its text. */
+.nl-pad.nl-flex { display: flex; flex-direction: column; }
+.nl-cols { display: flex; gap: 30px; flex: 1; align-items: stretch; min-height: 0; }
+.nl-colcell { display: flex; flex-direction: column; min-width: 0; }
+.nl-colcell.ruled { border-left: 2px solid var(--soft); padding-left: 26px; }
+.nl-rows { display: flex; flex-direction: column; gap: 22px; flex: 1; min-height: 0; }
+.nl-rowcell { display: flex; flex-direction: column; min-width: 0; }
+.nl-rowcell + .nl-rowcell { border-top: 2px solid var(--soft); padding-top: 20px; }
+.nl-subh { font-size: 1.3rem; margin-bottom: 6px; }
+.nl-flow { column-gap: 34px; font-size: 1rem; color: #3a2c22; flex: 1; }
+.nl-flow p:first-child { margin-top: 0; }
+
+/* Layout: image beside text */
+.nl-split { display: flex; gap: 30px; align-items: flex-start; flex: 1; }
+.nl-split.rev { flex-direction: row-reverse; }
+.nl-split .nl-imgslot { width: 316px; height: 420px; border-radius: 10px; flex-shrink: 0; }
+.nl-split .nl-splitbody { flex: 1; min-width: 0; }
+
+/* Layout: banner + full page image */
+.nl-banner .nl-imgslot { width: 100%; height: 340px; }
+.nl-full { position: absolute; inset: 0; }
+.nl-full > .nl-imgslot { position: absolute; inset: 0; }
+.nl-full-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 44px 66px; color: #fff;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.66) 100%); font-family: var(--hf); font-size: 1.5rem; line-height: 1.35; }
+
+/* Layout: photo grid */
+.nl-grid { display: grid; gap: 20px; flex: 1; min-height: 0; }
+.nl-grid-cell { display: flex; flex-direction: column; min-height: 0; }
+.nl-grid-cell .nl-imgslot { width: 100%; flex: 1; min-height: 120px; border-radius: 10px; }
+
+/* Layout: stacked cards */
+.nl-hl { display: flex; flex-direction: column; gap: 18px; }
+.nl-hl-card { border: 2px solid var(--soft); border-left: 7px solid var(--a); border-radius: 10px; padding: 20px 24px; background: #fff; }
+.nl-hl-card h3 { font-size: 1.24rem; margin-bottom: 6px; }
+.nl-hl-card .nl-text { font-size: 0.96rem; }
+
+.nl-gal-cap { font-size: 0.86rem; color: #5d4b3d; margin-top: 8px; text-align: center; font-style: italic; }
+
+/* Layout: quote */
+.nl-quote-page { display: flex; flex-direction: column; justify-content: center; height: 1056px; }
+.nl-quote { font-family: var(--hf); font-size: 2.05rem; line-height: 1.42; color: var(--d); }
+.nl-quote-mark { font-family: Georgia, serif; font-size: 6rem; color: var(--a); line-height: 0.6; margin-bottom: 6px; }
+.nl-quote-by { margin-top: 26px; font-size: 1rem; font-weight: 700; color: var(--a); }
+.nl-quote-role { font-size: 0.9rem; color: #6a5141; }
+
+/* Layout: back page */
+.nl-back { height: 1056px; display: flex; flex-direction: column; }
+.nl-back-body { flex: 1; }
+.nl-back-panel { background: var(--soft); border-radius: 14px; padding: 28px 30px; margin-top: 22px; }
+.nl-back-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; font-size: 0.95rem; }
+.nl-back-grid h3 { font-size: 1rem; margin-bottom: 4px; }
+.nl-footer-bar { background: var(--d); color: #fff; padding: 22px 66px; font-size: 0.86rem; display: flex; justify-content: space-between; gap: 20px; }
+.nl-footer-bar * { color: #fff !important; }
+
+/* Full-bleed photo cover / back page: the picture fills the sheet and the
+   words sit on top of it. The scrim is aimed at wherever the text sits —
+   a fixed one is either too heavy for a dark photo or too light for a
+   bright one, and nobody vets a photograph for contrast before using it. */
+.nl-bleed { position: absolute; inset: 0; }
+.nl-bleed > .nl-imgslot { position: absolute; inset: 0; }
+.nl-bleed-scrim { position: absolute; inset: 0; pointer-events: none; }
+/* The overlay covers the whole sheet, so it would otherwise swallow every
+   click meant for the photograph underneath and leave the picture
+   unchangeable once the layout was switched on. Only the text blocks
+   themselves take the pointer; the empty space hands it back to the image. */
+.nl-bleed-inner { position: absolute; inset: 0; z-index: 2; padding: 76px 66px; display: flex; flex-direction: column; pointer-events: none; }
+.nl-bleed-inner > * { pointer-events: auto; }
+.nl-bleed-inner.pos-top { justify-content: flex-start; }
+.nl-bleed-inner.pos-middle { justify-content: center; }
+.nl-bleed-inner.pos-bottom { justify-content: flex-end; }
+.nl-bleed-inner, .nl-bleed-inner h1, .nl-bleed-inner h2, .nl-bleed-inner h3 { color: #fff; }
+.nl-bleed-inner h1 { font-size: 3.1rem; margin-bottom: 16px; }
+.nl-bleed-inner .nl-cover-sub { color: rgba(255,255,255,0.93); }
+.nl-bleed-inner .nl-eyebrow { color: #ffd9ab; }
+.nl-bleed-inner .nl-underline { background: #fff; }
+.nl-bleed-inner .nl-text { color: rgba(255,255,255,0.94); }
+.nl-bleed-inner .nl-cover-foot { color: #fff; margin-top: 26px; }
+.nl-bleed-badge { align-self: flex-start; background: rgba(0,0,0,0.42); border: 1.5px solid rgba(255,255,255,0.55);
+  color: #fff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase;
+  padding: 9px 18px; border-radius: 999px; font-family: Arial, Helvetica, sans-serif; margin-bottom: 22px; }
+.nl-bleed-panel { background: rgba(0,0,0,0.40); border: 1px solid rgba(255,255,255,0.26); border-radius: 14px; padding: 24px 26px; margin-top: 22px; }
+.nl-bleed-panel *, .nl-bleed-panel { color: #fff !important; }
+
+/* Read-only adjustments: no editing affordances, no empty-slot prompts. */
+.nl-imgph { display: none; }
+.nl-page { box-shadow: 0 12px 34px rgba(93,43,14,0.16); }
+.nl-page-wrap { scroll-margin-top: 0; }
+</style>
+</head>
+<body>
+<div id="site-header"></div>
+
+<div class="page-hero">
+  <div class="container">
+    <a class="back-link" id="hero-back" href="/newsletters" style="display:none;">&larr; All issues</a>
+    <h1 id="hero-title">Newsletter</h1>
+    <p id="hero-sub">News, events and gratitude from the Hindu Community Center of Greater Cincinnati.</p>
+  </div>
+</div>
+
+<div class="container">
+  <div id="index-view">
+    <div id="pub-list"><div class="empty-state">Loading&hellip;</div></div>
+  </div>
+
+  <div id="issue-view" style="display:none;">
+    <div class="issue-bar">
+      <div>
+        <h2 id="issue-title"></h2>
+        <div class="meta" id="issue-meta"></div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <a class="btn-secondary" href="/newsletters">All issues</a>
+        <button class="btn-primary" id="btn-pdf">Download PDF</button>
+      </div>
+    </div>
+    <div class="pdf-note" id="pdf-note"></div>
+    <div class="issue-wrap"><div class="nl-canvas" id="nl-canvas"></div></div>
+  </div>
+</div>
+
+<div id="site-footer"></div>
+
+<script>
+function loadPartial(id, url) {
+  var target = document.getElementById(id);
+  if (!target) return;
+  fetch(url).then(function (r) { return r.text(); }).then(function (html) {
+    target.innerHTML = html;
+    if (id === 'site-header') fixHeaderLinksForSubfolder(target);
+  }).catch(function () {});
+}
+function fixHeaderLinksForSubfolder(headerEl) {
+  var logo = headerEl.querySelector('.brand-logo');
+  if (logo && logo.getAttribute('src') && !logo.getAttribute('src').startsWith('/') && !logo.getAttribute('src').startsWith('http')) {
+    logo.setAttribute('src', '/' + logo.getAttribute('src'));
+  }
+  headerEl.querySelectorAll('a[href]').forEach(function (link) {
+    var href = link.getAttribute('href');
+    if (!href || href.startsWith('http') || href.startsWith('/') || href.startsWith('#')) return;
+    link.setAttribute('href', '/' + href);
+  });
+}
+loadPartial('site-header', '/header.html');
+loadPartial('site-footer', '/footer.html');
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/service-worker.js').catch(function () {});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   Public newsletter reader.
+
+   Reads `publishedNewsletters` — a separate collection from the staff-only
+   `newsletters` drafts, so publishing is an explicit copy and an unfinished
+   issue can never leak. The page renderer below is lifted verbatim from the
+   admin editor at build time, which is what makes what a visitor reads and
+   what the PDF contains the same thing rather than two implementations that
+   agree for a while.
+   ═══════════════════════════════════════════════════════════════════ */
+function escHtml(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function monthYear() {
+  return new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+}
+function fmtDate(v) {
+  if (!v) return '';
+  var d = v.toDate ? v.toDate() : new Date(v);
+  if (isNaN(d)) return '';
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+/* ── Layouts ─────────────────────────────────────────────────────────
+   A layout is a *structure*, not a subject: how the sheet is divided, and
+   nothing about what goes in it. Columns split the page vertically, rows
+   split it horizontally, and the image layouts do both. Every one is a pure
+   function of the page's slot map, so switching layouts keeps whatever the
+   new structure has room for and leaves the rest in the model — switch back
+   and the text is still there. Nothing is destroyed by trying a layout.     */
+const LAYOUTS = [
+  { key: 'col1',     name: '1 column',        group: 'Columns',    cols: [1] },
+  { key: 'col2',     name: '2 columns',       group: 'Columns',    cols: [1, 1] },
+  { key: 'col3',     name: '3 columns',       group: 'Columns',    cols: [1, 1, 1] },
+  { key: 'colNW',    name: 'Narrow + wide',   group: 'Columns',    cols: [1, 2] },
+  { key: 'colWN',    name: 'Wide + narrow',   group: 'Columns',    cols: [2, 1] },
+  { key: 'flow2',    name: 'Text flows, 2 col', group: 'Columns',  flow: 2 },
+  { key: 'flow3',    name: 'Text flows, 3 col', group: 'Columns',  flow: 3 },
+
+  { key: 'row2',     name: '2 bands',         group: 'Horizontal', rows: [1, 1] },
+  { key: 'row3',     name: '3 bands',         group: 'Horizontal', rows: [1, 1, 1] },
+  { key: 'rowWide',  name: 'Tall + short',    group: 'Horizontal', rows: [2, 1] },
+  { key: 'rowCards', name: 'Stacked cards',   group: 'Horizontal', cards: 3 },
+
+  { key: 'imgTop',   name: 'Image across top', group: 'Image',     img: 'top' },
+  { key: 'imgLeft',  name: 'Image left',       group: 'Image',     img: 'left' },
+  { key: 'imgRight', name: 'Image right',      group: 'Image',     img: 'right' },
+  { key: 'imgFull',  name: 'Full-page image',  group: 'Image',     img: 'full' },
+  { key: 'grid4',    name: '2 × 2 photos',     group: 'Image',     grid: [2, 2] },
+  { key: 'grid6',    name: '3 × 2 photos',     group: 'Image',     grid: [3, 2] },
+
+  { key: 'cover',    name: 'Cover',           group: 'Special' },
+  { key: 'quote',    name: 'Pull quote',      group: 'Special' },
+  { key: 'back',     name: 'Back page',       group: 'Special' }
+];
+const LAYOUT_GROUPS = ['Columns', 'Horizontal', 'Image', 'Special'];
+
+/* The first cut of this app named layouts after what they were *for*
+   ("Highlights", "Photo grid"). Documents saved then still open. */
+const LEGACY_LAYOUTS = {
+  single: 'col1', 'two-col': 'flow2', 'image-left': 'imgLeft',
+  banner: 'imgTop', highlights: 'rowCards', gallery: 'grid4'
+};
+function layoutOf(key) {
+  var k = LEGACY_LAYOUTS[key] || key;
+  return LAYOUTS.find(function (l) { return l.key === k; }) || LAYOUTS[0];
+}
+function migratePages(pages) {
+  (pages || []).forEach(function (p) {
+    p.slots = p.slots || {};
+    p.opts = p.opts || {};
+    if (LEGACY_LAYOUTS[p.layout]) p.layout = LEGACY_LAYOUTS[p.layout];
+  });
+  return pages;
+}
+
+function imgSlot(page, name, extraClass) {
+  var url = page.slots[name] || '';
+  var inner = url
+    ? '<img src="' + escHtml(url) + '" alt="">'
+    : '<span class="nl-imgph">Click to add<br>a picture</span>';
+  return '<div class="nl-imgslot ' + (extraClass || '') + '" data-imgslot="' + name + '">' + inner + '</div>';
+}
+function ed(page, name, fallback, tag, cls, style) {
+  tag = tag || 'div';
+  var html = page.slots[name];
+  if (html === undefined || html === null || html === '') html = fallback;
+  return '<' + tag + (cls ? ' class="' + cls + '"' : '') + (style ? ' style="' + style + '"' : '') +
+    ' data-slot="' + name + '" contenteditable="true">' + html + '</' + tag + '>';
+}
+
+/* Photo behind the words. The scrim leans towards wherever the text sits, so
+   a caption at the bottom is not fighting a gradient darkest at the top. */
+const BLEED_SCRIMS = {
+  top:    'linear-gradient(180deg, rgba(0,0,0,0.74) 0%, rgba(0,0,0,0.16) 55%, rgba(0,0,0,0.18) 100%)',
+  middle: 'linear-gradient(180deg, rgba(0,0,0,0.32) 0%, rgba(0,0,0,0.58) 50%, rgba(0,0,0,0.32) 100%)',
+  bottom: 'linear-gradient(180deg, rgba(0,0,0,0.16) 0%, rgba(0,0,0,0.12) 40%, rgba(0,0,0,0.74) 100%)'
+};
+function bleedPage(page, innerHtml) {
+  var pos = (page.opts && page.opts.overlay) || 'bottom';
+  return '<div class="nl-bleed">' + imgSlot(page, 'image') +
+    '<div class="nl-bleed-scrim" style="background:' + (BLEED_SCRIMS[pos] || BLEED_SCRIMS.bottom) + ';"></div>' +
+    '<div class="nl-bleed-inner pos-' + pos + '">' + innerHtml + '</div>' +
+  '</div>';
+}
+
+/* The heading is a property of the page, not of the layout — any structural
+   layout can carry one or go straight into the content. */
+function headBlock(page) {
+  if (page.opts && page.opts.head === false) return '';
+  return ed(page, 'eyebrow', 'In this issue', 'div', 'nl-eyebrow') +
+    ed(page, 'title', 'Page heading', 'h2', 'nl-h') +
+    '<div class="nl-underline"></div>';
+}
+
+function bodyFor(L, page) {
+  if (L.cols) {
+    return '<div class="nl-cols">' + L.cols.map(function (w, i) {
+      return '<div class="nl-colcell' + (i && L.cols.length > 1 ? ' ruled' : '') + '" style="flex:' + w + ';">' +
+        ed(page, 'c' + (i + 1), '<p>Click here and type.</p>', 'div', 'nl-text') +
+      '</div>';
+    }).join('') + '</div>';
+  }
+  if (L.flow) {
+    return ed(page, 'body',
+      '<p>Text poured into this layout flows from one column into the next by itself, so a long write-up fills the page evenly without you balancing it by hand.</p>' +
+      '<p>Keep paragraphs short — a newsletter is skimmed more often than it is read.</p>',
+      'div', 'nl-flow', 'column-count:' + L.flow + ';');
+  }
+  if (L.rows) {
+    return '<div class="nl-rows">' + L.rows.map(function (w, i) {
+      return '<div class="nl-rowcell" style="flex:' + w + ';">' +
+        ed(page, 'r' + (i + 1) + 't', 'Section ' + (i + 1), 'h3', 'nl-subh') +
+        ed(page, 'r' + (i + 1) + 'b', '<p>Click here and type.</p>', 'div', 'nl-text') +
+      '</div>';
+    }).join('') + '</div>';
+  }
+  if (L.cards) {
+    var cards = [];
+    for (var n = 1; n <= L.cards; n++) {
+      cards.push('<div class="nl-hl-card">' +
+        ed(page, 'h' + n + 'title', 'Card ' + n, 'h3') +
+        ed(page, 'h' + n + 'body', '<p>One or two lines.</p>', 'div', 'nl-text') +
+      '</div>');
+    }
+    return '<div class="nl-hl">' + cards.join('') + '</div>';
+  }
+  if (L.grid) {
+    var cols = L.grid[0], rows = L.grid[1], cells = [];
+    for (var i = 1; i <= cols * rows; i++) {
+      cells.push('<div class="nl-grid-cell">' + imgSlot(page, 'image' + i) +
+        ed(page, 'cap' + i, 'Caption', 'div', 'nl-gal-cap') + '</div>');
+    }
+    return '<div class="nl-grid" style="grid-template-columns:repeat(' + cols + ',1fr);grid-template-rows:repeat(' + rows + ',1fr);">' +
+      cells.join('') + '</div>';
+  }
+  if (L.img === 'left' || L.img === 'right') {
+    return '<div class="nl-split' + (L.img === 'right' ? ' rev' : '') + '">' + imgSlot(page, 'image') +
+      '<div class="nl-splitbody">' + ed(page, 'c1', '<p>Click here and type.</p>', 'div', 'nl-text') + '</div>' +
+    '</div>';
+  }
+  return ed(page, 'c1', '<p>Click here and type.</p>', 'div', 'nl-text');
+}
+
+function renderPage(page) {
+  page.slots = page.slots || {};
+  page.opts = page.opts || {};
+  var L = layoutOf(page.layout);
+
+  if (L.key === 'cover' && page.opts.bleed) {
+    return bleedPage(page,
+      ed(page, 'kicker', 'HCCGC &middot; Newsletter', 'div', 'nl-bleed-badge') +
+      ed(page, 'title', 'A season of coming together', 'h1') +
+      ed(page, 'subtitle', 'News, events and gratitude from the Hindu Community Center of Greater Cincinnati.', 'div', 'nl-cover-sub') +
+      '<div class="nl-cover-foot">' + ed(page, 'date', monthYear(), 'div') + ed(page, 'edition', 'hccgc.org', 'div') + '</div>');
+  }
+  if (L.key === 'back' && page.opts.bleed) {
+    return bleedPage(page,
+      headBlock(page) +
+      ed(page, 'body', '<p>None of this happens without volunteers and donors. If you would like to help with an event, teach a class, or give, we would love to hear from you.</p>', 'div', 'nl-text') +
+      '<div class="nl-bleed-panel"><div class="nl-back-grid">' +
+        '<div>' + ed(page, 'c1t', 'Visit', 'h3') + ed(page, 'c1b', '<p>4920 Klatte Rd,<br>Cincinnati, OH 45244</p>', 'div') + '</div>' +
+        '<div>' + ed(page, 'c2t', 'Write', 'h3') + ed(page, 'c2b', '<p>info@hccgc.org</p>', 'div') + '</div>' +
+        '<div>' + ed(page, 'c3t', 'Give', 'h3') + ed(page, 'c3b', '<p>hccgc.org/donate-now</p>', 'div') + '</div>' +
+        '<div>' + ed(page, 'c4t', 'Rent the hall', 'h3') + ed(page, 'c4b', '<p>hccgc.org/facility-rental</p>', 'div') + '</div>' +
+      '</div></div>');
+  }
+  if (L.key === 'cover') {
+    return '<div class="nl-cover">' +
+      '<div class="nl-cover-top">' + imgSlot(page, 'image') +
+        (page.slots.image ? '<div class="nl-cover-scrim"></div>' : '') +
+        ed(page, 'kicker', 'HCCGC &middot; Newsletter', 'div', 'nl-cover-badge') +
+      '</div>' +
+      '<div class="nl-cover-rule"></div>' +
+      '<div class="nl-cover-bottom">' +
+        ed(page, 'title', 'A season of coming together', 'h1') +
+        ed(page, 'subtitle', 'News, events and gratitude from the Hindu Community Center of Greater Cincinnati.', 'div', 'nl-cover-sub') +
+        '<div class="nl-cover-foot">' +
+          ed(page, 'date', monthYear(), 'div') +
+          ed(page, 'edition', 'hccgc.org', 'div') +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+  if (L.key === 'quote') {
+    return '<div class="nl-pad nl-quote-page">' +
+      '<div class="nl-quote-mark">&ldquo;</div>' +
+      ed(page, 'quote', 'A temple is not a building. It is what a community does together, week after week.', 'div', 'nl-quote') +
+      ed(page, 'by', '&mdash; Name Surname', 'div', 'nl-quote-by') +
+      ed(page, 'role', 'President, HCCGC', 'div', 'nl-quote-role') +
+    '</div>';
+  }
+  if (L.key === 'back') {
+    return '<div class="nl-back">' +
+      '<div class="nl-pad nl-back-body">' + headBlock(page) +
+        ed(page, 'body', '<p>None of this happens without volunteers and donors. If you would like to help with an event, teach a class, or give, we would love to hear from you.</p>', 'div', 'nl-text') +
+        '<div class="nl-back-panel"><div class="nl-back-grid">' +
+          '<div>' + ed(page, 'c1t', 'Visit', 'h3') + ed(page, 'c1b', '<p>4920 Klatte Rd,<br>Cincinnati, OH 45244</p>', 'div') + '</div>' +
+          '<div>' + ed(page, 'c2t', 'Write', 'h3') + ed(page, 'c2b', '<p>info@hccgc.org</p>', 'div') + '</div>' +
+          '<div>' + ed(page, 'c3t', 'Give', 'h3') + ed(page, 'c3b', '<p>hccgc.org/donate-now</p>', 'div') + '</div>' +
+          '<div>' + ed(page, 'c4t', 'Rent the hall', 'h3') + ed(page, 'c4b', '<p>hccgc.org/facility-rental</p>', 'div') + '</div>' +
+        '</div></div>' +
+      '</div>' +
+      '<div class="nl-footer-bar">' +
+        ed(page, 'footL', 'Hindu Community Center of Greater Cincinnati', 'div') +
+        ed(page, 'footR', 'hccgc.org', 'div') +
+      '</div>' +
+    '</div>';
+  }
+  if (L.img === 'full') {
+    return '<div class="nl-full">' + imgSlot(page, 'image') +
+      '<div class="nl-full-cap">' + ed(page, 'caption', 'A photograph that speaks for itself.', 'div') + '</div>' +
+    '</div>';
+  }
+  if (L.img === 'top') {
+    return '<div class="nl-banner">' + imgSlot(page, 'image') + '</div>' +
+      '<div class="nl-pad nl-flex" style="padding-top:38px;">' + headBlock(page) + bodyFor(L, page) + '</div>';
+  }
+  return '<div class="nl-pad nl-flex">' + headBlock(page) + bodyFor(L, page) + '</div>';
+}
+
+/* Thumbnail schematic, derived from the layout spec rather than hand-drawn —
+   a scaled clone of the real page is unreadable at 110px wide. */
+function thumbSkeleton(key) {
+  var L = layoutOf(key);
+  var bars = '<i></i><i></i><i></i>';
+  var t = '<i class="t"></i>';
+  if (L.key === 'cover') return '<i class="img"></i>' + t + '<i></i><i></i>';
+  if (L.key === 'quote') return '<i></i>' + t + t + '<i></i><i></i>';
+  if (L.key === 'back')  return t + bars + '<i class="img" style="min-height:22px;"></i>';
+  if (L.cols) {
+    return t + '<div class="row">' + L.cols.map(function (w) {
+      return '<div style="flex:' + w + ';">' + bars + '</div>';
+    }).join('') + '</div>';
+  }
+  if (L.flow) {
+    var c = [];
+    for (var i = 0; i < L.flow; i++) c.push('<div>' + bars + '</div>');
+    return t + '<div class="row">' + c.join('') + '</div>';
+  }
+  if (L.rows) {
+    return t + L.rows.map(function (w) {
+      return '<div style="flex:' + w + ';display:flex;flex-direction:column;gap:3px;"><i class="t" style="height:7px;"></i><i></i><i></i></div>';
+    }).join('');
+  }
+  if (L.cards) return t + '<i class="img" style="min-height:16px;"></i><i class="img" style="min-height:16px;"></i><i class="img" style="min-height:16px;"></i>';
+  if (L.grid) {
+    var rowsHtml = '';
+    for (var r = 0; r < L.grid[1]; r++) {
+      var cells = '';
+      for (var cI = 0; cI < L.grid[0]; cI++) cells += '<div><i class="img"></i></div>';
+      rowsHtml += '<div class="row">' + cells + '</div>';
+    }
+    return t + rowsHtml;
+  }
+  if (L.img === 'full') return '<i class="img" style="flex:1;"></i>';
+  if (L.img === 'top')  return '<i class="img" style="max-height:32px;flex:0 0 32px;"></i>' + t + bars;
+  if (L.img === 'left') return t + '<div class="row"><div><i class="img"></i></div><div>' + bars + '</div></div>';
+  if (L.img === 'right') return t + '<div class="row"><div>' + bars + '</div><div><i class="img"></i></div></div>';
+  return t + bars + bars;
+}
+
+/* ── View ────────────────────────────────────────────────────────── */
+var ISSUE = null;
+var canvasEl = document.getElementById('nl-canvas');
+
+function renderIssue(doc) {
+  ISSUE = doc;
+  migratePages(doc.pages || []);
+  canvasEl.innerHTML = (doc.pages || []).map(function (p, i) {
+    return '<div class="nl-page-wrap" data-i="' + i + '">' +
+      '<div class="nl-page nl-t-' + escHtml(doc.theme || 'saffron') + '" data-i="' + i + '">' + renderPage(p) + '</div>' +
+    '</div>';
+  }).join('');
+  /* The renderer marks its text slots editable for the admin editor's sake.
+     Nothing here should be typeable. */
+  canvasEl.querySelectorAll('[contenteditable]').forEach(function (el) { el.removeAttribute('contenteditable'); });
+  fitPages();
+}
+
+/* A newsletter page is a fixed 816px sheet. Rather than reflow it — which
+   would stop being the document that was published — scale it to whatever
+   width the reader actually has. */
+function fitPages() {
+  var avail = canvasEl.parentElement ? canvasEl.parentElement.clientWidth : 816;
+  var z = Math.min(1, (avail - 4) / 816);
+  if (!isFinite(z) || z <= 0) z = 1;
+  canvasEl.querySelectorAll('.nl-page-wrap').forEach(function (w) {
+    var pg = w.querySelector('.nl-page');
+    pg.style.transformOrigin = 'top left';
+    pg.style.transform = 'scale(' + z + ')';
+    w.style.width = (816 * z) + 'px';
+    w.style.height = (1056 * z) + 'px';
+  });
+}
+window.addEventListener('resize', function () { if (ISSUE) fitPages(); });
+
+/* ── PDF, rebuilt in the reader's own browser ────────────────────────
+   Nothing is stored server-side: the same DOM that is on screen is what
+   goes into the file, so a published issue never needs a hosted PDF that
+   could fall out of step with it. */
+var IMG_CACHE = {};
+async function toDataUrl(url) {
+  if (IMG_CACHE[url]) return IMG_CACHE[url];
+  try {
+    var r = await fetch(url, { mode: 'cors', cache: 'force-cache' });
+    if (!r.ok) return null;
+    var blob = await r.blob();
+    var d = await new Promise(function (res) {
+      var fr = new FileReader();
+      fr.onload = function () { res(String(fr.result)); };
+      fr.onerror = function () { res(null); };
+      fr.readAsDataURL(blob);
+    });
+    if (d) IMG_CACHE[url] = d;
+    return d;
+  } catch (e) { return null; }
+}
+async function inlineImages() {
+  var imgs = Array.prototype.slice.call(canvasEl.querySelectorAll('img'));
+  var restored = [], missed = 0;
+  for (var i = 0; i < imgs.length; i++) {
+    var src = imgs[i].getAttribute('src') || '';
+    if (!src || src.indexOf('data:') === 0) continue;
+    var d = await toDataUrl(src);
+    restored.push([imgs[i], src]);
+    if (d) {
+      imgs[i].setAttribute('src', d);
+    } else {
+      // An unreadable picture taints the canvas and makes toDataURL throw,
+      // which would cost the reader the whole PDF over one photo. Drop it
+      // for the capture and say so afterwards.
+      imgs[i].removeAttribute('src');
+      missed++;
+    }
+  }
+  await Promise.all(imgs.map(function (im) {
+    if (im.complete) return Promise.resolve();
+    return new Promise(function (res) { im.onload = im.onerror = res; });
+  }));
+  return { restored: restored, missed: missed };
+}
+document.getElementById('btn-pdf').addEventListener('click', async function () {
+  if (!ISSUE) return;
+  var note = document.getElementById('pdf-note');
+  this.disabled = true;
+  note.textContent = 'Building the PDF — a few seconds per page…';
+  var pages = canvasEl.querySelectorAll('.nl-page');
+  var prev = [];
+  var res = { restored: [], missed: 0 };
+  try {
+    pages.forEach(function (p) { prev.push(p.style.transform); p.style.transform = 'scale(1)'; });
+    canvasEl.querySelectorAll('.nl-page-wrap').forEach(function (w) { w.style.width = '816px'; w.style.height = '1056px'; });
+    res = await inlineImages();
+    var Ctor = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+    var pdf = new Ctor({ unit: 'pt', format: 'letter', orientation: 'portrait' });
+    for (var i = 0; i < pages.length; i++) {
+      var c = await html2canvas(pages[i], {
+        scale: 2, useCORS: true, backgroundColor: '#ffffff',
+        width: 816, height: 1056, windowWidth: 816, scrollX: 0, scrollY: 0
+      });
+      if (i > 0) pdf.addPage('letter', 'portrait');
+      pdf.addImage(c.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, 612, 792, undefined, 'FAST');
+    }
+    pdf.save((ISSUE.title || 'HCCGC-Newsletter').replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-') + '.pdf');
+    note.textContent = res.missed
+      ? 'Downloaded. ' + res.missed + ' picture(s) could not be embedded and may be missing from the PDF.'
+      : '';
+  } catch (err) {
+    note.textContent = 'Could not build the PDF: ' + err.message;
+  } finally {
+    res.restored.forEach(function (pair) { pair[0].setAttribute('src', pair[1]); });
+    pages.forEach(function (p, i) { p.style.transform = prev[i]; });
+    fitPages();
+    this.disabled = false;
+  }
+});
+</script>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
+import { getFirestore, collection, doc, getDoc, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
+
+var firebaseConfig = {
+  apiKey: 'AIzaSyA6IzLjWTg7Rq04HsTH-iA3eDmSzKI7xME',
+  authDomain: 'hccgc-a7a54.firebaseapp.com',
+  projectId: 'hccgc-a7a54',
+  storageBucket: 'hccgc-a7a54.firebasestorage.app',
+  messagingSenderId: '75757201418',
+  appId: '1:75757201418:web:c31e9361921242145717f3'
+};
+var db = getFirestore(initializeApp(firebaseConfig));
+var COLL = 'publishedNewsletters';
+
+function showIndex() {
+  document.getElementById('index-view').style.display = 'block';
+  document.getElementById('issue-view').style.display = 'none';
+  document.getElementById('hero-back').style.display = 'none';
+  document.getElementById('hero-title').textContent = 'Newsletter';
+  document.getElementById('hero-sub').textContent = 'News, events and gratitude from the Hindu Community Center of Greater Cincinnati.';
+}
+
+async function loadIndex() {
+  var el = document.getElementById('pub-list');
+  try {
+    var snap = await getDocs(query(collection(db, COLL), orderBy('publishedAt', 'desc')));
+    var rows = [];
+    snap.forEach(function (d) { rows.push(Object.assign({ id: d.id }, d.data())); });
+    if (!rows.length) { el.innerHTML = '<div class="empty-state">No issues have been published yet. Please check back soon.</div>'; return; }
+    el.innerHTML = '<div class="pub-grid">' + rows.map(function (n) {
+      var cover = n.coverImage || '';
+      return '<a class="pub-card" href="/newsletters?id=' + encodeURIComponent(n.id) + '">' +
+        '<div class="pub-cover" style="' + (cover ? 'background-image:url(&quot;' + escHtml(cover) + '&quot;);' : '') + '"></div>' +
+        '<div class="pub-body">' +
+          '<div class="pub-date">' + escHtml(fmtDate(n.publishedAt)) + '</div>' +
+          '<h2>' + escHtml(n.headline || n.title || 'Newsletter') + '</h2>' +
+          (n.summary ? '<div class="pub-sum">' + escHtml(n.summary) + '</div>' : '') +
+          '<div class="pub-read">Read this issue &rarr;</div>' +
+        '</div>' +
+      '</a>';
+    }).join('') + '</div>';
+  } catch (err) {
+    el.innerHTML = '<div class="empty-state">Could not load the newsletters right now. Please try again shortly.</div>';
+  }
+}
+
+async function loadIssue(id) {
+  try {
+    var snap = await getDoc(doc(db, COLL, id));
+    if (!snap.exists()) { showIndex(); loadIndex(); return; }
+    var d = snap.data();
+    document.getElementById('index-view').style.display = 'none';
+    document.getElementById('issue-view').style.display = 'block';
+    document.getElementById('hero-back').style.display = 'inline-flex';
+    document.getElementById('hero-title').textContent = d.headline || d.title || 'Newsletter';
+    document.getElementById('hero-sub').textContent = d.summary || '';
+    document.getElementById('issue-title').textContent = d.title || '';
+    document.getElementById('issue-meta').textContent =
+      (d.pages ? d.pages.length + ' page' + (d.pages.length === 1 ? '' : 's') : '') +
+      (d.publishedAt ? ' · Published ' + fmtDate(d.publishedAt) : '');
+    document.title = (d.headline || d.title || 'Newsletter') + ' — HCCGC';
+    window.renderIssue(d);
+  } catch (err) {
+    showIndex();
+    document.getElementById('pub-list').innerHTML =
+      '<div class="empty-state">Could not load that issue right now. Please try again shortly.</div>';
+  }
+}
+
+var id = new URLSearchParams(window.location.search).get('id');
+if (id) loadIssue(id); else { showIndex(); loadIndex(); }
+</script>
+</body>
+</html>

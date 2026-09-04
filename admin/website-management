@@ -1494,7 +1494,8 @@ textarea{resize:vertical;}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 import {
-  getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, setDoc, serverTimestamp
+  getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, setDoc, serverTimestamp,
+  query, where
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -1530,7 +1531,7 @@ window.__hccgc = {
   collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp,
   EVENTS_COLLECTION, ALLOWED_DOMAIN
 };
-window.__hccgcMP = { db, collection, getDocs, doc, getDoc, setDoc, addDoc, deleteDoc, serverTimestamp, PAGES_COLLECTION, EVENTS_COLLECTION };
+window.__hccgcMP = { db, collection, getDocs, doc, getDoc, setDoc, addDoc, deleteDoc, serverTimestamp, query, where, PAGES_COLLECTION, EVENTS_COLLECTION };
 
 function showGateMessage(title, message, showPortalButton) {
   document.getElementById("gate-title").textContent = title;
@@ -2644,30 +2645,20 @@ document.getElementById('btn-save').addEventListener('click', async function() {
       document.getElementById('edit-page-id').value = pageId;
     }
 
-    // Optionally sync to Manage Events
-    if (document.getElementById('sync-to-events').checked) {
-      var desc = document.getElementById('sync-description').value.trim();
-      var eventRecord = {
-        type: isInit ? 'initiative' : 'event',
-        name: pageData.pageTitle,
-        description: desc,
-        date: isInit ? pageData.startDate : pageData.date,
-        category: pageData.category || '',
-        cost: pageData.costDisplay || '',
-        rsvpUrl: pageData.zeffyUrl || '',
-        createdByName: '',
-        createdByEmail: '',
-        createdAt: fb.serverTimestamp(),
-        pageSlug: slug
-      };
-      if (!isInit) { eventRecord.fromTime = pageData.fromTime; eventRecord.toTime = pageData.toTime; }
-      else { eventRecord.endDate = pageData.endDate; eventRecord.schedule = pageData.scheduleText; }
-      await fb.addDoc(fb.collection(fb.db, fb.EVENTS_COLLECTION), eventRecord);
-    }
+    // Mirror into Manage Events. See syncPageToEvents — one event per page,
+    // updated in place, rather than a fresh one on every save.
+    var syncResult = await syncPageToEvents(fb, {
+      pageId: pageId,
+      slug: slug,
+      isInit: isInit,
+      pageData: pageData,
+      enabled: document.getElementById('sync-to-events').checked,
+      description: document.getElementById('sync-description').value.trim()
+    });
 
     btn.disabled = false; btn.innerHTML = orig;
     closeModalMP();
-    showStatusMP('Page saved!' + (pageData.pageEnabled && slug ? ' Live at hccgc.org/' + slug : ' Page is hidden.'), 'success');
+    showStatusMP('Page saved!' + (pageData.pageEnabled && slug ? ' Live at hccgc.org/' + slug : ' Page is hidden.') + syncStatusSuffix(syncResult), 'success');
     loadPages();
   } catch(err) {
     btn.disabled = false; btn.innerHTML = orig;
@@ -2675,6 +2666,125 @@ document.getElementById('btn-save').addEventListener('click', async function() {
   }
 });
 
+
+/* ===================== PAGE -> EVENTS MIRROR ===================== */
+// A page that syncs to Manage Events gets ONE event, not one per save.
+//
+// The original code called addDoc unconditionally every time the page was
+// saved, so editing a page five times left five identical entries on the
+// public events page. The mirror is now keyed to the page it came from:
+// found, updated in place, and any earlier duplicates deleted as they turn
+// up — so the first save of an already-duplicated page cleans it up.
+//
+// Matching is by pageId, which is written from now on. Events created by the
+// old code have no pageId, only pageSlug, so that is checked as well; it is
+// the only handle those duplicates have.
+async function findMirroredEvents(fb, pageId, slug) {
+  var byId = {};
+  async function collect(field, value) {
+    if (!value) return;
+    try {
+      var snap = await fb.getDocs(fb.query(
+        fb.collection(fb.db, fb.EVENTS_COLLECTION), fb.where(field, '==', value)));
+      snap.forEach(function (d) { byId[d.id] = { id: d.id, data: d.data() }; });
+    } catch (err) {
+      // A failed lookup must not block saving the page — worst case the
+      // mirror is created fresh and the old one is tidied up next time.
+      console.error('Could not look up mirrored events by ' + field + ':', err);
+    }
+  }
+  await collect('pageId', pageId);
+  await collect('pageSlug', slug);
+  return Object.keys(byId).map(function (id) { return byId[id]; });
+}
+
+async function syncPageToEvents(fb, opts) {
+  var result = { created: 0, updated: 0, removed: 0 };
+  if (!opts.pageId && !opts.slug) return result;
+
+  var existing = await findMirroredEvents(fb, opts.pageId, opts.slug);
+  // Oldest first, so the entry that gets kept is the one that has been on
+  // the events page all along rather than an arbitrary duplicate.
+  existing.sort(function (a, b) {
+    var at = (a.data.createdAt && a.data.createdAt.seconds) || 0;
+    var bt = (b.data.createdAt && b.data.createdAt.seconds) || 0;
+    return at - bt;
+  });
+
+  if (!opts.enabled) {
+    // Sync switched off — take the entry down rather than leaving a stale
+    // event on the public page that nothing in this form now controls.
+    result.disabled = true;
+    for (var i = 0; i < existing.length; i++) {
+      await fb.deleteDoc(fb.doc(fb.db, fb.EVENTS_COLLECTION, existing[i].id));
+      result.removed++;
+    }
+    return result;
+  }
+
+  var pageData = opts.pageData;
+  var eventRecord = {
+    type: opts.isInit ? 'initiative' : 'event',
+    name: pageData.pageTitle,
+    description: opts.description,
+    date: opts.isInit ? pageData.startDate : pageData.date,
+    category: pageData.category || '',
+    cost: pageData.costDisplay || '',
+    rsvpUrl: pageData.zeffyUrl || '',
+    createdByName: '',
+    createdByEmail: '',
+    pageId: opts.pageId,
+    pageSlug: opts.slug
+  };
+  if (!opts.isInit) {
+    eventRecord.fromTime = pageData.fromTime;
+    eventRecord.toTime = pageData.toTime;
+    // Cleared rather than left behind: switching a page from initiative to
+    // event otherwise kept the old initiative-only fields on the mirror,
+    // and merge writes would never remove them.
+    eventRecord.endDate = '';
+    eventRecord.schedule = '';
+  } else {
+    eventRecord.endDate = pageData.endDate;
+    eventRecord.schedule = pageData.scheduleText;
+    eventRecord.fromTime = '';
+    eventRecord.toTime = '';
+  }
+
+  if (existing.length) {
+    await fb.setDoc(fb.doc(fb.db, fb.EVENTS_COLLECTION, existing[0].id), eventRecord, { merge: true });
+    result.updated = 1;
+    for (var j = 1; j < existing.length; j++) {
+      await fb.deleteDoc(fb.doc(fb.db, fb.EVENTS_COLLECTION, existing[j].id));
+      result.removed++;
+    }
+    return result;
+  }
+
+  // createdAt is set only on creation — writing it on every save would keep
+  // resetting the event's age.
+  eventRecord.createdAt = fb.serverTimestamp();
+  await fb.addDoc(fb.collection(fb.db, fb.EVENTS_COLLECTION), eventRecord);
+  result.created = 1;
+  return result;
+}
+
+function syncStatusSuffix(r) {
+  if (!r) return '';
+  var bits = [];
+  // Sync turned off is a removal, not a duplicate cleanup — calling it a
+  // duplicate would read as if something had gone wrong.
+  if (r.disabled) {
+    if (r.removed) bits.push('Removed ' + (r.removed === 1 ? 'its entry' : r.removed + ' entries') + ' from the events page.');
+  } else {
+    if (r.created) bits.push('Added to the events page.');
+    if (r.updated) bits.push('Its events-page entry was updated.');
+    // Said out loud rather than done quietly — an admin who has been looking
+    // at eight copies of the same event should see them go.
+    if (r.removed) bits.push('Removed ' + r.removed + ' duplicate' + (r.removed === 1 ? '' : 's') + ' from the events page.');
+  }
+  return bits.length ? ' ' + bits.join(' ') : '';
+}
 
 /* ===================== FORMS TAB ===================== */
 const FORMS_API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';

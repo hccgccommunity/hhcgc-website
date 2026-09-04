@@ -1442,7 +1442,7 @@ a.ce-att:hover { border-color: var(--saffron); }
       <div class="rule-field">
         <label>Weekday multiplier</label>
         <input type="number" id="r-weekday" value="0.80" step="0.01">
-        <span class="rule-hint">0.80 = 20% off Mon–Fri bookings</span>
+        <span class="rule-hint">0.80 = 20% off anything outside the weekend period below</span>
       </div>
       <div class="rule-field">
         <label>Nonprofit multiplier</label>
@@ -1460,7 +1460,33 @@ a.ce-att:hover { border-color: var(--saffron); }
         <span class="rule-hint">in hours</span>
       </div>
     </div>
-    <div class="card-sub" style="margin-top:12px;margin-bottom:14px;">There's no automatic whole-facility/bundle discount — that's applied case by case as a discretionary adjustment on the booking itself, in New Booking.</div>
+
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid #eee2d3;">
+      <label style="display:block;font-weight:600;margin-bottom:6px;">Weekend period</label>
+      <div class="card-sub" style="margin-bottom:10px;">Bookings inside this period are charged full price — the weekday multiplier above does not apply to them.</div>
+      <div id="r-weekend-days" style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:12px;">
+          <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.9rem;font-weight:500;cursor:pointer;"><input type="checkbox" class="r-weekend-day" value="0"> Sun</label>
+          <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.9rem;font-weight:500;cursor:pointer;"><input type="checkbox" class="r-weekend-day" value="1"> Mon</label>
+          <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.9rem;font-weight:500;cursor:pointer;"><input type="checkbox" class="r-weekend-day" value="2"> Tue</label>
+          <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.9rem;font-weight:500;cursor:pointer;"><input type="checkbox" class="r-weekend-day" value="3"> Wed</label>
+          <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.9rem;font-weight:500;cursor:pointer;"><input type="checkbox" class="r-weekend-day" value="4"> Thu</label>
+          <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.9rem;font-weight:500;cursor:pointer;"><input type="checkbox" class="r-weekend-day" value="5"> Fri</label>
+          <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.9rem;font-weight:500;cursor:pointer;"><input type="checkbox" class="r-weekend-day" value="6"> Sat</label>
+      </div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;">
+        <div class="rule-field" style="margin:0;">
+          <label>Starts at</label>
+          <input type="time" id="r-weekend-start" value="00:00">
+        </div>
+        <div class="rule-field" style="margin:0;">
+          <label>Ends at</label>
+          <input type="time" id="r-weekend-end" value="23:59">
+        </div>
+      </div>
+      <span class="rule-hint" style="display:block;margin-top:10px;">The same time window applies to every day ticked above, and a booking counts as weekend if any part of it falls inside the window. So Fri&nbsp;+&nbsp;Sat&nbsp;+&nbsp;Sun with 5:00&nbsp;PM–11:59&nbsp;PM makes Friday evening full price — but it also leaves Saturday morning on the weekday discount. Tick Sat and Sun with 12:00&nbsp;AM–11:59&nbsp;PM to keep those days full price all day.</span>
+    </div>
+
+    <div class="card-sub" style="margin-top:16px;margin-bottom:14px;">There's no automatic whole-facility/bundle discount — that's applied case by case as a discretionary adjustment on the booking itself, in New Booking.</div>
     <button type="button" class="btn-primary" id="btn-generate-rules">Save discount rules</button>
     <div class="result-box" id="rules-result" style="display:none;"></div>
   </div>
@@ -2814,10 +2840,8 @@ function recalcInlineReview() {
   occRows.forEach(function (occ) {
     var hours = hoursBetweenTimes(occ.startTime, occ.endTime);
     var occBase = Math.round(rateSum * hours * 100) / 100;
-    var day = new Date(occ.date + 'T00:00:00').getDay();
-    var isWeekday = day >= 1 && day <= 5;
     var mult = 1;
-    if (isWeekday) { mult *= RULES.weekdayMultiplier; tagsSet['Weekday'] = true; }
+    if (isWeekdayPriced(occ.date, occ.startTime, occ.endTime)) { mult *= RULES.weekdayMultiplier; tagsSet['Weekday'] = true; }
     if (hours >= RULES.extendedHoursThreshold) { mult *= RULES.extendedHoursMultiplier; tagsSet['Extended hours'] = true; }
     if (isNonprofit) { mult *= RULES.nonprofitMultiplier; tagsSet['Nonprofit'] = true; }
     base += occBase;
@@ -3617,12 +3641,36 @@ const NB_ROOMS = [
   { name: 'Ganesh Room', rate: 15 },
   { name: 'Kitchen', rate: 0 }
 ];
+// Defaults only — overwritten by loadPricingRules() at sign-in from
+// /discount-rules, so the on-screen estimate matches what the server will
+// actually charge. The server is still the authority; this is a preview.
 const RULES = {
   weekdayMultiplier: 0.80,
   nonprofitMultiplier: 0.75,
   extendedHoursMultiplier: 0.80,
-  extendedHoursThreshold: 4
+  extendedHoursThreshold: 4,
+  weekendDays: [0, 6],
+  weekendStart: '00:00',
+  weekendEnd: '23:59'
 };
+async function loadPricingRules() {
+  try {
+    const res = await authedFetch(API_BASE + '/discount-rules');
+    if (!res.ok) return;
+    const r = await res.json();
+    if (r.weekday_multiplier != null) RULES.weekdayMultiplier = Number(r.weekday_multiplier);
+    if (r.nonprofit_multiplier != null) RULES.nonprofitMultiplier = Number(r.nonprofit_multiplier);
+    if (r.extended_hours_multiplier != null) RULES.extendedHoursMultiplier = Number(r.extended_hours_multiplier);
+    if (r.extended_hours_threshold != null) RULES.extendedHoursThreshold = Number(r.extended_hours_threshold);
+    if (Array.isArray(r.weekend_days_list)) RULES.weekendDays = r.weekend_days_list.map(Number);
+    if (r.weekend_start_time) RULES.weekendStart = r.weekend_start_time;
+    if (r.weekend_end_time) RULES.weekendEnd = r.weekend_end_time;
+  } catch (err) {
+    // A preview that falls back to the defaults is better than a tab that
+    // fails to open — the invoice is priced server-side either way.
+    console.error('Could not load pricing rules for the estimate:', err);
+  }
+}
 
 const roomPicker = document.getElementById('room-picker');
 NB_ROOMS.forEach(function (r) {
@@ -3669,6 +3717,24 @@ function isWeekday(dateStr) {
   if (!dateStr) return false;
   const day = new Date(dateStr + 'T00:00:00').getDay();
   return day >= 1 && day <= 5;
+}
+// Mirrors isWeekendRate() in the API — keep the two in step, or the quoted
+// estimate and the invoice will disagree.
+function minutesOfDayNB(hhmm) {
+  const parts = String(hhmm || '').split(':');
+  return (Number(parts[0]) || 0) * 60 + (Number(parts[1]) || 0);
+}
+function isWeekdayPriced(dateStr, startTime, endTime) {
+  if (!dateStr) return false;
+  const days = Array.isArray(RULES.weekendDays) ? RULES.weekendDays : [];
+  if (!days.length) return true;
+  const day = new Date(dateStr + 'T00:00:00').getDay();
+  if (days.indexOf(day) === -1) return true;
+  if (!startTime || !endTime) return false;
+  const winStart = minutesOfDayNB(RULES.weekendStart), winEnd = minutesOfDayNB(RULES.weekendEnd);
+  if (winEnd <= winStart) return false;
+  const overlaps = minutesOfDayNB(startTime) < winEnd && minutesOfDayNB(endTime) > winStart;
+  return !overlaps;
 }
 function addDays(dateStr, n) {
   const d = new Date(dateStr + 'T00:00:00');
@@ -3863,7 +3929,7 @@ function recalc() {
     const hours = hoursBetween(occ.startTime, occ.endTime);
     const occBase = Math.round(rateSum * hours * 100) / 100;
     let mult = 1;
-    if (isWeekday(occ.date)) { mult *= RULES.weekdayMultiplier; tagsSet['Weekday'] = true; }
+    if (isWeekdayPriced(occ.date, occ.startTime, occ.endTime)) { mult *= RULES.weekdayMultiplier; tagsSet['Weekday'] = true; }
     if (hours >= RULES.extendedHoursThreshold) { mult *= RULES.extendedHoursMultiplier; tagsSet['Extended hours'] = true; }
     if (isNonprofit) { mult *= RULES.nonprofitMultiplier; tagsSet['Nonprofit'] = true; }
     base += occBase;
@@ -4556,6 +4622,21 @@ async function loadDiscountRules() {
     document.getElementById('r-nonprofit').value = r.nonprofit_multiplier;
     document.getElementById('r-extended-mult').value = r.extended_hours_multiplier;
     document.getElementById('r-extended-threshold').value = r.extended_hours_threshold;
+    // weekend_days_list is the normalised array the API sends; the CSV is
+    // only a fallback for an older response. Parsing the CSV blindly would
+    // turn an empty string into [0] and silently tick Sunday.
+    const rawDays = Array.isArray(r.weekend_days_list)
+      ? r.weekend_days_list
+      : String(r.weekend_days == null ? '0,6' : r.weekend_days).split(',');
+    const weekendDays = rawDays.map(function (d) { return parseInt(d, 10); }).filter(function (n) { return !isNaN(n); });
+    document.querySelectorAll('.r-weekend-day').forEach(function (cb) {
+      cb.checked = weekendDays.indexOf(Number(cb.value)) !== -1;
+    });
+    document.getElementById('r-weekend-start').value = r.weekend_start_time || '00:00';
+    document.getElementById('r-weekend-end').value = r.weekend_end_time || '23:59';
+    if (r.weekend_columns_present === false) {
+      showRulesResult('error', 'The weekend-period columns are not in BigQuery yet — run alter-discount-rules-weekend.sql, then reload. Until then pricing uses the defaults shown (Sat + Sun, all day) and saving the weekend period will be refused.');
+    }
   } catch (err) {
     showRulesResult('error', 'Could not load current discount rules (' + err.message + '). Showing defaults — check before saving.');
   }
@@ -4660,11 +4741,22 @@ document.getElementById('btn-add-room').addEventListener('click', async function
 
 document.getElementById('btn-generate-rules').addEventListener('click', async function () {
   const btn = this;
+  const weekendStart = document.getElementById('r-weekend-start').value;
+  const weekendEnd = document.getElementById('r-weekend-end').value;
+  if (weekendStart && weekendEnd && weekendEnd <= weekendStart) {
+    showRulesResult('error', 'The weekend period\'s end time has to be after its start time.');
+    return;
+  }
+  const weekendDays = Array.prototype.slice.call(document.querySelectorAll('.r-weekend-day:checked'))
+    .map(function (cb) { return Number(cb.value); });
   const payload = {
     weekdayMultiplier: parseFloat(document.getElementById('r-weekday').value),
     nonprofitMultiplier: parseFloat(document.getElementById('r-nonprofit').value),
     extendedHoursMultiplier: parseFloat(document.getElementById('r-extended-mult').value),
-    extendedHoursThreshold: parseFloat(document.getElementById('r-extended-threshold').value)
+    extendedHoursThreshold: parseFloat(document.getElementById('r-extended-threshold').value),
+    weekendDays: weekendDays,
+    weekendStartTime: weekendStart,
+    weekendEndTime: weekendEnd
   };
   btn.disabled = true; btn.textContent = 'Saving…';
   try {
@@ -4672,8 +4764,17 @@ document.getElementById('btn-generate-rules').addEventListener('click', async fu
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    if (!res.ok) throw new Error('Server returned ' + res.status);
-    showRulesResult('success', 'Discount rules saved.');
+    if (!res.ok) {
+      let msg = 'Server returned ' + res.status;
+      try { const e = await res.json(); if (e.errors && e.errors.length) msg = e.errors.join(' '); } catch (parseErr) { /* keep the status */ }
+      throw new Error(msg);
+    }
+    // The in-page price preview reads these, so refresh it rather than
+    // leaving New Booking quoting the old weekend period until a reload.
+    await loadPricingRules();
+    showRulesResult('success', weekendDays.length
+      ? 'Discount rules saved.'
+      : 'Discount rules saved. No weekend days are ticked, so every booking now gets the weekday discount.');
   } catch (err) {
     showRulesResult('error', 'Could not save: ' + err.message);
   } finally {
@@ -5875,6 +5976,7 @@ onAuthStateChanged(auth, function(user) {
     document.getElementById('gate').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     loadPendingCounts();
+    loadPricingRules();
     var entryDisplay = document.getElementById('f-entered-by-display');
     if (entryDisplay) entryDisplay.textContent = 'Signed in as ' + email;
     loadBookings();

@@ -1463,27 +1463,27 @@ a.ce-att:hover { border-color: var(--saffron); }
 
     <div style="margin-top:20px;padding-top:16px;border-top:1px solid #eee2d3;">
       <label style="display:block;font-weight:600;margin-bottom:6px;">Weekend period</label>
-      <div class="card-sub" style="margin-bottom:10px;">Bookings inside this period are charged full price — the weekday multiplier above does not apply to them.</div>
-      <div id="r-weekend-days" style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:12px;">
-          <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.9rem;font-weight:500;cursor:pointer;"><input type="checkbox" class="r-weekend-day" value="0"> Sun</label>
-          <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.9rem;font-weight:500;cursor:pointer;"><input type="checkbox" class="r-weekend-day" value="1"> Mon</label>
-          <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.9rem;font-weight:500;cursor:pointer;"><input type="checkbox" class="r-weekend-day" value="2"> Tue</label>
-          <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.9rem;font-weight:500;cursor:pointer;"><input type="checkbox" class="r-weekend-day" value="3"> Wed</label>
-          <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.9rem;font-weight:500;cursor:pointer;"><input type="checkbox" class="r-weekend-day" value="4"> Thu</label>
-          <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.9rem;font-weight:500;cursor:pointer;"><input type="checkbox" class="r-weekend-day" value="5"> Fri</label>
-          <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.9rem;font-weight:500;cursor:pointer;"><input type="checkbox" class="r-weekend-day" value="6"> Sat</label>
-      </div>
-      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;">
+      <div class="card-sub" style="margin-bottom:12px;">One continuous stretch of the week. Bookings inside it are charged full price — the weekday multiplier above does not apply to them.</div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;">
         <div class="rule-field" style="margin:0;">
-          <label>Starts at</label>
-          <input type="time" id="r-weekend-start" value="00:00">
+          <label>Weekend starts</label>
+          <select id="r-weekend-start-day"><option value="0">Sunday</option><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6" selected>Saturday</option></select>
         </div>
         <div class="rule-field" style="margin:0;">
-          <label>Ends at</label>
-          <input type="time" id="r-weekend-end" value="23:59">
+          <label>at</label>
+          <input type="time" id="r-weekend-start-time" value="00:00">
+        </div>
+        <div class="rule-field" style="margin:0;">
+          <label>and runs until</label>
+          <select id="r-weekend-end-day"><option value="0" selected>Sunday</option><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option></select>
+        </div>
+        <div class="rule-field" style="margin:0;">
+          <label>at</label>
+          <input type="time" id="r-weekend-end-time" value="23:59">
         </div>
       </div>
-      <span class="rule-hint" style="display:block;margin-top:10px;">The same time window applies to every day ticked above, and a booking counts as weekend if any part of it falls inside the window. So Fri&nbsp;+&nbsp;Sat&nbsp;+&nbsp;Sun with 5:00&nbsp;PM–11:59&nbsp;PM makes Friday evening full price — but it also leaves Saturday morning on the weekday discount. Tick Sat and Sun with 12:00&nbsp;AM–11:59&nbsp;PM to keep those days full price all day.</span>
+      <div id="r-weekend-summary" style="margin-top:12px;padding:10px 14px;background:#fff6ea;border-radius:8px;font-size:0.9rem;color:#2c1b10;"></div>
+      <span class="rule-hint" style="display:block;margin-top:8px;">The period is allowed to run past Saturday into Sunday — Friday 5:00 PM until Sunday 11:59 PM covers Friday evening plus all of Saturday and Sunday. A booking counts as weekend if any part of it falls inside the period.</span>
     </div>
 
     <div class="card-sub" style="margin-top:16px;margin-bottom:14px;">There's no automatic whole-facility/bundle discount — that's applied case by case as a discretionary adjustment on the booking itself, in New Booking.</div>
@@ -3649,9 +3649,10 @@ const RULES = {
   nonprofitMultiplier: 0.75,
   extendedHoursMultiplier: 0.80,
   extendedHoursThreshold: 4,
-  weekendDays: [0, 6],
-  weekendStart: '00:00',
-  weekendEnd: '23:59'
+  weekendStartDay: 6,
+  weekendStartTime: '00:00',
+  weekendEndDay: 0,
+  weekendEndTime: '23:59'
 };
 async function loadPricingRules() {
   try {
@@ -3662,9 +3663,10 @@ async function loadPricingRules() {
     if (r.nonprofit_multiplier != null) RULES.nonprofitMultiplier = Number(r.nonprofit_multiplier);
     if (r.extended_hours_multiplier != null) RULES.extendedHoursMultiplier = Number(r.extended_hours_multiplier);
     if (r.extended_hours_threshold != null) RULES.extendedHoursThreshold = Number(r.extended_hours_threshold);
-    if (Array.isArray(r.weekend_days_list)) RULES.weekendDays = r.weekend_days_list.map(Number);
-    if (r.weekend_start_time) RULES.weekendStart = r.weekend_start_time;
-    if (r.weekend_end_time) RULES.weekendEnd = r.weekend_end_time;
+    if (r.weekend_start_day != null) RULES.weekendStartDay = Number(r.weekend_start_day);
+    if (r.weekend_end_day != null) RULES.weekendEndDay = Number(r.weekend_end_day);
+    if (r.weekend_start_time) RULES.weekendStartTime = r.weekend_start_time;
+    if (r.weekend_end_time) RULES.weekendEndTime = r.weekend_end_time;
   } catch (err) {
     // A preview that falls back to the defaults is better than a tab that
     // fails to open — the invoice is priced server-side either way.
@@ -3718,22 +3720,32 @@ function isWeekday(dateStr) {
   const day = new Date(dateStr + 'T00:00:00').getDay();
   return day >= 1 && day <= 5;
 }
-// Mirrors isWeekendRate() in the API — keep the two in step, or the quoted
-// estimate and the invoice will disagree.
+// Mirrors weekendIntervals()/isWeekendRate() in the API — keep the two in
+// step, or the quoted estimate and the invoice will disagree. Minutes are
+// counted from Sunday midnight, so a span whose end lands earlier in the
+// week than its start (Fri → Sun) wraps into two intervals.
 function minutesOfDayNB(hhmm) {
   const parts = String(hhmm || '').split(':');
   return (Number(parts[0]) || 0) * 60 + (Number(parts[1]) || 0);
 }
+function weekendIntervalsNB(cfg) {
+  const start = Number(cfg.startDay) * 1440 + minutesOfDayNB(cfg.startTime);
+  const end = Number(cfg.endDay) * 1440 + minutesOfDayNB(cfg.endTime);
+  if (start === end) return [];
+  if (end > start) return [[start, end]];
+  return [[start, 7 * 1440], [0, end]];
+}
 function isWeekdayPriced(dateStr, startTime, endTime) {
   if (!dateStr) return false;
-  const days = Array.isArray(RULES.weekendDays) ? RULES.weekendDays : [];
-  if (!days.length) return true;
+  const intervals = weekendIntervalsNB({
+    startDay: RULES.weekendStartDay, startTime: RULES.weekendStartTime,
+    endDay: RULES.weekendEndDay, endTime: RULES.weekendEndTime
+  });
+  if (!intervals.length) return true;
   const day = new Date(dateStr + 'T00:00:00').getDay();
-  if (days.indexOf(day) === -1) return true;
-  if (!startTime || !endTime) return false;
-  const winStart = minutesOfDayNB(RULES.weekendStart), winEnd = minutesOfDayNB(RULES.weekendEnd);
-  if (winEnd <= winStart) return false;
-  const overlaps = minutesOfDayNB(startTime) < winEnd && minutesOfDayNB(endTime) > winStart;
+  const bookingStart = day * 1440 + (startTime ? minutesOfDayNB(startTime) : 0);
+  const bookingEnd = day * 1440 + (endTime ? minutesOfDayNB(endTime) : 1440);
+  const overlaps = intervals.some(function (iv) { return bookingStart < iv[1] && bookingEnd > iv[0]; });
   return !overlaps;
 }
 function addDays(dateStr, n) {
@@ -4622,20 +4634,13 @@ async function loadDiscountRules() {
     document.getElementById('r-nonprofit').value = r.nonprofit_multiplier;
     document.getElementById('r-extended-mult').value = r.extended_hours_multiplier;
     document.getElementById('r-extended-threshold').value = r.extended_hours_threshold;
-    // weekend_days_list is the normalised array the API sends; the CSV is
-    // only a fallback for an older response. Parsing the CSV blindly would
-    // turn an empty string into [0] and silently tick Sunday.
-    const rawDays = Array.isArray(r.weekend_days_list)
-      ? r.weekend_days_list
-      : String(r.weekend_days == null ? '0,6' : r.weekend_days).split(',');
-    const weekendDays = rawDays.map(function (d) { return parseInt(d, 10); }).filter(function (n) { return !isNaN(n); });
-    document.querySelectorAll('.r-weekend-day').forEach(function (cb) {
-      cb.checked = weekendDays.indexOf(Number(cb.value)) !== -1;
-    });
-    document.getElementById('r-weekend-start').value = r.weekend_start_time || '00:00';
-    document.getElementById('r-weekend-end').value = r.weekend_end_time || '23:59';
+    if (r.weekend_start_day != null) document.getElementById('r-weekend-start-day').value = String(r.weekend_start_day);
+    if (r.weekend_end_day != null) document.getElementById('r-weekend-end-day').value = String(r.weekend_end_day);
+    document.getElementById('r-weekend-start-time').value = r.weekend_start_time || '00:00';
+    document.getElementById('r-weekend-end-time').value = r.weekend_end_time || '23:59';
+    renderWeekendSummary();
     if (r.weekend_columns_present === false) {
-      showRulesResult('error', 'The weekend-period columns are not in BigQuery yet — run alter-discount-rules-weekend.sql, then reload. Until then pricing uses the defaults shown (Sat + Sun, all day) and saving the weekend period will be refused.');
+      showRulesResult('error', 'The weekend-period columns are not in BigQuery yet — run alter-discount-rules-weekend.sql, then reload. Until then pricing uses the defaults shown (Saturday 12:00 AM to Sunday 11:59 PM) and saving the weekend period will be refused.');
     }
   } catch (err) {
     showRulesResult('error', 'Could not load current discount rules (' + err.message + '). Showing defaults — check before saving.');
@@ -4741,22 +4746,16 @@ document.getElementById('btn-add-room').addEventListener('click', async function
 
 document.getElementById('btn-generate-rules').addEventListener('click', async function () {
   const btn = this;
-  const weekendStart = document.getElementById('r-weekend-start').value;
-  const weekendEnd = document.getElementById('r-weekend-end').value;
-  if (weekendStart && weekendEnd && weekendEnd <= weekendStart) {
-    showRulesResult('error', 'The weekend period\'s end time has to be after its start time.');
-    return;
-  }
-  const weekendDays = Array.prototype.slice.call(document.querySelectorAll('.r-weekend-day:checked'))
-    .map(function (cb) { return Number(cb.value); });
+  const weekend = weekendFieldValues();
   const payload = {
     weekdayMultiplier: parseFloat(document.getElementById('r-weekday').value),
     nonprofitMultiplier: parseFloat(document.getElementById('r-nonprofit').value),
     extendedHoursMultiplier: parseFloat(document.getElementById('r-extended-mult').value),
     extendedHoursThreshold: parseFloat(document.getElementById('r-extended-threshold').value),
-    weekendDays: weekendDays,
-    weekendStartTime: weekendStart,
-    weekendEndTime: weekendEnd
+    weekendStartDay: weekend.startDay,
+    weekendStartTime: weekend.startTime,
+    weekendEndDay: weekend.endDay,
+    weekendEndTime: weekend.endTime
   };
   btn.disabled = true; btn.textContent = 'Saving…';
   try {
@@ -4772,9 +4771,9 @@ document.getElementById('btn-generate-rules').addEventListener('click', async fu
     // The in-page price preview reads these, so refresh it rather than
     // leaving New Booking quoting the old weekend period until a reload.
     await loadPricingRules();
-    showRulesResult('success', weekendDays.length
-      ? 'Discount rules saved.'
-      : 'Discount rules saved. No weekend days are ticked, so every booking now gets the weekday discount.');
+    showRulesResult('success', weekendIntervalsNB(weekend).length
+      ? 'Discount rules saved. Weekend runs ' + WEEKEND_DAY_NAMES[weekend.startDay] + ' ' + fmt12(weekend.startTime) + ' to ' + WEEKEND_DAY_NAMES[weekend.endDay] + ' ' + fmt12(weekend.endTime) + '.'
+      : 'Discount rules saved. The weekend period is empty, so every booking now gets the weekday discount.');
   } catch (err) {
     showRulesResult('error', 'Could not save: ' + err.message);
   } finally {
@@ -4783,8 +4782,52 @@ document.getElementById('btn-generate-rules').addEventListener('click', async fu
 });
 
 
+
+// ---- Weekend period summary (Rooms & Rates) ----
+const WEEKEND_DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const WEEKEND_DAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+function weekendFieldValues() {
+  return {
+    startDay: Number(document.getElementById('r-weekend-start-day').value),
+    startTime: document.getElementById('r-weekend-start-time').value || '00:00',
+    endDay: Number(document.getElementById('r-weekend-end-day').value),
+    endTime: document.getElementById('r-weekend-end-time').value || '23:59'
+  };
+}
+function fmt12(hhmm) {
+  const parts = String(hhmm || '').split(':');
+  let h = Number(parts[0]) || 0;
+  const m = String(parts[1] || '00').padStart(2, '0');
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 === 0 ? 12 : h % 12;
+  return h + ':' + m + ' ' + ampm;
+}
+function renderWeekendSummary() {
+  const box = document.getElementById('r-weekend-summary');
+  if (!box) return;
+  const v = weekendFieldValues();
+  const intervals = weekendIntervalsNB(v);
+  if (!intervals.length) {
+    box.innerHTML = '<strong>No weekend period.</strong> Every booking gets the weekday discount.';
+    return;
+  }
+  const covered = [];
+  for (let i = 0; i < 7; i++) {
+    const d = (v.startDay + i) % 7;
+    const dayStart = d * 1440, dayEnd = dayStart + 1440;
+    if (intervals.some(function (iv) { return dayStart < iv[1] && dayEnd > iv[0]; })) covered.push(WEEKEND_DAY_SHORT[d]);
+  }
+  box.innerHTML = '<strong>' + WEEKEND_DAY_NAMES[v.startDay] + ' ' + fmt12(v.startTime) + '</strong> until <strong>' +
+    WEEKEND_DAY_NAMES[v.endDay] + ' ' + fmt12(v.endTime) + '</strong> — full price. Touches ' + covered.join(', ') + '.';
+}
+['r-weekend-start-day', 'r-weekend-start-time', 'r-weekend-end-day', 'r-weekend-end-time'].forEach(function (id) {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', renderWeekendSummary);
+});
+
 function initRoomsRatesTab() {
   window.__rrLoaded = true;
+  renderWeekendSummary();
   loadRooms();
   loadDiscountRules();
 }

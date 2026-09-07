@@ -2233,11 +2233,12 @@ function renderBookingRow(b, isSubRow, seriesPerOccurrenceMode) {
   // send/edit/download lives in the invoice icon's popup, and marking
   // paid/matching payments moved entirely into Finance.
   // An invoice the renter already holds can't be quietly contradicted by
-  // an edit. Non-admins don't see Edit at all in that state; admins do,
-  // and get told to void it first (the server enforces both).
+  // an edit — but voiding is open to anyone with Finance access now, so
+  // everyone sees Edit and everyone gets told to void it first. Hiding the
+  // option only left people unable to see what the route was.
   const invoiceAlreadySent = !!b.invoice_sent_at;
   const actions = [];
-  if (canEditThis && (!invoiceAlreadySent || window.__hccgcIsAdmin)) {
+  if (canEditThis) {
     actions.push({
       label: 'Edit',
       fn: () => invoiceAlreadySent ? showInvoiceSentEditNotice() : openEditModal(b.booking_id)
@@ -2290,7 +2291,7 @@ function renderSeriesSummaryRow(item) {
 
   const seriesInvoiceSent = item.occurrences.some(function (o) { return o.invoice_sent_at; });
   const actions = [];
-  if (canEditThis && (!seriesInvoiceSent || window.__hccgcIsAdmin)) {
+  if (canEditThis) {
     actions.push({
       label: 'Edit series',
       fn: () => seriesInvoiceSent ? showInvoiceSentEditNotice() : openSeriesEditModal(item.seriesId)
@@ -3094,8 +3095,9 @@ async function loadOrgsForEditSelect(selectId, renterId, currentOrgId) {
     // Leave the "no organization" default in place if this fails.
   }
 }
-// Shown when an admin picks Edit on a booking whose invoice has already
-// gone out — explains the required order rather than failing on save.
+// Shown when someone picks Edit on a booking whose invoice has already gone
+// out — explains the required order rather than failing on save. Voiding is
+// no longer admin-only, so this is the route for everyone.
 function showInvoiceSentEditNotice() {
   alert(
     'An invoice has already been sent for this booking.\n\n' +

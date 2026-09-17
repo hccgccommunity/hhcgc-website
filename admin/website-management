@@ -2647,18 +2647,27 @@ document.getElementById('btn-save').addEventListener('click', async function() {
 
     // Mirror into Manage Events. See syncPageToEvents — one event per page,
     // updated in place, rather than a fresh one on every save.
-    var syncResult = await syncPageToEvents(fb, {
-      pageId: pageId,
-      slug: slug,
-      isInit: isInit,
-      pageData: pageData,
-      enabled: document.getElementById('sync-to-events').checked,
-      description: document.getElementById('sync-description').value.trim()
-    });
+    // The page itself is already saved at this point, so a sync failure is
+    // reported alongside it rather than as a failed save (which left the
+    // modal open and invited a second click).
+    var syncResult;
+    try {
+      syncResult = await syncPageToEvents(fb, {
+        pageId: pageId,
+        slug: slug,
+        isInit: isInit,
+        pageData: pageData,
+        enabled: document.getElementById('sync-to-events').checked,
+        description: document.getElementById('sync-description').value.trim()
+      });
+    } catch (syncErr) {
+      console.error('Events sync failed:', syncErr);
+      syncResult = { error: syncErr.message || 'unknown error' };
+    }
 
     btn.disabled = false; btn.innerHTML = orig;
     closeModalMP();
-    showStatusMP('Page saved!' + (pageData.pageEnabled && slug ? ' Live at hccgc.org/' + slug : ' Page is hidden.') + syncStatusSuffix(syncResult), 'success');
+    showStatusMP('Page saved!' + (pageData.pageEnabled && slug ? ' Live at hccgc.org/' + slug : ' Page is hidden.') + syncStatusSuffix(syncResult), (syncResult && syncResult.error) ? 'error' : 'success');
     loadPages();
   } catch(err) {
     btn.disabled = false; btn.innerHTML = orig;
@@ -2670,42 +2679,115 @@ document.getElementById('btn-save').addEventListener('click', async function() {
 /* ===================== PAGE -> EVENTS MIRROR ===================== */
 // A page that syncs to Manage Events gets ONE event, not one per save.
 //
-// The original code called addDoc unconditionally every time the page was
-// saved, so editing a page five times left five identical entries on the
-// public events page. The mirror is now keyed to the page it came from:
-// found, updated in place, and any earlier duplicates deleted as they turn
-// up — so the first save of an already-duplicated page cleans it up.
+// The mirror is found in this order:
+//   1. page.eventId — the event's document id, stored on the page when the
+//      event is created. A direct get, no query involved.
+//   2. events where pageId == the page's id.
+//   3. events where pageSlug == the slug (entries from before pageId existed).
+// The oldest match is kept and updated in place; any others are duplicates
+// and are deleted.
 //
-// Matching is by pageId, which is written from now on. Events created by the
-// old code have no pageId, only pageSlug, so that is checked as well; it is
-// the only handle those duplicates have.
+// The previous version swallowed lookup errors and carried on as if nothing
+// had been found, so any failed query fell through to addDoc and produced a
+// new event on every save — the exact bug it was written to stop. A lookup
+// that errors now aborts the sync instead: the page is still saved, the
+// status bar says the events page was not touched, and nothing is created.
+var PUBLIC_SITE_ORIGIN = 'https://hccgc.org';
+
+// RSVP link for a mirrored event is the page itself. Only given while the
+// page is published — a hidden page 404s, so a blank link (which the events
+// page shows as "Registrations will open soon!") is the honest state.
+function pageRsvpUrl(slug, pageEnabled) {
+  var clean = String(slug || '').trim().replace(/^\/+|\/+$/g, '');
+  return (clean && pageEnabled) ? PUBLIC_SITE_ORIGIN + '/' + clean : '';
+}
+
 async function findMirroredEvents(fb, pageId, slug) {
   var byId = {};
+  var errors = [];
+
+  // 1. Stored link on the page document.
+  var linkedId = '';
+  if (pageId) {
+    try {
+      var pageSnap = await fb.getDoc(fb.doc(fb.db, fb.PAGES_COLLECTION, pageId));
+      linkedId = (pageSnap.exists() && pageSnap.data().eventId) || '';
+    } catch (err) {
+      console.error('Could not read page ' + pageId + ' for its eventId:', err);
+      errors.push(err);
+    }
+  }
+  if (linkedId) {
+    try {
+      var evSnap = await fb.getDoc(fb.doc(fb.db, fb.EVENTS_COLLECTION, linkedId));
+      if (evSnap.exists()) byId[evSnap.id] = { id: evSnap.id, data: evSnap.data(), linked: true };
+      // Not existing is fine: someone deleted it on the Events tab. The
+      // queries below still run, and failing those a new one is created.
+    } catch (err) {
+      console.error('Could not read linked event ' + linkedId + ':', err);
+      errors.push(err);
+    }
+  }
+
+  // 2 + 3. Queries — also how duplicates are found.
   async function collect(field, value) {
     if (!value) return;
     try {
       var snap = await fb.getDocs(fb.query(
         fb.collection(fb.db, fb.EVENTS_COLLECTION), fb.where(field, '==', value)));
-      snap.forEach(function (d) { byId[d.id] = { id: d.id, data: d.data() }; });
+      snap.forEach(function (d) {
+        var data = d.data();
+        // A slug match that carries a different pageId belongs to another
+        // page (a slug can be reused after a page is deleted) — not ours to
+        // update or delete. The slug fallback is only for legacy entries.
+        if (field === 'pageSlug' && data.pageId && data.pageId !== pageId) return;
+        if (!byId[d.id]) byId[d.id] = { id: d.id, data: data, linked: false };
+      });
     } catch (err) {
-      // A failed lookup must not block saving the page — worst case the
-      // mirror is created fresh and the old one is tidied up next time.
       console.error('Could not look up mirrored events by ' + field + ':', err);
+      errors.push(err);
     }
   }
   await collect('pageId', pageId);
   await collect('pageSlug', slug);
-  return Object.keys(byId).map(function (id) { return byId[id]; });
+
+  return { matches: Object.keys(byId).map(function (id) { return byId[id]; }), errors: errors };
+}
+
+// Fields the page owns on its event. Anything else on the event document
+// (createdAt, createdBy*) is left alone on update.
+var MIRRORED_EVENT_FIELDS = ['type', 'name', 'description', 'date', 'endDate', 'fromTime', 'toTime',
+  'schedule', 'category', 'cost', 'rsvpUrl', 'pageId', 'pageSlug'];
+
+function mirroredFieldsDiffer(existing, record) {
+  for (var i = 0; i < MIRRORED_EVENT_FIELDS.length; i++) {
+    var k = MIRRORED_EVENT_FIELDS[i];
+    if (String(existing[k] == null ? '' : existing[k]) !== String(record[k] == null ? '' : record[k])) return true;
+  }
+  return false;
+}
+
+async function setPageEventLink(fb, pageId, eventId) {
+  if (!pageId) return;
+  try {
+    await fb.setDoc(fb.doc(fb.db, fb.PAGES_COLLECTION, pageId), { eventId: eventId || '' }, { merge: true });
+  } catch (err) {
+    // Not fatal: the pageId query still finds the event next time.
+    console.error('Could not store eventId on page ' + pageId + ':', err);
+  }
 }
 
 async function syncPageToEvents(fb, opts) {
-  var result = { created: 0, updated: 0, removed: 0 };
+  var result = { created: 0, updated: 0, unchanged: 0, removed: 0 };
   if (!opts.pageId && !opts.slug) return result;
 
-  var existing = await findMirroredEvents(fb, opts.pageId, opts.slug);
-  // Oldest first, so the entry that gets kept is the one that has been on
-  // the events page all along rather than an arbitrary duplicate.
+  var found = await findMirroredEvents(fb, opts.pageId, opts.slug);
+  var existing = found.matches;
+
+  // Keep the linked event if there is one; otherwise the oldest, so the entry
+  // that has been on the events page all along survives.
   existing.sort(function (a, b) {
+    if (a.linked !== b.linked) return a.linked ? -1 : 1;
     var at = (a.data.createdAt && a.data.createdAt.seconds) || 0;
     var bt = (b.data.createdAt && b.data.createdAt.seconds) || 0;
     return at - bt;
@@ -2719,6 +2801,8 @@ async function syncPageToEvents(fb, opts) {
       await fb.deleteDoc(fb.doc(fb.db, fb.EVENTS_COLLECTION, existing[i].id));
       result.removed++;
     }
+    await setPageEventLink(fb, opts.pageId, '');
+    if (found.errors.length) result.warning = 'some entries may not have been found';
     return result;
   }
 
@@ -2727,58 +2811,75 @@ async function syncPageToEvents(fb, opts) {
     type: opts.isInit ? 'initiative' : 'event',
     name: pageData.pageTitle,
     description: opts.description,
-    date: opts.isInit ? pageData.startDate : pageData.date,
+    date: (opts.isInit ? pageData.startDate : pageData.date) || '',
     category: pageData.category || '',
     cost: pageData.costDisplay || '',
-    rsvpUrl: pageData.zeffyUrl || '',
-    createdByName: '',
-    createdByEmail: '',
+    rsvpUrl: pageRsvpUrl(opts.slug, pageData.pageEnabled),
     pageId: opts.pageId,
     pageSlug: opts.slug
   };
   if (!opts.isInit) {
-    eventRecord.fromTime = pageData.fromTime;
-    eventRecord.toTime = pageData.toTime;
+    eventRecord.fromTime = pageData.fromTime || '';
+    eventRecord.toTime = pageData.toTime || '';
     // Cleared rather than left behind: switching a page from initiative to
     // event otherwise kept the old initiative-only fields on the mirror,
     // and merge writes would never remove them.
     eventRecord.endDate = '';
     eventRecord.schedule = '';
   } else {
-    eventRecord.endDate = pageData.endDate;
-    eventRecord.schedule = pageData.scheduleText;
+    eventRecord.endDate = pageData.endDate || '';
+    eventRecord.schedule = pageData.scheduleText || '';
     eventRecord.fromTime = '';
     eventRecord.toTime = '';
   }
 
   if (existing.length) {
-    await fb.setDoc(fb.doc(fb.db, fb.EVENTS_COLLECTION, existing[0].id), eventRecord, { merge: true });
-    result.updated = 1;
+    var keep = existing[0];
+    if (mirroredFieldsDiffer(keep.data, eventRecord)) {
+      await fb.setDoc(fb.doc(fb.db, fb.EVENTS_COLLECTION, keep.id), eventRecord, { merge: true });
+      result.updated = 1;
+    } else {
+      result.unchanged = 1;
+    }
     for (var j = 1; j < existing.length; j++) {
       await fb.deleteDoc(fb.doc(fb.db, fb.EVENTS_COLLECTION, existing[j].id));
       result.removed++;
     }
+    if (!keep.linked) await setPageEventLink(fb, opts.pageId, keep.id);
     return result;
   }
 
-  // createdAt is set only on creation — writing it on every save would keep
-  // resetting the event's age.
+  // Nothing found. If any lookup errored, "nothing found" is not trustworthy
+  // and creating here is how duplicates were being made — stop instead.
+  if (found.errors.length) {
+    throw new Error('could not check for an existing events-page entry (' +
+      (found.errors[0].message || 'lookup failed') + '), so none was created');
+  }
+
+  // createdAt/createdBy are set only on creation — writing them on every save
+  // would keep resetting the event's age and blanking who added it.
   eventRecord.createdAt = fb.serverTimestamp();
-  await fb.addDoc(fb.collection(fb.db, fb.EVENTS_COLLECTION), eventRecord);
+  eventRecord.createdByName = (typeof currentUser !== 'undefined' && currentUser) ? (currentUser.displayName || '') : '';
+  eventRecord.createdByEmail = (typeof currentUser !== 'undefined' && currentUser) ? (currentUser.email || '') : '';
+  var ref = await fb.addDoc(fb.collection(fb.db, fb.EVENTS_COLLECTION), eventRecord);
   result.created = 1;
+  await setPageEventLink(fb, opts.pageId, ref.id);
   return result;
 }
 
 function syncStatusSuffix(r) {
   if (!r) return '';
+  if (r.error) return ' The events page was not updated: ' + r.error + '.';
   var bits = [];
   // Sync turned off is a removal, not a duplicate cleanup — calling it a
   // duplicate would read as if something had gone wrong.
   if (r.disabled) {
     if (r.removed) bits.push('Removed ' + (r.removed === 1 ? 'its entry' : r.removed + ' entries') + ' from the events page.');
+    if (r.warning) bits.push('Check the Events tab: ' + r.warning + '.');
   } else {
     if (r.created) bits.push('Added to the events page.');
     if (r.updated) bits.push('Its events-page entry was updated.');
+    if (r.unchanged) bits.push('Its events-page entry was already up to date.');
     // Said out loud rather than done quietly — an admin who has been looking
     // at eight copies of the same event should see them go.
     if (r.removed) bits.push('Removed ' + r.removed + ' duplicate' + (r.removed === 1 ? '' : 's') + ' from the events page.');

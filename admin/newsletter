@@ -101,6 +101,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .nl-badge { display: inline-block; font-size: 0.66rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 8px; border-radius: 999px; }
 .nl-badge.draft { background: var(--surface-soft); color: var(--saffron-dark); }
 .nl-badge.sent { background: var(--green-bg); color: var(--green); }
+.nl-badge.live { background: #e9eefb; color: #3b4fa0; }
 
 /* ── Editor shell ────────────────────────────────────────────────── */
 .nl-shell { display: grid; grid-template-columns: 138px minmax(0,1fr) 306px; gap: 16px; align-items: start; }
@@ -128,6 +129,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .nl-color { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 28px; border: 1px solid var(--border); border-radius: 7px; background: #fff; cursor: pointer; font-size: 0.82rem; font-weight: 700; }
 .nl-color input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 
+/* ==NL-PAGE-CSS-START== (shared verbatim with the public /newsletters page) */
 .nl-canvas { display: flex; flex-direction: column; align-items: center; gap: 26px; padding-bottom: 20px; }
 .nl-page-wrap { position: relative; }
 .nl-page-num { position: absolute; left: -30px; top: 0; font-size: 0.72rem; font-weight: 800; color: var(--muted); }
@@ -236,6 +238,36 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .nl-back-grid h3 { font-size: 1rem; margin-bottom: 4px; }
 .nl-footer-bar { background: var(--d); color: #fff; padding: 22px 66px; font-size: 0.86rem; display: flex; justify-content: space-between; gap: 20px; }
 .nl-footer-bar * { color: #fff !important; }
+
+/* Full-bleed photo cover / back page: the picture fills the sheet and the
+   words sit on top of it. The scrim is aimed at wherever the text sits —
+   a fixed one is either too heavy for a dark photo or too light for a
+   bright one, and nobody vets a photograph for contrast before using it. */
+.nl-bleed { position: absolute; inset: 0; }
+.nl-bleed > .nl-imgslot { position: absolute; inset: 0; }
+.nl-bleed-scrim { position: absolute; inset: 0; pointer-events: none; }
+/* The overlay covers the whole sheet, so it would otherwise swallow every
+   click meant for the photograph underneath and leave the picture
+   unchangeable once the layout was switched on. Only the text blocks
+   themselves take the pointer; the empty space hands it back to the image. */
+.nl-bleed-inner { position: absolute; inset: 0; z-index: 2; padding: 76px 66px; display: flex; flex-direction: column; pointer-events: none; }
+.nl-bleed-inner > * { pointer-events: auto; }
+.nl-bleed-inner.pos-top { justify-content: flex-start; }
+.nl-bleed-inner.pos-middle { justify-content: center; }
+.nl-bleed-inner.pos-bottom { justify-content: flex-end; }
+.nl-bleed-inner, .nl-bleed-inner h1, .nl-bleed-inner h2, .nl-bleed-inner h3 { color: #fff; }
+.nl-bleed-inner h1 { font-size: 3.1rem; margin-bottom: 16px; }
+.nl-bleed-inner .nl-cover-sub { color: rgba(255,255,255,0.93); }
+.nl-bleed-inner .nl-eyebrow { color: #ffd9ab; }
+.nl-bleed-inner .nl-underline { background: #fff; }
+.nl-bleed-inner .nl-text { color: rgba(255,255,255,0.94); }
+.nl-bleed-inner .nl-cover-foot { color: #fff; margin-top: 26px; }
+.nl-bleed-badge { align-self: flex-start; background: rgba(0,0,0,0.42); border: 1.5px solid rgba(255,255,255,0.55);
+  color: #fff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase;
+  padding: 9px 18px; border-radius: 999px; font-family: Arial, Helvetica, sans-serif; margin-bottom: 22px; }
+.nl-bleed-panel { background: rgba(0,0,0,0.40); border: 1px solid rgba(255,255,255,0.26); border-radius: 14px; padding: 24px 26px; margin-top: 22px; }
+.nl-bleed-panel *, .nl-bleed-panel { color: #fff !important; }
+/* ==NL-PAGE-CSS-END== */
 
 /* Sidebar */
 .nl-side { position: sticky; top: 104px; max-height: calc(100vh - 130px); overflow-y: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; }
@@ -368,6 +400,19 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
         <label id="nl-head-toggle-wrap" style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:0.82rem;">
           <input type="checkbox" id="nl-head-toggle" checked> Show heading on this page
         </label>
+        <div id="nl-bleed-wrap" style="display:none;margin-top:10px;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:0.82rem;">
+            <input type="checkbox" id="nl-bleed-toggle"> Photo fills the page, text on top
+          </label>
+          <div class="field" id="nl-overlay-wrap" style="margin:10px 0 0;">
+            <label for="nl-overlay-pos">Text sits</label>
+            <select id="nl-overlay-pos">
+              <option value="bottom">At the bottom</option>
+              <option value="middle">In the middle</option>
+              <option value="top">At the top</option>
+            </select>
+          </div>
+        </div>
         <div class="stack" style="margin-top:10px;">
           <button class="btn-secondary" id="btn-dup-page">Duplicate page</button>
           <div style="display:flex;gap:8px;">
@@ -382,6 +427,15 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
           <button class="btn-secondary" id="btn-save">Save</button>
           <button class="btn-secondary" id="btn-pdf">Download PDF</button>
           <button class="btn-primary" id="btn-open-send">Email this newsletter&hellip;</button>
+        </div>
+
+        <h4>Website</h4>
+        <div id="pub-state" class="nl-hint" style="margin-bottom:8px;">Not published.</div>
+        <div class="stack">
+          <button class="btn-secondary" id="btn-publish">Publish to website</button>
+          <button class="btn-danger" id="btn-unpublish" style="display:none;">Remove from website</button>
+          <a class="btn-secondary" id="link-public" href="/newsletters" target="_blank" rel="noopener"
+             style="display:none;text-align:center;text-decoration:none;">View on the site &rarr;</a>
         </div>
         <div id="editor-result" class="result-box" style="display:none;margin-top:12px;"></div>
 
@@ -593,6 +647,7 @@ const THEMES = [
   { key: 'slate',   name: 'Slate',   a: '#4b5563', d: '#1f2937' }
 ];
 
+/* ==NL-RENDER-START== (shared verbatim with the public /newsletters page) */
 /* ── Layouts ─────────────────────────────────────────────────────────
    A layout is a *structure*, not a subject: how the sheet is divided, and
    nothing about what goes in it. Columns split the page vertically, rows
@@ -661,6 +716,21 @@ function ed(page, name, fallback, tag, cls, style) {
     ' data-slot="' + name + '" contenteditable="true">' + html + '</' + tag + '>';
 }
 
+/* Photo behind the words. The scrim leans towards wherever the text sits, so
+   a caption at the bottom is not fighting a gradient darkest at the top. */
+const BLEED_SCRIMS = {
+  top:    'linear-gradient(180deg, rgba(0,0,0,0.74) 0%, rgba(0,0,0,0.16) 55%, rgba(0,0,0,0.18) 100%)',
+  middle: 'linear-gradient(180deg, rgba(0,0,0,0.32) 0%, rgba(0,0,0,0.58) 50%, rgba(0,0,0,0.32) 100%)',
+  bottom: 'linear-gradient(180deg, rgba(0,0,0,0.16) 0%, rgba(0,0,0,0.12) 40%, rgba(0,0,0,0.74) 100%)'
+};
+function bleedPage(page, innerHtml) {
+  var pos = (page.opts && page.opts.overlay) || 'bottom';
+  return '<div class="nl-bleed">' + imgSlot(page, 'image') +
+    '<div class="nl-bleed-scrim" style="background:' + (BLEED_SCRIMS[pos] || BLEED_SCRIMS.bottom) + ';"></div>' +
+    '<div class="nl-bleed-inner pos-' + pos + '">' + innerHtml + '</div>' +
+  '</div>';
+}
+
 /* The heading is a property of the page, not of the layout — any structural
    layout can carry one or go straight into the content. */
 function headBlock(page) {
@@ -724,6 +794,24 @@ function renderPage(page) {
   page.opts = page.opts || {};
   var L = layoutOf(page.layout);
 
+  if (L.key === 'cover' && page.opts.bleed) {
+    return bleedPage(page,
+      ed(page, 'kicker', 'HCCGC &middot; Newsletter', 'div', 'nl-bleed-badge') +
+      ed(page, 'title', 'A season of coming together', 'h1') +
+      ed(page, 'subtitle', 'News, events and gratitude from the Hindu Community Center of Greater Cincinnati.', 'div', 'nl-cover-sub') +
+      '<div class="nl-cover-foot">' + ed(page, 'date', monthYear(), 'div') + ed(page, 'edition', 'hccgc.org', 'div') + '</div>');
+  }
+  if (L.key === 'back' && page.opts.bleed) {
+    return bleedPage(page,
+      headBlock(page) +
+      ed(page, 'body', '<p>None of this happens without volunteers and donors. If you would like to help with an event, teach a class, or give, we would love to hear from you.</p>', 'div', 'nl-text') +
+      '<div class="nl-bleed-panel"><div class="nl-back-grid">' +
+        '<div>' + ed(page, 'c1t', 'Visit', 'h3') + ed(page, 'c1b', '<p>4920 Klatte Rd,<br>Cincinnati, OH 45244</p>', 'div') + '</div>' +
+        '<div>' + ed(page, 'c2t', 'Write', 'h3') + ed(page, 'c2b', '<p>info@hccgc.org</p>', 'div') + '</div>' +
+        '<div>' + ed(page, 'c3t', 'Give', 'h3') + ed(page, 'c3b', '<p>hccgc.org/donate-now</p>', 'div') + '</div>' +
+        '<div>' + ed(page, 'c4t', 'Rent the hall', 'h3') + ed(page, 'c4b', '<p>hccgc.org/facility-rental</p>', 'div') + '</div>' +
+      '</div></div>');
+  }
   if (L.key === 'cover') {
     return '<div class="nl-cover">' +
       '<div class="nl-cover-top">' + imgSlot(page, 'image') +
@@ -819,6 +907,8 @@ function thumbSkeleton(key) {
   return t + bars + bars;
 }
 
+/* ==NL-RENDER-END== */
+
 /* ── State ───────────────────────────────────────────────────────── */
 var DOC = null;          // { id, title, theme, pages: [ {layout, slots} ] }
 var PAGE_I = 0;
@@ -897,10 +987,16 @@ function renderLayoutButtons() {
   }).join('');
 
   var L = layoutOf(page.layout);
-  var wrap = document.getElementById('nl-head-toggle-wrap');
   var canHead = !(L.key === 'cover' || L.key === 'quote' || L.img === 'full');
-  wrap.style.display = canHead ? 'flex' : 'none';
+  document.getElementById('nl-head-toggle-wrap').style.display = canHead ? 'flex' : 'none';
   document.getElementById('nl-head-toggle').checked = !(page.opts && page.opts.head === false);
+
+  var canBleed = (L.key === 'cover' || L.key === 'back');
+  var bleedOn = !!(page.opts && page.opts.bleed);
+  document.getElementById('nl-bleed-wrap').style.display = canBleed ? 'block' : 'none';
+  document.getElementById('nl-bleed-toggle').checked = bleedOn;
+  document.getElementById('nl-overlay-wrap').style.display = bleedOn ? 'flex' : 'none';
+  document.getElementById('nl-overlay-pos').value = (page.opts && page.opts.overlay) || 'bottom';
 }
 
 function renderThemeChips(containerId, current, attr) {
@@ -1120,14 +1216,17 @@ document.getElementById('nl-themes').addEventListener('click', function (e) {
 document.getElementById('nl-title').addEventListener('input', function () {
   if (DOC) { DOC.title = this.value; markDirty(); }
 });
-document.getElementById('nl-head-toggle').addEventListener('change', function () {
+function setPageOpt(key, value) {
   if (!DOC) return;
   syncFromDom();
   DOC.pages[PAGE_I].opts = DOC.pages[PAGE_I].opts || {};
-  DOC.pages[PAGE_I].opts.head = this.checked;
+  DOC.pages[PAGE_I].opts[key] = value;
   markDirty();
   renderCanvas();
-});
+}
+document.getElementById('nl-head-toggle').addEventListener('change', function () { setPageOpt('head', this.checked); });
+document.getElementById('nl-bleed-toggle').addEventListener('change', function () { setPageOpt('bleed', this.checked); });
+document.getElementById('nl-overlay-pos').addEventListener('change', function () { setPageOpt('overlay', this.value); });
 
 /* ── Modals ──────────────────────────────────────────────────────── */
 function openModal(id) { document.getElementById(id).style.display = 'flex'; }
@@ -1164,6 +1263,11 @@ async function loadLibrary() {
     var snap = await f.getDocs(f.query(f.collection(f.db, 'newsletters'), f.orderBy('updatedAt', 'desc')));
     LIB = [];
     snap.forEach(function (d) { LIB.push(Object.assign({ id: d.id }, d.data())); });
+    PUB_IDS = {};
+    try {
+      var pubSnap = await f.getDocs(f.collection(f.db, 'publishedNewsletters'));
+      pubSnap.forEach(function (d) { PUB_IDS[d.id] = true; });
+    } catch (e) { /* the library must still list even if the public copy is unreadable */ }
     if (!LIB.length) { el.innerHTML = '<div class="card"><div class="empty-state">Nothing here yet. Hit <strong>+ New newsletter</strong> to make your first one.</div></div>'; return; }
     el.innerHTML = '<div class="nl-lib-grid">' + LIB.map(function (n) {
       var cover = (n.pages && n.pages[0] && n.pages[0].slots && n.pages[0].slots.image) || '';
@@ -1174,6 +1278,7 @@ async function loadLibrary() {
         '<div class="nl-lib-meta">' +
           '<div style="font-weight:700;color:var(--text);margin-bottom:4px;">' + escHtml(n.title || 'Untitled') + '</div>' +
           '<span class="nl-badge ' + (n.lastSentAt ? 'sent' : 'draft') + '">' + (n.lastSentAt ? 'Sent' : 'Draft') + '</span>' +
+          (PUB_IDS[n.id] ? ' <span class="nl-badge live">On the site</span>' : '') +
           ' &middot; ' + (n.pages ? n.pages.length : 0) + ' page' + ((n.pages || []).length === 1 ? '' : 's') +
           '<div style="margin-top:6px;">Updated ' + escHtml(fmtDate(n.updatedAt)) + (n.updatedBy ? ' by ' + escHtml(n.updatedBy) : '') + '</div>' +
         '</div>' +
@@ -1230,6 +1335,7 @@ async function openDoc(id) {
   goTab('editor');
   renderCanvas();
   resultBox.style.display = 'none';
+  loadPubState();
 }
 function showEditor(on) {
   document.getElementById('editor-shell').style.display = on ? 'grid' : 'none';
@@ -1292,6 +1398,92 @@ async function saveDoc(quiet) {
   DIRTY = false;
   if (!quiet) say('Saved.', 'success');
 }
+/* ── Publishing to the public site ───────────────────────────────────
+   A published issue is a *copy* in `publishedNewsletters`, not a flag on the
+   draft. The drafts collection is staff-only on purpose — publishing must not
+   mean opening half-written work to the world — so the public page reads a
+   separate collection that only ever contains what someone chose to publish.
+   Re-publishing overwrites the copy and keeps the original publishedAt.     */
+var PUB = null;
+var PUB_IDS = {};
+
+function plainText(html) {
+  var d = document.createElement('div');
+  d.innerHTML = html || '';
+  return (d.textContent || '').replace(/\s+/g, ' ').trim();
+}
+function coverOf(doc) {
+  for (var i = 0; i < doc.pages.length; i++) {
+    if (doc.pages[i].slots && doc.pages[i].slots.image) return doc.pages[i].slots.image;
+  }
+  return '';
+}
+function renderPubState() {
+  if (!DOC) return;
+  var el = document.getElementById('pub-state');
+  var pubBtn = document.getElementById('btn-publish');
+  var unBtn = document.getElementById('btn-unpublish');
+  var link = document.getElementById('link-public');
+  if (PUB) {
+    el.innerHTML = 'Live on the site since <strong>' + escHtml(fmtDate(PUB.publishedAt) || 'today') + '</strong>.';
+    pubBtn.textContent = 'Update the published version';
+    unBtn.style.display = 'block';
+    link.style.display = 'block';
+    link.href = '/newsletters?id=' + encodeURIComponent(DOC.id);
+  } else {
+    el.textContent = 'Not published.';
+    pubBtn.textContent = 'Publish to website';
+    unBtn.style.display = 'none';
+    link.style.display = 'none';
+  }
+}
+async function loadPubState() {
+  PUB = null;
+  try {
+    var f = fb();
+    var snap = await f.getDoc(f.doc(f.db, 'publishedNewsletters', DOC.id));
+    if (snap.exists()) PUB = snap.data();
+  } catch (e) { /* an unpublished newsletter must still open */ }
+  renderPubState();
+}
+document.getElementById('btn-publish').addEventListener('click', async function () {
+  if (!DOC) return;
+  this.disabled = true;
+  try {
+    await saveDoc(true);
+    var f = fb();
+    await f.setDoc(f.doc(f.db, 'publishedNewsletters', DOC.id), {
+      title: DOC.title,
+      headline: plainText((DOC.pages[0] || { slots: {} }).slots.title) || DOC.title,
+      summary: plainText((DOC.pages[0] || { slots: {} }).slots.subtitle).slice(0, 300),
+      coverImage: coverOf(DOC),
+      theme: DOC.theme,
+      pages: DOC.pages,
+      publishedAt: (PUB && PUB.publishedAt) ? PUB.publishedAt : f.serverTimestamp(),
+      updatedAt: f.serverTimestamp(),
+      publishedBy: window.__hccgcCurrentUser.email
+    });
+    say(PUB ? 'The published version has been updated.' : 'Published — it is live at /newsletters.', 'success');
+    await loadPubState();
+    loadLibrary();
+  } catch (err) {
+    say('Could not publish: ' + err.message, 'error');
+  } finally { this.disabled = false; }
+});
+document.getElementById('btn-unpublish').addEventListener('click', async function () {
+  if (!DOC || !window.confirm('Take this newsletter off the public site? The draft is kept.')) return;
+  this.disabled = true;
+  try {
+    var f = fb();
+    await f.deleteDoc(f.doc(f.db, 'publishedNewsletters', DOC.id));
+    say('Removed from the website.', 'success');
+    await loadPubState();
+    loadLibrary();
+  } catch (err) {
+    say('Could not remove: ' + err.message, 'error');
+  } finally { this.disabled = false; }
+});
+
 document.getElementById('btn-save').addEventListener('click', function () {
   saveDoc(false).catch(function (e) { say('Could not save: ' + e.message, 'error'); });
 });
@@ -1305,6 +1497,7 @@ window.addEventListener('beforeunload', function (e) {
    into a data URL first. A direct fetch is tried before the API proxy so a
    correctly CORS-configured bucket costs nothing extra.                  */
 var IMG_CACHE = {};
+var MISSED_IMAGES = 0;
 async function toDataUrl(url) {
   if (IMG_CACHE[url]) return IMG_CACHE[url];
   var blob = null;
@@ -1334,11 +1527,23 @@ async function toDataUrl(url) {
 async function inlineImages() {
   var imgs = Array.prototype.slice.call(canvasEl.querySelectorAll('img'));
   var originals = [];
+  MISSED_IMAGES = 0;
   for (var i = 0; i < imgs.length; i++) {
     var src = imgs[i].getAttribute('src') || '';
     if (!src || src.indexOf('data:') === 0) continue;
     var d = await toDataUrl(src);
-    if (d) { originals.push([imgs[i], src]); imgs[i].setAttribute('src', d); }
+    if (d) {
+      originals.push([imgs[i], src]);
+      imgs[i].setAttribute('src', d);
+    } else {
+      // A picture we could not read would taint the canvas, and a tainted
+      // canvas makes toDataURL throw — losing the whole PDF over one photo.
+      // Drop it for the duration of the capture instead: an issue with a
+      // missing picture still beats no issue at all, and the caller says so.
+      originals.push([imgs[i], src]);
+      imgs[i].removeAttribute('src');
+      MISSED_IMAGES++;
+    }
   }
   await Promise.all(imgs.map(function (im) {
     if (im.complete) return Promise.resolve();
@@ -1388,7 +1593,9 @@ document.getElementById('btn-pdf').addEventListener('click', async function () {
   try {
     var pdf = await buildPdf();
     pdf.save(pdfName());
-    say('PDF downloaded.', 'success');
+    say(MISSED_IMAGES
+      ? 'PDF downloaded, but ' + MISSED_IMAGES + ' picture(s) could not be embedded and are blank. See the CORS note in the handover doc.'
+      : 'PDF downloaded.', MISSED_IMAGES ? 'error' : 'success');
   } catch (err) {
     say('Could not build the PDF: ' + err.message, 'error');
   } finally { this.disabled = false; }
@@ -1516,6 +1723,12 @@ async function doSend(testOnly) {
   try {
     if (DIRTY) { try { await saveDoc(true); } catch (e) {} }
     var pdf = await buildPdf();
+    if (MISSED_IMAGES) {
+      if (!window.confirm(MISSED_IMAGES + ' picture(s) could not be embedded and will be blank in the attached PDF.\n\nSend anyway?')) {
+        sendSay('Cancelled. Nothing was sent.', 'error');
+        return;
+      }
+    }
     var base64 = pdf.output('datauristring').split(',')[1];
     sendSay(testOnly ? 'Sending test…' : 'Sending…');
     var r = await authedFetch(API_BASE + '/newsletter/send', {
@@ -1599,7 +1812,7 @@ window.nlBoot = nlBoot;
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js';
 import {
-  getFirestore, doc, getDoc, getDocs, collection, addDoc, updateDoc, deleteDoc,
+  getFirestore, doc, getDoc, getDocs, collection, addDoc, setDoc, updateDoc, deleteDoc,
   query, orderBy, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
 
@@ -1622,7 +1835,7 @@ var db = getFirestore(fbApp);
 
 window.__nlFb = {
   db: db, doc: doc, getDoc: getDoc, getDocs: getDocs, collection: collection,
-  addDoc: addDoc, updateDoc: updateDoc, deleteDoc: deleteDoc,
+  addDoc: addDoc, setDoc: setDoc, updateDoc: updateDoc, deleteDoc: deleteDoc,
   query: query, orderBy: orderBy, serverTimestamp: serverTimestamp
 };
 

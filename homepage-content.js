@@ -15,7 +15,9 @@
  *   <script type="module" src="/homepage-content.js"></script>
  */
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
-import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
+import {
+  getFirestore, doc, getDoc, collection, getDocs, query, orderBy, limit
+} from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyA6IzLjWTg7Rq04HsTH-iA3eDmSzKI7xME',
@@ -125,9 +127,12 @@ const RENDERERS = {
   richText: renderRichText
 };
 
+// One app instance for both jobs below — initializeApp throws if the same
+// name is registered twice.
+const app = initializeApp(firebaseConfig, 'homepage-content');
+const db = getFirestore(app);
+
 async function applyHomepageContent() {
-  const app = initializeApp(firebaseConfig, 'homepage-content');
-  const db = getFirestore(app);
   // Verbose on purpose: every early return below leaves the page looking
   // untouched, which is indistinguishable from "the script never ran".
   // Say which branch was taken so a silent no-op can be diagnosed.
@@ -179,7 +184,98 @@ async function applyHomepageContent() {
   main.insertAdjacentHTML('beforeend', html);
 }
 
-applyHomepageContent().catch(err => {
-  // Any failure leaves the original markup untouched.
-  console.error('Homepage content not applied:', err);
-});
+/* ── Latest newsletter ─────────────────────────────────────────────────
+   Shows the most recently published issue (publishedNewsletters, the
+   public copy the Newsletter app writes on "Publish to website") as a
+   section directly under the hero, linking to /newsletters for the full
+   issue and PDF.
+
+   Not a siteContent section on purpose: it is driven by publishing, not by
+   editing the homepage, so publishing an issue is the only step needed and
+   "Remove from website" takes it off the homepage too.
+
+   It runs AFTER applyHomepageContent, which removes everything below the
+   hero before inserting the saved sections — inserted any earlier, this
+   would be wiped. With nothing published, nothing is added. */
+const NL_STYLE_ID = 'hp-newsletter-style';
+function ensureNewsletterStyles() {
+  if (document.getElementById(NL_STYLE_ID)) return;
+  const st = document.createElement('style');
+  st.id = NL_STYLE_ID;
+  st.textContent =
+    '.hp-nl{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:0;overflow:hidden;padding:0;}' +
+    '.hp-nl-cover{display:block;min-height:280px;background:linear-gradient(135deg,var(--maroon),#4e1a09);' +
+      'background-size:cover;background-position:center;}' +
+    '.hp-nl-body{padding:34px 36px;display:flex;flex-direction:column;justify-content:center;gap:10px;text-align:left;}' +
+    '.hp-nl-date{font-size:0.82rem;font-weight:700;color:var(--saffron-dark);}' +
+    ".hp-nl-body h3{margin:0;font-family:Georgia,'Times New Roman',serif;color:var(--maroon);" +
+      'font-size:clamp(1.4rem,2.4vw,1.9rem);line-height:1.2;}' +
+    '.hp-nl-body .section-copy{margin:0;text-align:left;}' +
+    '.hp-nl-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;}' +
+    '@media (max-width:760px){.hp-nl{grid-template-columns:1fr;}.hp-nl-cover{min-height:190px;}' +
+      '.hp-nl-body{padding:24px 22px;}}';
+  document.head.appendChild(st);
+}
+
+function nlDate(v) {
+  if (!v) return '';
+  const d = v.toDate ? v.toDate() : new Date(v);
+  if (isNaN(d)) return '';
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+async function showLatestNewsletter() {
+  const snap = await getDocs(query(collection(db, 'publishedNewsletters'),
+    orderBy('publishedAt', 'desc'), limit(1)));
+  if (snap.empty) { console.log('[homepage] no published newsletter — section not shown'); return; }
+
+  const d = snap.docs[0];
+  const n = d.data();
+  const url = '/newsletters?id=' + encodeURIComponent(d.id);
+  const title = n.headline || n.title || 'Newsletter';
+  const cover = n.coverImage || '';
+
+  const main = document.getElementById('home');
+  if (!main) return;
+  ensureNewsletterStyles();
+
+  const html =
+    '<section class="section" id="latest-newsletter"><div class="container">' +
+      '<div class="section-head content-width"><span class="section-kicker">Newsletter</span></div>' +
+      '<div class="card hp-nl">' +
+        '<a class="hp-nl-cover" href="' + url + '" aria-label="Read ' + esc(title) + '"' +
+          (cover ? ' style="background-image:url(&quot;' + esc(cover) + '&quot;);"' : '') + '></a>' +
+        '<div class="hp-nl-body">' +
+          (nlDate(n.publishedAt) ? '<div class="hp-nl-date">' + esc(nlDate(n.publishedAt)) + '</div>' : '') +
+          '<h3>' + esc(title) + '</h3>' +
+          (n.summary ? '<p class="section-copy">' + esc(n.summary) + '</p>' : '') +
+          '<div class="hp-nl-actions">' +
+            '<a href="' + url + '" class="btn btn-primary">Read this issue</a>' +
+            '<a href="/newsletters" class="btn btn-outline">All issues</a>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div></section>';
+
+  const existing = document.getElementById('latest-newsletter');
+  if (existing) existing.remove();
+  const hero = main.querySelector('.hero-banner');
+  if (hero) hero.insertAdjacentHTML('afterend', html);
+  else main.insertAdjacentHTML('afterbegin', html);
+  console.log('[homepage] latest newsletter shown:', d.id);
+}
+
+(async () => {
+  try {
+    await applyHomepageContent();
+  } catch (err) {
+    // Any failure leaves the original markup untouched.
+    console.error('Homepage content not applied:', err);
+  }
+  try {
+    await showLatestNewsletter();
+  } catch (err) {
+    // A newsletter that can't be read just isn't shown.
+    console.error('Latest newsletter not shown:', err);
+  }
+})();

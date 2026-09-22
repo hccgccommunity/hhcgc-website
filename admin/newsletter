@@ -286,6 +286,23 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .nl-page-wrap.over .nl-overflow-warn { display: block; }
 .nl-zoom { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--muted); }
 .nl-hint { font-size: 0.76rem; color: var(--muted); line-height: 1.5; }
+/* Reader engagement */
+.nl-lib-stats { margin-top: 6px; font-size: 0.78rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.nl-lib-stats strong { color: var(--text); }
+.nl-eng { margin: 4px 0 10px; }
+.nl-eng-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.nl-eng-stat { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; }
+.nl-eng-stat .n { font-size: 1.15rem; font-weight: 800; color: var(--maroon); line-height: 1.1; }
+.nl-eng-stat .l { font-size: 0.7rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.nl-eng-reacts { font-size: 0.86rem; margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.nl-eng-toggle { width: 100%; }
+.nl-eng-comments { margin-top: 8px; max-height: 340px; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.nl-eng-c { padding: 9px 10px; border-top: 1px solid var(--border); font-size: 0.8rem; }
+.nl-eng-c:first-child { border-top: none; }
+.nl-eng-c .who { font-weight: 800; color: var(--maroon); }
+.nl-eng-c .when { color: var(--muted); font-size: 0.72rem; margin-left: 6px; }
+.nl-eng-c .txt { white-space: pre-wrap; overflow-wrap: anywhere; margin: 3px 0 6px; color: var(--text); line-height: 1.45; }
+.nl-eng-c button { font-family: inherit; font-size: 0.72rem; font-weight: 700; color: var(--red); background: none; border: none; padding: 0; cursor: pointer; }
 .nl-unsub-note { background: var(--surface-soft); border: 1px dashed var(--border); border-radius: 10px; padding: 10px 12px; font-size: 0.78rem; color: var(--muted); }
 </style>
 </head>
@@ -431,6 +448,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 
         <h4>Website</h4>
         <div id="pub-state" class="nl-hint" style="margin-bottom:8px;">Not published.</div>
+        <div id="nl-eng" class="nl-eng" style="display:none;"></div>
         <div class="stack">
           <button class="btn-secondary" id="btn-publish">Publish to website</button>
           <button class="btn-danger" id="btn-unpublish" style="display:none;">Remove from website</button>
@@ -1268,6 +1286,13 @@ async function loadLibrary() {
       var pubSnap = await f.getDocs(f.collection(f.db, 'publishedNewsletters'));
       pubSnap.forEach(function (d) { PUB_IDS[d.id] = true; });
     } catch (e) { /* the library must still list even if the public copy is unreadable */ }
+    STATS_BY_ID = {}; COMMENT_COUNT = {};
+    try {
+      var statSnap = await f.getDocs(f.collection(f.db, 'newsletterStats'));
+      statSnap.forEach(function (d) { STATS_BY_ID[d.id] = d.data(); });
+      var comSnap = await f.getDocs(f.collection(f.db, 'newsletterComments'));
+      comSnap.forEach(function (d) { var k = d.data().issueId; if (k) COMMENT_COUNT[k] = (COMMENT_COUNT[k] || 0) + 1; });
+    } catch (e) { /* engagement numbers are extra; never block the library on them */ }
     if (!LIB.length) { el.innerHTML = '<div class="card"><div class="empty-state">Nothing here yet. Hit <strong>+ New newsletter</strong> to make your first one.</div></div>'; return; }
     el.innerHTML = '<div class="nl-lib-grid">' + LIB.map(function (n) {
       var cover = (n.pages && n.pages[0] && n.pages[0].slots && n.pages[0].slots.image) || '';
@@ -1281,6 +1306,7 @@ async function loadLibrary() {
           (PUB_IDS[n.id] ? ' <span class="nl-badge live">On the site</span>' : '') +
           ' &middot; ' + (n.pages ? n.pages.length : 0) + ' page' + ((n.pages || []).length === 1 ? '' : 's') +
           '<div style="margin-top:6px;">Updated ' + escHtml(fmtDate(n.updatedAt)) + (n.updatedBy ? ' by ' + escHtml(n.updatedBy) : '') + '</div>' +
+          engagementLine(n.id) +
         '</div>' +
         '<div class="nl-lib-actions">' +
           '<button class="primary" data-open="' + n.id + '">Open</button>' +
@@ -1437,6 +1463,87 @@ function renderPubState() {
     link.style.display = 'none';
   }
 }
+/* ── Reader engagement (views, reactions, comments) ───────────────────
+   Written by the public /newsletters page into newsletterStats and
+   newsletterComments. Admins read both here and can delete comments. */
+var STATS_BY_ID = {}, COMMENT_COUNT = {};
+var ENG_REACTIONS = [
+  { key: 'pray', emoji: '\u{1F64F}' }, { key: 'heart', emoji: '\u2764\uFE0F' },
+  { key: 'clap', emoji: '\u{1F44F}' }, { key: 'smile', emoji: '\u{1F60A}' }, { key: 'party', emoji: '\u{1F389}' }
+];
+function reactionTotal(st) {
+  return ENG_REACTIONS.reduce(function (sum, r) { return sum + Math.max(0, Number(st && st['r_' + r.key]) || 0); }, 0);
+}
+function engagementLine(issueId) {
+  var st = STATS_BY_ID[issueId], cc = COMMENT_COUNT[issueId] || 0;
+  if (!st && !cc) return '';
+  return '<div class="nl-lib-stats">' +
+    '<span>\u{1F441} <strong>' + (Number(st && st.views) || 0) + '</strong> views</span>' +
+    '<span><strong>' + (Number(st && st.uniqueViews) || 0) + '</strong> readers</span>' +
+    '<span><strong>' + reactionTotal(st) + '</strong> reactions</span>' +
+    '<span>\u{1F4AC} <strong>' + cc + '</strong></span></div>';
+}
+var ENG_OPEN = false;
+function engDate(v) {
+  var d = v && v.toDate ? v.toDate() : null;
+  return d ? d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+}
+async function loadEngagement() {
+  var el = document.getElementById('nl-eng');
+  if (!DOC) { el.style.display = 'none'; return; }
+  var f = fb(), st = null, comments = [];
+  try {
+    var snap = await f.getDoc(f.doc(f.db, 'newsletterStats', DOC.id));
+    if (snap.exists()) st = snap.data();
+    var cs = await f.getDocs(f.query(f.collection(f.db, 'newsletterComments'), f.where('issueId', '==', DOC.id)));
+    cs.forEach(function (d) { comments.push(Object.assign({ id: d.id }, d.data())); });
+  } catch (e) {
+    el.style.display = 'block';
+    el.innerHTML = '<div class="nl-hint">Reader stats could not be loaded: ' + escHtml(e.message) + '</div>';
+    return;
+  }
+  // Nothing to show for a draft nobody has seen.
+  if (!PUB && !st && !comments.length) { el.style.display = 'none'; return; }
+  comments.sort(function (a, b) {
+    var ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+    var tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+    return tb - ta;
+  });
+  el.style.display = 'block';
+  el.innerHTML =
+    '<div class="nl-eng-grid">' +
+      '<div class="nl-eng-stat"><div class="n">' + (Number(st && st.views) || 0) + '</div><div class="l">Views</div></div>' +
+      '<div class="nl-eng-stat"><div class="n">' + (Number(st && st.uniqueViews) || 0) + '</div><div class="l">Readers</div></div>' +
+    '</div>' +
+    '<div class="nl-eng-reacts">' + ENG_REACTIONS.map(function (r) {
+      return '<span>' + r.emoji + ' ' + Math.max(0, Number(st && st['r_' + r.key]) || 0) + '</span>';
+    }).join('') + '</div>' +
+    '<button class="btn-secondary nl-eng-toggle" id="nl-eng-toggle">' +
+      (comments.length ? (ENG_OPEN ? 'Hide' : 'Show') + ' comments (' + comments.length + ')' : 'No comments yet') + '</button>' +
+    (ENG_OPEN && comments.length ? '<div class="nl-eng-comments">' + comments.map(function (c) {
+      return '<div class="nl-eng-c"><span class="who">' + escHtml(c.name || '') + '</span><span class="when">' + escHtml(engDate(c.createdAt)) + '</span>' +
+        '<div class="txt">' + escHtml(c.text || '') + '</div>' +
+        '<button data-del-comment="' + c.id + '">Delete</button></div>';
+    }).join('') + '</div>' : '');
+  var tg = document.getElementById('nl-eng-toggle');
+  if (!comments.length) tg.disabled = true;
+}
+document.getElementById('nl-eng').addEventListener('click', async function (e) {
+  if (e.target.closest('#nl-eng-toggle')) { ENG_OPEN = !ENG_OPEN; loadEngagement(); return; }
+  var del = e.target.closest('[data-del-comment]');
+  if (!del) return;
+  if (!confirm('Delete this comment from the website? This cannot be undone.')) return;
+  del.disabled = true;
+  try {
+    var f = fb();
+    await f.deleteDoc(f.doc(f.db, 'newsletterComments', del.dataset.delComment));
+    loadEngagement();
+  } catch (err) {
+    del.disabled = false;
+    alert('Could not delete the comment: ' + err.message);
+  }
+});
+
 async function loadPubState() {
   PUB = null;
   try {
@@ -1445,6 +1552,8 @@ async function loadPubState() {
     if (snap.exists()) PUB = snap.data();
   } catch (e) { /* an unpublished newsletter must still open */ }
   renderPubState();
+  ENG_OPEN = false;
+  loadEngagement();
 }
 document.getElementById('btn-publish').addEventListener('click', async function () {
   if (!DOC) return;
@@ -1813,7 +1922,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/fireba
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js';
 import {
   getFirestore, doc, getDoc, getDocs, collection, addDoc, setDoc, updateDoc, deleteDoc,
-  query, orderBy, serverTimestamp
+  query, orderBy, where, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
 
 var firebaseConfig = {
@@ -1836,7 +1945,7 @@ var db = getFirestore(fbApp);
 window.__nlFb = {
   db: db, doc: doc, getDoc: getDoc, getDocs: getDocs, collection: collection,
   addDoc: addDoc, setDoc: setDoc, updateDoc: updateDoc, deleteDoc: deleteDoc,
-  query: query, orderBy: orderBy, serverTimestamp: serverTimestamp
+  query: query, orderBy: orderBy, where: where, serverTimestamp: serverTimestamp
 };
 
 function showGate(title, msg) {

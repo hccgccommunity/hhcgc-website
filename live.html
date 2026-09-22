@@ -72,7 +72,9 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .live-offline .next { margin-top: 14px; font-weight: 800; color: var(--saffron-dark); }
 .live-offline .actions { margin-top: 22px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 .live-offline a { text-decoration: none; }
-.live-note { font-size: 0.78rem; color: var(--muted); margin-top: 10px; }
+.live-note { font-size: 0.78rem; color: var(--muted); margin-top: 10px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.live-watching { font-weight: 800; color: var(--maroon); white-space: nowrap; }
+.live-watching[hidden] { display: none; }
 @media (max-width: 960px) { .live-grid.with-chat { grid-template-columns: minmax(0, 1fr); } .live-chat { height: 460px; } }
 </style>
 </head>
@@ -120,7 +122,7 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.register('/service-wor
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
-import { getFirestore, doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
+import { getFirestore, doc, onSnapshot, setDoc, getDoc, deleteDoc, collection, query, where, getCountFromServer, serverTimestamp, Timestamp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
 
 var firebaseConfig = {
   apiKey: 'AIzaSyA6IzLjWTg7Rq04HsTH-iA3eDmSzKI7xME',
@@ -179,7 +181,8 @@ function render(d) {
         '<div class="live-grid' + (em.chat ? ' with-chat' : '') + '">' +
           '<div><div class="live-player"><iframe src="' + esc(em.player) + '" title="Live stream" ' +
             'allow="autoplay; encrypted-media; picture-in-picture; web-share; fullscreen" allowfullscreen></iframe></div>' +
-            '<div class="live-note">Starts muted — tap the speaker icon on the video for sound.</div></div>' +
+            '<div class="live-note"><span>Starts muted — tap the speaker icon on the video for sound.</span>' +
+            '<span class="live-watching" id="live-watching" hidden></span></div></div>' +
           (em.chat ? '<div class="live-chat"><iframe src="' + esc(em.chat) + '" title="Live chat"></iframe></div>' : '') +
         '</div>' +
         '<div class="live-info" id="live-info"></div>';
@@ -198,12 +201,68 @@ function render(d) {
         '</div>';
     }
   }
+  if (live) startPresence(); else stopPresence();
   var info = document.getElementById('live-info');
   if (info) {
     info.style.display = (d.title || d.description) ? '' : 'none';
     info.innerHTML = (d.title ? '<h2>' + esc(d.title) + '</h2>' : '') + (d.description ? '<p>' + esc(d.description) + '</p>' : '');
   }
 }
+
+/* ── Watching now (this website only) ────────────────────────────────
+   Each open Live page, while a stream is on, keeps one small document in
+   liveViewers/{tab id} fresh every 30 seconds. "Watching" is how many of
+   those were refreshed in the last 75 seconds. Closed tabs simply stop
+   refreshing and drop out; expireAt lets a Firestore TTL policy delete the
+   leftovers. Counts people on hccgc.org only, not the YouTube/Facebook apps. */
+var VIEWERS = 'liveViewers';
+var BEAT_MS = 30000, WINDOW_MS = 75000;
+var SID = (function () {
+  try {
+    var v = sessionStorage.getItem('hccgc-live-sid');
+    if (!v) { v = Math.random().toString(36).slice(2) + Date.now().toString(36); sessionStorage.setItem('hccgc-live-sid', v); }
+    return v;
+  } catch (e) { return Math.random().toString(36).slice(2) + Date.now().toString(36); }
+})();
+var beatTimer = null, clockOffset = 0, calibrated = false;
+
+async function heartbeat() {
+  try {
+    await setDoc(doc(db, VIEWERS, SID), {
+      lastSeen: serverTimestamp(),
+      expireAt: Timestamp.fromMillis(Date.now() + 10 * 60 * 1000)
+    });
+    // Read our own write back once to learn the server's clock, so a
+    // visitor whose computer clock is off doesn't skew the count window.
+    if (!calibrated) {
+      var mine = await getDoc(doc(db, VIEWERS, SID));
+      var ts = mine.exists() && mine.data().lastSeen;
+      if (ts && ts.toMillis) { clockOffset = ts.toMillis() - Date.now(); calibrated = true; }
+    }
+    await refreshCount();
+  } catch (e) { /* the count is extra; the video keeps playing */ }
+}
+async function refreshCount() {
+  var el = document.getElementById('live-watching');
+  if (!el) return;
+  var cutoff = Timestamp.fromMillis(Date.now() + clockOffset - WINDOW_MS);
+  var snap = await getCountFromServer(query(collection(db, VIEWERS), where('lastSeen', '>', cutoff)));
+  var n = Math.max(1, snap.data().count || 0);   // you're watching, so at least 1
+  el.textContent = '\u{1F441} ' + n.toLocaleString('en-US') + ' watching';
+  el.hidden = false;
+}
+function startPresence() {
+  if (beatTimer) { refreshCount().catch(function () {}); return; }
+  heartbeat();
+  beatTimer = setInterval(heartbeat, BEAT_MS);
+}
+function stopPresence() {
+  if (!beatTimer) return;
+  clearInterval(beatTimer); beatTimer = null;
+  deleteDoc(doc(db, VIEWERS, SID)).catch(function () {});
+}
+// Best effort on leaving; anything missed ages out of the window anyway.
+window.addEventListener('pagehide', function () { deleteDoc(doc(db, VIEWERS, SID)).catch(function () {}); });
 
 // Live updates: when staff switch the stream on or off, every open copy of
 // this page follows within a second or two.

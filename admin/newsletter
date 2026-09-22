@@ -286,6 +286,27 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .nl-page-wrap.over .nl-overflow-warn { display: block; }
 .nl-zoom { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--muted); }
 .nl-hint { font-size: 0.76rem; color: var(--muted); line-height: 1.5; }
+/* Sent history + per-person tracking */
+.nl-send { border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; background: #fff; }
+.nl-send-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.nl-send-title { font-weight: 700; font-size: 0.92rem; }
+.nl-send-sub { font-size: 0.76rem; color: var(--muted); margin-top: 2px; }
+.nl-send-stats { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; font-size: 0.8rem; }
+.nl-send-stats .open { color: var(--green); } .nl-send-stats .click { color: #2255a4; } .nl-send-stats .bad { color: var(--red); }
+.nl-people { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px; }
+.nl-people-tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+.nl-people-tools input, .nl-people-tools select { font: inherit; font-size: 0.82rem; padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 9px; background: #fff; }
+.nl-people-tools input { flex: 1; min-width: 180px; }
+.nl-people-wrap { overflow-x: auto; }
+.nl-people table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+.nl-people th { text-align: left; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); padding: 6px 8px; border-bottom: 1.5px solid var(--border); white-space: nowrap; }
+.nl-people td { padding: 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.nl-people .who { font-weight: 700; } .nl-people .em { color: var(--muted); font-size: 0.74rem; }
+.nl-people .yes { color: var(--green); font-weight: 700; } .nl-people .no { color: var(--muted); }
+.nl-people .clk { color: #2255a4; font-weight: 700; }
+.nl-people .lnk { display: block; font-size: 0.72rem; color: var(--muted); max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nl-people .fail { color: var(--red); font-weight: 700; }
+.nl-people-count { font-size: 0.76rem; color: var(--muted); margin-top: 8px; }
 /* Reader engagement */
 .nl-lib-stats { margin-top: 6px; font-size: 0.78rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 12px; }
 .nl-lib-stats strong { color: var(--text); }
@@ -467,7 +488,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
   <div class="tab-panel" id="tab-history">
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-        <div><h2>Sent history</h2><div class="card-sub">Opens are image loads, so treat them as a floor, not a count.</div></div>
+        <div><h2>Sent history</h2><div class="card-sub">Click <strong>View people</strong> on any send to see who opened it and which links they clicked. Opens come from images loading, so some mail apps count an open that nobody read and others hide real ones &mdash; clicks are exact.</div></div>
         <button class="btn-secondary" id="btn-hist-refresh">Refresh</button>
       </div>
     </div>
@@ -1869,6 +1890,159 @@ document.getElementById('btn-send-test').addEventListener('click', function () {
 document.getElementById('btn-send-all').addEventListener('click', function () { doSend(false); });
 
 /* ── History ─────────────────────────────────────────────────────── */
+var HIST = [];
+var PEOPLE = {};      // blastId -> recipients, loaded on first open
+var PEOPLE_OPEN = {}; // blastId -> true while its panel is showing
+function fmtWhen(v) {
+  if (!v) return '';
+  var d = new Date(v);
+  if (isNaN(d)) return '';
+  return d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+function pct(x, of) { return of ? Math.round(x / of * 100) : 0; }
+function shortUrl(u) {
+  try { var x = new URL(u); return x.hostname.replace(/^www\./, '') + (x.pathname === '/' ? '' : x.pathname); } catch (e) { return u; }
+}
+function renderHistory() {
+  var el = document.getElementById('hist-list');
+  if (!HIST.length) { el.innerHTML = '<div class="card"><div class="empty-state">Nothing sent yet.</div></div>'; return; }
+  el.innerHTML = '<div class="card">' + HIST.map(function (n) {
+    var base = n.sentCount || 0;
+    return '<div class="nl-send" data-blast="' + escHtml(n.blastId) + '">' +
+      '<div class="nl-send-head"><div>' +
+        '<div class="nl-send-title">' + escHtml(n.subject || n.newsletterTitle || '(no subject)') + '</div>' +
+        '<div class="nl-send-sub">' + escHtml(n.newsletterTitle || '') + (n.newsletterTitle ? ' · ' : '') +
+          escHtml(n.sentBy || '') + ' · ' + escHtml(fmtWhen(n.sentAt)) + '</div>' +
+      '</div>' +
+      '<button class="btn-secondary" data-people="' + escHtml(n.blastId) + '" style="padding:6px 12px;font-size:0.8rem;">' +
+        (PEOPLE_OPEN[n.blastId] ? 'Hide people' : 'View people') + '</button></div>' +
+      '<div class="nl-send-stats">' +
+        '<span>Sent <strong>' + base + '</strong></span>' +
+        '<span class="open">Opened <strong>' + (n.opened || 0) + '</strong> (' + pct(n.opened || 0, base) + '%)</span>' +
+        '<span class="click">Clicked <strong>' + (n.clicked || 0) + '</strong> (' + pct(n.clicked || 0, base) + '%)</span>' +
+        (n.unsubscribed ? '<span class="bad">Unsubscribed <strong>' + n.unsubscribed + '</strong></span>' : '') +
+        (n.failedCount ? '<span class="bad">Failed <strong>' + n.failedCount + '</strong></span>' : '') +
+      '</div>' +
+      (PEOPLE_OPEN[n.blastId] ? '<div class="nl-people" id="people-' + escHtml(n.blastId) + '">' + peopleHtml(n.blastId) + '</div>' : '') +
+    '</div>';
+  }).join('') + '</div>';
+}
+var PEOPLE_FILTER = {}; // blastId -> { q, show }
+function peopleRows(blastId) {
+  var list = PEOPLE[blastId];
+  if (!Array.isArray(list)) return null;
+  var f = PEOPLE_FILTER[blastId] || { q: '', show: 'all' };
+  var q = (f.q || '').toLowerCase();
+  return list.filter(function (p) {
+    if (q && (String(p.name) + ' ' + String(p.email)).toLowerCase().indexOf(q) === -1) return false;
+    if (f.show === 'opened') return p.openCount > 0;
+    if (f.show === 'clicked') return p.clickCount > 0;
+    if (f.show === 'unopened') return p.openCount === 0 && p.sendStatus === 'sent';
+    if (f.show === 'unsubscribed') return !!p.unsubscribedAt;
+    if (f.show === 'failed') return p.sendStatus !== 'sent';
+    return true;
+  });
+}
+function peopleHtml(blastId) {
+  var list = PEOPLE[blastId];
+  if (list === undefined) return '<div class="nl-hint">Loading…</div>';
+  if (typeof list === 'string') return '<div class="nl-hint">' + escHtml(list) + '</div>';
+  var f = PEOPLE_FILTER[blastId] || { q: '', show: 'all' };
+  var rows = peopleRows(blastId);
+  var opt = function (v, label) { return '<option value="' + v + '"' + (f.show === v ? ' selected' : '') + '>' + label + '</option>'; };
+  return '<div class="nl-people-tools">' +
+      '<input type="search" data-pq="' + escHtml(blastId) + '" placeholder="Search name or email" value="' + escHtml(f.q || '') + '">' +
+      '<select data-pshow="' + escHtml(blastId) + '">' + opt('all', 'Everyone') + opt('opened', 'Opened') + opt('clicked', 'Clicked a link') +
+        opt('unopened', 'Not opened') + opt('unsubscribed', 'Unsubscribed') + opt('failed', 'Failed to send') + '</select>' +
+      '<button class="btn-secondary" data-pcsv="' + escHtml(blastId) + '" style="padding:6px 12px;font-size:0.8rem;">Download CSV</button>' +
+    '</div>' +
+    '<div class="nl-people-wrap"><table><thead><tr><th>Person</th><th>Opened</th><th>Clicked</th><th>Status</th></tr></thead><tbody>' +
+    (rows.length ? rows.map(function (p) {
+      var opened = p.openCount > 0
+        ? '<span class="yes">&#10003; ' + escHtml(fmtWhen(p.firstOpenedAt)) + '</span>' + (p.openCount > 1 ? '<div class="em">' + p.openCount + ' times</div>' : '')
+        : '<span class="no">&mdash;</span>';
+      var clicked = p.clickCount > 0
+        ? '<span class="clk">' + p.clickCount + ' click' + (p.clickCount === 1 ? '' : 's') + '</span>' +
+          (p.links || []).map(function (l) {
+            return '<a class="lnk" href="' + escHtml(l.url) + '" target="_blank" rel="noopener" title="' + escHtml(l.url) + '">' +
+              escHtml(shortUrl(l.url)) + (l.count > 1 ? ' &times;' + l.count : '') + '</a>';
+          }).join('')
+        : '<span class="no">&mdash;</span>';
+      var status = p.sendStatus !== 'sent' ? '<span class="fail" title="' + escHtml(p.sendError || '') + '">Failed</span>'
+        : (p.unsubscribedAt ? '<span class="fail">Unsubscribed</span>' : 'Delivered');
+      return '<tr><td><div class="who">' + escHtml(p.name || p.email) + '</div>' + (p.name ? '<div class="em">' + escHtml(p.email) + '</div>' : '') + '</td>' +
+        '<td>' + opened + '</td><td>' + clicked + '</td><td>' + status + '</td></tr>';
+    }).join('') : '<tr><td colspan="4" class="no" style="text-align:center;padding:16px;">Nobody matches.</td></tr>') +
+    '</tbody></table></div>' +
+    '<div class="nl-people-count">Showing ' + rows.length + ' of ' + list.length + '</div>';
+}
+function repaintPeople(blastId) {
+  var box = document.getElementById('people-' + blastId);
+  if (!box) return;
+  var active = document.activeElement && document.activeElement.getAttribute('data-pq') === blastId;
+  var caret = active ? document.activeElement.selectionStart : null;
+  box.innerHTML = peopleHtml(blastId);
+  if (active) {
+    var inp = box.querySelector('[data-pq]');
+    inp.focus();
+    try { inp.setSelectionRange(caret, caret); } catch (e) {}
+  }
+}
+async function loadPeople(blastId) {
+  PEOPLE[blastId] = undefined;
+  repaintPeople(blastId);
+  try {
+    var r = await authedFetch(API_BASE + '/newsletter/history/' + encodeURIComponent(blastId) + '/recipients');
+    var d = await r.json().catch(function () { return null; });
+    if (!r.ok || !Array.isArray(d)) throw new Error((d && (d.errors || [d.error]).join(' ')) || ('Server returned ' + r.status));
+    PEOPLE[blastId] = d;
+  } catch (err) {
+    PEOPLE[blastId] = 'Could not load the people for this send: ' + err.message;
+  }
+  repaintPeople(blastId);
+}
+function csvCell(v) { v = v == null ? '' : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+function downloadPeopleCsv(blastId) {
+  var rows = peopleRows(blastId) || [];
+  var send = HIST.find(function (h) { return h.blastId === blastId; }) || {};
+  var lines = [['Name', 'Email', 'Status', 'Opened', 'First opened', 'Times opened', 'Clicks', 'First clicked', 'Links clicked', 'Unsubscribed'].join(',')];
+  rows.forEach(function (p) {
+    lines.push([p.name, p.email, p.sendStatus === 'sent' ? 'Delivered' : 'Failed', p.openCount > 0 ? 'Yes' : 'No',
+      p.firstOpenedAt || '', p.openCount, p.clickCount, p.firstClickedAt || '',
+      (p.links || []).map(function (l) { return l.url + (l.count > 1 ? ' (x' + l.count + ')' : ''); }).join(' | '),
+      p.unsubscribedAt ? 'Yes' : ''].map(csvCell).join(','));
+  });
+  var blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (String(send.subject || 'newsletter').replace(/[^\w\- ]+/g, '').trim() || 'newsletter') + ' - people.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+}
+document.getElementById('hist-list').addEventListener('click', function (e) {
+  var btn = e.target.closest('[data-people]');
+  if (btn) {
+    var id = btn.getAttribute('data-people');
+    PEOPLE_OPEN[id] = !PEOPLE_OPEN[id];
+    renderHistory();
+    if (PEOPLE_OPEN[id] && !Array.isArray(PEOPLE[id])) loadPeople(id);
+    return;
+  }
+  var csv = e.target.closest('[data-pcsv]');
+  if (csv) downloadPeopleCsv(csv.getAttribute('data-pcsv'));
+});
+document.getElementById('hist-list').addEventListener('input', function (e) {
+  var id = e.target.getAttribute('data-pq');
+  if (!id) return;
+  PEOPLE_FILTER[id] = Object.assign({ show: 'all' }, PEOPLE_FILTER[id], { q: e.target.value });
+  repaintPeople(id);
+});
+document.getElementById('hist-list').addEventListener('change', function (e) {
+  var id = e.target.getAttribute('data-pshow');
+  if (!id) return;
+  PEOPLE_FILTER[id] = Object.assign({ q: '' }, PEOPLE_FILTER[id], { show: e.target.value });
+  repaintPeople(id);
+});
 async function loadHistory() {
   var el = document.getElementById('hist-list');
   el.innerHTML = '<div class="empty-state">Loading…</div>';
@@ -1879,19 +2053,12 @@ async function loadHistory() {
       return;
     }
     var rows = await r.json();
-    if (!Array.isArray(rows) || !rows.length) { el.innerHTML = '<div class="card"><div class="empty-state">Nothing sent yet.</div></div>'; return; }
-    el.innerHTML = '<div class="card">' + rows.map(function (n) {
-      var pct = function (x) { return n.sentCount ? Math.round(x / n.sentCount * 100) : 0; };
-      return '<div style="border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;">' +
-        '<div style="font-weight:700;font-size:0.9rem;">' + escHtml(n.subject || n.newsletterTitle || '(no subject)') + '</div>' +
-        '<div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;font-size:0.8rem;">' +
-          '<span>Sent <strong>' + (n.sentCount || 0) + '</strong></span>' +
-          '<span style="color:var(--green);">Opened <strong>' + (n.opened || 0) + '</strong> (' + pct(n.opened || 0) + '%)</span>' +
-          (n.unsubscribed ? '<span style="color:var(--red);">Unsubscribed <strong>' + n.unsubscribed + '</strong></span>' : '') +
-        '</div>' +
-        '<div style="font-size:0.76rem;color:var(--muted);margin-top:4px;">' + escHtml(n.sentBy || '') + ' · ' + escHtml(fmtDate(n.sentAt)) + '</div>' +
-      '</div>';
-    }).join('') + '</div>';
+    if (!r.ok) throw new Error((rows && (rows.errors || [rows.error]).join(' ')) || ('Server returned ' + r.status));
+    HIST = Array.isArray(rows) ? rows : [];
+    // Refresh drops cached people so the numbers stay current.
+    PEOPLE = {};
+    renderHistory();
+    Object.keys(PEOPLE_OPEN).forEach(function (id) { if (PEOPLE_OPEN[id]) loadPeople(id); });
   } catch (err) {
     el.innerHTML = '<div class="card"><div class="empty-state">Could not load: ' + escHtml(err.message) + '</div></div>';
   }

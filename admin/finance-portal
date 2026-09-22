@@ -243,6 +243,17 @@ tr.series-row:hover td { background: var(--surface-soft); }
 .btn-receipt.attached { background: #fff4d9; border-color: #dda520; box-shadow: 0 1px 4px rgba(221,165,32,0.35); }
 .btn-receipt.sent { background: #e2f6e9; border-color: #2e9e5b; box-shadow: 0 1px 4px rgba(46,158,91,0.35); }
 .btn-receipt:disabled { cursor: default; }
+.btn-final { display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid var(--border); background: #fff; border-radius: 50%; width: 27px; height: 27px; cursor: pointer; font-size: 0.78rem; vertical-align: middle; line-height: 1; transition: transform 0.1s; }
+.btn-final.greyed { background: #f2efe9; border-color: #ddd6c8; opacity: 0.55; }
+.btn-final.attached { background: #fff4d9; border-color: #dda520; box-shadow: 0 1px 4px rgba(221,165,32,0.35); }
+.btn-final.sent { background: #e2f6e9; border-color: #2e9e5b; box-shadow: 0 1px 4px rgba(46,158,91,0.35); }
+.btn-final:hover:not(.sent):not(:disabled) { transform: scale(1.08); }
+.btn-final:disabled { cursor: default; }
+.fr-choice { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.fr-choice label { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.88rem; }
+.fr-sum { background: var(--surface-soft, #fff6ea); border-radius: 10px; padding: 12px 14px; font-size: 0.86rem; margin-bottom: 14px; }
+.fr-sum div { display: flex; justify-content: space-between; gap: 12px; padding: 2px 0; }
+.fr-sum .tot { font-weight: 800; border-top: 1px solid var(--border); margin-top: 4px; padding-top: 6px; }
 .btn-receipt:hover:not(:disabled):not(.sent) { transform: scale(1.08); }
 .btn-note:hover { background: var(--surface-soft); }
 .collapsible-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 12px 0; }
@@ -737,7 +748,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
           <th class="sortable-th" data-sort-key="renter">Customer <span class="sort-arrow" data-sort-arrow="renter"></span></th>
           <th class="sortable-th" data-sort-key="event">Event <span class="sort-arrow" data-sort-arrow="event"></span></th>
           <th class="sortable-th" data-sort-key="amount">Amount <span class="sort-arrow" data-sort-arrow="amount"></span></th>
-          <th>Notes</th><th>Invoice</th><th>Receipt</th><th>Payment</th><th>Linked</th>
+          <th>Notes</th><th>Invoice</th><th>Receipt</th><th title="Issued after the event, once the incidental deposit has been settled">Final</th><th>Payment</th><th>Linked</th>
         </tr></thead>
         <tbody id="inv-tbody"></tbody>
       </table>
@@ -931,6 +942,33 @@ tr.series-row:hover td { background: var(--surface-soft); }
     </div>
     <div class="modal-footer">
       <button type="button" class="btn-secondary" id="btn-document-viewer-download">Download</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="final-receipt-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:480px;">
+    <div class="modal-header">
+      <h2>Final receipt</h2>
+      <button class="modal-close" id="btn-close-final">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="fr-sum" id="fr-summary"></div>
+      <div class="fr-choice">
+        <label><input type="radio" name="fr-type" value="full" checked> Full refund</label>
+        <label><input type="radio" name="fr-type" value="partial"> Partial refund</label>
+      </div>
+      <div class="form-group" id="fr-amount-wrap" style="display:none;">
+        <label for="fr-amount">How much was refunded?</label>
+        <input type="number" id="fr-amount" step="0.01" min="0" placeholder="0.00">
+      </div>
+      <div class="result-box" id="fr-result" style="display:none;"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:16px;">
+        <a href="#" target="_blank" rel="noopener" class="btn-secondary" id="fr-preview" style="display:none;">View current</a>
+        <button type="button" class="btn-secondary" id="fr-generate">Generate only</button>
+        <button type="button" class="btn-primary" id="fr-send">Generate &amp; send</button>
+      </div>
+      <div class="card-sub" style="margin-top:10px;">Sending voids the earlier receipt: the customer gets a void notice, then the final receipt.</div>
     </div>
   </div>
 </div>
@@ -2735,7 +2773,7 @@ async function loadInvoices() {
   const end = document.getElementById('inv-end-date').value;
   const tbody = document.getElementById('inv-tbody');
   const emptyState = document.getElementById('inv-empty');
-  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px;">Loading…</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px;">Loading…</td></tr>';
   setTabLoading('tab-matching', true);
   try {
     const params = new URLSearchParams({ startDate: start, endDate: end, sort: invSortKey, dir: invSortDir });
@@ -2744,7 +2782,7 @@ async function loadInvoices() {
     invPage = 1;
     renderInvoicesTable();
   } catch (err) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--red);padding:24px;">Could not load: ' + escHtml(err.message) + '</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--red);padding:24px;">Could not load: ' + escHtml(err.message) + '</td></tr>';
   } finally {
     setTabLoading('tab-matching', false);
   }
@@ -2811,6 +2849,103 @@ document.getElementById('ambiguous-series-list').addEventListener('click', async
     btn.disabled = false;
   }
 });
+/* ── Final receipt icon ──────────────────────────────────────────────
+   Fourth document, after invoice and receipt. Only for bookings that
+   carry an incidental deposit, only once the event has passed and the
+   booking is paid, and only admins can act on it. Same three colours as
+   the other icons: grey (not available), yellow (ready or generated but
+   not sent), green (sent). */
+function eventIsPast(dateStr) {
+  if (!dateStr) return false;
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+  return String(dateStr).slice(0, 10) < today;
+}
+function finalReceiptIcon(inv) {
+  const ICON = '\ud83d\udd12';
+  const grey = t => '<button type="button" class="btn-final greyed" disabled title="' + t + '">' + ICON + '</button>';
+  if (!inv || !(Number(inv.depositAmount) > 0)) return grey('No incidental deposit on this booking');
+  if (inv.finalReceiptSentAt) {
+    return '<button type="button" class="btn-final sent" title="Final receipt sent ' + formatTimestampDate(inv.finalReceiptSentAt) + ' — click to view or re-issue" data-final-booking="' + inv.bookingId + '">' + ICON + '</button>';
+  }
+  if (inv.paymentStatus !== 'paid') return grey('Confirm as paid first');
+  if (!eventIsPast(inv.lastEventDate || inv.eventDate)) return grey('Available the day after the event');
+  if (!window.__hccgcIsAdmin) return grey('Admins only');
+  const title = inv.finalReceiptGeneratedAt
+    ? 'Generated ' + formatTimestampDate(inv.finalReceiptGeneratedAt) + ', not sent — click to view or send'
+    : 'Deposit settled? Click to record the refund and issue the final receipt';
+  return '<button type="button" class="btn-final attached" title="' + title + '" data-final-booking="' + inv.bookingId + '">' + ICON + '</button>';
+}
+
+let finalCtx = null;
+function openFinalReceipt(bookingId) {
+  const inv = (INVOICES || []).find(function (i) { return i.bookingId === bookingId; });
+  if (!inv) { alert('Could not find that booking — refresh and try again.'); return; }
+  finalCtx = inv;
+  const deposit = Number(inv.depositAmount) || 0;
+  const already = inv.depositRefundAmount;
+  document.getElementById('fr-summary').innerHTML =
+    '<div><span>' + escHtml(inv.renterName || '') + '</span><span>' + formatDate(inv.eventDate) + '</span></div>' +
+    '<div><span>Rental</span><span>' + money(inv.amount) + '</span></div>' +
+    '<div><span>Incidental deposit</span><span>' + money(deposit) + '</span></div>' +
+    (already !== null && already !== undefined ? '<div class="tot"><span>Already recorded as refunded</span><span>' + money(already) + '</span></div>' : '');
+  document.querySelector('input[name="fr-type"][value="full"]').checked = true;
+  document.getElementById('fr-amount').value = (already !== null && already !== undefined && Number(already) !== deposit) ? already : '';
+  document.getElementById('fr-amount-wrap').style.display = 'none';
+  document.getElementById('fr-result').style.display = 'none';
+  const prev = document.getElementById('fr-preview');
+  prev.style.display = inv.finalReceiptGeneratedAt ? '' : 'none';
+  prev.href = API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/final-receipt-preview';
+  document.getElementById('final-receipt-overlay').style.display = 'flex';
+}
+document.getElementById('btn-close-final').addEventListener('click', function () { document.getElementById('final-receipt-overlay').style.display = 'none'; });
+document.getElementById('final-receipt-overlay').addEventListener('click', function (e) { if (e.target === this) this.style.display = 'none'; });
+document.querySelectorAll('input[name="fr-type"]').forEach(function (r) {
+  r.addEventListener('change', function () {
+    document.getElementById('fr-amount-wrap').style.display = this.value === 'partial' ? '' : 'none';
+    if (this.value === 'partial') document.getElementById('fr-amount').focus();
+  });
+});
+function frSay(msg, kind) {
+  const box = document.getElementById('fr-result');
+  box.style.display = msg ? 'block' : 'none';
+  box.className = 'result-box' + (kind ? ' ' + kind : '');
+  box.textContent = msg || '';
+}
+async function submitFinalReceipt(send) {
+  if (!finalCtx) return;
+  const type = document.querySelector('input[name="fr-type"]:checked').value;
+  const deposit = Number(finalCtx.depositAmount) || 0;
+  let amount = deposit;
+  if (type === 'partial') {
+    amount = parseFloat(document.getElementById('fr-amount').value);
+    if (!(amount >= 0)) { frSay('Enter how much of the deposit was refunded.', 'error'); return; }
+    if (amount > deposit) { frSay('That is more than the ' + money(deposit) + ' deposit.', 'error'); return; }
+  }
+  const kept = Math.round((deposit - amount) * 100) / 100;
+  if (send && !confirm('Void the earlier receipt and email the final receipt to ' + (finalCtx.renterEmail || 'the customer') + '?\n\n' +
+      'Deposit refunded: ' + money(amount) + (kept > 0 ? '\nRetained: ' + money(kept) : '') + '\n\nThis cannot be undone.')) return;
+  const gen = document.getElementById('fr-generate'), snd = document.getElementById('fr-send');
+  gen.disabled = snd.disabled = true;
+  frSay(send ? 'Sending…' : 'Generating…');
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(finalCtx.bookingId) + '/final-receipt', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refundType: type, refundAmount: amount, send: !!send })
+    });
+    const d = await res.json().catch(function () { return {}; });
+    if (!res.ok) throw new Error((d.errors || [d.error]).filter(Boolean).join(' ') || ('Server returned ' + res.status));
+    frSay(send ? 'Sent. The earlier receipt is voided and the final receipt is on its way.' : 'Generated. Use "View current" to check it, then send when you are ready.', 'success');
+    await loadInvoices();
+    setTimeout(function () { document.getElementById('final-receipt-overlay').style.display = 'none'; }, send ? 1400 : 900);
+  } catch (err) {
+    frSay('Could not issue the final receipt: ' + err.message, 'error');
+  } finally {
+    gen.disabled = snd.disabled = false;
+  }
+}
+document.getElementById('fr-generate').addEventListener('click', function () { submitFinalReceipt(false); });
+document.getElementById('fr-send').addEventListener('click', function () { submitFinalReceipt(true); });
+
 function renderInvoiceRow(inv, isSubRow, showFullActions) {
   if (isSubRow && !showFullActions) {
     // Part of a combined series — one invoice covers the whole group, so
@@ -2821,7 +2956,7 @@ function renderInvoiceRow(inv, isSubRow, showFullActions) {
       '<td></td>' +
       '<td style="color:var(--muted);font-size:0.86rem;">' + formatDate(inv.eventDate) + '</td>' +
       '<td class="amount" style="color:var(--muted);">' + money(inv.amount) + '</td>' +
-      '<td colspan="5"></td>' +
+      '<td colspan="6"></td>' +
     '</tr>';
   }
   const noteBtn = '<button type="button" class="btn-note' + (inv.notes ? ' has-content' : '') + '" title="' + (inv.notes ? 'Note: ' + escHtml(inv.notes) : 'Add a note') + '" data-invoice-note-booking="' + inv.bookingId + '">\ud83d\udcdd</button>';
@@ -2860,6 +2995,7 @@ function renderInvoiceRow(inv, isSubRow, showFullActions) {
     '<td>' + noteBtn + '</td>' +
     '<td>' + invoiceIcon + '</td>' +
     '<td>' + receiptIcon + '</td>' +
+    '<td>' + finalReceiptIcon(inv) + '</td>' +
     '<td>' + paymentCell + '</td>' +
     '<td>' + linkedIndicator + '</td>' +
   '</tr>';
@@ -2906,6 +3042,7 @@ function groupInvoicesIntoDisplayItems(list) {
     item.amount = occ.reduce(function (sum, o) { return sum + Number(o.amount); }, 0);
     item.paymentStatus = occ.every(function (o) { return o.paymentStatus === first.paymentStatus; }) ? first.paymentStatus : 'mixed';
     item.paidCount = occ.filter(function (o) { return o.paymentStatus === 'paid'; }).length;
+    item.lastEventDate = occ.reduce(function (l, o) { return (!l || String(o.eventDate) > String(l)) ? o.eventDate : l; }, null);
     item.invoiceSentAt = occ.reduce(function (latest, o) { return (!latest || (o.invoiceSentAt && o.invoiceSentAt > latest)) ? o.invoiceSentAt : latest; }, first.invoiceSentAt);
     item.recurrenceSummary = first.recurrenceSummary || (occ.length + ' occurrences');
     // Must match the Facility Rental portal EXACTLY, or the two group the
@@ -2925,6 +3062,7 @@ function groupInvoicesIntoDisplayItems(list) {
         const b = buckets[m];
         b.amount = b.occurrences.reduce(function (s, o) { return s + Number(o.amount); }, 0);
         b.rep = b.occurrences[0];
+        b.lastEventDate = b.occurrences.reduce(function (l, o) { return (!l || String(o.eventDate) > String(l)) ? o.eventDate : l; }, null);
         b.invoiceSentAt = b.occurrences.reduce(function (l, o) { return (!l || (o.invoiceSentAt && o.invoiceSentAt > l)) ? o.invoiceSentAt : l; }, null);
         b.receiptSentAt = b.occurrences.reduce(function (l, o) { return (!l || (o.receiptSentAt && o.receiptSentAt > l)) ? o.receiptSentAt : l; }, null);
         b.allPaid = b.occurrences.every(function (o) { return o.paymentStatus === 'paid'; });
@@ -3001,7 +3139,7 @@ function renderInvoicesTable() {
         '<td>' + escHtml(item.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(item.eventDate) + ' \u2013 ' + formatDate(item.eventDateLast) + ' \u00b7 ' + escHtml(item.recurrenceSummary) + '</div></td>' +
         '<td class="amount">' + money(item.amount) + ' <span class="method-tag">sum of ' + item.occurrences.length + '</span></td>' +
         '<td>' + noteBtn + '</td>' +
-        '<td colspan="3"></td>' +
+        '<td colspan="4"></td>' +
         '<td>' + linkedIndicator + '</td>' +
       '</tr>';
     } else {
@@ -3029,6 +3167,7 @@ function renderInvoicesTable() {
         '<td>' + noteBtn + '</td>' +
         '<td>' + invoiceIcon + '</td>' +
         '<td>' + receiptIcon + '</td>' +
+        '<td>' + finalReceiptIcon(Object.assign({}, repOcc, { lastEventDate: item.lastEventDate })) + '</td>' +
         '<td>' + paymentCell + '</td>' +
         '<td>' + (repOcc.linkedToTransaction
           ? '<span title="Linked to a transaction" style="color:var(--green);font-size:0.85rem;">\ud83d\udd17 Linked</span>'
@@ -3063,6 +3202,7 @@ function renderInvoicesTable() {
           '<td>' + noteBtn + '</td>' +
           '<td>' + invIcon + '</td>' +
           '<td>' + rcptIcon + '</td>' +
+          '<td>' + finalReceiptIcon(Object.assign({}, b.rep, { paymentStatus: b.allPaid ? 'paid' : b.rep.paymentStatus, lastEventDate: b.lastEventDate })) + '</td>' +
           '<td>' + payCell + '</td>' +
           '<td></td>' +
         '</tr>';
@@ -3218,6 +3358,11 @@ document.getElementById('inv-tbody').addEventListener('click', async function (e
   const receiptPopupBtn = e.target.closest('[data-receipt-popup-booking]');
   if (receiptPopupBtn) {
     openFinanceReceiptPopup(receiptPopupBtn.dataset.receiptPopupBooking);
+    return;
+  }
+  const finalBtn = e.target.closest('[data-final-booking]');
+  if (finalBtn) {
+    openFinalReceipt(finalBtn.dataset.finalBooking);
     return;
   }
   const markPaidBtn = e.target.closest('[data-mark-paid-booking]');

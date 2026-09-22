@@ -149,6 +149,11 @@ tr.cancelled-row .renter-name, tr.cancelled-row .amount { text-decoration: line-
 .btn-receipt { display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid var(--border); background: #fff; border-radius: 50%; width: 27px; height: 27px; cursor: pointer; font-size: 0.78rem; line-height: 1; }
 .btn-receipt:hover:not(.greyed) { transform: scale(1.08); }
 .btn-receipt.greyed { background: #f2efe9; border-color: #ddd6c8; opacity: 0.55; cursor: default; }
+.btn-final { display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid var(--border); background: #fff; border-radius: 50%; width: 27px; height: 27px; cursor: pointer; font-size: 0.78rem; line-height: 1; }
+.btn-final:hover:not(.greyed) { transform: scale(1.08); }
+.btn-final.greyed { background: #f2efe9; border-color: #ddd6c8; opacity: 0.55; cursor: default; }
+.btn-final.attached { background: #fff4d9; border-color: #dda520; box-shadow: 0 1px 4px rgba(221,165,32,0.35); }
+.btn-final.sent { background: #e2f6e9; border-color: #2e9e5b; box-shadow: 0 1px 4px rgba(46,158,91,0.35); }
 .btn-receipt.attached { background: #fff4d9; border-color: #dda520; box-shadow: 0 1px 4px rgba(221,165,32,0.35); }
 .btn-receipt.sent { background: #e2f6e9; border-color: #2e9e5b; box-shadow: 0 1px 4px rgba(46,158,91,0.35); }
 .btn-receipt:disabled { cursor: default; }
@@ -2043,7 +2048,16 @@ function actionIcons(b) {
     : (b.payment_status === 'paid'
         ? '<button type="button" class="btn-receipt attached" title="Not sent yet — click to view. Manage sending in Finance &rarr; Invoices &amp; Receipts" data-view-document-booking="' + b.booking_id + '" data-view-document-kind="receipt">\ud83e\uddfe</button>'
         : '<span class="btn-receipt greyed" title="Confirm as paid first, in Finance &rarr; Invoices &amp; Receipts">\ud83e\uddfe</span>');
-  return '<div class="action-icons">' + notesButtonHtml(b) + invoiceIcon + receiptIcon + '</div>';
+  // Final receipt: shown here for reference only. Recording the deposit
+  // refund and issuing it happens in Finance → Invoices & Receipts.
+  const FINAL = '\ud83d\udd12';
+  const deposit = Number(b.deposit_amount) || 0;
+  let finalIcon;
+  if (!deposit) finalIcon = '<span class="btn-final greyed" title="No incidental deposit on this booking">' + FINAL + '</span>';
+  else if (b.final_receipt_sent_at) finalIcon = '<button type="button" class="btn-final sent" title="Final receipt sent ' + formatTimestampDate(b.final_receipt_sent_at) + ' — click to view. Issued in Finance &rarr; Invoices &amp; Receipts" data-view-document-booking="' + b.booking_id + '" data-view-document-kind="final-receipt">' + FINAL + '</button>';
+  else if (b.final_receipt_generated_at) finalIcon = '<button type="button" class="btn-final attached" title="Generated, not sent — click to view. Sending happens in Finance &rarr; Invoices &amp; Receipts" data-view-document-booking="' + b.booking_id + '" data-view-document-kind="final-receipt">' + FINAL + '</button>';
+  else finalIcon = '<span class="btn-final greyed" title="Deposit not settled yet — issued in Finance &rarr; Invoices &amp; Receipts after the event">' + FINAL + '</span>';
+  return '<div class="action-icons">' + notesButtonHtml(b) + invoiceIcon + receiptIcon + finalIcon + '</div>';
 }
 
 function isWholeFacility(b) {
@@ -2402,7 +2416,7 @@ document.addEventListener('click', async function (e) {
     const blob = new Blob([html], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     documentViewerUrl = url;
-    document.getElementById('document-viewer-title').textContent = kind === 'receipt' ? 'Receipt' : 'Invoice';
+    document.getElementById('document-viewer-title').textContent = kind === 'final-receipt' ? 'Final receipt' : (kind === 'receipt' ? 'Receipt' : 'Invoice');
     document.getElementById('document-viewer-frame').src = url;
     document.getElementById('document-viewer-overlay').style.display = 'flex';
   } catch (err) {

@@ -275,6 +275,34 @@ async function showLatestNewsletter() {
   console.log('[homepage] latest newsletter shown:', d.id);
 }
 
+/* ── Live now banner ─────────────────────────────────────────────────
+   While Website Management → Live Stream has "We're live now" on, a red
+   bar above the hero links to /live. Nothing is added otherwise. */
+async function showLiveBanner() {
+  const snap = await getDoc(doc(db, 'siteContent', 'liveStream'));
+  if (!snap.exists()) return;
+  const d = snap.data();
+  const hasSource = d.platform === 'facebook' ? !!d.facebookVideoUrl : !!(d.youtubeVideoId || d.youtubeChannelId);
+  if (!d.isLive || !hasSource) return;
+  const main = document.getElementById('home');
+  if (!main || document.getElementById('hp-live-banner')) return;
+  if (!document.getElementById('hp-live-style')) {
+    const st = document.createElement('style');
+    st.id = 'hp-live-style';
+    st.textContent =
+      '#hp-live-banner{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;padding:12px 18px;' +
+        'background:#c0392b;color:#fff;font-weight:700;text-decoration:none;font-size:0.95rem;text-align:center;}' +
+      '#hp-live-banner:hover{background:#a93226;}' +
+      '#hp-live-banner .dot{width:10px;height:10px;border-radius:50%;background:#fff;animation:hpLivePulse 1.4s ease-in-out infinite;}' +
+      '#hp-live-banner .go{padding:5px 12px;border-radius:999px;background:#fff;color:#c0392b;font-size:0.85rem;}' +
+      '@keyframes hpLivePulse{0%,100%{opacity:1}50%{opacity:.25}}';
+    document.head.appendChild(st);
+  }
+  main.insertAdjacentHTML('afterbegin',
+    '<a id="hp-live-banner" href="/live"><span class="dot"></span><span>LIVE NOW' +
+    (d.title ? ' \u2014 ' + esc(d.title) : '') + '</span><span class="go">Watch</span></a>');
+}
+
 (async () => {
   try {
     await applyHomepageContent();
@@ -288,4 +316,7 @@ async function showLatestNewsletter() {
     // A newsletter that can't be read just isn't shown.
     console.error('Latest newsletter not shown:', err);
   }
+  // Last, because applyHomepageContent clears everything but the hero.
+  try { await showLiveBanner(); }
+  catch (err) { console.error('Live banner not shown:', err); }
 })();

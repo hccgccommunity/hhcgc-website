@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live — Hindu Community Center of Greater Cincinnati</title>
+<meta name="description" content="Watch HCCGC events live — pujas, festivals and programs from the Hindu Community Center of Greater Cincinnati.">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#8d3e0d">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-F5ZHQ4CDR9');</script>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-TPBF5VKB');</script>
+<style>
+<style>
+:root {
+  --bg: #fff9f1; --surface: #ffffff; --surface-soft: #fff6ea; --border: rgba(121,62,17,0.14);
+  --text: #2c1b10; --muted: #6a5141; --saffron: #b55a18; --saffron-dark: #8d3e0d; --maroon: #7f2e16;
+  --radius: 22px; --shadow: 0 18px 45px rgba(93,43,14,0.10);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(circle at top left, rgba(217,138,30,0.12), transparent 22%), radial-gradient(circle at top right, rgba(127,46,22,0.05), transparent 20%), var(--bg); color: var(--text); min-height: 100vh; }
+.container { width: min(calc(100% - 32px), 1100px); margin: 0 auto; }
+.site-header { position: sticky; top: 0; z-index: 50; background: rgba(255,249,241,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 92px; padding: 12px 0; }
+.site-header a.brand, .site-header a.brand:link, .site-header a.brand:visited { text-decoration: none; color: inherit; }
+.brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.brand-logo-wrap { background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 8px; box-shadow: var(--shadow); flex-shrink: 0; }
+.brand-logo { width: 88px; height: auto; border-radius: 12px; object-fit: contain; }
+.brand-text h1 { margin: 0; font-size: 1.2rem; line-height: 1.15; color: var(--maroon); }
+.site-header nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 18px; margin: 0; padding: 0; align-items: center; justify-content: flex-end; }
+.site-header nav a, .site-header nav a:link, .site-header nav a:visited { font-weight: 700; color: var(--text); font-size: 0.96rem; text-decoration: none; }
+.site-header nav a:hover { color: var(--saffron-dark); }
+.menu-toggle { display: none; border: 0; background: transparent; padding: 6px 0; cursor: pointer; color: #2c1b10; align-self: flex-end; }
+.menu-toggle .bar { display: block; width: 26px; height: 2px; margin: 5px 0; background: currentColor; }
+@media (max-width: 768px) {
+  .nav { flex-direction: column; align-items: stretch; gap: 8px; } .menu-toggle { display: inline-block; }
+  .site-header nav { display: none; width: 100%; background: rgba(255,249,241,0.95); padding: 10px 0; }
+  .site-header nav.is-open { display: block; } .site-header nav ul { flex-direction: column; gap: 14px; }
+}
+.page-hero { padding: 42px 0 34px; background: linear-gradient(135deg, var(--maroon) 0%, #4e1a09 100%); color: #fff; }
+.page-hero h1 { font-family: Georgia, "Times New Roman", serif; font-size: 2rem; color: #fff; margin-bottom: 8px; }
+.page-hero p { color: #fff; opacity: 0.9; font-size: 0.95rem; max-width: 620px; }
+.back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.85); text-decoration: none; margin-bottom: 14px; }
+.back-link:hover { color: #fff; text-decoration: underline; }
+.btn-primary { font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; font-weight: 700; color: #fff; background: linear-gradient(135deg, var(--saffron-dark), var(--maroon)); border: none; border-radius: 10px; padding: 11px 18px; cursor: pointer; text-decoration: none; display: inline-block; }
+.btn-primary:disabled { opacity: 0.55; cursor: default; }
+.btn-secondary { font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; font-weight: 700; color: var(--text); background: #fff; border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 16px; cursor: pointer; text-decoration: none; display: inline-block; }
+
+/* ── Live ─────────────────────────────────────────────────────────── */
+.live-status { display: inline-flex; align-items: center; gap: 8px; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,0.14); color: #fff; margin-bottom: 12px; }
+.live-status .dot { width: 9px; height: 9px; border-radius: 50%; background: #d9cfc4; }
+.live-status.on { background: #c0392b; }
+.live-status.on .dot { background: #fff; animation: livePulse 1.4s ease-in-out infinite; }
+@keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+.live-main { padding: 30px 0 70px; }
+.live-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+.live-grid.with-chat { grid-template-columns: minmax(0, 1fr) 360px; }
+.live-player { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); }
+.live-player iframe, .live-chat iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.live-chat { position: relative; min-height: 420px; background: #fff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); }
+.live-info { margin-top: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow); padding: 22px 24px; }
+.live-info h2 { font-family: Georgia, "Times New Roman", serif; color: var(--maroon); font-size: 1.3rem; margin-bottom: 8px; }
+.live-info p { color: var(--text); line-height: 1.65; white-space: pre-wrap; font-size: 0.95rem; }
+.live-offline { background: var(--surface); border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadow); padding: 48px 28px; text-align: center; }
+.live-offline .icon { font-size: 2.4rem; margin-bottom: 10px; }
+.live-offline h2 { font-family: Georgia, "Times New Roman", serif; color: var(--maroon); font-size: 1.45rem; margin-bottom: 8px; }
+.live-offline p { color: var(--muted); font-size: 0.95rem; line-height: 1.6; max-width: 520px; margin: 0 auto; }
+.live-offline .next { margin-top: 14px; font-weight: 800; color: var(--saffron-dark); }
+.live-offline .actions { margin-top: 22px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.live-offline a { text-decoration: none; }
+.live-note { font-size: 0.78rem; color: var(--muted); margin-top: 10px; }
+@media (max-width: 960px) { .live-grid.with-chat { grid-template-columns: minmax(0, 1fr); } .live-chat { height: 460px; } }
+</style>
+</head>
+<body>
+<div id="site-header"></div>
+
+<div class="page-hero">
+  <div class="container">
+    <div class="live-status" id="live-status"><span class="dot"></span><span id="live-status-text">Checking…</span></div>
+    <h1 id="hero-title">Watch live</h1>
+    <p id="hero-sub">Pujas, festivals and programs from the Hindu Community Center of Greater Cincinnati, streamed as they happen.</p>
+  </div>
+</div>
+
+<div class="container live-main">
+  <div id="live-view"><div class="live-offline"><p>Loading&hellip;</p></div></div>
+</div>
+
+<div id="site-footer"></div>
+
+<script>
+function loadPartial(id, url) {
+  var target = document.getElementById(id);
+  if (!target) return;
+  fetch(url).then(function (r) { return r.text(); }).then(function (html) {
+    target.innerHTML = html;
+    if (id === 'site-header') fixHeaderLinksForSubfolder(target);
+  }).catch(function () {});
+}
+function fixHeaderLinksForSubfolder(headerEl) {
+  var logo = headerEl.querySelector('.brand-logo');
+  if (logo && logo.getAttribute('src') && !logo.getAttribute('src').startsWith('/') && !logo.getAttribute('src').startsWith('http')) {
+    logo.setAttribute('src', '/' + logo.getAttribute('src'));
+  }
+  headerEl.querySelectorAll('a[href]').forEach(function (link) {
+    var href = link.getAttribute('href');
+    if (!href || href.startsWith('http') || href.startsWith('/') || href.startsWith('#')) return;
+    link.setAttribute('href', '/' + href);
+  });
+}
+loadPartial('site-header', '/header.html');
+loadPartial('site-footer', '/footer.html');
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/service-worker.js').catch(function () {});
+</script>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
+import { getFirestore, doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
+
+var firebaseConfig = {
+  apiKey: 'AIzaSyA6IzLjWTg7Rq04HsTH-iA3eDmSzKI7xME',
+  authDomain: 'hccgc-a7a54.firebaseapp.com',
+  projectId: 'hccgc-a7a54',
+  storageBucket: 'hccgc-a7a54.firebasestorage.app',
+  messagingSenderId: '75757201418',
+  appId: '1:75757201418:web:c31e9361921242145717f3'
+};
+var db = getFirestore(initializeApp(firebaseConfig));
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function safeUrl(u) { return /^https:\/\//i.test(String(u || '')) ? String(u) : ''; }
+
+// Only ids that match YouTube's own formats, and only facebook.com links,
+// ever reach an iframe src — the settings doc is staff-written, but the
+// page shouldn't depend on that.
+function embedFor(d) {
+  if (d.platform === 'facebook') {
+    var fb = safeUrl(d.facebookVideoUrl);
+    if (!fb || !/^https:\/\/([\w-]+\.)?(facebook\.com|fb\.watch)\//i.test(fb)) return null;
+    return { player: 'https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(fb) + '&show_text=false', chat: null, platform: 'Facebook' };
+  }
+  var vid = /^[\w-]{11}$/.test(d.youtubeVideoId || '') ? d.youtubeVideoId : '';
+  var ch = /^UC[\w-]{22}$/.test(d.youtubeChannelId || '') ? d.youtubeChannelId : '';
+  if (!vid && !ch) return null;
+  return {
+    player: vid ? 'https://www.youtube.com/embed/' + vid + '?rel=0&autoplay=1&mute=1'
+                : 'https://www.youtube.com/embed/live_stream?channel=' + ch + '&autoplay=1&mute=1',
+    chat: (vid && d.showChat !== false) ? 'https://www.youtube.com/live_chat?v=' + vid + '&embed_domain=' + encodeURIComponent(location.hostname) : null,
+    platform: 'YouTube'
+  };
+}
+
+var CURRENT = null;
+function render(d) {
+  d = d || {};
+  var em = d.isLive ? embedFor(d) : null;
+  var live = !!em;
+  document.getElementById('live-status').className = 'live-status' + (live ? ' on' : '');
+  document.getElementById('live-status-text').textContent = live ? 'Live now' : 'Offline';
+  document.getElementById('hero-title').textContent = live && d.title ? d.title : 'Watch live';
+  document.title = (live ? '\u25CF Live: ' + (d.title || 'HCCGC') : 'Live') + ' — Hindu Community Center of Greater Cincinnati';
+
+  // Don't rebuild the player if nothing about it changed — that would
+  // restart the video for everyone watching whenever a staff member saves
+  // an unrelated edit, like the description.
+  var key = live ? em.player + '|' + (em.chat || '') : 'off|' + (d.nextStreamText || '') + '|' + (d.pastStreamsUrl || '');
+  var view = document.getElementById('live-view');
+  if (key !== CURRENT) {
+    CURRENT = key;
+    if (live) {
+      view.innerHTML =
+        '<div class="live-grid' + (em.chat ? ' with-chat' : '') + '">' +
+          '<div><div class="live-player"><iframe src="' + esc(em.player) + '" title="Live stream" ' +
+            'allow="autoplay; encrypted-media; picture-in-picture; web-share; fullscreen" allowfullscreen></iframe></div>' +
+            '<div class="live-note">Starts muted — tap the speaker icon on the video for sound.</div></div>' +
+          (em.chat ? '<div class="live-chat"><iframe src="' + esc(em.chat) + '" title="Live chat"></iframe></div>' : '') +
+        '</div>' +
+        '<div class="live-info" id="live-info"></div>';
+    } else {
+      var past = safeUrl(d.pastStreamsUrl);
+      view.innerHTML =
+        '<div class="live-offline">' +
+          '<div class="icon">\u{1F4FA}</div>' +
+          '<h2>We\u2019re not streaming right now</h2>' +
+          '<p>This page switches to the live video automatically when a stream starts — no need to refresh.</p>' +
+          (d.nextStreamText ? '<div class="next">' + esc(d.nextStreamText) + '</div>' : '') +
+          '<div class="actions">' +
+            (past ? '<a class="btn-primary" href="' + esc(past) + '" target="_blank" rel="noopener">Watch past streams</a>' : '') +
+            '<a class="btn-secondary" href="/upcoming-events">Upcoming events</a>' +
+          '</div>' +
+        '</div>';
+    }
+  }
+  var info = document.getElementById('live-info');
+  if (info) {
+    info.style.display = (d.title || d.description) ? '' : 'none';
+    info.innerHTML = (d.title ? '<h2>' + esc(d.title) + '</h2>' : '') + (d.description ? '<p>' + esc(d.description) + '</p>' : '');
+  }
+}
+
+// Live updates: when staff switch the stream on or off, every open copy of
+// this page follows within a second or two.
+onSnapshot(doc(db, 'siteContent', 'liveStream'),
+  function (snap) { render(snap.exists() ? snap.data() : {}); },
+  function () { render({}); });
+</script>
+</body>
+</html>

@@ -608,16 +608,18 @@ async function loadEmailConfig() {
       if (!groups[g]) groups[g] = [];
       groups[g].push(a);
     });
-    var head = '<div style="display:grid;grid-template-columns:1.3fr 1fr 1.1fr 1.1fr;gap:8px;font-size:.76rem;font-weight:700;color:var(--muted);padding-bottom:6px;">' +
-      '<div>Action</div><div>Display name</div><div>Sent from</div><div>CC</div></div>';
+    var head = '<div style="display:grid;grid-template-columns:1.3fr 1fr 1.1fr 1.1fr 1.1fr;gap:8px;font-size:.76rem;font-weight:700;color:var(--muted);padding-bottom:6px;">' +
+      '<div>Action</div><div>Display name</div><div>Sent from</div><div>Reply-To</div><div>CC</div></div>' +
+      '<div class="field-hint" style="margin:-2px 0 6px;">Reply-To left blank: replies go to the Sent from address, or to facility-rental@hccgc.org when sending from DoNotReply.</div>';
     box.innerHTML = head + Object.keys(groups).map(function (g) {
       return '<div style="margin:10px 0 4px;font-size:.78rem;font-weight:700;color:var(--saffron-dark, #8d3e0d);">' + g + '</div>' +
         groups[g].map(function (a) {
           var cfg = emailConfig[a.key] || {};
-          return '<div style="display:grid;grid-template-columns:1.3fr 1fr 1.1fr 1.1fr;gap:8px;align-items:center;padding:3px 0;">' +
+          return '<div style="display:grid;grid-template-columns:1.3fr 1fr 1.1fr 1.1fr 1.1fr;gap:8px;align-items:center;padding:3px 0;">' +
             '<div style="font-size:.82rem;padding-left:10px;">' + a.label + '</div>' +
             '<input type="text" data-ec-name="' + a.key + '" value="' + (cfg.fromName || '') + '" placeholder="display name" style="font-size:.8rem;padding:5px 8px;">' +
             '<input type="email" data-ec-from="' + a.key + '" value="' + (cfg.fromEmail || '') + '" style="font-size:.8rem;padding:5px 8px;">' +
+            '<input type="email" data-ec-reply="' + a.key + '" value="' + (cfg.replyTo || '') + '" placeholder="' + (a.key === 'customer_email' ? 'leave blank' : 'automatic') + '" style="font-size:.8rem;padding:5px 8px;">' +
             '<input type="email" data-ec-cc="' + a.key + '" value="' + (cfg.cc || '') + '" placeholder="none" style="font-size:.8rem;padding:5px 8px;">' +
           '</div>';
         }).join('');
@@ -738,7 +740,8 @@ document.getElementById('btn-save-settings').addEventListener('click', async fun
           var f = document.querySelector('[data-ec-from="' + a.key + '"]');
           var cc = document.querySelector('[data-ec-cc="' + a.key + '"]');
           var nm = document.querySelector('[data-ec-name="' + a.key + '"]');
-          out[a.key] = { fromName: nm ? nm.value.trim() : '', fromEmail: f ? f.value.trim() : '', cc: cc ? cc.value.trim() : '' };
+          var rt = document.querySelector('[data-ec-reply="' + a.key + '"]');
+          out[a.key] = { fromName: nm ? nm.value.trim() : '', fromEmail: f ? f.value.trim() : '', replyTo: rt ? rt.value.trim() : '', cc: cc ? cc.value.trim() : '' };
         });
         return out;
       })()) }

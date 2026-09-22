@@ -576,9 +576,16 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
       </div>
 
       <div class="field" style="margin-top:16px;">
+        <label style="display:flex;align-items:center;gap:8px;font-weight:700;cursor:pointer;">
+          <input type="checkbox" id="send-attach" checked> Attach the newsletter as a PDF
+        </label>
+        <div class="card-sub" id="send-attach-note" style="margin-top:4px;"></div>
+      </div>
+      <div class="field" id="send-filename-field">
         <label for="send-filename">Attachment file name</label>
         <input type="text" id="send-filename" placeholder="HCCGC-Newsletter.pdf">
       </div>
+      <div id="send-resume" class="result-box" style="display:none;margin-bottom:14px;"></div>
 
       <div style="border-top:1px solid var(--border);margin:6px 0 16px;"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
@@ -1746,9 +1753,45 @@ document.getElementById('btn-open-send').addEventListener('click', async functio
       '<p>Warm regards,<br>Hindu Community Center of Greater Cincinnati</p>';
   }
   document.getElementById('send-result').style.display = 'none';
+  updateAttachNote();
   openModal('modal-send');
   loadSegmentOptions();
+  checkUnfinishedSend();
 });
+function onlineLink() { return 'https://hccgc.org/newsletters?id=' + encodeURIComponent(DOC.id); }
+function updateAttachNote() {
+  var on = document.getElementById('send-attach').checked;
+  document.getElementById('send-filename-field').style.display = on ? '' : 'none';
+  document.getElementById('send-attach-note').innerHTML = on
+    ? 'Every email carries the PDF. Large issues send more slowly.'
+    : (PUB ? 'No attachment. A <strong>Read the newsletter</strong> button linking to the issue on the website is added to the email, and clicks on it are tracked.'
+           : '<span style="color:var(--red);font-weight:700;">This issue isn\'t on the website yet</span>, so without the PDF readers only get the email text. Publish it first, or keep the attachment.');
+}
+document.getElementById('send-attach').addEventListener('change', updateAttachNote);
+function readOnlineButton() {
+  return '<p style="margin:22px 0;"><a href="' + onlineLink() + '" style="display:inline-block;background:#8a3a12;color:#ffffff;' +
+    'text-decoration:none;font-weight:bold;padding:12px 22px;border-radius:8px;font-family:Arial,Helvetica,sans-serif;">Read the newsletter</a></p>';
+}
+var RESUME = null;
+async function checkUnfinishedSend() {
+  var box = document.getElementById('send-resume');
+  box.style.display = 'none'; RESUME = null;
+  try {
+    var r = await authedFetch(API_BASE + '/newsletter/history?newsletterId=' + encodeURIComponent(DOC.id));
+    if (!r.ok) return;
+    var rows = await r.json();
+    var open = (rows || []).find(function (x) { return x.pending > 0; });
+    if (!open) return;
+    RESUME = open;
+    box.className = 'result-box error';
+    box.style.display = 'block';
+    box.innerHTML = 'An earlier send of <strong>' + escHtml(open.subject || '') + '</strong> stopped with <strong>' + open.pending +
+      '</strong> of ' + open.recipientCount + ' people not emailed yet. ' +
+      '<button class="btn-secondary" id="btn-resume-send" style="margin-left:6px;padding:5px 12px;font-size:0.8rem;">Finish that send</button>' +
+      '<div style="font-size:0.78rem;margin-top:6px;">It keeps its original subject and text' + (open.attachPdf ? ', and attaches the PDF as the issue looks now' : '') + '. Nobody who already got it is emailed again.</div>';
+    document.getElementById('btn-resume-send').addEventListener('click', function () { resumeSend(open); });
+  } catch (e) { /* the dialog works without this */ }
+}
 document.querySelectorAll('[data-sendcmd]').forEach(function (b) {
   b.addEventListener('mousedown', function (e) { e.preventDefault(); });
   b.addEventListener('click', function () {
@@ -1836,54 +1879,111 @@ function sendSay(msg, kind) {
   b.className = 'result-box' + (kind ? ' ' + kind : '');
   b.textContent = msg;
 }
+// Never leave the message box blank: a proxy timeout or crash comes back
+// as HTML or nothing, which is exactly what produced the empty red bar.
+async function responseError(r) {
+  var d = null;
+  try { d = await r.clone().json(); } catch (e) {}
+  var msg = d && ((d.errors && d.errors.join(' ')) || d.error);
+  if (msg) return msg;
+  if (r.status === 504) return 'The server took too long to answer (504).';
+  if (r.status === 413) return 'The PDF is too large to upload (413). Use smaller photos, or send without the attachment.';
+  return 'The server returned ' + r.status + (r.statusText ? ' ' + r.statusText : '') + '.';
+}
+async function pdfBase64IfNeeded(attach) {
+  if (!attach) return null;
+  sendSay('Building the PDF…');
+  var pdf = await buildPdf();
+  if (MISSED_IMAGES && !window.confirm(MISSED_IMAGES + ' picture(s) could not be embedded and will be blank in the attached PDF.\n\nSend anyway?')) {
+    throw new Error('Cancelled. Nothing was sent.');
+  }
+  return pdf.output('datauristring').split(',')[1];
+}
+// Drains the queue a batch at a time. Each call is short, so no single
+// request can run into the server's time limit.
+async function drainQueue(blastId, pdfBase64, total) {
+  var d = null, strikes = 0;
+  sendSay('Sending… 0 of ' + total);
+  while (true) {
+    var r;
+    try {
+      r = await authedFetch(API_BASE + '/newsletter/send-batch', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ blastId: blastId, pdfBase64: pdfBase64 })
+      });
+    } catch (netErr) { r = null; }
+    if (!r || !r.ok) {
+      // One retry for a blip; a second failure stops and says so.
+      if (++strikes < 2) { await new Promise(function (res) { setTimeout(res, 3000); }); continue; }
+      var why = r ? await responseError(r) : 'The connection dropped.';
+      throw new Error(why + ' Sending paused after ' + (d ? d.sent : 0) + ' of ' + total +
+        '. Open this dialog again and click "Finish that send" to carry on — nobody gets it twice.');
+    }
+    strikes = 0;
+    d = await r.json();
+    sendSay('Sending… ' + (d.sent + d.failed) + ' of ' + total + (d.failed ? ' (' + d.failed + ' failed)' : ''));
+    if (d.done) return d;
+  }
+}
+function setSendButtons(disabled) {
+  ['btn-send-test', 'btn-send-all', 'btn-resume-send'].forEach(function (id) {
+    var b = document.getElementById(id); if (b) b.disabled = disabled;
+  });
+}
 async function doSend(testOnly) {
   var subject = document.getElementById('send-subject').value.trim();
   var bodyHtml = document.getElementById('send-body').innerHTML.trim();
+  var attach = document.getElementById('send-attach').checked;
   var filename = (document.getElementById('send-filename').value.trim() || pdfName());
   if (!/\.pdf$/i.test(filename)) filename += '.pdf';
   if (!subject) { sendSay('Add a subject.', 'error'); return; }
   if (!bodyHtml) { sendSay('The email body is empty.', 'error'); return; }
+  if (!attach && !PUB && !window.confirm('This email has no attachment and the issue isn\'t on the website, so readers will only get the email text.\n\nSend anyway?')) return;
   if (!testOnly && !window.confirm(
     'Send this to the FULL list?\n\n' + document.getElementById('send-reach').textContent +
     '\n\nThis is not a test. It cannot be undone.')) return;
+  if (!attach && PUB) bodyHtml += readOnlineButton();
 
-  var btns = [document.getElementById('btn-send-test'), document.getElementById('btn-send-all')];
-  btns.forEach(function (b) { b.disabled = true; });
-  sendSay('Building the PDF…');
+  setSendButtons(true);
   try {
     if (DIRTY) { try { await saveDoc(true); } catch (e) {} }
-    var pdf = await buildPdf();
-    if (MISSED_IMAGES) {
-      if (!window.confirm(MISSED_IMAGES + ' picture(s) could not be embedded and will be blank in the attached PDF.\n\nSend anyway?')) {
-        sendSay('Cancelled. Nothing was sent.', 'error');
-        return;
-      }
-    }
-    var base64 = pdf.output('datauristring').split(',')[1];
-    sendSay(testOnly ? 'Sending test…' : 'Sending…');
+    var pdfBase64 = await pdfBase64IfNeeded(attach);
+    sendSay(testOnly ? 'Sending test…' : 'Preparing the list…');
     var r = await authedFetch(API_BASE + '/newsletter/send', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        newsletterId: DOC.id, newsletterTitle: DOC.title,
-        subject: subject, bodyHtml: bodyHtml,
-        segment: currentSegment(), testOnly: !!testOnly,
-        pdfBase64: base64, filename: filename
+        newsletterId: DOC.id, newsletterTitle: DOC.title, subject: subject, bodyHtml: bodyHtml,
+        segment: currentSegment(), testOnly: !!testOnly, attachPdf: attach,
+        pdfBase64: testOnly ? pdfBase64 : null, filename: filename
       })
     });
-    if (r.status === 404) {
-      sendSay('The /newsletter/send endpoint is not deployed yet. The PDF and everything else here works — sending switches on once the API is updated.', 'error');
-      return;
-    }
-    var d = await r.json().catch(function () { return {}; });
-    if (!r.ok) { sendSay((d.errors || [d.error] || ['Server returned ' + r.status]).join(' '), 'error'); return; }
-    sendSay(d.test
-      ? 'Test sent to you only (' + (d.sent || 1) + ' of 1). Nobody else received it.'
-      : 'Sent to ' + d.sent + ' of ' + d.recipientCount + (d.failed ? ' · ' + d.failed + ' failed' : '') + '.', 'success');
-    if (!d.test) { loadHistory(); loadLibrary(); }
+    if (r.status === 404) { sendSay('The /newsletter/send endpoint is not deployed yet.', 'error'); return; }
+    if (!r.ok) { sendSay(await responseError(r), 'error'); return; }
+    var d = await r.json();
+    if (d.test) { sendSay('Test sent to you only. Nobody else received it.', 'success'); return; }
+    var done = await drainQueue(d.blastId, pdfBase64, d.recipientCount);
+    sendSay('Sent to ' + done.sent + ' of ' + done.recipientCount + (done.failed ? ' · ' + done.failed + ' failed — see Sent history' : '') + '.', done.failed ? 'error' : 'success');
+    document.getElementById('send-resume').style.display = 'none';
+    loadHistory(); loadLibrary();
   } catch (err) {
-    sendSay('Could not send: ' + err.message, 'error');
+    sendSay(err.message.indexOf('Cancelled') === 0 ? err.message : 'Could not send: ' + err.message, 'error');
   } finally {
-    btns.forEach(function (b) { b.disabled = false; });
+    setSendButtons(false);
+  }
+}
+async function resumeSend(open) {
+  if (!window.confirm('Email the remaining ' + open.pending + ' people?')) return;
+  setSendButtons(true);
+  try {
+    var pdfBase64 = await pdfBase64IfNeeded(open.attachPdf);
+    var done = await drainQueue(open.blastId, pdfBase64, open.recipientCount);
+    sendSay('Finished: sent to ' + done.sent + ' of ' + done.recipientCount + (done.failed ? ' · ' + done.failed + ' failed' : '') + '.', done.failed ? 'error' : 'success');
+    document.getElementById('send-resume').style.display = 'none';
+    loadHistory();
+  } catch (err) {
+    sendSay('Could not finish: ' + err.message, 'error');
+  } finally {
+    setSendButtons(false);
   }
 }
 document.getElementById('btn-send-test').addEventListener('click', function () { doSend(true); });
@@ -1922,6 +2022,8 @@ function renderHistory() {
         '<span class="click">Clicked <strong>' + (n.clicked || 0) + '</strong> (' + pct(n.clicked || 0, base) + '%)</span>' +
         (n.unsubscribed ? '<span class="bad">Unsubscribed <strong>' + n.unsubscribed + '</strong></span>' : '') +
         (n.failedCount ? '<span class="bad">Failed <strong>' + n.failedCount + '</strong></span>' : '') +
+        (n.pending ? '<span class="bad">Not sent yet <strong>' + n.pending + '</strong> &mdash; open the newsletter and click Email to finish</span>' : '') +
+        (!n.pending && n.status && n.status !== 'sent' && !base ? '<span class="bad">Did not finish &mdash; who received it was not recorded</span>' : '') +
       '</div>' +
       (PEOPLE_OPEN[n.blastId] ? '<div class="nl-people" id="people-' + escHtml(n.blastId) + '">' + peopleHtml(n.blastId) + '</div>' : '') +
     '</div>';
@@ -1939,7 +2041,7 @@ function peopleRows(blastId) {
     if (f.show === 'clicked') return p.clickCount > 0;
     if (f.show === 'unopened') return p.openCount === 0 && p.sendStatus === 'sent';
     if (f.show === 'unsubscribed') return !!p.unsubscribedAt;
-    if (f.show === 'failed') return p.sendStatus !== 'sent';
+    if (f.show === 'failed') return p.sendStatus === 'failed';
     return true;
   });
 }
@@ -1968,7 +2070,8 @@ function peopleHtml(blastId) {
               escHtml(shortUrl(l.url)) + (l.count > 1 ? ' &times;' + l.count : '') + '</a>';
           }).join('')
         : '<span class="no">&mdash;</span>';
-      var status = p.sendStatus !== 'sent' ? '<span class="fail" title="' + escHtml(p.sendError || '') + '">Failed</span>'
+      var status = p.sendStatus === 'pending' ? '<span class="no">Queued</span>'
+        : p.sendStatus !== 'sent' ? '<span class="fail" title="' + escHtml(p.sendError || '') + '">Failed</span>'
         : (p.unsubscribedAt ? '<span class="fail">Unsubscribed</span>' : 'Delivered');
       return '<tr><td><div class="who">' + escHtml(p.name || p.email) + '</div>' + (p.name ? '<div class="em">' + escHtml(p.email) + '</div>' : '') + '</td>' +
         '<td>' + opened + '</td><td>' + clicked + '</td><td>' + status + '</td></tr>';
@@ -2007,7 +2110,7 @@ function downloadPeopleCsv(blastId) {
   var send = HIST.find(function (h) { return h.blastId === blastId; }) || {};
   var lines = [['Name', 'Email', 'Status', 'Opened', 'First opened', 'Times opened', 'Clicks', 'First clicked', 'Links clicked', 'Unsubscribed'].join(',')];
   rows.forEach(function (p) {
-    lines.push([p.name, p.email, p.sendStatus === 'sent' ? 'Delivered' : 'Failed', p.openCount > 0 ? 'Yes' : 'No',
+    lines.push([p.name, p.email, p.sendStatus === 'sent' ? 'Delivered' : (p.sendStatus === 'pending' ? 'Queued' : 'Failed'), p.openCount > 0 ? 'Yes' : 'No',
       p.firstOpenedAt || '', p.openCount, p.clickCount, p.firstClickedAt || '',
       (p.links || []).map(function (l) { return l.url + (l.count > 1 ? ' (x' + l.count + ')' : ''); }).join(' | '),
       p.unsubscribedAt ? 'Yes' : ''].map(csvCell).join(','));

@@ -210,6 +210,39 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .nl-imgph { display: none; }
 .nl-page { box-shadow: 0 12px 34px rgba(93,43,14,0.16); }
 .nl-page-wrap { scroll-margin-top: 0; }
+
+/* ── Reader engagement: reactions + comments ─────────────────────────── */
+.nl-engage { width: min(100%, 816px); margin: -40px auto 70px; display: flex; flex-direction: column; gap: 18px; }
+.nl-engage-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow); padding: 22px 24px; }
+.nl-engage-card h3 { font-family: Georgia, "Times New Roman", serif; font-size: 1.12rem; color: var(--maroon); margin-bottom: 12px; }
+.nl-engage-card h3 .count { font-family: Arial, Helvetica, sans-serif; font-size: 0.82rem; color: var(--muted); font-weight: 700; margin-left: 6px; }
+.nl-reactions { display: flex; flex-wrap: wrap; gap: 10px; }
+.nl-react { display: inline-flex; align-items: center; gap: 8px; font-family: inherit; font-size: 0.92rem; font-weight: 700; color: var(--text);
+  background: #fff; border: 1.5px solid var(--border); border-radius: 999px; padding: 8px 15px; cursor: pointer; transition: transform 0.12s, border-color 0.12s, background 0.12s; }
+.nl-react .emo { font-size: 1.2rem; line-height: 1; }
+.nl-react:hover { transform: translateY(-1px); border-color: var(--saffron-dark); }
+.nl-react.mine { background: #fff1e0; border-color: var(--saffron-dark); color: var(--maroon); }
+.nl-react:disabled { opacity: 0.6; cursor: default; transform: none; }
+.nl-react-hint { font-size: 0.78rem; color: var(--muted); margin-top: 10px; }
+.nl-comment { padding: 14px 0; border-top: 1px solid var(--border); }
+.nl-comment:first-child { border-top: none; padding-top: 2px; }
+.nl-comment-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.nl-comment-name { font-weight: 800; color: var(--maroon); font-size: 0.92rem; }
+.nl-comment-date { font-size: 0.76rem; color: var(--muted); }
+.nl-comment-text { font-size: 0.92rem; line-height: 1.6; color: var(--text); white-space: pre-wrap; overflow-wrap: anywhere; }
+.nl-comments-empty { font-size: 0.88rem; color: var(--muted); padding: 4px 0 6px; }
+.nl-comment-form { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+.nl-comment-form label { font-size: 0.8rem; font-weight: 700; color: var(--muted); }
+.nl-comment-form input, .nl-comment-form textarea { width: 100%; font: inherit; font-size: 0.92rem; color: var(--text); background: #fff;
+  border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 12px; }
+.nl-comment-form textarea { min-height: 96px; resize: vertical; }
+.nl-comment-form input:focus, .nl-comment-form textarea:focus { outline: none; border-color: var(--saffron-dark); }
+.nl-comment-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.nl-comment-counter { font-size: 0.76rem; color: var(--muted); }
+.nl-comment-status { font-size: 0.84rem; min-height: 1em; }
+.nl-comment-status.err { color: #b3382c; }
+.nl-comment-status.ok { color: #2e7d4f; }
+@media (max-width: 600px) { .nl-engage { margin-top: -30px; } .nl-engage-card { padding: 18px 16px; } }
 </style>
 </head>
 <body>
@@ -241,6 +274,33 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
     </div>
     <div class="pdf-note" id="pdf-note"></div>
     <div class="issue-wrap"><div class="nl-canvas" id="nl-canvas"></div></div>
+
+    <section class="nl-engage" id="nl-engage" style="display:none;" aria-label="Reactions and comments">
+      <div class="nl-engage-card">
+        <h3>React to this issue</h3>
+        <div class="nl-reactions" id="nl-reactions"></div>
+        <div class="nl-react-hint">Tap again to take your reaction back.</div>
+      </div>
+      <div class="nl-engage-card">
+        <h3>Comments <span class="count" id="nl-comment-count"></span></h3>
+        <div id="nl-comment-list"><div class="nl-comments-empty">Loading comments&hellip;</div></div>
+        <form class="nl-comment-form" id="nl-comment-form" novalidate>
+          <div>
+            <label for="nl-comment-name">Your name</label>
+            <input type="text" id="nl-comment-name" maxlength="60" autocomplete="name">
+          </div>
+          <div>
+            <label for="nl-comment-text">Comment</label>
+            <textarea id="nl-comment-text" maxlength="1500"></textarea>
+          </div>
+          <div class="nl-comment-foot">
+            <span class="nl-comment-counter" id="nl-comment-counter">0 / 1500</span>
+            <button type="submit" class="btn-primary" id="nl-comment-submit">Post comment</button>
+          </div>
+          <div class="nl-comment-status" id="nl-comment-status"></div>
+        </form>
+      </div>
+    </section>
   </div>
 </div>
 
@@ -676,7 +736,7 @@ document.getElementById('btn-pdf').addEventListener('click', async function () {
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
-import { getFirestore, collection, doc, getDoc, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
+import { getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc, query, where, orderBy, increment, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
 
 var firebaseConfig = {
   apiKey: 'AIzaSyA6IzLjWTg7Rq04HsTH-iA3eDmSzKI7xME',
@@ -737,11 +797,179 @@ async function loadIssue(id) {
       (d.publishedAt ? ' · Published ' + fmtDate(d.publishedAt) : '');
     document.title = (d.headline || d.title || 'Newsletter') + ' — HCCGC';
     window.renderIssue(d);
+    startEngagement(id);
   } catch (err) {
     showIndex();
     document.getElementById('pub-list').innerHTML =
       '<div class="empty-state">Could not load that issue right now. Please try again shortly.</div>';
   }
+}
+
+/* ── Reader engagement ────────────────────────────────────────────────
+   newsletterStats/{issueId}  — views, uniqueViews, r_<reaction> counters
+   newsletterComments/{id}    — { issueId, name, text, createdAt }
+   Both are publicly writable under narrow Firestore rules (see the rules
+   block that ships with this change): counters can only move by one, and
+   a comment can only be created with exactly those four fields. Readers
+   aren't signed in, so "unique reader" and "my reaction" are per browser. */
+var STATS = 'newsletterStats';
+var COMMENTS = 'newsletterComments';
+var REACTIONS = [
+  { key: 'pray',  emoji: '\u{1F64F}', label: 'Namaste' },
+  { key: 'heart', emoji: '\u2764\uFE0F', label: 'Love' },
+  { key: 'clap',  emoji: '\u{1F44F}', label: 'Applause' },
+  { key: 'smile', emoji: '\u{1F60A}', label: 'Smile' },
+  { key: 'party', emoji: '\u{1F389}', label: 'Celebrate' }
+];
+var COMMENT_MAX = 1500, NAME_MAX = 60, COMMENT_GAP_MS = 30000;
+var ISSUE_ID = null, COUNTS = {}, MINE = {};
+
+function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function ssGet(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
+function ssSet(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }
+
+// One view per issue per browser session, so a refresh or a PDF download
+// doesn't inflate the count. uniqueViews counts each browser once, ever.
+function countView(issueId) {
+  if (ssGet('nl-viewed-' + issueId)) return;
+  ssSet('nl-viewed-' + issueId, '1');
+  var firstEver = !lsGet('nl-seen-' + issueId);
+  var payload = { views: increment(1) };
+  if (firstEver) payload.uniqueViews = increment(1);
+  setDoc(doc(db, STATS, issueId), payload, { merge: true })
+    .then(function () { if (firstEver) lsSet('nl-seen-' + issueId, '1'); })
+    .catch(function (err) { console.warn('View not counted:', err.message); });
+}
+
+function loadMine(issueId) {
+  try { MINE = JSON.parse(lsGet('nl-react-' + issueId) || '{}') || {}; } catch (e) { MINE = {}; }
+}
+function saveMine(issueId) { lsSet('nl-react-' + issueId, JSON.stringify(MINE)); }
+
+function renderReactions() {
+  var el = document.getElementById('nl-reactions');
+  el.innerHTML = REACTIONS.map(function (r) {
+    var n = Math.max(0, Number(COUNTS['r_' + r.key]) || 0);
+    return '<button type="button" class="nl-react' + (MINE[r.key] ? ' mine' : '') + '" data-react="' + r.key + '"' +
+      ' aria-pressed="' + (MINE[r.key] ? 'true' : 'false') + '" title="' + r.label + '">' +
+      '<span class="emo">' + r.emoji + '</span><span>' + n + '</span></button>';
+  }).join('');
+}
+
+document.getElementById('nl-reactions').addEventListener('click', async function (e) {
+  var btn = e.target.closest('[data-react]');
+  if (!btn || !ISSUE_ID || btn.disabled) return;
+  var key = btn.dataset.react, field = 'r_' + key;
+  var had = !!MINE[key];
+  var delta = had ? -1 : 1;
+  // Never try to take a count below zero — the rules would refuse it anyway.
+  if (delta < 0 && (Number(COUNTS[field]) || 0) <= 0) { delete MINE[key]; saveMine(ISSUE_ID); renderReactions(); return; }
+  btn.disabled = true;
+  // Optimistic, then put it back if the write is refused.
+  COUNTS[field] = (Number(COUNTS[field]) || 0) + delta;
+  if (had) delete MINE[key]; else MINE[key] = 1;
+  renderReactions();
+  var payload = {}; payload[field] = increment(delta);
+  try {
+    await setDoc(doc(db, STATS, ISSUE_ID), payload, { merge: true });
+    saveMine(ISSUE_ID);
+  } catch (err) {
+    COUNTS[field] = (Number(COUNTS[field]) || 0) - delta;
+    if (had) MINE[key] = 1; else delete MINE[key];
+    renderReactions();
+    console.warn('Reaction not saved:', err.message);
+  }
+});
+
+function commentDate(v) {
+  var d = v && v.toDate ? v.toDate() : (v instanceof Date ? v : null);
+  if (!d) return 'just now';
+  var mins = Math.round((Date.now() - d.getTime()) / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return mins + ' min ago';
+  if (mins < 60 * 24) return Math.round(mins / 60) + ' hr ago';
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+function renderComments(list) {
+  var el = document.getElementById('nl-comment-list');
+  document.getElementById('nl-comment-count').textContent = list.length ? '(' + list.length + ')' : '';
+  if (!list.length) { el.innerHTML = '<div class="nl-comments-empty">No comments yet — be the first to share a thought.</div>'; return; }
+  el.innerHTML = list.map(function (c) {
+    return '<div class="nl-comment">' +
+      '<div class="nl-comment-head"><span class="nl-comment-name">' + escHtml(c.name) + '</span>' +
+      '<span class="nl-comment-date">' + escHtml(commentDate(c.createdAt)) + '</span></div>' +
+      '<div class="nl-comment-text">' + escHtml(c.text) + '</div></div>';
+  }).join('');
+}
+var COMMENT_LIST = [];
+async function loadComments(issueId) {
+  try {
+    // Filtered on issueId only and sorted here, so no composite index is needed.
+    var snap = await getDocs(query(collection(db, COMMENTS), where('issueId', '==', issueId)));
+    COMMENT_LIST = [];
+    snap.forEach(function (d) { COMMENT_LIST.push(Object.assign({ id: d.id }, d.data())); });
+    COMMENT_LIST.sort(function (a, b) {
+      var ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+      var tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+      return ta - tb;
+    });
+    renderComments(COMMENT_LIST);
+  } catch (err) {
+    document.getElementById('nl-comment-list').innerHTML = '<div class="nl-comments-empty">Comments could not be loaded right now.</div>';
+  }
+}
+
+var nameInput = document.getElementById('nl-comment-name');
+var textInput = document.getElementById('nl-comment-text');
+var statusEl = document.getElementById('nl-comment-status');
+nameInput.value = lsGet('nl-commenter-name') || '';
+textInput.addEventListener('input', function () {
+  document.getElementById('nl-comment-counter').textContent = textInput.value.length + ' / ' + COMMENT_MAX;
+});
+function setStatus(msg, cls) { statusEl.textContent = msg || ''; statusEl.className = 'nl-comment-status' + (cls ? ' ' + cls : ''); }
+
+document.getElementById('nl-comment-form').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  if (!ISSUE_ID) return;
+  var name = nameInput.value.trim().replace(/\s+/g, ' ');
+  var text = textInput.value.trim();
+  if (!name) { setStatus('Please add your name.', 'err'); nameInput.focus(); return; }
+  if (name.length > NAME_MAX) { setStatus('Please keep your name under ' + NAME_MAX + ' characters.', 'err'); return; }
+  if (!text) { setStatus('Please write a comment first.', 'err'); textInput.focus(); return; }
+  if (text.length > COMMENT_MAX) { setStatus('Please keep comments under ' + COMMENT_MAX + ' characters.', 'err'); return; }
+  var last = Number(lsGet('nl-comment-last') || 0);
+  if (Date.now() - last < COMMENT_GAP_MS) { setStatus('Please wait a few seconds before posting again.', 'err'); return; }
+  var btn = document.getElementById('nl-comment-submit');
+  btn.disabled = true; setStatus('Posting…');
+  try {
+    var ref = await addDoc(collection(db, COMMENTS), { issueId: ISSUE_ID, name: name, text: text, createdAt: serverTimestamp() });
+    lsSet('nl-commenter-name', name);
+    lsSet('nl-comment-last', String(Date.now()));
+    COMMENT_LIST.push({ id: ref.id, issueId: ISSUE_ID, name: name, text: text, createdAt: new Date() });
+    renderComments(COMMENT_LIST);
+    textInput.value = '';
+    document.getElementById('nl-comment-counter').textContent = '0 / ' + COMMENT_MAX;
+    setStatus('Thank you — your comment is posted.', 'ok');
+  } catch (err) {
+    setStatus('Your comment could not be posted. Please try again shortly.', 'err');
+    console.warn('Comment not posted:', err.message);
+  } finally { btn.disabled = false; }
+});
+
+async function startEngagement(issueId) {
+  ISSUE_ID = issueId;
+  document.getElementById('nl-engage').style.display = 'flex';
+  loadMine(issueId);
+  COUNTS = {};
+  renderReactions();
+  try {
+    var snap = await getDoc(doc(db, STATS, issueId));
+    if (snap.exists()) COUNTS = snap.data() || {};
+  } catch (e) { /* counts are cosmetic; the buttons still work */ }
+  renderReactions();
+  countView(issueId);
+  loadComments(issueId);
 }
 
 var id = new URLSearchParams(window.location.search).get('id');

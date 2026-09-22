@@ -288,7 +288,8 @@ tr.series-row:hover td { background: var(--surface-soft); }
 .eb-audience{overflow:visible;}
 .eb-aud-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
 #eb-reach{font-size:0.86rem;font-weight:700;color:var(--saffron-dark);}
-.eb-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:end;}
+.eb-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:end;}
+@media(max-width:1300px){.eb-filters{grid-template-columns:repeat(2,minmax(0,1fr));}}
 .eb-ms{position:relative;}
 .eb-ms>label{display:block;font-size:0.78rem;color:var(--muted);margin-bottom:5px;}
 .eb-ms-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;font-family:inherit;font-size:0.85rem;padding:9px 12px;border:1.5px solid var(--border);border-radius:10px;background:#fff;color:var(--text);cursor:pointer;text-align:left;}
@@ -512,6 +513,11 @@ tr.series-row:hover td { background: var(--surface-soft); }
           <label>Attended event</label>
           <button type="button" class="eb-ms-toggle" data-ms-toggle="events"><span>All events</span><i>&#9662;</i></button>
           <div class="eb-ms-menu" id="eb-ms-events"></div>
+        </div>
+        <div class="eb-ms">
+          <label>Form / RSVP</label>
+          <button type="button" class="eb-ms-toggle" data-ms-toggle="forms"><span>All forms</span><i>&#9662;</i></button>
+          <div class="eb-ms-menu" id="eb-ms-forms"></div>
         </div>
         <div class="eb-ms">
           <label>Zeffy campaign</label>
@@ -991,8 +997,8 @@ document.getElementById('btn-pi-recompute').addEventListener('click', async func
 });
 
 /* ── Email Blast ────────────────────────────────────────────────────── */
-var EB_SEG = { languages: [], events: [], campaigns: [] };
-var EB_OPTS = { languages: [], events: [], campaigns: [] };
+var EB_SEG = { languages: [], events: [], forms: [], campaigns: [] };
+var EB_OPTS = { languages: [], events: [], forms: [], campaigns: [] };
 var EB_REACH_TIMER = null;
 
 async function loadBlastOptions() {
@@ -1002,7 +1008,8 @@ async function loadBlastOptions() {
     EB_OPTS.languages = (d.languages || []).map(function (v) { return { name: v }; });
     EB_OPTS.events = d.events || [];
     EB_OPTS.campaigns = d.campaigns || [];
-    ['languages', 'events', 'campaigns'].forEach(renderMultiSelect);
+    EB_OPTS.forms = d.forms || [];
+    ['languages', 'events', 'forms', 'campaigns'].forEach(renderMultiSelect);
     refreshReach();
   } catch (err) {
     document.getElementById('eb-reach').textContent = 'Could not load filters';
@@ -1020,8 +1027,11 @@ function renderMultiSelect(key) {
   menu.innerHTML =
     '<label class="eb-ms-opt all"><input type="checkbox" data-ms-all="' + key + '"' + (allOn ? ' checked' : '') + '> All</label>' +
     opts.map(function (o) {
-      var on = EB_SEG[key].indexOf(o.name) !== -1;
-      return '<label class="eb-ms-opt"><input type="checkbox" data-ms-key="' + key + '" value="' + escHtml(o.name) + '"' + (on ? ' checked' : '') + '>' +
+      // Forms are selected by id (two forms can share an event name);
+      // everything else by its name.
+      var val = o.value || o.name;
+      var on = EB_SEG[key].indexOf(val) !== -1;
+      return '<label class="eb-ms-opt"><input type="checkbox" data-ms-key="' + key + '" value="' + escHtml(val) + '"' + (on ? ' checked' : '') + '>' +
         escHtml(o.name) + (o.patrons ? '<span class="n">' + o.patrons + '</span>' : '') + '</label>';
     }).join('');
   updateMultiLabel(key);
@@ -1030,9 +1040,13 @@ function updateMultiLabel(key) {
   var btn = document.querySelector('[data-ms-toggle="' + key + '"] span');
   if (!btn) return;
   var sel = EB_SEG[key];
-  var noun = key === 'languages' ? 'languages' : (key === 'events' ? 'events' : 'campaigns');
+  var noun = { languages: 'languages', events: 'events', forms: 'forms', campaigns: 'campaigns' }[key] || key;
+  var labelOf = function (v) {
+    var o = (EB_OPTS[key] || []).find(function (x) { return (x.value || x.name) === v; });
+    return o ? o.name : v;
+  };
   btn.textContent = !sel.length ? ('All ' + noun)
-    : (sel.length === 1 ? sel[0] : sel.length + ' ' + noun + ' selected');
+    : (sel.length === 1 ? labelOf(sel[0]) : sel.length + ' ' + noun + ' selected');
 }
 document.addEventListener('click', function (e) {
   var toggle = e.target.closest('[data-ms-toggle]');
@@ -1073,6 +1087,7 @@ function currentSegment() {
   var seg = {
     languages: EB_SEG.languages.slice(),
     events: EB_SEG.events.slice(),
+    forms: EB_SEG.forms.slice(),
     campaigns: EB_SEG.campaigns.slice()
   };
   if (document.getElementById('eb-has-given').checked) seg.hasGiven = true;
@@ -1101,8 +1116,8 @@ function refreshReach() {
   document.getElementById(id).addEventListener('input', refreshReach);
 });
 document.getElementById('eb-clear-seg').addEventListener('click', function () {
-  EB_SEG = { languages: [], events: [], campaigns: [] };
-  ['languages', 'events', 'campaigns'].forEach(renderMultiSelect);
+  EB_SEG = { languages: [], events: [], forms: [], campaigns: [] };
+  ['languages', 'events', 'forms', 'campaigns'].forEach(renderMultiSelect);
   document.getElementById('eb-has-given').checked = false;
   document.getElementById('eb-min-age').value = '';
   document.getElementById('eb-max-age').value = '';
@@ -1262,7 +1277,7 @@ async function loadBlastDraft() {
     document.getElementById('eb-subject').value = d.draft.subject || '';
     ebBody.innerHTML = d.draft.bodyHtml || '';
     var s = d.draft.segment || {};
-    EB_SEG.languages = s.languages || []; EB_SEG.events = s.events || []; EB_SEG.campaigns = s.campaigns || [];
+    EB_SEG.languages = s.languages || []; EB_SEG.events = s.events || []; EB_SEG.forms = s.forms || []; EB_SEG.campaigns = s.campaigns || [];
     syncPreview();
   } catch (e) { /* a missing draft must never block the tab */ }
 }

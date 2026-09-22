@@ -1471,6 +1471,7 @@ a.ce-att:hover { border-color: var(--saffron); }
       <div class="card-sub" style="margin-bottom:12px;">Charged on top of the rental as its own line on the invoice and receipt, then returned after the event. Changing it only affects <strong>bookings made from now on</strong> — bookings already taken keep the amount they were invoiced. Set it to 0 to stop charging a deposit.</div>
       <div class="rule-field" style="margin:0;max-width:220px;">
         <div class="rate-input-wrap">$<input type="number" id="r-deposit" value="0" step="1" min="0"></div>
+        <span class="rule-hint" id="r-deposit-admin-note" style="display:none;color:var(--red);">Only admins can change the deposit.</span>
         <span class="rule-hint">per booking (once for a recurring series)</span>
       </div>
     </div>
@@ -4660,6 +4661,10 @@ async function loadDiscountRules() {
     document.getElementById('r-extended-mult').value = r.extended_hours_multiplier;
     document.getElementById('r-extended-threshold').value = r.extended_hours_threshold;
     document.getElementById('r-deposit').value = (r.incidental_deposit_amount != null ? r.incidental_deposit_amount : 0);
+    if (!window.__hccgcIsAdmin) {
+      document.getElementById('r-deposit').disabled = true;
+      document.getElementById('r-deposit-admin-note').style.display = 'block';
+    }
     if (r.weekend_start_day != null) document.getElementById('r-weekend-start-day').value = String(r.weekend_start_day);
     if (r.weekend_end_day != null) document.getElementById('r-weekend-end-day').value = String(r.weekend_end_day);
     document.getElementById('r-weekend-start-time').value = r.weekend_start_time || '00:00';
@@ -4778,12 +4783,14 @@ document.getElementById('btn-generate-rules').addEventListener('click', async fu
     nonprofitMultiplier: parseFloat(document.getElementById('r-nonprofit').value),
     extendedHoursMultiplier: parseFloat(document.getElementById('r-extended-mult').value),
     extendedHoursThreshold: parseFloat(document.getElementById('r-extended-threshold').value),
-    incidentalDepositAmount: parseFloat(document.getElementById('r-deposit').value) || 0,
     weekendStartDay: weekend.startDay,
     weekendStartTime: weekend.startTime,
     weekendEndDay: weekend.endDay,
     weekendEndTime: weekend.endTime
   };
+  // Left out entirely for non-admins, so the server never sees a deposit
+  // change it would refuse.
+  if (window.__hccgcIsAdmin) payload.incidentalDepositAmount = parseFloat(document.getElementById('r-deposit').value) || 0;
   btn.disabled = true; btn.textContent = 'Saving…';
   try {
     const res = await authedFetch(API_BASE + '/discount-rules', {

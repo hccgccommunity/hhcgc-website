@@ -1119,6 +1119,15 @@ tr.series-row:hover td { background: var(--surface-soft); }
     <div class="modal-body">
       <p class="card-sub" style="margin-bottom:10px;">Shared with the Facility Rental Portal — a change here shows up there too, and vice versa.</p>
       <textarea id="invoice-notes-textarea" rows="6" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;"></textarea>
+      <div id="deposit-edit" style="display:none;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">
+        <label style="display:block;font-weight:700;font-size:0.86rem;margin-bottom:6px;">Refundable incidental deposit</label>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <span style="font-weight:700;">$</span>
+          <input type="number" id="deposit-amount" step="1" min="0" style="width:120px;font-family:inherit;font-size:0.9rem;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;">
+          <button type="button" class="btn-secondary" id="btn-remove-deposit" style="padding:6px 12px;font-size:0.8rem;">Remove deposit</button>
+        </div>
+        <div class="card-sub" id="deposit-edit-note" style="margin-top:6px;">For exceptional bookings. Admins only, and only before payment is confirmed.</div>
+      </div>
       <div class="result-box" id="invoice-notes-result" style="display:none;margin-top:10px;"></div>
     </div>
     <div class="modal-footer">
@@ -3792,14 +3801,35 @@ async function downloadDocument(bookingId, kind) {
 }
 
 let notesModalBookingId = null;
+// Only send the deposit when the field is actually available, so a
+// non-admin's save never touches it.
+function depositPayload(body) {
+  const box = document.getElementById('deposit-edit');
+  if (box && box.style.display !== 'none') {
+    const v = parseFloat(document.getElementById('deposit-amount').value);
+    if (v >= 0) body.depositAmount = v;
+  }
+  return body;
+}
 function openInvoiceNotesModal(bookingId) {
   const inv = INVOICES.find(function (i) { return i.bookingId === bookingId; });
   if (!inv) return;
   notesModalBookingId = bookingId;
   document.getElementById('invoice-notes-textarea').value = inv.notes || '';
+  // Only admins, and only while the booking is unpaid: after payment the
+  // invoice has to keep matching what the customer actually sent.
+  const canEditDeposit = !!window.__hccgcIsAdmin && inv.paymentStatus !== 'paid' && inv.paymentStatus !== 'cancelled';
+  document.getElementById('deposit-edit').style.display = canEditDeposit ? 'block' : 'none';
+  document.getElementById('deposit-amount').value = Number(inv.depositAmount) || 0;
+  document.getElementById('deposit-edit-note').textContent = inv.invoiceSentAt
+    ? 'The invoice has already been sent — void it first, then change the deposit and re-send.'
+    : 'For exceptional bookings. Set it to 0, or use Remove deposit, to drop the line entirely.';
   document.getElementById('invoice-notes-result').style.display = 'none';
   document.getElementById('invoice-notes-overlay').style.display = 'flex';
 }
+document.getElementById('btn-remove-deposit').addEventListener('click', function () {
+  document.getElementById('deposit-amount').value = 0;
+});
 document.getElementById('btn-close-invoice-notes').addEventListener('click', function () {
   document.getElementById('invoice-notes-overlay').style.display = 'none';
 });
@@ -3821,7 +3851,7 @@ document.getElementById('btn-save-invoice-notes').addEventListener('click', asyn
     // sees the same value immediately.
     const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(notesModalBookingId) + '/invoice', {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ notes: note })
+      body: JSON.stringify(depositPayload({ notes: note }))
     });
     const data = await res.json();
     if (!res.ok) {

@@ -668,6 +668,21 @@ input[type=text],input[type=date],input[type=time],input[type=url],textarea,sele
 input:focus,textarea:focus,select:focus{outline:none;border-color:var(--saffron);box-shadow:0 0 0 3px rgba(181,90,24,.14);}
 textarea{resize:vertical;}
 .field-hint{font-size:.76rem;color:var(--muted);margin-top:4px;line-height:1.5;}
+/* Live Stream tab */
+.ls-switch{display:flex;align-items:center;gap:14px;margin:18px 0 20px;padding:14px 16px;border:1.5px solid var(--border);border-radius:12px;background:var(--surface-soft,#fff6ea);cursor:pointer;}
+.ls-switch input{position:absolute;opacity:0;width:0;height:0;}
+.ls-knob{flex-shrink:0;width:46px;height:26px;border-radius:999px;background:#d9cfc4;position:relative;transition:background .15s;}
+.ls-knob::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .15s;}
+.ls-switch input:checked + .ls-knob{background:#c0392b;}
+.ls-switch input:checked + .ls-knob::after{left:23px;}
+.ls-switch-text{display:flex;flex-direction:column;gap:2px;font-size:.88rem;}
+.ls-switch-text span{font-size:.78rem;color:var(--muted);}
+.ls-seg{display:flex;gap:10px;flex-wrap:wrap;}
+.ls-seg label{display:flex;align-items:center;gap:7px;margin:0;padding:8px 14px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;font-weight:700;}
+.ls-preview{border:1.5px dashed var(--border);border-radius:12px;padding:10px;background:#fff;}
+.ls-preview-empty{padding:26px;text-align:center;color:var(--muted);font-size:.84rem;}
+.ls-frame{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:8px;overflow:hidden;}
+.ls-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
 .field-error{font-size:.76rem;color:#c0392b;margin-top:4px;display:none;}
 .field-error.show{display:block;}
 .slug-preview{font-size:.78rem;color:var(--muted);margin-top:4px;}
@@ -798,6 +813,7 @@ textarea{resize:vertical;}
         <li><button class="tab-btn" data-wm-tab="events">Manage Events</button></li>
         <li><button class="tab-btn" data-wm-tab="pages">Manage Pages</button></li>
         <li><button class="tab-btn" data-wm-tab="forms">Forms</button></li>
+        <li><button class="tab-btn" data-wm-tab="live">Live Stream</button></li>
       </ul>
     </div>
   </div>
@@ -1223,6 +1239,82 @@ textarea{resize:vertical;}
     </div>
   </div>
 </div>
+    </div>
+
+    <div class="tab-panel" id="wm-tab-live">
+      <div class="card">
+        <div class="hp-head">
+          <div>
+            <h2 style="margin:0 0 4px;">Live Stream</h2>
+            <div class="card-sub" style="margin:0;">Controls the <a href="/live" target="_blank" style="color:var(--saffron-dark);">Live</a> tab on hccgc.org. Visitors see the player only while <strong>We're live now</strong> is on; a banner also appears on the home page.</div>
+          </div>
+          <div class="hp-head-actions">
+            <button type="button" class="btn-new" id="ls-save">Save</button>
+          </div>
+        </div>
+        <div class="status-bar" id="ls-result" style="margin-top:12px;"></div>
+
+        <label class="ls-switch">
+          <input type="checkbox" id="ls-live">
+          <span class="ls-knob"></span>
+          <span class="ls-switch-text"><strong>We're live now</strong><span id="ls-live-note">Off — the Live page shows the "not streaming" message.</span></span>
+        </label>
+
+        <div class="form-group">
+          <label>Streaming on</label>
+          <div class="ls-seg">
+            <label><input type="radio" name="ls-platform" value="youtube" checked> YouTube</label>
+            <label><input type="radio" name="ls-platform" value="facebook"> Facebook</label>
+          </div>
+        </div>
+
+        <div id="ls-yt">
+          <div class="form-group">
+            <label for="ls-yt-channel">YouTube channel ID <span class="hint">— set once</span></label>
+            <input type="text" id="ls-yt-channel" placeholder="UCxxxxxxxxxxxxxxxxxxxxxx">
+            <div class="field-hint">Starts with <strong>UC</strong>. YouTube Studio &rarr; Settings &rarr; Channel &rarr; Advanced settings, or paste your channel's link. With just this, the Live page always shows whatever the channel is streaming.</div>
+          </div>
+          <div class="form-group">
+            <label for="ls-yt-video">This stream's link <span class="hint">— optional, per stream</span></label>
+            <input type="text" id="ls-yt-video" placeholder="https://www.youtube.com/live/…  or  https://youtu.be/…">
+            <div class="field-hint">Paste it to show a specific stream (or a recording), and to show YouTube's live chat beside the video.</div>
+          </div>
+          <label style="display:flex;align-items:center;gap:8px;font-weight:700;margin-bottom:1.1rem;cursor:pointer;">
+            <input type="checkbox" id="ls-chat" checked> Show live chat beside the video <span class="hint" style="font-weight:400;color:var(--muted);">(needs the stream's link)</span>
+          </label>
+        </div>
+
+        <div id="ls-fb" style="display:none;">
+          <div class="form-group">
+            <label for="ls-fb-url">Facebook live video link <span class="hint">— paste for each stream</span></label>
+            <input type="text" id="ls-fb-url" placeholder="https://www.facebook.com/…/videos/1234567890">
+            <div class="field-hint">Facebook has no permanent "our current live" link, so paste the link of the live post each time: open the live video on your Page, click <strong>&hellip; &rarr; Copy link</strong>. The post must be <strong>Public</strong>, or visitors see nothing.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="ls-title">Stream title</label>
+          <input type="text" id="ls-title" maxlength="120" placeholder="e.g. Diwali Lakshmi Puja — live from HCCGC">
+        </div>
+        <div class="form-group">
+          <label for="ls-desc">Description <span class="hint">— optional</span></label>
+          <textarea id="ls-desc" rows="3" maxlength="1200" placeholder="What's happening, schedule, how to take part…"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="ls-next">When you're not live, show <span class="hint">— optional</span></label>
+          <input type="text" id="ls-next" maxlength="200" placeholder="e.g. Next stream: Saturday 7 PM — Hanuman Chalisa">
+        </div>
+        <div class="form-group">
+          <label for="ls-past">Past streams link <span class="hint">— optional</span></label>
+          <input type="text" id="ls-past" placeholder="https://www.youtube.com/@hccgc/streams">
+        </div>
+
+        <div class="form-group">
+          <label>Preview</label>
+          <div id="ls-preview" class="ls-preview"><div class="ls-preview-empty">Fill in the stream details to see it here.</div></div>
+        </div>
+        <div class="field-hint" id="ls-updated"></div>
+      </div>
     </div>
 
     <div class="tab-panel" id="wm-tab-forms">
@@ -3902,6 +3994,123 @@ document.getElementById('hp-publish').addEventListener('click', async function (
   } finally { btn.disabled = false; }
 });
 
+
+/* ── Live Stream ─────────────────────────────────────────────────────
+   One Firestore document, siteContent/liveStream, read by /live and by
+   the home page banner. siteContent is already public-read, staff-write. */
+function lsYouTubeVideoId(v) {
+  v = String(v || '').trim();
+  if (!v) return '';
+  if (/^[\w-]{11}$/.test(v)) return v;
+  var m = v.match(/(?:youtu\.be\/|[?&]v=|\/live\/|\/embed\/|\/shorts\/)([\w-]{11})/);
+  return m ? m[1] : '';
+}
+function lsYouTubeChannelId(v) {
+  v = String(v || '').trim();
+  var m = v.match(/(UC[\w-]{22})/);
+  return m ? m[1] : '';
+}
+function lsFacebookUrl(v) {
+  v = String(v || '').trim();
+  if (!v) return '';
+  if (!/^https?:\/\//i.test(v)) v = 'https://' + v;
+  return /(^https?:\/\/)?([\w-]+\.)?(facebook\.com|fb\.watch)\//i.test(v) ? v : '';
+}
+function lsPlatform() { var r = document.querySelector('input[name="ls-platform"]:checked'); return r ? r.value : 'youtube'; }
+function lsEmbedSrc(d) {
+  if (d.platform === 'facebook') {
+    return d.facebookVideoUrl ? 'https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(d.facebookVideoUrl) + '&show_text=false' : '';
+  }
+  if (d.youtubeVideoId) return 'https://www.youtube.com/embed/' + d.youtubeVideoId + '?rel=0';
+  if (d.youtubeChannelId) return 'https://www.youtube.com/embed/live_stream?channel=' + d.youtubeChannelId;
+  return '';
+}
+function lsCollect() {
+  return {
+    isLive: document.getElementById('ls-live').checked,
+    platform: lsPlatform(),
+    youtubeChannelId: lsYouTubeChannelId(document.getElementById('ls-yt-channel').value),
+    youtubeVideoId: lsYouTubeVideoId(document.getElementById('ls-yt-video').value),
+    showChat: document.getElementById('ls-chat').checked,
+    facebookVideoUrl: lsFacebookUrl(document.getElementById('ls-fb-url').value),
+    title: document.getElementById('ls-title').value.trim(),
+    description: document.getElementById('ls-desc').value.trim(),
+    nextStreamText: document.getElementById('ls-next').value.trim(),
+    pastStreamsUrl: document.getElementById('ls-past').value.trim()
+  };
+}
+var LS_PREVIEW_SRC = null;
+function lsRefresh() {
+  var d = lsCollect();
+  document.getElementById('ls-yt').style.display = d.platform === 'youtube' ? '' : 'none';
+  document.getElementById('ls-fb').style.display = d.platform === 'facebook' ? '' : 'none';
+  document.getElementById('ls-live-note').textContent = d.isLive
+    ? 'On — the Live page shows the player, and the home page shows a "Live now" banner.'
+    : 'Off — the Live page shows the "not streaming" message.';
+  var src = lsEmbedSrc(d);
+  if (src === LS_PREVIEW_SRC) return;   // don't reload the player on every keystroke
+  LS_PREVIEW_SRC = src;
+  document.getElementById('ls-preview').innerHTML = src
+    ? '<div class="ls-frame"><iframe src="' + escHtml(src) + '" allow="autoplay; encrypted-media; picture-in-picture; web-share" allowfullscreen></iframe></div>'
+    : '<div class="ls-preview-empty">' + (d.platform === 'facebook' ? 'Paste the Facebook live video link to preview it.' : 'Enter the channel ID or a stream link to preview it.') + '</div>';
+}
+function lsStatus(msg, kind) {
+  var el = document.getElementById('ls-result');
+  el.className = 'status-bar' + (msg ? ' show ' + (kind || 'info') : '');
+  el.textContent = msg || '';
+}
+async function lsLoad() {
+  var MP = window.__hccgcMP;
+  if (!MP) return;
+  try {
+    var snap = await MP.getDoc(MP.doc(MP.db, 'siteContent', 'liveStream'));
+    var d = snap.exists() ? snap.data() : {};
+    document.getElementById('ls-live').checked = !!d.isLive;
+    var radio = document.querySelector('input[name="ls-platform"][value="' + (d.platform === 'facebook' ? 'facebook' : 'youtube') + '"]');
+    if (radio) radio.checked = true;
+    document.getElementById('ls-yt-channel').value = d.youtubeChannelId || '';
+    document.getElementById('ls-yt-video').value = d.youtubeVideoId ? 'https://www.youtube.com/watch?v=' + d.youtubeVideoId : '';
+    document.getElementById('ls-chat').checked = d.showChat !== false;
+    document.getElementById('ls-fb-url').value = d.facebookVideoUrl || '';
+    document.getElementById('ls-title').value = d.title || '';
+    document.getElementById('ls-desc').value = d.description || '';
+    document.getElementById('ls-next').value = d.nextStreamText || '';
+    document.getElementById('ls-past').value = d.pastStreamsUrl || '';
+    var when = d.updatedAt && d.updatedAt.toDate ? d.updatedAt.toDate().toLocaleString() : '';
+    document.getElementById('ls-updated').textContent = when ? 'Last saved ' + when + (d.updatedBy ? ' by ' + d.updatedBy : '') + '.' : '';
+    LS_PREVIEW_SRC = null;
+    lsRefresh();
+  } catch (err) {
+    lsStatus('Could not load the live stream settings: ' + err.message, 'error');
+  }
+}
+document.getElementById('wm-tab-live').addEventListener('input', lsRefresh);
+document.getElementById('wm-tab-live').addEventListener('change', lsRefresh);
+document.getElementById('ls-save').addEventListener('click', async function () {
+  var d = lsCollect();
+  var yVid = document.getElementById('ls-yt-video').value.trim();
+  var yCh = document.getElementById('ls-yt-channel').value.trim();
+  var fb = document.getElementById('ls-fb-url').value.trim();
+  if (yCh && !d.youtubeChannelId) { lsStatus('That channel ID doesn\'t look right — it starts with UC and is 24 characters. A channel link containing it works too.', 'error'); return; }
+  if (yVid && !d.youtubeVideoId) { lsStatus('That doesn\'t look like a YouTube video or live link.', 'error'); return; }
+  if (fb && !d.facebookVideoUrl) { lsStatus('That doesn\'t look like a Facebook video link.', 'error'); return; }
+  if (d.isLive && !lsEmbedSrc(d)) {
+    lsStatus(d.platform === 'facebook' ? 'Paste the Facebook live video link before going live.' : 'Add the YouTube channel ID or the stream\'s link before going live.', 'error');
+    return;
+  }
+  var btn = this; btn.disabled = true; lsStatus('Saving…');
+  try {
+    var MP = window.__hccgcMP;
+    d.updatedAt = MP.serverTimestamp();
+    d.updatedBy = (typeof currentUser !== 'undefined' && currentUser && currentUser.email) || '';
+    await MP.setDoc(MP.doc(MP.db, 'siteContent', 'liveStream'), d);
+    lsStatus(d.isLive ? 'Saved — you are live on hccgc.org/live.' : 'Saved. The Live page shows the "not streaming" message.', 'success');
+    lsLoad();
+  } catch (err) {
+    lsStatus('Could not save: ' + err.message + (/permission/i.test(err.message) ? ' — check the siteContent rule in Firestore.' : ''), 'error');
+  } finally { btn.disabled = false; }
+});
+document.querySelectorAll('[data-wm-tab="live"]').forEach(function (b) { b.addEventListener('click', lsLoad); });
 </script>
 </body>
 </html>

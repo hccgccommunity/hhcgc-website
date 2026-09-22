@@ -235,6 +235,16 @@ async function showLatestNewsletter() {
   const title = n.headline || n.title || 'Newsletter';
   const cover = n.coverImage || '';
 
+  // Views, from the counters the /newsletters page keeps. Optional — the
+  // card renders without them if the read fails.
+  let views = 0;
+  try {
+    const st = await getDoc(doc(db, 'newsletterStats', d.id));
+    if (st.exists()) views = Math.max(0, Number(st.data().views) || 0);
+  } catch (e) { /* ignore */ }
+  const viewsText = views > 0 ? '\u{1F441} ' + views.toLocaleString('en-US') + ' view' + (views === 1 ? '' : 's') : '';
+  const dateText = [nlDate(n.publishedAt), viewsText].filter(Boolean).join(' \u00b7 ');
+
   const main = document.getElementById('home');
   if (!main) return;
   ensureNewsletterStyles();
@@ -246,7 +256,7 @@ async function showLatestNewsletter() {
         '<a class="hp-nl-cover" href="' + url + '" aria-label="Read ' + esc(title) + '"' +
           (cover ? ' style="background-image:url(&quot;' + esc(cover) + '&quot;);"' : '') + '></a>' +
         '<div class="hp-nl-body">' +
-          (nlDate(n.publishedAt) ? '<div class="hp-nl-date">' + esc(nlDate(n.publishedAt)) + '</div>' : '') +
+          (dateText ? '<div class="hp-nl-date">' + esc(dateText) + '</div>' : '') +
           '<h3>' + esc(title) + '</h3>' +
           (n.summary ? '<p class="section-copy">' + esc(n.summary) + '</p>' : '') +
           '<div class="hp-nl-actions">' +

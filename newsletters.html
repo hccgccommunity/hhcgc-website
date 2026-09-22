@@ -54,6 +54,9 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .pub-body h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.12rem; color: var(--maroon); line-height: 1.25; }
 .pub-date { font-size: 0.78rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
 .pub-sum { font-size: 0.88rem; color: var(--muted); line-height: 1.55; }
+.pub-foot { margin-top: auto; padding-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.pub-foot .pub-read { margin-top: 0; padding-top: 0; }
+.pub-views { font-size: 0.78rem; font-weight: 700; color: var(--muted); white-space: nowrap; }
 .pub-read { margin-top: auto; padding-top: 10px; font-size: 0.85rem; font-weight: 800; color: var(--saffron-dark); }
 
 .issue-bar { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding: 22px 0 6px; }
@@ -772,10 +775,12 @@ async function loadIndex() {
           '<div class="pub-date">' + escHtml(fmtDate(n.publishedAt)) + '</div>' +
           '<h2>' + escHtml(n.headline || n.title || 'Newsletter') + '</h2>' +
           (n.summary ? '<div class="pub-sum">' + escHtml(n.summary) + '</div>' : '') +
-          '<div class="pub-read">Read this issue &rarr;</div>' +
+          '<div class="pub-foot"><div class="pub-read">Read this issue &rarr;</div>' +
+            '<span class="pub-views" data-views-for="' + escHtml(n.id) + '"></span></div>' +
         '</div>' +
       '</a>';
     }).join('') + '</div>';
+    fillCardViews();
   } catch (err) {
     el.innerHTML = '<div class="empty-state">Could not load the newsletters right now. Please try again shortly.</div>';
   }
@@ -957,6 +962,29 @@ document.getElementById('nl-comment-form').addEventListener('submit', async func
   } finally { btn.disabled = false; }
 });
 
+function viewsLabel(n) {
+  n = Math.max(0, Number(n) || 0);
+  return '\u{1F441} ' + n.toLocaleString('en-US') + ' view' + (n === 1 ? '' : 's');
+}
+// Filled after the cards render, so a slow stats read never holds up the list.
+async function fillCardViews() {
+  try {
+    var snap = await getDocs(collection(db, STATS));
+    var byId = {};
+    snap.forEach(function (d) { byId[d.id] = d.data(); });
+    document.querySelectorAll('[data-views-for]').forEach(function (el) {
+      var st = byId[el.getAttribute('data-views-for')];
+      if (st && Number(st.views) > 0) el.textContent = viewsLabel(st.views);
+    });
+  } catch (e) { /* view counts are extra; the cards are already usable */ }
+}
+var ISSUE_META_BASE = '';
+function showIssueViews(n) {
+  var el = document.getElementById('issue-meta');
+  if (!ISSUE_META_BASE) ISSUE_META_BASE = el.textContent;
+  el.textContent = ISSUE_META_BASE + (ISSUE_META_BASE ? ' · ' : '') + viewsLabel(n);
+}
+
 async function startEngagement(issueId) {
   ISSUE_ID = issueId;
   document.getElementById('nl-engage').style.display = 'flex';
@@ -968,7 +996,10 @@ async function startEngagement(issueId) {
     if (snap.exists()) COUNTS = snap.data() || {};
   } catch (e) { /* counts are cosmetic; the buttons still work */ }
   renderReactions();
+  var countingNow = !ssGet('nl-viewed-' + issueId);
   countView(issueId);
+  ISSUE_META_BASE = '';
+  showIssueViews((Number(COUNTS.views) || 0) + (countingNow ? 1 : 0));
   loadComments(issueId);
 }
 

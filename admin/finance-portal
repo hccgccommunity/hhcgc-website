@@ -1264,7 +1264,11 @@ async function authedFetch(url, options) {
 function escHtml(str) { return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function formatDate(d) { if (!d) return '—'; return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
 function formatTimestampDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
-function money(n) { return '$' + Number(n).toFixed(2); }
+function money(n) {
+  var v = isFinite(Number(n)) ? Math.round(Number(n) * 100) / 100 : 0;
+  var d = (v % 1 === 0) ? 0 : 2;
+  return '$' + v.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+}
 function moneyRound(n) { return '$' + Math.round(Number(n)).toLocaleString('en-US'); }
 function capitalizeStatus(s) { s = String(s || ''); return s.charAt(0).toUpperCase() + s.slice(1); }
 

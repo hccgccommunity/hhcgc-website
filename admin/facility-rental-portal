@@ -4480,7 +4480,12 @@ function initNewBookingTab() {
 
 // ==================== DASHBOARD TAB ====================
 
-function money(n) { return '$' + Math.round(Number(n)).toLocaleString('en-US'); }
+function moneyRound(n) { return '$' + Math.round(Number(n)).toLocaleString('en-US'); }
+function money(n) {
+  var v = isFinite(Number(n)) ? Math.round(Number(n) * 100) / 100 : 0;
+  var d = (v % 1 === 0) ? 0 : 2;
+  return '$' + v.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+}
 
 function computePresetRange(preset) {
   var now = new Date();
@@ -4593,9 +4598,9 @@ function renderStats(data, source) {
   var revenueLabel = source === 'fundraising' ? 'Fundraising Revenue' : source === 'all' ? 'Total Revenue (Facility + Fundraising)' : 'Facility Rental Revenue';
   var countLabel = source === 'fundraising' ? 'Fundraising Payments' : 'Bookings';
   var stats = [
-    { label: revenueLabel, value: money(data.totalRevenue) },
+    { label: revenueLabel, value: moneyRound(data.totalRevenue) },
     { label: countLabel, value: data.totalCount },
-    { label: 'Avg. Value', value: money(data.avgValue) }
+    { label: 'Avg. Value', value: moneyRound(data.avgValue) }
   ];
   // Hours/paid/unpaid are facility-rental-only concepts (a Zeffy
   // fundraising payment has no "hours" or "paid status") — shown only
@@ -4620,7 +4625,7 @@ function renderBarChart(containerId, items, emptyMessage) {
     return '<div class="bar-chart-row">' +
       '<div class="bar-chart-label" title="' + escHtml(i.name) + '">' + escHtml(i.name) + '</div>' +
       '<div class="bar-chart-track"><div class="bar-chart-fill" style="width:' + pct + '%;"></div></div>' +
-      '<div class="bar-chart-value">' + money(i.total) + '</div>' +
+      '<div class="bar-chart-value">' + moneyRound(i.total) + '</div>' +
     '</div>';
   }).join('');
 }
@@ -4631,7 +4636,7 @@ function renderContributors(containerId, items, emptyMessage) {
     return '<div class="contributor-row">' +
       '<span class="rank">' + (i + 1) + '</span>' +
       '<span class="name">' + escHtml(item.name) + ' <span class="meta">(' + item.count + ')</span></span>' +
-      '<span class="amount">' + money(item.revenue) + '</span>' +
+      '<span class="amount">' + moneyRound(item.revenue) + '</span>' +
     '</div>';
   }).join('');
 }

@@ -3004,11 +3004,17 @@ async function cancelBookingFlow(bookingId) {
   const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
   if (!b) return;
   const preview = computeCancellationPreview(b);
+  // Nothing billed means the row is deleted outright rather than kept as
+  // cancelled, so the wording has to say so before they agree.
+  const willPurge = !b.invoice_sent_at && !b.receipt_sent_at && ['pending', 'requested', 'voided', 'n/a'].indexOf(b.payment_status) !== -1;
+  const purgeLine = willPurge
+    ? '\n\nNothing has been invoiced or paid, so this booking will be DELETED from the system, not kept as cancelled. It stays in the log.'
+    : '';
   const msg = b.is_internal
-    ? 'Cancel this internal booking? This frees up the room and removes it from the calendar.'
+    ? 'Cancel this internal booking? This frees up the room and removes it from the calendar.' + purgeLine
     : ('Cancel this booking (' + preview.daysUntil + ' days before the event)?\n\n' +
        'Cancellation fee: $' + preview.fee.toFixed(2) + '\n' +
-       'Refund: $' + preview.refund.toFixed(2) + '\n\n' +
+       'Refund: $' + preview.refund.toFixed(2) + purgeLine + '\n\n' +
        'This cannot be undone.');
   if (!confirm(msg)) return;
 
@@ -3019,6 +3025,7 @@ async function cancelBookingFlow(bookingId) {
       alert('Could not cancel: ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
       return;
     }
+    if (data.purged) alert('Cancelled and removed from the system. Nothing had been invoiced or paid, so there was no record to keep.');
     await loadBookings();
   } catch (err) {
     alert('Could not reach the booking system: ' + err.message);
@@ -3063,7 +3070,9 @@ async function cancelSeriesFlow(seriesId) {
       alert('Could not cancel series: ' + ((data.errors || [data.error]).join(' ') || 'unknown error'));
       return;
     }
-    alert('Cancelled ' + data.occurrencesCancelled + ' occurrence(s). Total fee: $' + data.totalFee.toFixed(2) + ', total refund: $' + data.totalRefund.toFixed(2) + '.');
+    alert('Cancelled ' + data.occurrencesCancelled + ' occurrence(s)' +
+      (data.purgedCount ? ', ' + data.purgedCount + ' of them removed from the system (never invoiced or paid)' : '') +
+      '. Total fee: $' + data.totalFee.toFixed(2) + ', total refund: $' + data.totalRefund.toFixed(2) + '.');
     await loadBookings();
   } catch (err) {
     alert('Could not reach the booking system: ' + err.message);

@@ -807,6 +807,47 @@ a.ce-att:hover { border-color: var(--saffron); }
 .ce-danger { color: var(--red); border-color: var(--red) !important; }
 .ce-diag { margin-top: 10px; padding: 12px; background: var(--surface-soft); border: 1px solid var(--border); border-radius: 10px; font-size: 0.7rem; line-height: 1.5; white-space: pre-wrap; word-break: break-word; max-height: 340px; overflow-y: auto; color: var(--text); }
 
+
+/* ---- Terms & Conditions tab ---- */
+.terms-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
+.terms-head h2 { margin-bottom: 4px; }
+.terms-status { margin-top: 14px; font-size: 0.8rem; color: var(--muted); background: var(--surface-soft); border: 1px solid var(--border); border-radius: 12px; padding: 9px 14px; }
+.terms-status strong { color: var(--text); }
+.terms-meta { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 20px 0 4px; }
+.terms-revised { display: flex; gap: 8px; align-items: center; }
+.terms-revised input { flex: 1; min-width: 0; }
+.terms-section { border: 1.5px solid var(--border); border-radius: 14px; padding: 14px 16px 16px; margin-top: 14px; background: #fff; }
+.terms-section-head { display: flex; align-items: center; gap: 10px; }
+.terms-section-no { font-family: Georgia, "Times New Roman", serif; font-size: 0.95rem; font-weight: 700; color: var(--saffron-dark); background: var(--surface-soft); border-radius: 999px; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; flex: 0 0 26px; }
+.terms-heading { flex: 1; min-width: 0; font-family: Arial, Helvetica, sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--maroon); padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 10px; background: #fff; }
+.terms-section-tools { display: flex; gap: 4px; flex: 0 0 auto; }
+.terms-icon { font-family: inherit; font-size: 0.9rem; line-height: 1; width: 28px; height: 28px; border-radius: 8px; border: 1.5px solid var(--border); background: #fff; color: var(--muted); cursor: pointer; }
+.terms-icon:hover:not(:disabled) { border-color: var(--saffron); color: var(--saffron-dark); }
+.terms-icon:disabled { opacity: 0.3; cursor: default; }
+.terms-icon.danger:hover:not(:disabled) { border-color: var(--red); color: var(--red); }
+.terms-items { margin: 12px 0 10px; display: flex; flex-direction: column; gap: 8px; }
+.terms-item { display: flex; align-items: flex-start; gap: 9px; }
+.terms-bullet { flex: 0 0 5px; width: 5px; height: 5px; border-radius: 50%; background: var(--saffron); margin-top: 15px; }
+.terms-item-text { flex: 1; min-width: 0; min-height: 38px; font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; line-height: 1.5; color: var(--text); padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 10px; resize: none; overflow: hidden; background: #fff; }
+.terms-item-text:focus, .terms-heading:focus { outline: none; border-color: var(--saffron); }
+#t-intro { resize: none; overflow: hidden; min-height: 56px; }
+.terms-add-item { padding: 4px 10px; font-size: 0.74rem; }
+.terms-actionbar { position: sticky; bottom: 0; z-index: 5; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 20px; padding: 14px 0 4px; background: linear-gradient(to bottom, rgba(255,255,255,0), #fff 26%); }
+.terms-dirty { font-size: 0.78rem; font-weight: 700; color: var(--amber); margin-right: auto; }
+.terms-dirty.clean { color: var(--muted); font-weight: 400; }
+.terms-history-row { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+.terms-history-row:last-child { border-bottom: 0; }
+.terms-history-sub { font-size: 0.76rem; color: var(--muted); margin-top: 2px; }
+.terms-preview-doc { border: 1.5px solid var(--border); border-radius: 14px; padding: 24px 26px; background: var(--surface-soft); margin-top: 18px; }
+.terms-preview-doc .tp-intro { font-size: 0.9rem; line-height: 1.7; color: var(--text); padding-bottom: 16px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+.terms-preview-doc h3 { font-family: Georgia, "Times New Roman", serif; font-size: 1rem; color: var(--maroon); margin: 20px 0 8px; }
+.terms-preview-doc ul { margin: 0 0 0 20px; }
+.terms-preview-doc li { font-size: 0.87rem; line-height: 1.65; color: var(--text); margin-bottom: 6px; }
+.terms-preview-doc .tp-version { margin-top: 22px; padding-top: 14px; border-top: 1px solid var(--border); font-size: 0.78rem; color: var(--muted); font-style: italic; }
+@media (max-width: 760px) {
+  .terms-meta { grid-template-columns: 1fr; }
+  .terms-head-actions { width: 100%; }
+}
 </style>
 </head>
 <body>
@@ -836,6 +877,7 @@ a.ce-att:hover { border-color: var(--saffron); }
     <li><button class="tab-btn" data-tab="new-booking">New Booking</button></li>
     <li><button class="tab-btn active" data-tab="all-bookings" id="nav-all-bookings">All Bookings</button></li>
     <li><button class="tab-btn" data-tab="rooms-rates">Rooms &amp; Rates</button></li>
+    <li><button class="tab-btn" data-tab="rental-terms">Terms &amp; Conditions</button></li>
     <li><button class="tab-btn" data-tab="add-renter" id="nav-add-renter">Customers</button></li>
     <li><button class="tab-btn" data-tab="customer-email" id="nav-customer-email">Customer Email</button></li>
   </ul>
@@ -1512,6 +1554,70 @@ a.ce-att:hover { border-color: var(--saffron); }
     <div class="card-sub" style="margin-top:16px;margin-bottom:14px;">There's no automatic whole-facility/bundle discount — that's applied case by case as a discretionary adjustment on the booking itself, in New Booking.</div>
     <button type="button" class="btn-primary" id="btn-generate-rules">Save discount rules</button>
     <div class="result-box" id="rules-result" style="display:none;"></div>
+  </div>
+</div>
+  </div>
+
+  <div class="tab-panel" id="tab-rental-terms">
+<div class="container">
+  <div class="card">
+    <div class="terms-head">
+      <div style="flex:1;min-width:260px;">
+        <h2>Rental Terms &amp; Conditions</h2>
+        <div class="card-sub" style="margin-bottom:0;">This is the agreement customers accept. It is published at <a href="https://hccgc.org/rental-terms-conditions" target="_blank" rel="noopener">hccgc.org/rental-terms-conditions</a> and linked from the request form and every invoice. Anyone with Facility Bookings access can revise it &mdash; a save is live on the website within about a minute.</div>
+      </div>
+      <div class="terms-head-actions" style="flex:0 0 auto;">
+        <a class="btn-small" href="https://hccgc.org/rental-terms-conditions" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none;">View public page</a>
+      </div>
+    </div>
+
+    <div class="terms-status" id="terms-status">Loading the current terms&hellip;</div>
+    <div class="result-box" id="terms-result" style="display:none;"></div>
+
+    <div id="terms-editor" style="display:none;">
+      <div class="terms-meta">
+        <div class="rule-field">
+          <label>Version</label>
+          <input type="text" id="t-version" placeholder="1.1">
+        </div>
+        <div class="rule-field">
+          <label>Effective</label>
+          <input type="text" id="t-effective" placeholder="January 1, 2026">
+        </div>
+        <div class="rule-field">
+          <label>Last revised</label>
+          <div class="terms-revised">
+            <input type="text" id="t-revised" placeholder="August 15, 2026">
+            <button type="button" class="btn-small" id="btn-terms-today">Today</button>
+          </div>
+        </div>
+      </div>
+      <div class="card-sub" style="margin:8px 0 18px;">These three print at the foot of the public page exactly as typed. Bump the version and the revised date whenever the wording changes.</div>
+
+      <div class="field">
+        <label>Opening paragraph</label>
+        <textarea id="t-intro" rows="3" placeholder="Shown above the sections on the public page."></textarea>
+      </div>
+
+      <div id="terms-sections"></div>
+
+      <button type="button" class="btn-small" id="btn-terms-add-section" style="margin-top:14px;">+ Add section</button>
+
+      <div class="terms-actionbar">
+        <span class="terms-dirty clean" id="terms-dirty">No unsaved changes</span>
+        <button type="button" class="btn-small" id="btn-terms-preview">Preview</button>
+        <button type="button" class="btn-small" id="btn-terms-discard">Discard changes</button>
+        <button type="button" class="btn-primary" id="btn-terms-save">Save and publish</button>
+      </div>
+    </div>
+
+    <div id="terms-preview" style="display:none;"></div>
+  </div>
+
+  <div class="card" id="terms-history-card" style="display:none;">
+    <h2>Earlier versions</h2>
+    <div class="card-sub">The last 10 versions, newest first. Loading one fills the editor so you can read it &mdash; nothing changes on the website until you save.</div>
+    <div id="terms-history-list"></div>
   </div>
 </div>
   </div>
@@ -6027,6 +6133,401 @@ async function initCustomerEmailTab() {
 }
 
 // ==================== TAB SWITCHING ====================
+
+// ---- Rental Terms & Conditions tab --------------------------------------
+// The document lives in BigQuery and is what hccgc.org/rental-terms-conditions
+// renders, so an edit here changes a public, binding agreement. This tab is
+// open to every portal user by design; the guards that matter are refusing
+// to publish an empty or half-filled document, and keeping the version that
+// was replaced so a mistake is one click to undo.
+let TERMS_MODEL = null;
+let TERMS_BASELINE = '';   // JSON of the document as loaded, to spot edits
+let TERMS_HISTORY = [];
+let TERMS_META = { updatedBy: null, updatedAt: null, isDefault: true };
+
+function termsDirty() {
+  return !!TERMS_MODEL && JSON.stringify(TERMS_MODEL) !== TERMS_BASELINE;
+}
+
+function markTermsDirty() {
+  const el = document.getElementById('terms-dirty');
+  if (!el) return;
+  if (termsDirty()) {
+    el.textContent = 'Unsaved changes — not on the website yet';
+    el.className = 'terms-dirty';
+  } else {
+    el.textContent = 'No unsaved changes';
+    el.className = 'terms-dirty clean';
+  }
+}
+
+function showTermsResult(type, message) {
+  const box = document.getElementById('terms-result');
+  box.style.display = 'block';
+  box.className = 'result-box ' + type;
+  box.textContent = message;
+}
+function clearTermsResult() {
+  const box = document.getElementById('terms-result');
+  if (box) box.style.display = 'none';
+}
+
+function termsStamp(iso) {
+  if (!iso) return '';
+  try {
+    return new Date(iso).toLocaleString('en-US', {
+      month: 'short', day: 'numeric', year: 'numeric',
+      hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York'
+    });
+  } catch (e) { return iso; }
+}
+
+function renderTermsStatus() {
+  const el = document.getElementById('terms-status');
+  if (!el) return;
+  if (TERMS_META.isDefault) {
+    el.innerHTML = 'Showing the terms that shipped with the site &mdash; nobody has edited them here yet. '
+      + 'The first save replaces them and starts the version history.';
+  } else {
+    el.innerHTML = 'Live on the website. Last saved by <strong>' + escHtml(TERMS_META.updatedBy || 'someone')
+      + '</strong> on <strong>' + escHtml(termsStamp(TERMS_META.updatedAt)) + '</strong>.';
+  }
+}
+
+// Only called for structural changes (add/remove/reorder). Typing writes
+// straight into the model instead, so the field you're in keeps focus.
+function renderTermsSections() {
+  const host = document.getElementById('terms-sections');
+  host.innerHTML = TERMS_MODEL.sections.map(function (s, i) {
+    const last = i === TERMS_MODEL.sections.length - 1;
+    return '<div class="terms-section">'
+      + '<div class="terms-section-head">'
+        + '<span class="terms-section-no">' + (i + 1) + '</span>'
+        + '<input type="text" class="terms-heading" data-sec="' + i + '" value="' + escHtml(s.heading) + '" placeholder="Section heading">'
+        + '<div class="terms-section-tools">'
+          + '<button type="button" class="terms-icon" data-move="' + i + ':-1" title="Move up"' + (i === 0 ? ' disabled' : '') + '>&uarr;</button>'
+          + '<button type="button" class="terms-icon" data-move="' + i + ':1" title="Move down"' + (last ? ' disabled' : '') + '>&darr;</button>'
+          + '<button type="button" class="terms-icon danger" data-del-sec="' + i + '" title="Remove this section">&times;</button>'
+        + '</div>'
+      + '</div>'
+      + '<div class="terms-items">'
+        + s.items.map(function (t, j) {
+          return '<div class="terms-item">'
+            + '<span class="terms-bullet"></span>'
+            + '<textarea class="terms-item-text" data-sec="' + i + '" data-item="' + j + '" rows="1" placeholder="One point of the agreement">' + escHtml(t) + '</textarea>'
+            + '<button type="button" class="terms-icon danger" data-del-item="' + i + ':' + j + '" title="Remove this point">&times;</button>'
+          + '</div>';
+        }).join('')
+      + '</div>'
+      + '<button type="button" class="btn-small terms-add-item" data-add-item="' + i + '">+ Add point</button>'
+    + '</div>';
+  }).join('');
+  bindTermsSectionEvents();
+  markTermsDirty();
+  // scrollHeight is unreliable in the same frame the markup is written,
+  // which left every point one line tall until it was touched.
+  requestAnimationFrame(growAllTermsTextareas);
+}
+
+function growTermsTextarea(ta) {
+  if (!ta) return;
+  ta.style.height = 'auto';
+  ta.style.height = (ta.scrollHeight + 2) + 'px';
+}
+
+function growAllTermsTextareas() {
+  growTermsTextarea(document.getElementById('t-intro'));
+  document.querySelectorAll('#terms-sections .terms-item-text').forEach(growTermsTextarea);
+}
+
+// Re-measure on resize: a box sized at desktop width is several lines
+// short once the column narrows on a phone.
+let termsResizeTimer = null;
+window.addEventListener('resize', function () {
+  if (!TERMS_MODEL) return;
+  clearTimeout(termsResizeTimer);
+  termsResizeTimer = setTimeout(growAllTermsTextareas, 120);
+});
+
+function bindTermsSectionEvents() {
+  const host = document.getElementById('terms-sections');
+
+  host.querySelectorAll('.terms-heading').forEach(function (input) {
+    input.addEventListener('input', function () {
+      TERMS_MODEL.sections[Number(this.dataset.sec)].heading = this.value;
+      markTermsDirty();
+    });
+  });
+
+  host.querySelectorAll('.terms-item-text').forEach(function (ta) {
+    growTermsTextarea(ta);
+    ta.addEventListener('input', function () {
+      TERMS_MODEL.sections[Number(this.dataset.sec)].items[Number(this.dataset.item)] = this.value;
+      growTermsTextarea(this);
+      markTermsDirty();
+    });
+    // Enter starts the next point rather than putting a line break inside
+    // one — a bullet list is what this editor produces.
+    ta.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        const si = Number(this.dataset.sec), ii = Number(this.dataset.item);
+        TERMS_MODEL.sections[si].items.splice(ii + 1, 0, '');
+        renderTermsSections();
+        const next = host.querySelector('[data-sec="' + si + '"][data-item="' + (ii + 1) + '"]');
+        if (next) next.focus();
+      }
+    });
+  });
+
+  host.querySelectorAll('[data-add-item]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const si = Number(this.dataset.addItem);
+      TERMS_MODEL.sections[si].items.push('');
+      renderTermsSections();
+      const added = host.querySelector('[data-sec="' + si + '"][data-item="' + (TERMS_MODEL.sections[si].items.length - 1) + '"]');
+      if (added) added.focus();
+    });
+  });
+
+  host.querySelectorAll('[data-del-item]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const parts = this.dataset.delItem.split(':');
+      const si = Number(parts[0]), ii = Number(parts[1]);
+      const text = TERMS_MODEL.sections[si].items[ii];
+      if (text && text.trim() && !confirm('Remove this point?\n\n' + text)) return;
+      TERMS_MODEL.sections[si].items.splice(ii, 1);
+      renderTermsSections();
+    });
+  });
+
+  host.querySelectorAll('[data-del-sec]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const si = Number(this.dataset.delSec);
+      const sec = TERMS_MODEL.sections[si];
+      const label = (sec.heading || '').trim() || 'this section';
+      if (!confirm('Remove "' + label + '" and its ' + sec.items.length + ' point(s)?')) return;
+      TERMS_MODEL.sections.splice(si, 1);
+      renderTermsSections();
+    });
+  });
+
+  host.querySelectorAll('[data-move]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const parts = this.dataset.move.split(':');
+      const si = Number(parts[0]), dir = Number(parts[1]);
+      const to = si + dir;
+      if (to < 0 || to >= TERMS_MODEL.sections.length) return;
+      const moved = TERMS_MODEL.sections.splice(si, 1)[0];
+      TERMS_MODEL.sections.splice(to, 0, moved);
+      renderTermsSections();
+    });
+  });
+}
+
+function fillTermsEditor(terms) {
+  TERMS_MODEL = {
+    version: terms.version || '',
+    effectiveDate: terms.effectiveDate || '',
+    revisedDate: terms.revisedDate || '',
+    intro: terms.intro || '',
+    sections: (terms.sections || []).map(function (s) {
+      return { heading: s.heading || '', items: (s.items || []).slice() };
+    })
+  };
+  document.getElementById('t-version').value = TERMS_MODEL.version;
+  document.getElementById('t-effective').value = TERMS_MODEL.effectiveDate;
+  document.getElementById('t-revised').value = TERMS_MODEL.revisedDate;
+  document.getElementById('t-intro').value = TERMS_MODEL.intro;
+  renderTermsSections();
+}
+
+function renderTermsHistory() {
+  const card = document.getElementById('terms-history-card');
+  if (!TERMS_HISTORY.length) { card.style.display = 'none'; return; }
+  card.style.display = '';
+  const list = document.getElementById('terms-history-list');
+  list.innerHTML = TERMS_HISTORY.map(function (h, i) {
+    const t = h.terms || {};
+    const label = t.version ? ('Version ' + t.version) : 'Unnumbered version';
+    const count = (t.sections || []).length;
+    const by = h.replacedBy ? (' by ' + h.replacedBy) : '';
+    const author = h.authoredBy ? (' Originally saved by ' + h.authoredBy + '.') : '';
+    return '<div class="terms-history-row">'
+      + '<div><strong>' + escHtml(label) + '</strong> &middot; ' + count + ' section' + (count === 1 ? '' : 's')
+        + '<div class="terms-history-sub">Replaced ' + escHtml(termsStamp(h.replacedAt) || 'at an unknown time') + escHtml(by) + '.' + escHtml(author) + '</div>'
+      + '</div>'
+      + '<button type="button" class="btn-small" data-restore="' + i + '">Load into editor</button>'
+    + '</div>';
+  }).join('');
+  list.querySelectorAll('[data-restore]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const h = TERMS_HISTORY[Number(this.dataset.restore)];
+      if (!h || !h.terms) return;
+      if (termsDirty() && !confirm('You have unsaved changes. Replace them with this earlier version?')) return;
+      fillTermsEditor(h.terms);
+      markTermsDirty();
+      clearTermsResult();
+      showTermsResult('success', 'Loaded into the editor. Read it over, then Save and publish to put it back on the website.');
+      document.getElementById('terms-editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+}
+
+async function loadRentalTerms() {
+  try {
+    const res = await authedFetch(API_BASE + '/rental-terms');
+    if (!res.ok) throw new Error('Server returned ' + res.status);
+    const data = await res.json();
+    TERMS_META = { updatedBy: data.updatedBy, updatedAt: data.updatedAt, isDefault: !!data.isDefault };
+    TERMS_HISTORY = Array.isArray(data.history) ? data.history : [];
+    fillTermsEditor(data.terms || { sections: [] });
+    TERMS_BASELINE = JSON.stringify(TERMS_MODEL);
+    document.getElementById('terms-editor').style.display = 'block';
+    renderTermsStatus();
+    renderTermsHistory();
+    markTermsDirty();
+  } catch (err) {
+    document.getElementById('terms-status').textContent =
+      'Could not load the current terms (' + err.message + '). Reload before editing — saving now would publish an empty page.';
+    document.getElementById('terms-editor').style.display = 'none';
+  }
+}
+
+function collectTermsFromForm() {
+  TERMS_MODEL.version = document.getElementById('t-version').value;
+  TERMS_MODEL.effectiveDate = document.getElementById('t-effective').value;
+  TERMS_MODEL.revisedDate = document.getElementById('t-revised').value;
+  TERMS_MODEL.intro = document.getElementById('t-intro').value;
+  return TERMS_MODEL;
+}
+
+// Mirrors how the public page lays the document out, so what you approve
+// here is what a renter reads.
+function renderTermsPreview(terms) {
+  return '<div class="terms-preview-doc">'
+    + (terms.intro ? '<p class="tp-intro">' + escHtml(terms.intro) + '</p>' : '')
+    + terms.sections.map(function (s) {
+        return '<h3>' + escHtml(s.heading) + '</h3><ul>'
+          + s.items.map(function (t) { return '<li>' + escHtml(t) + '</li>'; }).join('')
+          + '</ul>';
+      }).join('')
+    + '<p class="tp-version">'
+      + [terms.version ? 'Version ' + escHtml(terms.version) : '',
+         terms.effectiveDate ? 'Effective ' + escHtml(terms.effectiveDate) : '',
+         terms.revisedDate ? 'Last revised ' + escHtml(terms.revisedDate) : ''
+        ].filter(Boolean).join(' &middot; ')
+    + '</p>'
+  + '</div>';
+}
+
+function initRentalTermsTab() {
+  if (window.__rtLoaded) return;
+  window.__rtLoaded = true;
+
+  ['t-version', 't-effective', 't-revised', 't-intro'].forEach(function (id) {
+    document.getElementById(id).addEventListener('input', function () {
+      if (id === 't-intro') growTermsTextarea(this);
+      collectTermsFromForm();
+      markTermsDirty();
+    });
+  });
+
+  document.getElementById('btn-terms-today').addEventListener('click', function () {
+    document.getElementById('t-revised').value = new Date().toLocaleDateString('en-US', {
+      month: 'long', day: 'numeric', year: 'numeric', timeZone: 'America/New_York'
+    });
+    collectTermsFromForm();
+    markTermsDirty();
+  });
+
+  document.getElementById('btn-terms-add-section').addEventListener('click', function () {
+    TERMS_MODEL.sections.push({ heading: '', items: [''] });
+    renderTermsSections();
+    const heads = document.querySelectorAll('#terms-sections .terms-heading');
+    if (heads.length) heads[heads.length - 1].focus();
+  });
+
+  document.getElementById('btn-terms-preview').addEventListener('click', function () {
+    const pane = document.getElementById('terms-preview');
+    if (pane.style.display !== 'none') {
+      pane.style.display = 'none';
+      this.textContent = 'Preview';
+      return;
+    }
+    pane.innerHTML = renderTermsPreview(collectTermsFromForm());
+    pane.style.display = 'block';
+    this.textContent = 'Hide preview';
+    pane.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  document.getElementById('btn-terms-discard').addEventListener('click', function () {
+    if (!termsDirty()) { showTermsResult('success', 'Nothing to discard — the editor matches what is published.'); return; }
+    if (!confirm('Throw away your unsaved changes and reload what is currently published?')) return;
+    clearTermsResult();
+    loadRentalTerms();
+  });
+
+  document.getElementById('btn-terms-save').addEventListener('click', async function () {
+    const btn = this;
+    const terms = collectTermsFromForm();
+
+    // Caught here as well as on the server so the common mistakes get a
+    // pointed message instead of a generic 400.
+    const problems = [];
+    const filled = terms.sections.filter(function (s) {
+      return (s.heading || '').trim() || s.items.some(function (t) { return (t || '').trim(); });
+    });
+    if (!filled.length) problems.push('There is nothing to publish — add at least one section.');
+    filled.forEach(function (s, i) {
+      const kept = s.items.filter(function (t) { return (t || '').trim(); });
+      if (!(s.heading || '').trim()) problems.push('Section ' + (i + 1) + ' has points but no heading.');
+      else if (!kept.length) problems.push('"' + s.heading.trim() + '" has no points.');
+    });
+    if (problems.length) { showTermsResult('error', problems.join(' ')); return; }
+
+    if (!confirm('Publish these terms to hccgc.org/rental-terms-conditions?\n\nThis is what renters agree to. The version you are replacing is kept, so it can be restored.')) return;
+
+    btn.disabled = true; btn.textContent = 'Publishing…';
+    clearTermsResult();
+    try {
+      const res = await authedFetch(API_BASE + '/rental-terms', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ terms: terms })
+      });
+      if (!res.ok) {
+        let msg = 'Server returned ' + res.status;
+        try { const e = await res.json(); if (e.errors && e.errors.length) msg = e.errors.join(' '); } catch (parseErr) { /* keep the status */ }
+        throw new Error(msg);
+      }
+      const data = await res.json();
+      TERMS_META = { updatedBy: data.updatedBy, updatedAt: data.updatedAt, isDefault: false };
+      fillTermsEditor(data.terms);
+      TERMS_BASELINE = JSON.stringify(TERMS_MODEL);
+      renderTermsStatus();
+      markTermsDirty();
+      showTermsResult('success', 'Published. The public page picks this up within about a minute.');
+      // The history list only changes on a save, so refresh it from the
+      // server rather than guessing what the new entry looks like.
+      try {
+        const h = await authedFetch(API_BASE + '/rental-terms');
+        if (h.ok) { const hd = await h.json(); TERMS_HISTORY = hd.history || []; renderTermsHistory(); }
+      } catch (histErr) { /* the save already landed; the list can wait for a reload */ }
+    } catch (err) {
+      showTermsResult('error', 'Could not publish: ' + err.message);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Save and publish';
+    }
+  });
+
+  loadRentalTerms();
+}
+
+// A half-written set of terms is easy to lose by closing the tab.
+window.addEventListener('beforeunload', function (e) {
+  if (termsDirty()) { e.preventDefault(); e.returnValue = ''; }
+});
+
 document.querySelectorAll('.tab-btn').forEach(function (btn) {
   btn.addEventListener('click', function () {
     document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
@@ -6036,6 +6537,7 @@ document.querySelectorAll('.tab-btn').forEach(function (btn) {
     if (btn.dataset.tab === 'new-booking' && !window.__nbLoaded) initNewBookingTab();
     if (btn.dataset.tab === 'dashboard' && !window.__dashLoaded) initDashboardTab();
     if (btn.dataset.tab === 'rooms-rates' && !window.__rrLoaded) initRoomsRatesTab();
+    if (btn.dataset.tab === 'rental-terms') initRentalTermsTab();
     if (btn.dataset.tab === 'add-renter' && !window.__arLoaded) initAddRenterTab();
     // Always refetch on tab switch. The init guards above only ever ran
     // once, so a tab opened earlier kept showing whatever it had cached —

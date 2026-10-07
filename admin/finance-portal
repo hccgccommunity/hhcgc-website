@@ -3700,20 +3700,20 @@ function openFinanceInvoicePopup(bookingId) {
     html += '<button type="button" class="invoice-action-btn" data-fin-inv-action="mark-sent">Mark as sent (no email)</button>';
   }
   // Voiding is what unlocks editing a booking whose invoice the renter
-  // already holds, so it appears once something has actually been sent —
-  // for everyone, not just admins. The exception is an invoice already
-  // marked paid: voiding that reverses a recorded payment, which the server
-  // still restricts, so it is hidden rather than shown and then refused.
+  // Appears once something has actually been sent, for everyone with
+  // Finance access. A paid invoice is included: voiding it reverses the
+  // recorded payment, and the confirmation step spells that out rather
+  // than the button being hidden and the work handed to someone else.
   const invIsPaid = inv.paymentStatus === 'paid';
-  const canVoid = alreadySent && (!invIsPaid || window.__hccgcIsAdmin);
+  const canVoid = alreadySent;
   if (canVoid) {
     html += '<button type="button" class="invoice-action-btn" data-fin-inv-action="void" style="color:var(--red);border-color:var(--red);">Void invoice</button>';
   }
   html += alreadySent
     ? '<p class="card-sub" style="margin:6px 0 0;">Sent ' + formatTimestampDate(inv.invoiceSentAt) + '.'
-      + (canVoid
-          ? ' Void it to make the booking editable again — the customer is emailed.'
-          : ' This invoice is marked paid, so voiding it would reverse a recorded payment — ask an admin.')
+      + (invIsPaid
+          ? ' Voiding it reverses the recorded payment and un-links the matched transaction, and makes the booking editable again.'
+          : ' Void it to make the booking editable again.')
       + '</p>'
     : '<p class="card-sub" style="margin:6px 0 0;">Not sent yet.</p>';
   body.innerHTML = html;

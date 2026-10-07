@@ -1163,7 +1163,7 @@
             <ul>
               <li>Bookings are confirmed via email within 2–3 business days</li>
               <li>Setup and breakdown time must be included in booked hours</li>
-              <li>Renters are responsible for leaving the space clean and in its original condition. Please review the <a href="https://hccgc.org/hccgc_rental_conditions.html" target="_blank" rel="noopener">Terms &amp; Conditions</a></li>
+              <li>Renters are responsible for leaving the space clean and in its original condition. Please review the <a href="https://hccgc.org/rental-terms-conditions" target="_blank" rel="noopener">Terms &amp; Conditions</a></li>
               <li>All renters agree to HCCGC's community standards of respect and inclusivity</li>
               <li>For questions, reach out via email at <a href="mailto:facility-rental@hccgc.org">facility-rental@hccgc.org</a></li>
             </ul>
@@ -1400,7 +1400,7 @@
               request and reserves the right to decline any request, or to cancel or reschedule a booking, at its
               sole discretion. Your reservation is only confirmed once you receive a written approval email from
               us. Rates shown are estimates and may be adjusted before approval. Use of the facility is subject to
-              HCCGC&rsquo;s <a href="https://hccgc.org/hccgc_rental_conditions.html" target="_blank" rel="noopener">Terms &amp; Conditions</a>, and the person named on this request is responsible for their group&rsquo;s
+              HCCGC&rsquo;s <a href="https://hccgc.org/rental-terms-conditions" target="_blank" rel="noopener">Terms &amp; Conditions</a>, and the person named on this request is responsible for their group&rsquo;s
               conduct and for any damage to the premises.
             </p>
             <button type="submit" class="request-submit-btn" id="rf-submit-btn">Submit request</button>

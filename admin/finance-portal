@@ -946,6 +946,35 @@ tr.series-row:hover td { background: var(--surface-soft); }
   </div>
 </div>
 
+<div class="modal-overlay" id="void-invoice-overlay" style="display:none;">
+  <div class="modal-panel" style="max-width:470px;">
+    <div class="modal-header">
+      <h2>Void invoice</h2>
+      <button class="modal-close" id="btn-close-void">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="fr-sum" id="void-summary"></div>
+      <div class="result-box error" id="void-paid-warning" style="display:none;margin-bottom:14px;">
+        This invoice is marked <strong>paid</strong>. Voiding it also reverses the recorded payment and un-links the matched transaction.
+      </div>
+      <div class="form-group">
+        <label for="void-reason">Reason <span style="font-weight:400;color:var(--muted);">&mdash; kept in the void history</span></label>
+        <textarea id="void-reason" rows="3" style="width:100%;font-family:inherit;font-size:0.9rem;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;" placeholder="e.g. Wrong room charged &mdash; corrected invoice to follow"></textarea>
+      </div>
+      <label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer;font-size:0.88rem;line-height:1.5;">
+        <input type="checkbox" id="void-send-email" checked style="margin-top:3px;">
+        <span><strong>Email the customer a void notice</strong><br>
+        <span style="color:var(--muted);font-size:0.82rem;" id="void-email-note"></span></span>
+      </label>
+      <div class="result-box" id="void-result" style="display:none;margin-top:14px;"></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;">
+        <button type="button" class="btn-secondary" id="btn-cancel-void">Cancel</button>
+        <button type="button" class="btn-primary" id="btn-confirm-void" style="background:var(--red);">Void invoice</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="final-receipt-overlay" style="display:none;">
   <div class="modal-panel" style="max-width:480px;">
     <div class="modal-header">
@@ -2889,6 +2918,62 @@ function finalReceiptIcon(inv) {
   return '<button type="button" class="btn-final attached" title="' + title + '" data-final-booking="' + inv.bookingId + '">' + ICON + '</button>';
 }
 
+/* ── Void invoice ────────────────────────────────────────────────────
+   The reason is always recorded in the void history. Emailing the
+   customer is now a choice: a wrong invoice caught before anyone looked
+   at it does not need a notice, while a void after they have seen it
+   does. Default stays "email", which is what it always did. */
+let voidCtx = null;
+function openVoidModal(bookingId) {
+  const inv = (INVOICES || []).find(function (i) { return i.bookingId === bookingId; });
+  if (!inv) { alert('Could not find that booking — refresh and try again.'); return; }
+  voidCtx = inv;
+  document.getElementById('void-summary').innerHTML =
+    '<div><span>' + escHtml(inv.renterName || '') + '</span><span>' + formatDate(inv.eventDate) + '</span></div>' +
+    '<div><span>' + escHtml(inv.eventName || 'Booking') + '</span><span>' + money(inv.amount) + '</span></div>';
+  document.getElementById('void-paid-warning').style.display = inv.paymentStatus === 'paid' ? 'block' : 'none';
+  document.getElementById('void-reason').value = '';
+  document.getElementById('void-send-email').checked = true;
+  document.getElementById('void-send-email').disabled = !inv.renterEmail;
+  document.getElementById('void-email-note').textContent = inv.renterEmail
+    ? 'Goes to ' + inv.renterEmail + ', copying facility-rental@hccgc.org, and includes the reason above.'
+    : 'No email on file for this customer, so nothing can be sent.';
+  document.getElementById('void-result').style.display = 'none';
+  document.getElementById('void-invoice-overlay').style.display = 'flex';
+  setTimeout(function () { document.getElementById('void-reason').focus(); }, 50);
+}
+function closeVoidModal() { document.getElementById('void-invoice-overlay').style.display = 'none'; }
+document.getElementById('btn-close-void').addEventListener('click', closeVoidModal);
+document.getElementById('btn-cancel-void').addEventListener('click', closeVoidModal);
+document.getElementById('void-invoice-overlay').addEventListener('click', function (e) { if (e.target === this) closeVoidModal(); });
+document.getElementById('btn-confirm-void').addEventListener('click', async function () {
+  if (!voidCtx) return;
+  const note = document.getElementById('void-reason').value.trim();
+  const box = document.getElementById('void-result');
+  const show = function (msg, kind) { box.style.display = 'block'; box.className = 'result-box' + (kind ? ' ' + kind : ''); box.textContent = msg; };
+  if (!note) { show('Add a reason — it is kept in the void history.', 'error'); document.getElementById('void-reason').focus(); return; }
+  const sendEmail = document.getElementById('void-send-email').checked && !!voidCtx.renterEmail;
+  if (!confirm('Void this invoice for ' + (voidCtx.renterName || 'this customer') + '?\n\n' +
+      (sendEmail ? 'They will be emailed a void notice.' : 'No email will be sent.') +
+      (voidCtx.paymentStatus === 'paid' ? '\nThe recorded payment will be reversed.' : '') +
+      '\n\nThis cannot be undone.')) return;
+  const btn = this; btn.disabled = true; show('Voiding…');
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(voidCtx.bookingId) + '/void', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ note: note, sendEmail: sendEmail })
+    });
+    const data = await res.json().catch(function () { return {}; });
+    if (!res.ok) { show('Could not void: ' + ((data.errors || [data.error]).filter(Boolean).join(' ') || ('Server returned ' + res.status)), 'error'); return; }
+    closeVoidModal();
+    alert('Invoice voided' + (data.emailed ? ' and the customer emailed' : ', no email sent') +
+      '. The booking can be edited again in the Facility Rental portal.');
+    await loadInvoices();
+  } catch (err) {
+    show('Could not reach the server: ' + err.message, 'error');
+  } finally { btn.disabled = false; }
+});
+
 let finalCtx = null;
 function openFinalReceipt(bookingId) {
   const inv = (INVOICES || []).find(function (i) { return i.bookingId === bookingId; });
@@ -2947,7 +3032,9 @@ async function submitFinalReceipt(send) {
     });
     const d = await res.json().catch(function () { return {}; });
     if (!res.ok) throw new Error((d.errors || [d.error]).filter(Boolean).join(' ') || ('Server returned ' + res.status));
-    frSay(send ? 'Sent. The earlier receipt is voided and the final receipt is on its way.' : 'Generated. Use "View current" to check it, then send when you are ready.', 'success');
+    const warn = d.warning ? ' (' + d.warning + ' — the refund itself is recorded)' : '';
+    frSay((send ? 'Sent. The earlier receipt is voided and the final receipt is on its way.' : 'Generated. Use "View current" to check it, then send when you are ready.') + warn,
+      d.warning ? 'error' : 'success');
     await loadInvoices();
     setTimeout(function () { document.getElementById('final-receipt-overlay').style.display = 'none'; }, send ? 1400 : 900);
   } catch (err) {
@@ -3654,32 +3741,8 @@ document.getElementById('invoice-action-body').addEventListener('click', async f
     return;
   }
   if (btn.dataset.finInvAction === 'void') {
-    const inv = INVOICES.find(function (i) { return i.bookingId === bookingId; });
-    // The note is mandatory server-side and goes into the email the
-    // customer receives, so it's collected here rather than sent blank.
-    const note = window.prompt(
-      'Void this invoice for ' + (inv ? inv.renterName : 'this customer') + '?\n\n' +
-      'They will be emailed that it has been voided, with facility-rental@hccgc.org copied. ' +
-      'The booking then becomes editable again.\n\n' +
-      (inv && inv.paymentStatus === 'paid'
-        ? 'This invoice is marked PAID — voiding it also reverses the recorded payment and un-links the matched transaction.\n\n'
-        : '') +
-      'Reason (included in that email):', '');
-    if (note === null) return;
-    if (!note.trim()) { alert('A reason is required — it is included in the email to the customer.'); return; }
     document.getElementById('invoice-action-overlay').style.display = 'none';
-    try {
-      const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/void', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ note: note.trim() })
-      });
-      const data = await res.json();
-      if (!res.ok) { alert('Could not void: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
-      alert('Invoice voided. The customer has been emailed, and the booking can now be edited in the Facility Rental portal.');
-      await loadInvoices();
-    } catch (err) {
-      alert('Could not reach the server: ' + err.message);
-    }
+    openVoidModal(bookingId);
     return;
   }
   if (btn.dataset.finInvAction === 'send') {

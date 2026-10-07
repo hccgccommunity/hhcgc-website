@@ -1124,9 +1124,13 @@ a.ce-att:hover { border-color: var(--saffron); }
               <select id="series-edit-adj-type"><option value="percent">Percent off</option><option value="flat">Flat dollar amount off</option></select>
             </div>
             <div class="field"><label>Value</label><input type="number" id="series-edit-adj-value" placeholder="e.g. 10" min="0" step="0.01"></div>
+            <div class="field">
+              <label>Apply to</label>
+              <select id="series-edit-adj-scope"><option value="occurrence">Each date separately</option><option value="total">The booking total</option></select>
+            </div>
           </div>
           <div class="field"><label>Reason (required — shows up in the audit report)</label><input type="text" id="series-edit-adj-reason" placeholder="e.g. Board-approved discount for founding member"></div>
-          <div class="card-sub" style="margin-bottom:0;">Applies to every occurrence in this series.</div>
+          <div class="card-sub" style="margin-bottom:0;" id="series-edit-adj-scope-hint"></div>
         </div>
       </div>
 
@@ -1285,9 +1289,13 @@ a.ce-att:hover { border-color: var(--saffron); }
               <select id="f-adj-type"><option value="percent">Percent off</option><option value="flat">Flat dollar amount off</option></select>
             </div>
             <div class="field"><label>Value</label><input type="number" id="f-adj-value" placeholder="e.g. 10" min="0" step="0.01"></div>
+            <div class="field">
+              <label>Apply to</label>
+              <select id="f-adj-scope"><option value="occurrence">Each date separately</option><option value="total">The booking total</option></select>
+            </div>
           </div>
           <div class="field"><label>Reason (required — shows up in the audit report)</label><input type="text" id="f-adj-reason" placeholder="e.g. Board-approved discount for founding member"></div>
-          <div class="card-sub" style="margin-bottom:0;">For a recurring booking, this same discount applies to every occurrence.</div>
+          <div class="card-sub" style="margin-bottom:0;" id="f-adj-scope-hint"></div>
         </div>
       </div>
 
@@ -3361,6 +3369,17 @@ async function openSeriesEditModal(seriesId) {
     document.getElementById('series-edit-adjustment-enabled').checked = hasAdjustment;
     document.getElementById('series-edit-adjustment-fields').classList.toggle('open', hasAdjustment);
     document.getElementById('series-edit-adj-type').value = first.manual_adjustment_type || 'percent';
+    document.getElementById('series-edit-adj-scope').value = first.manual_adjustment_scope === 'total' ? 'total' : 'occurrence';
+    const seHint = function () {
+      const el = document.getElementById('series-edit-adj-scope-hint');
+      if (el) el.textContent = adjScopeHintText('series-edit-adj-scope', 'series-edit-adj-type', 'series-edit-adj-value', occurrences.length);
+    };
+    ['series-edit-adj-scope', 'series-edit-adj-type', 'series-edit-adj-value'].forEach(function (id) {
+      const el = document.getElementById(id);
+      el.removeEventListener('input', seHint); el.addEventListener('input', seHint);
+      el.removeEventListener('change', seHint); el.addEventListener('change', seHint);
+    });
+    seHint();
     document.getElementById('series-edit-adj-value').value = first.manual_adjustment_value || '';
     document.getElementById('series-edit-adj-reason').value = first.manual_adjustment_reason || '';
   }
@@ -3447,6 +3466,7 @@ document.getElementById('btn-save-series-edit').addEventListener('click', async 
     organizationId: isInternal ? null : (document.getElementById('series-edit-org-select').value || null),
     invoiceMode: (document.querySelector('input[name="series-edit-invoice-mode"]:checked') || {}).value || undefined,
     eventName: isInternal ? undefined : document.getElementById('series-edit-event-name').value,
+    manualAdjustmentScope: document.getElementById('series-edit-adj-scope').value,
     manualAdjustmentType: (!isInternal && document.getElementById('series-edit-adjustment-enabled').checked) ? document.getElementById('series-edit-adj-type').value : null,
     manualAdjustmentValue: (!isInternal && document.getElementById('series-edit-adjustment-enabled').checked) ? parseFloat(document.getElementById('series-edit-adj-value').value) || null : null,
     manualAdjustmentReason: (!isInternal && document.getElementById('series-edit-adjustment-enabled').checked) ? document.getElementById('series-edit-adj-reason').value : null,
@@ -3919,7 +3939,24 @@ document.getElementById('f-adjustment-enabled').addEventListener('change', funct
   document.getElementById('adjustment-fields').classList.toggle('open', this.checked);
   recalc();
 });
-['f-renter-select','f-org-select','f-adj-type','f-adj-value'].forEach(function (id) {
+// Says in words what the two choices do, because the difference only
+// shows up on the finished invoice.
+function adjScopeHintText(scopeId, typeId, valueId, count) {
+  const scope = document.getElementById(scopeId).value;
+  const type = document.getElementById(typeId).value;
+  const v = parseFloat(document.getElementById(valueId).value) || 0;
+  if (count <= 1) return 'A single date, so both choices come to the same thing.';
+  if (scope === 'total') {
+    return type === 'percent'
+      ? 'Taken off the combined total, and shown once on the invoice with every date at its full price.'
+      : '$' + v.toFixed(2) + ' off the combined total — not ' + count + ' × $' + v.toFixed(2) +
+        '. Shown once on the invoice with every date at its full price.';
+  }
+  return type === 'percent'
+    ? 'Taken off each date, and shown against each date on the invoice.'
+    : '$' + v.toFixed(2) + ' off every date — $' + (v * count).toFixed(2) + ' across all ' + count + '.';
+}
+['f-renter-select','f-org-select','f-adj-type','f-adj-value','f-adj-scope'].forEach(function (id) {
   document.getElementById(id).addEventListener('input', recalc);
   document.getElementById(id).addEventListener('change', recalc);
 });
@@ -3991,8 +4028,13 @@ function recalc() {
   let final = subtotal;
   let adjustmentAmount = 0;
   if (adjEnabled && adjValue > 0) {
+    // "Each date" multiplies a flat amount by the number of dates; "the
+    // booking total" takes it off once. A percentage comes to the same
+    // figure either way — only where it is shown on the invoice differs.
+    const adjScope = document.getElementById('f-adj-scope').value;
     if (adjType === 'percent') { adjustmentAmount = Math.round(subtotal * (adjValue / 100) * 100) / 100; }
-    else { adjustmentAmount = adjValue * occList.length; }
+    else { adjustmentAmount = adjScope === 'total' ? adjValue : adjValue * occList.length; }
+    adjustmentAmount = Math.min(adjustmentAmount, subtotal);
     final = Math.round((subtotal - adjustmentAmount) * 100) / 100;
   }
 
@@ -4005,6 +4047,8 @@ function recalc() {
   document.getElementById('s-adjustment-line').style.display = (adjEnabled && adjValue > 0) ? 'flex' : 'none';
   document.getElementById('s-adjustment').textContent = '-$' + adjustmentAmount.toFixed(2);
   document.getElementById('s-final').textContent = '$' + final.toFixed(2);
+  const scopeHint = document.getElementById('f-adj-scope-hint');
+  if (scopeHint) scopeHint.textContent = adjScopeHintText('f-adj-scope', 'f-adj-type', 'f-adj-value', occList.length);
   document.getElementById('s-total-label').textContent = occList.length > 1 ? ('Total (' + occList.length + ' occurrences)') : 'Total';
   document.getElementById('cost-summary-sub').textContent = occList.length > 1
     ? 'Combined total across all ' + occList.length + ' occurrences below.'
@@ -4370,6 +4414,7 @@ document.getElementById('btn-generate').addEventListener('click', async function
     publishAsEvent: isInternal ? document.getElementById('f-publish-event').checked : false,
     organizationId: !isInternal ? (document.getElementById('f-org-select').value || null) : null,
     notes: document.getElementById('nb-f-notes').value,
+    manualAdjustmentScope: document.getElementById('f-adj-scope').value,
     manualAdjustmentType: (!isInternal && document.getElementById('f-adjustment-enabled').checked) ? document.getElementById('f-adj-type').value : null,
     manualAdjustmentValue: (!isInternal && document.getElementById('f-adjustment-enabled').checked) ? parseFloat(document.getElementById('f-adj-value').value) || null : null,
     manualAdjustmentReason: (!isInternal && document.getElementById('f-adjustment-enabled').checked) ? document.getElementById('f-adj-reason').value : null,

@@ -448,7 +448,7 @@
 
     <section class="section">
       <div class="container">
-        <div class="terms-card">
+        <div class="terms-card" id="terms-card">
           <div class="intro">
             <p>
               By confirming the facility rental and using the HCCGC facility, the renter acknowledges
@@ -597,9 +597,67 @@
       }
     }
 
+
+    // The terms below are maintained in the Facility Bookings portal
+    // (Terms & Conditions tab) and served from the rental API, so staff can
+    // revise them without a deploy. The copy written into this page is the
+    // last deployed version and stays as the fallback: if the API is
+    // unreachable the renter still reads a complete agreement rather than an
+    // empty page.
+    var RENTAL_TERMS_API =
+      "https://facility-rental-api-217911937447.us-central1.run.app/public/rental-terms";
+
+    function escapeTerms(value) {
+      return String(value === null || value === undefined ? "" : value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    async function loadLiveTerms() {
+      const host = document.getElementById("terms-card");
+      if (!host) return;
+      try {
+        const response = await fetch(RENTAL_TERMS_API);
+        if (!response.ok) throw new Error("status " + response.status);
+        const data = await response.json();
+        const sections = (data && Array.isArray(data.sections)) ? data.sections : [];
+        if (!sections.length) throw new Error("no sections returned");
+
+        const parts = [];
+        if (data.intro) {
+          parts.push('<div class="intro"><p>' + escapeTerms(data.intro) + "</p></div>");
+        }
+        sections.forEach(function (section) {
+          if (!section || !section.heading) return;
+          const items = Array.isArray(section.items) ? section.items : [];
+          if (!items.length) return;
+          parts.push(
+            '<section class="term"><h3>' + escapeTerms(section.heading) + "</h3><ul>" +
+            items.map(function (item) { return "<li>" + escapeTerms(item) + "</li>"; }).join("") +
+            "</ul></section>"
+          );
+        });
+        if (parts.length < 2) throw new Error("nothing renderable");
+
+        const meta = [
+          data.version ? "Version " + escapeTerms(data.version) : "",
+          data.effectiveDate ? "Effective " + escapeTerms(data.effectiveDate) : "",
+          data.revisedDate ? "Last revised " + escapeTerms(data.revisedDate) : ""
+        ].filter(Boolean).join(" &middot; ");
+        if (meta) parts.push('<p class="terms-version">' + meta + "</p>");
+
+        host.innerHTML = parts.join("");
+      } catch (error) {
+        console.warn("Showing the built-in rental terms:", error && error.message);
+      }
+    }
+
     async function initializePage() {
       await loadPartial("header-placeholder", "header.html");
       await loadPartial("footer-placeholder", "footer.html");
+      loadLiveTerms();
 
       const year = document.getElementById("year");
       if (year) {

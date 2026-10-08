@@ -1047,6 +1047,7 @@ a.ce-att:hover { border-color: var(--saffron); }
       <button class="modal-close" id="btn-close-edit">&times;</button>
     </div>
     <div class="modal-body">
+      <div class="result-box" id="edit-one-date-notice" style="display:none;background:var(--surface-soft);color:var(--text);border:1px solid var(--border);margin:0 0 16px;"></div>
       <div class="field" id="edit-renter-select-field">
         <label>Select a contact</label>
         <select id="edit-renter-select"><option value="">Choose a customer…</option></select>
@@ -2384,7 +2385,20 @@ function renderBookingRow(b, isSubRow, seriesPerOccurrenceMode) {
   }
   if (notCancelled && !locked) actions.push({ label: 'Cancel', danger: true, fn: () => cancelBookingFlow(b.booking_id) });
 
-  const actionsCell = treatAsSubRow ? '<td></td>' : '<td><div style="display:flex;align-items:center;gap:8px;">' + actionIcons(b) + renderActionsKebab(b.booking_id, actions) + '</div></td>';
+  // A combined (or monthly) series bills above this row, so the sub-row
+  // still gets no invoice/receipt icons — but one date of a series
+  // routinely needs a change of its own (longer hours, an extra room for
+  // that date only), and PATCH /bookings/:id has always handled a single
+  // occurrence, re-splitting any booking-wide discount across the rest.
+  // Without this the only route was Edit series, whose room picker applies
+  // to every date at once, so there was no way to add a room to one date.
+  const subRowActions = (treatAsSubRow && canEditThis) ? [{
+    label: 'Edit this date',
+    fn: () => invoiceAlreadySent ? showInvoiceSentEditNotice() : openEditModal(b.booking_id)
+  }] : [];
+  const actionsCell = treatAsSubRow
+    ? '<td>' + renderActionsKebab(b.booking_id, subRowActions) + '</td>'
+    : '<td><div style="display:flex;align-items:center;gap:8px;">' + actionIcons(b) + renderActionsKebab(b.booking_id, actions) + '</div></td>';
   return (
     '<tr' + (rowClasses ? ' class="' + rowClasses.trim() + '"' : '') + '>' +
       '<td>' + (isSubRow ? '<div class="renter-sub">' + formatDate(b.event_date) + '</div>' : '<div class="renter-name">' + escHtml(b.renter_name) + '</div><div class="renter-sub">' + escHtml(b.renter_email) + '</div>') + '</td>' +
@@ -3262,6 +3276,22 @@ async function openEditModal(bookingId) {
   if (!b) return;
   editingBookingId = bookingId;
 
+  // Reached from a series sub-row this edits exactly one date, which is
+  // easy to mistake for editing the whole series — say so.
+  const oneDateNotice = document.getElementById('edit-one-date-notice');
+  if (b.recurring_series_id) {
+    const siblings = BOOKINGS.filter(function (x) {
+      return x.recurring_series_id === b.recurring_series_id && x.payment_status !== 'cancelled';
+    }).length;
+    oneDateNotice.innerHTML = 'This changes <strong>' + escHtml(formatDate(b.event_date)) + '</strong> only — the other '
+      + (siblings - 1) + ' date' + (siblings - 1 === 1 ? '' : 's') + ' in this series are untouched. '
+      + 'The amount for this date is recalculated and the series total moves with it. '
+      + 'To change every date at once, use Edit series on the row above instead.';
+    oneDateNotice.style.display = 'block';
+  } else {
+    oneDateNotice.style.display = 'none';
+  }
+
   buildEditRoomPicker();
   await loadEditRenters();
   const select = document.getElementById('edit-renter-select');
@@ -3298,7 +3328,9 @@ async function openEditModal(bookingId) {
   document.querySelectorAll('.edit-room-cb').forEach(function (cb) { cb.checked = b.rooms.includes(cb.value); });
   enforceEditKitchenRule();
 
-  document.getElementById('edit-modal-title').textContent = b.is_internal ? 'Edit internal booking' : 'Edit booking';
+  document.getElementById('edit-modal-title').textContent = b.is_internal
+    ? 'Edit internal booking'
+    : (b.recurring_series_id ? 'Edit one date' : 'Edit booking');
   document.getElementById('ab-edit-result-box').style.display = 'none';
   document.getElementById('edit-modal-overlay').style.display = 'flex';
 }

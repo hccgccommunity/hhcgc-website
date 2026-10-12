@@ -28,6 +28,28 @@
         ]
       }
     ],
+    "redirects": [
+      {
+        "source": "/hccgc_rental_conditions",
+        "destination": "/rental-terms-conditions",
+        "type": 301
+      },
+      {
+        "source": "/hccgc_rental_conditions.html",
+        "destination": "/rental-terms-conditions",
+        "type": 301
+      },
+      {
+        "source": "/sahyog-milan-participation-form.html",
+        "destination": "/sahayog-milan",
+        "type": 301
+      },
+      {
+        "source": "/sahyog-milan-participation-form",
+        "destination": "/sahayog-milan",
+        "type": 301
+      }
+    ],
     "rewrites": [
       {
         "source": "/forms/**",

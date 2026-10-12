@@ -120,11 +120,24 @@ function renderRichText(s) {
   '</div></section>';
 }
 
+// The newsletter card's content comes from whatever was last published,
+// not from the homepage document - but WHERE the section sits, and what
+// it is called, are ordinary homepage content. So the renderer lays out
+// the heading and an empty slot synchronously, in section order, and
+// showLatestNewsletter() fills the slot once Firestore answers.
+function renderLatestNewsletter(s) {
+  return '<section class="section" id="' + esc(s.anchor || s.id) + '" data-nl-section>' +
+    '<div class="container">' + sectionHead(s) +
+      '<div data-nl-slot></div>' +
+    '</div></section>';
+}
+
 const RENDERERS = {
   cards: renderCards,
   imageGrid: renderImageGrid,
   twoColumn: renderTwoColumn,
-  richText: renderRichText
+  richText: renderRichText,
+  latestNewsletter: renderLatestNewsletter
 };
 
 // One app instance for both jobs below — initializeApp throws if the same
@@ -186,17 +199,19 @@ async function applyHomepageContent() {
 
 /* ── Latest newsletter ─────────────────────────────────────────────────
    Shows the most recently published issue (publishedNewsletters, the
-   public copy the Newsletter app writes on "Publish to website") as a
-   section directly under the hero, linking to /newsletters for the full
-   issue and PDF.
+   public copy the Newsletter app writes on "Publish to website"), linking
+   to /newsletters for the full issue and PDF.
 
-   Not a siteContent section on purpose: it is driven by publishing, not by
-   editing the homepage, so publishing an issue is the only step needed and
-   "Remove from website" takes it off the homepage too.
+   Content comes from publishing, placement from the homepage document: add
+   a "Latest newsletter" section in Website Management → Homepage and it
+   renders there, in that position, under that heading. With no such
+   section configured it falls in after Facility Rental, so the card still
+   appears on a homepage that predates this.
 
-   It runs AFTER applyHomepageContent, which removes everything below the
-   hero before inserting the saved sections — inserted any earlier, this
-   would be wiped. With nothing published, nothing is added. */
+   Either way it runs AFTER applyHomepageContent, which removes everything
+   below the hero before inserting the saved sections — inserted any
+   earlier, this would be wiped. With nothing published, nothing shows:
+   a configured section removes itself rather than leaving a bare heading. */
 const NL_STYLE_ID = 'hp-newsletter-style';
 function ensureNewsletterStyles() {
   if (document.getElementById(NL_STYLE_ID)) return;
@@ -249,9 +264,7 @@ async function showLatestNewsletter() {
   if (!main) return;
   ensureNewsletterStyles();
 
-  const html =
-    '<section class="section" id="latest-newsletter"><div class="container">' +
-      '<div class="section-head content-width"><span class="section-kicker">Newsletter</span></div>' +
+  const card =
       '<div class="card hp-nl">' +
         '<a class="hp-nl-cover" href="' + url + '" aria-label="Read ' + esc(title) + '"' +
           (cover ? ' style="background-image:url(&quot;' + esc(cover) + '&quot;);"' : '') + '></a>' +
@@ -264,15 +277,48 @@ async function showLatestNewsletter() {
             '<a href="/newsletters" class="btn btn-outline">All issues</a>' +
           '</div>' +
         '</div>' +
-      '</div>' +
-    '</div></section>';
+      '</div>';
 
+  // Placed by Homepage Management: drop the card into its slot and leave
+  // the heading the editor wrote.
+  const slot = main.querySelector('[data-nl-slot]');
+  if (slot) {
+    slot.innerHTML = card;
+    console.log('[homepage] latest newsletter shown in its managed section:', d.id);
+    return;
+  }
+
+  // Not configured yet - build the section here, with a default head that
+  // matches the others, and put it after Facility Rental.
   const existing = document.getElementById('latest-newsletter');
   if (existing) existing.remove();
-  const hero = main.querySelector('.hero-banner');
-  if (hero) hero.insertAdjacentHTML('afterend', html);
-  else main.insertAdjacentHTML('afterbegin', html);
-  console.log('[homepage] latest newsletter shown:', d.id);
+  const html =
+    '<section class="section" id="latest-newsletter" data-nl-section><div class="container">' +
+      sectionHead({ kicker: 'Newsletter', heading: 'Latest from the Community',
+                    intro: 'News, programs and photographs from across HCCGC \u2014 a new issue every edition.' }) +
+      card +
+    '</div></section>';
+  const after = main.querySelector('#booking') || findFacilityRentalSection(main);
+  if (after) after.insertAdjacentHTML('afterend', html);
+  else main.insertAdjacentHTML('beforeend', html);
+  console.log('[homepage] latest newsletter shown after', after ? (after.id || 'facility rental') : 'the last section', ':', d.id);
+}
+
+// The facility-rental section keeps its id in index.html, but once
+// Homepage Management owns the page the id is whatever the editor chose.
+// Fall back to matching on the heading text.
+function findFacilityRentalSection(main) {
+  const sections = Array.from(main.querySelectorAll('section.section'));
+  return sections.filter(sec => /facilit|rental|rent the|book the/i.test(sec.textContent || '')).pop() || null;
+}
+
+// A heading with nothing under it is worse than no section at all, so a
+// configured section that never got filled takes itself off the page.
+function dropEmptyNewsletterSection() {
+  document.querySelectorAll('[data-nl-section]').forEach(sec => {
+    const slot = sec.querySelector('[data-nl-slot]');
+    if (slot && !slot.innerHTML.trim()) sec.remove();
+  });
 }
 
 /* ── Live now banner ─────────────────────────────────────────────────
@@ -316,6 +362,7 @@ async function showLiveBanner() {
     // A newsletter that can't be read just isn't shown.
     console.error('Latest newsletter not shown:', err);
   }
+  dropEmptyNewsletterSection();
   // Last, because applyHomepageContent clears everything but the hero.
   try { await showLiveBanner(); }
   catch (err) { console.error('Live banner not shown:', err); }

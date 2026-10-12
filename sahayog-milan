@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sahyog Milan | Hindu Community Center of Greater Cincinnati</title>
-  <meta name="description" content="Sahyog Milan is HCCGC's monthly gathering for seniors in Greater Cincinnati - informative talks, wellness and cultural activities, entertainment, conversation and a shared meal. Local and visiting seniors are warmly welcome." />
+  <meta name="description" content="Sahyog Milan is HCCGC's monthly gathering for seniors in Greater Cincinnati - informative talks, wellness and cultural activities, entertainment, conversation and a shared meal. Free to attend. Local and visiting seniors are warmly welcome." />
 
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Sahyog Milan | HCCGC" />
-  <meta property="og:description" content="Sahyog Milan is HCCGC's monthly gathering for seniors in Greater Cincinnati - informative talks, wellness and cultural activities, entertainment, conversation and a shared meal. Local and visiting seniors are warmly welcome." />
+  <meta property="og:description" content="Sahyog Milan is HCCGC's monthly gathering for seniors in Greater Cincinnati - informative talks, wellness and cultural activities, entertainment, conversation and a shared meal. Free to attend. Local and visiting seniors are warmly welcome." />
   <meta property="og:url" content="https://hccgc.org/sahayog-milan" />
 
   <link rel="icon" type="image/svg+xml"
@@ -598,8 +598,6 @@
     /* ── THIS PAGE ── */
     .section-copy.narrow { max-width: 760px; }
 
-    .about-grid { align-items: start; }
-
     .join-card .join-close {
       margin: 16px 0 0;
       padding-top: 14px;
@@ -788,10 +786,10 @@
               </div>
             </div>
             <div class="quick-card">
-              <div class="quick-card-icon">🍽️</div>
+              <div class="quick-card-icon">🎟️</div>
               <div class="quick-card-body">
-                <h3>Includes</h3>
-                <p>A shared meal<small>Together, after the program</small></p>
+                <h3>Cost</h3>
+                <p>Free to attend<small>Shared meal included</small></p>
               </div>
             </div>
             <div class="quick-card">
@@ -905,7 +903,8 @@
           <span class="section-kicker">Take Part</span>
           <h2>Join Us &amp; Support Sahyog Milan</h2>
           <p class="section-copy narrow">
-            Sign up to hear about the next gathering &mdash; and, if you are able, help us host it.
+            Sahyog Milan is free to attend. Sign up to hear about the next gathering &mdash;
+            and, if you are able, help us host it.
           </p>
         </div>
 
@@ -920,7 +919,7 @@
             <div class="form-notices">
               <div class="form-notice">
                 <span class="form-notice-icon">🙏</span>
-                <span>There is no cost to take part &mdash; Sahyog Milan is open to every senior in our community.</span>
+                <span><strong>Free to attend</strong> &mdash; there is no charge for any gathering, and the shared meal is included.</span>
               </div>
               <div class="form-notice">
                 <span class="form-notice-icon">✉️</span>

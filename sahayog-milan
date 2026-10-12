@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sahyog Milan | Hindu Community Center of Greater Cincinnati</title>
+  <meta name="description" content="Sahyog Milan is HCCGC's monthly gathering for seniors in Greater Cincinnati - informative talks, wellness and cultural activities, entertainment, conversation and a shared meal. Local and visiting seniors are warmly welcome." />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Sahyog Milan | HCCGC" />
+  <meta property="og:description" content="Sahyog Milan is HCCGC's monthly gathering for seniors in Greater Cincinnati - informative talks, wellness and cultural activities, entertainment, conversation and a shared meal. Local and visiting seniors are warmly welcome." />
+  <meta property="og:url" content="https://hccgc.org/sahayog-milan" />
+
+  <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' x='50%25' text-anchor='middle' font-size='82'%3E%E0%A5%90%3C/text%3E%3C/svg%3E">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-F5ZHQ4CDR9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-F5ZHQ4CDR9');
+  </script>
+
+  <style>
+    :root {
+      --bg: #fff9f1;
+      --surface: #ffffff;
+      --surface-soft: #fff6ea;
+      --border: rgba(121, 62, 17, 0.14);
+      --text: #2c1b10;
+      --muted: #6a5141;
+      --saffron: #b55a18;
+      --saffron-bright: #c65a12;
+      --saffron-dark: #8d3e0d;
+      --maroon: #7f2e16;
+      --shadow: 0 18px 45px rgba(93, 43, 14, 0.10);
+      --shadow-soft: 0 10px 28px rgba(93, 43, 14, 0.08);
+      --radius: 22px;
+      --max: 1220px;
+      --header-offset: 110px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(217, 138, 30, 0.12), transparent 22%),
+        radial-gradient(circle at top right, rgba(127, 46, 22, 0.05), transparent 20%),
+        var(--bg);
+      line-height: 1.65;
+    }
+
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+    button, input, select, textarea { font: inherit; }
+
+    .container {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+    }
+
+    /* ── SITE HEADER ── */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 249, 241, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-height: 92px;
+      padding: 12px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .brand-logo-wrap {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 8px;
+      box-shadow: var(--shadow);
+      flex-shrink: 0;
+    }
+
+    .brand-logo {
+      width: 88px;
+      height: auto;
+      border-radius: 12px;
+      object-fit: contain;
+    }
+
+    .brand-text h1 {
+      margin: 0;
+      font-size: 1.2rem;
+      line-height: 1.15;
+      color: var(--maroon);
+    }
+
+    .site-header nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin: 0;
+      padding: 0;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .site-header nav a {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.96rem;
+    }
+
+    .site-header nav a:hover { color: var(--saffron-dark); }
+    .site-header nav a.active { color: var(--saffron-bright); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      padding: 56px 0 28px;
+      overflow: hidden;
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
+    .hero::before {
+      top: -190px;
+      left: -150px;
+      background: radial-gradient(circle, rgba(198, 90, 18, 0.10), transparent 68%);
+    }
+
+    .hero::after {
+      right: -160px;
+      bottom: -190px;
+      background: radial-gradient(circle, rgba(127, 46, 22, 0.08), transparent 68%);
+    }
+
+    .hero-card {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+      gap: 28px;
+      align-items: center;
+      padding: clamp(24px, 4vw, 44px);
+      background: linear-gradient(135deg, rgba(255,255,255,0.92), rgba(255,246,234,0.92));
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+
+    .hero-kicker {
+      display: inline-block;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: rgba(217, 138, 30, 0.12);
+      color: var(--saffron-dark);
+      font-size: 0.83rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .hero-title {
+      margin: 8px 0 6px;
+      line-height: 1.02;
+      color: var(--maroon);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.4rem, 5vw, 4.2rem);
+      letter-spacing: -0.03em;
+    }
+
+    .hero-title-deva {
+      display: block;
+      font-size: clamp(1rem, 1.8vw, 1.35rem);
+      color: var(--saffron-dark);
+      letter-spacing: 0.06em;
+      margin-top: 6px;
+      font-style: normal;
+      font-weight: 600;
+      opacity: 0.8;
+      text-transform: uppercase;
+    }
+
+    .hero-tagline {
+      margin: 10px 0 18px;
+      color: var(--muted);
+      font-size: 1.08rem;
+      font-style: italic;
+    }
+
+    .hero-copy {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(1rem, 1.4vw, 1.12rem);
+      max-width: 640px;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      margin-top: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 12px 22px;
+      border-radius: 999px;
+      font-weight: 800;
+      border: 1px solid transparent;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 22px rgba(93, 43, 14, 0.13);
+    }
+
+    .btn-primary {
+      color: #fff;
+      background: linear-gradient(135deg, var(--saffron-bright), var(--saffron-dark));
+    }
+
+    .btn-secondary {
+      color: var(--saffron-dark);
+      background: #fff;
+      border-color: var(--border);
+    }
+
+    .hero-flyer {
+      position: relative;
+      z-index: 1;
+    }
+
+    .flyer-frame {
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .flyer-frame img {
+      width: 100%;
+      display: block;
+    }
+
+    .hero-panel {
+      display: grid;
+      gap: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .quick-card {
+      background: rgba(255,255,255,0.88);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .quick-card-icon {
+      font-size: 1.6rem;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .quick-card-body h3 {
+      margin: 0 0 3px;
+      color: var(--maroon);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .quick-card-body p {
+      margin: 0;
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .quick-card-body p small {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ── SECTIONS ── */
+    .section {
+      padding: 42px 0;
+      scroll-margin-top: var(--header-offset);
+    }
+
+    .section-head {
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .section-kicker {
+      display: inline-block;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: rgba(217, 138, 30, 0.12);
+      color: var(--saffron-dark);
+      font-size: 0.83rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .section-head h2 {
+      margin: 8px 0 10px;
+      line-height: 1.2;
+      color: var(--maroon);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2rem, 3.4vw, 3rem);
+    }
+
+    .section-copy {
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 100%;
+      text-align: center;
+    }
+
+    /* ── INFO BAND ── */
+    .info-band {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .info-card {
+      background: rgba(255,255,255,0.88);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow-soft);
+      padding: 20px;
+      text-align: center;
+    }
+
+    .info-icon {
+      font-size: 2rem;
+      margin-bottom: 8px;
+      color: var(--saffron-bright);
+    }
+
+    .info-card h3 {
+      margin: 0 0 4px;
+      color: var(--maroon);
+      font-size: 1.05rem;
+    }
+
+    .info-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    /* ── ABOUT ── */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .content-card,
+    .expect-card,
+    .join-card {
+      background: rgba(255,255,255,0.88);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .content-card {
+      padding: clamp(24px, 3vw, 34px);
+    }
+
+    .content-card p {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 1.04rem;
+    }
+
+    .content-card p:last-child { margin-bottom: 0; }
+
+    .highlight-line {
+      padding: 16px 18px;
+      border-left: 5px solid var(--saffron-bright);
+      background: var(--surface-soft);
+      border-radius: 16px;
+      margin-top: 18px;
+      color: var(--maroon);
+      font-weight: 800;
+    }
+
+    .side-stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .expect-card,
+    .join-card {
+      padding: 22px;
+    }
+
+    .expect-card h3,
+    .join-card h3 {
+      margin: 0 0 14px;
+      font-size: 1.55rem;
+      line-height: 1.2;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--maroon);
+    }
+
+    .clean-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 12px;
+    }
+
+    .clean-list li {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      color: var(--muted);
+      align-items: start;
+    }
+
+    .clean-list li::before {
+      content: "✓";
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(198, 90, 18, 0.12);
+      color: var(--saffron-dark);
+      font-weight: 900;
+      line-height: 1;
+      margin-top: 2px;
+    }
+
+    /* ── FORM SECTIONS ── */
+    .form-section {
+      padding-top: 24px;
+      padding-bottom: 0;
+    }
+
+    .form-intro {
+      max-width: 100%;
+      margin: 0 0 0;
+      text-align: center;
+      padding: 24px 26px;
+      background: linear-gradient(135deg, rgba(198, 90, 18, 0.10), rgba(255, 246, 234, 0.9));
+      border: 1px solid var(--border);
+      border-radius: 26px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .form-intro h2 {
+      margin: 0 0 8px;
+      color: var(--maroon);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.8rem, 3vw, 2.45rem);
+    }
+
+    .form-intro p {
+      margin: 0 auto;
+      color: var(--muted);
+      max-width: 100%;
+    }
+
+    .form-notices {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+      text-align: left;
+    }
+
+    .form-notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .form-notice-urgent {
+      background: rgba(127, 46, 22, 0.07);
+      border-color: rgba(127, 46, 22, 0.25);
+      color: var(--maroon);
+      font-weight: 600;
+    }
+
+    .form-notice-icon {
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* Seamless Zeffy embed */
+    .embed-card {
+      overflow: visible;
+      background: transparent;
+      border-radius: 0;
+      box-shadow: none;
+      border: 0;
+      max-width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    .zeffy-responsive-frame {
+      position: relative;
+      overflow: hidden;
+      height: 0;
+      width: 100%;
+      padding-top: 1250px;
+      background: transparent;
+    }
+
+    .zeffy-responsive-frame iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: transparent;
+      display: block;
+      overflow: hidden;
+    }
+
+
+    /* ── THIS PAGE ── */
+    .section-copy.narrow { max-width: 760px; }
+
+    .about-grid { align-items: start; }
+
+    .join-card .join-close {
+      margin: 16px 0 0;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      color: var(--maroon);
+      font-weight: 700;
+      font-size: 0.98rem;
+      line-height: 1.6;
+    }
+
+    /* Sign-up and donation sit side by side. The form column is the wider
+       of the two: a Google Form has the most fields and suffers most from
+       wrapping, while Zeffy's donation form is compact by comparison. */
+    .join-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 28px;
+      align-items: start;
+      margin-top: 24px;
+    }
+
+    .col-head {
+      text-align: center;
+      padding: 20px 24px;
+      background: linear-gradient(135deg, rgba(198, 90, 18, 0.10), rgba(255, 246, 234, 0.9));
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .col-head h3 {
+      margin: 0 0 6px;
+      color: var(--maroon);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.35rem, 2.2vw, 1.8rem);
+      line-height: 1.2;
+    }
+
+    .col-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .join-col .form-notices { margin-top: 14px; }
+    .join-col .embed-card { margin-top: 18px; }
+
+    /* Both embeds are third-party iframes that cannot tell us their own
+       height, so each frame is given one. These two numbers are the only
+       thing to adjust if either form ends up clipped or trailing blank
+       space on the live site. */
+    .form-frame {
+      position: relative;
+      overflow: hidden;
+      height: 1450px;
+      width: 100%;
+      background: transparent;
+    }
+
+    .donate-frame {
+      position: relative;
+      overflow: hidden;
+      height: 820px;
+      width: 100%;
+    }
+
+    .form-frame iframe,
+    .donate-frame iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: transparent;
+      display: block;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1100px) {
+    }
+
+    @media (max-width: 980px) {
+      .hero-card { grid-template-columns: 1fr; }
+      .about-grid { grid-template-columns: 1fr; }
+      .join-grid { grid-template-columns: 1fr; }
+      .form-frame { height: 1180px; }
+      .info-band { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 860px) {
+      .nav { flex-direction: column; align-items: flex-start; }
+      .site-header nav ul { justify-content: flex-start; gap: 14px; }
+      .brand-logo { width: 74px; }
+      .section { padding: 34px 0; }
+      .hero { padding: 38px 0 22px; }
+      .form-frame { height: 1320px; }
+      .donate-frame { height: 900px; }
+    }
+
+    @media (max-width: 680px) {
+      .hero-actions .btn { width: 100%; }
+    }
+
+    @media (max-width: 640px) {
+      .container { width: min(calc(100% - 24px), var(--max)); }
+      .hero-card { border-radius: 24px; padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="header-placeholder"></div>
+
+  <!-- AdRoll -->
+  <script type="text/javascript">
+    adroll_adv_id = "BTDHW3J6VNF3HDDBJ5WGFX";
+    adroll_pix_id = "SJ52SD7GOFG4VKBVJU7XOJ";
+    adroll_version = "2.0";
+    (function(w, d, e, o, a) {
+      w.adroll_tag_source = w.adroll_tag_source || "manual";
+      w.__adroll_loaded = true;
+      w.adroll = w.adroll || [];
+      w.adroll.f = ['setProperties', 'identify', 'track', 'identify_email', 'get_cookie'];
+      var roundtripUrl = "https://s.adroll.com/j/" + adroll_adv_id + "/roundtrip.js";
+      for (a = 0; a < w.adroll.f.length; a++) {
+        w.adroll[w.adroll.f[a]] = w.adroll[w.adroll.f[a]] || (function(n) {
+          return function() { w.adroll.push([n, arguments]); }
+        })(w.adroll.f[a]);
+      }
+      e = d.createElement('script'); o = d.getElementsByTagName('script')[0];
+      e.async = 1; e.src = roundtripUrl; o.parentNode.insertBefore(e, o);
+    })(window, document);
+    adroll.track("pageView");
+  </script>
+
+  <!-- GTM -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-TPBF5VKB');</script>
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TPBF5VKB" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+  <!-- Meta Pixel -->
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '967958922481959');
+    fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=967958922481959&amp;ev=PageView&amp;noscript=1" /></noscript>
+
+  <main>
+
+    <!-- ── HERO ── -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-card">
+
+          <div>
+            <span class="hero-kicker">An HCCGC Initiative</span>
+            <h1 class="hero-title">
+              Sahyog Milan
+              <span class="hero-title-deva">सहयोग मिलन</span>
+            </h1>
+            <p class="hero-tagline">Connection, care, and community &mdash; a monthly gathering for our seniors.</p>
+            <p class="hero-copy">
+              Sahyog Milan brings seniors together through meaningful connections, engaging activities,
+              learning, and fellowship. Every month offers a welcoming space to meet new friends, share
+              experiences, stay active, and enjoy a real sense of belonging.
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="#signup">Sign Up</a>
+              <a class="btn btn-secondary" href="#about">What Happens</a>
+            </div>
+          </div>
+
+          <div class="hero-panel">
+            <div class="quick-card">
+              <div class="quick-card-icon">📅</div>
+              <div class="quick-card-body">
+                <h3>When</h3>
+                <p>Monthly<small>Date announced each month</small></p>
+              </div>
+            </div>
+            <div class="quick-card">
+              <div class="quick-card-icon">📍</div>
+              <div class="quick-card-body">
+                <h3>Where</h3>
+                <p>HCCGC<small>Mason, Ohio</small></p>
+              </div>
+            </div>
+            <div class="quick-card">
+              <div class="quick-card-icon">🍽️</div>
+              <div class="quick-card-body">
+                <h3>Includes</h3>
+                <p>A shared meal<small>Together, after the program</small></p>
+              </div>
+            </div>
+            <div class="quick-card">
+              <div class="quick-card-icon">🪷</div>
+              <div class="quick-card-body">
+                <h3>Who</h3>
+                <p>All seniors welcome<small>Local and visiting</small></p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── AT A GLANCE ── -->
+    <section class="section" style="padding-top: 0;">
+      <div class="container">
+        <div class="info-band">
+          <div class="info-card">
+            <div class="info-icon">🤝</div>
+            <h3>Connection</h3>
+            <p>Meet new friends and share experiences with people who understand your world.</p>
+          </div>
+          <div class="info-card">
+            <div class="info-icon">💛</div>
+            <h3>Care</h3>
+            <p>An unhurried, welcoming space where everyone is looked after.</p>
+          </div>
+          <div class="info-card">
+            <div class="info-icon">🏡</div>
+            <h3>Community</h3>
+            <p>Friendships that carry on well beyond the afternoon itself.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── ABOUT ── -->
+    <section id="about" class="section">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-kicker">About Sahyog Milan</span>
+          <h2>Where Our Seniors Come Together</h2>
+          <p class="section-copy narrow">
+            A monthly afternoon of learning, activity, entertainment, and good company &mdash; ending, as it should, around a shared table.
+          </p>
+        </div>
+
+        <div class="about-grid">
+
+          <div class="content-card">
+            <p>
+              Sahyog Milan is HCCGC&rsquo;s community initiative dedicated to bringing seniors together
+              through meaningful connections, engaging activities, learning, and fellowship.
+            </p>
+            <p>
+              Held as a monthly gathering, Sahyog Milan provides a welcoming space for local and visiting
+              seniors to meet new friends, share experiences, stay active, and enjoy a sense of belonging
+              within the community.
+            </p>
+            <p>
+              Each gathering features a thoughtful mix of informative talks, wellness and cultural
+              activities, interactive sessions, entertainment, and opportunities for conversation &mdash;
+              followed by a shared meal.
+            </p>
+            <div class="highlight-line">
+              At its heart, Sahyog Milan is about connection, care, and community &mdash; creating joyful
+              moments, encouraging lifelong learning, and building lasting friendships.
+            </div>
+          </div>
+
+          <div class="side-stack">
+
+            <div class="expect-card">
+              <h3>Every Gathering Includes</h3>
+              <ul class="clean-list">
+                <li><span>Informative talks on topics that matter to our seniors</span></li>
+                <li><span>Wellness and cultural activities</span></li>
+                <li><span>Interactive sessions everyone can take part in</span></li>
+                <li><span>Entertainment and performances</span></li>
+                <li><span>Unhurried time for conversation</span></li>
+                <li><span>A shared meal to close the afternoon</span></li>
+              </ul>
+            </div>
+
+            <div class="join-card">
+              <h3>Who It&rsquo;s For</h3>
+              <ul class="clean-list">
+                <li><span>Seniors living in and around Greater Cincinnati</span></li>
+                <li><span>Parents and relatives visiting from out of town</span></li>
+                <li><span>Anyone new to the area hoping to meet people</span></li>
+                <li><span>Regulars for whom Sahyog Milan is already part of the month</span></li>
+              </ul>
+              <p class="join-close">
+                Whether you are a regular participant or visiting the Cincinnati area, we warmly welcome
+                you to join us and be part of the Sahyog Milan family.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SIGN UP + SUPPORT ── -->
+    <section id="signup" class="section join-section">
+      <div class="container">
+
+        <div class="section-head">
+          <span class="section-kicker">Take Part</span>
+          <h2>Join Us &amp; Support Sahyog Milan</h2>
+          <p class="section-copy narrow">
+            Sign up to hear about the next gathering &mdash; and, if you are able, help us host it.
+          </p>
+        </div>
+
+        <div class="join-grid">
+
+          <div class="join-col">
+            <div class="col-head">
+              <h3>Sign Up</h3>
+              <p>Share your details and our team will be in touch with the date and details for the next gathering.</p>
+            </div>
+
+            <div class="form-notices">
+              <div class="form-notice">
+                <span class="form-notice-icon">🙏</span>
+                <span>There is no cost to take part &mdash; Sahyog Milan is open to every senior in our community.</span>
+              </div>
+              <div class="form-notice">
+                <span class="form-notice-icon">✉️</span>
+                <span>Sign up once and we will let you know about each month&rsquo;s gathering. You do not need to fill this in again.</span>
+              </div>
+              <div class="form-notice">
+                <span class="form-notice-icon">👪</span>
+                <span>Bringing a parent or relative who is visiting? They are very welcome &mdash; add their details too.</span>
+              </div>
+            </div>
+
+            <div class="embed-card form-card">
+              <div class="form-frame">
+                <iframe
+                  src="https://docs.google.com/forms/d/e/1FAIpQLSfNtKphaHdj6Ts4lyDgA9-5FZltd_TvI6qGo_nFBoLcjkPs7g/viewform?embedded=true"
+                  title="Sahyog Milan participation form"
+                  loading="lazy"
+                  marginheight="0"
+                  marginwidth="0"
+                  scrolling="no">
+                  Loading&hellip;
+                </iframe>
+              </div>
+            </div>
+          </div>
+
+          <div class="join-col" id="support">
+            <div class="col-head">
+              <h3>Support Sahyog Milan</h3>
+              <p>
+                Your gift helps us host each month&rsquo;s gathering &mdash; the speakers, the activities,
+                and the meal we share together.
+              </p>
+            </div>
+
+            <div class="embed-card donate-card">
+              <div>
+                <div data-zeffy-embed data-form-url="/embed/donation-form/sahayog-milan-donations"></div>
+                <div data-zeffy-embed-fallback style="display:none;">
+                  <div class="donate-frame">
+                    <iframe title="Donation form powered by Zeffy"
+                            data-zeffy-embed-src="https://www.zeffy.com/embed/donation-form/sahayog-milan-donations"
+                            allowpaymentrequest
+                            allowTransparency="true"
+                            scrolling="no"></iframe>
+                  </div>
+                </div>
+                <script
+                  src="https://www.zeffy.com/embed/v2/zeffy-embed.js"
+                  onerror="document.querySelectorAll('[data-zeffy-embed-fallback]').forEach(function(el){el.style.display='block';el.querySelectorAll('iframe[data-zeffy-embed-src]').forEach(function(f){f.src=f.getAttribute('data-zeffy-embed-src');});});">
+                </script>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <script>
+          // Zeffy's embed occasionally paints its own scrollbars inside the
+          // frame, which reads as a box-in-a-box on this page. It settles
+          // asynchronously, so this runs a few times rather than once.
+          function tidyEmbeddedFrames() {
+            document.querySelectorAll('.embed-card iframe').forEach(function (frame) {
+              frame.setAttribute('scrolling', 'no');
+              frame.style.overflow = 'hidden';
+              frame.style.display = 'block';
+              frame.style.width = '100%';
+              frame.style.border = '0';
+            });
+          }
+          window.addEventListener('load', tidyEmbeddedFrames);
+          setTimeout(tidyEmbeddedFrames, 700);
+          setTimeout(tidyEmbeddedFrames, 1800);
+          setTimeout(tidyEmbeddedFrames, 3500);
+        </script>
+
+      </div>
+    </section>
+
+  </main>
+
+  <div id="footer-placeholder"></div>
+
+  <script>
+    async function loadPartial(placeholderId, filePath) {
+      const target = document.getElementById(placeholderId);
+      if (!target) return;
+      try {
+        const response = await fetch(filePath);
+        if (!response.ok) throw new Error("Unable to load " + filePath);
+        target.innerHTML = await response.text();
+      } catch (error) {
+        console.error(error);
+        target.innerHTML = "";
+      }
+    }
+
+    async function initializePage() {
+      await loadPartial("header-placeholder", "header.html");
+      await loadPartial("footer-placeholder", "footer.html");
+
+      const year = document.getElementById("year");
+      if (year) {
+        year.textContent = new Date().getFullYear();
+      }
+    }
+
+    initializePage();
+  </script>
+</body>
+</html>

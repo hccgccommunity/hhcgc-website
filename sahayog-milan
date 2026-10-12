@@ -262,6 +262,15 @@
       background: linear-gradient(135deg, var(--saffron-bright), var(--saffron-dark));
     }
 
+    /* Sign Up stays the one filled button. Donate is an action too, not
+       navigation like "What Happens", so it carries maroon rather than
+       sharing the plain secondary style. */
+    .btn-donate {
+      color: var(--maroon);
+      background: #fff;
+      border-color: var(--maroon);
+    }
+
     .btn-secondary {
       color: var(--saffron-dark);
       background: #fff;
@@ -642,6 +651,7 @@
       font-size: 0.98rem;
     }
 
+    .join-col { scroll-margin-top: var(--header-offset); }
     .join-col .form-notices { margin-top: 14px; }
     .join-col .embed-card { margin-top: 18px; }
 
@@ -766,6 +776,7 @@
             </p>
             <div class="hero-actions">
               <a class="btn btn-primary" href="#signup">Sign Up</a>
+              <a class="btn btn-donate" href="#support">Donate Now</a>
               <a class="btn btn-secondary" href="#about">What Happens</a>
             </div>
           </div>

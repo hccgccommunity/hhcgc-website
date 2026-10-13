@@ -6742,11 +6742,15 @@ async function runAmendPreview() {
     const data = await res.json();
     if (!res.ok) {
       amendLastPreview = null;
+      const build = data && data.serverBuild;
       body.innerHTML = '<div class="amend-balance blocked">' +
-        escHtml(apiErrorText(data, res, 'Could not check that slot.')) + '</div>';
+        escHtml(apiErrorText(data, res, 'Could not check that slot.')) +
+        (build ? '' : '<br><span style="font-size:0.78rem;">If this mentions a time value, the API may still be running an older build \u2014 redeploy index.js.</span>') +
+      '</div>';
       return;
     }
     amendLastPreview = data;
+    window.__hccgcServerBuild = data.serverBuild || window.__hccgcServerBuild;
     renderAmendPreview(data);
   } catch (err) {
     amendLastPreview = null;

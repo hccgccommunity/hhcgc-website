@@ -3192,6 +3192,21 @@ function groupInvoicesIntoDisplayItems(list) {
   });
   return items;
 }
+// A billing unit is paid when every occurrence it covers is paid.
+// Cancelled occurrences are excluded - they are never going to be paid and
+// should not hold the group open forever.
+//
+// The combined-series row used to read the FIRST occurrence's status
+// instead, via a representative record. Any series with a cancelled date
+// among the live ones therefore came out "mixed", fell back to
+// occurrences[0], and if that one happened to be the cancelled date the row
+// still offered Mark paid long after everything payable had been paid and
+// the receipt sent.
+function invGroupAllPaid(occurrences) {
+  const live = (occurrences || []).filter(function (o) { return o.paymentStatus !== 'cancelled'; });
+  return live.length > 0 && live.every(function (o) { return o.paymentStatus === 'paid'; });
+}
+
 function invContactNameFor(item) {
   return item.type === 'single' ? item.invoice.renterName : item.renterName;
 }
@@ -3263,18 +3278,23 @@ function renderInvoicesTable() {
     } else {
       // Combined billing - the group IS the invoice, using the first
       // occurrence as the representative record.
-      const repOcc = { ...item.occurrences[0], amount: item.amount, invoiceSentAt: item.invoiceSentAt, paymentStatus: item.paymentStatus === 'mixed' ? item.occurrences[0].paymentStatus : item.paymentStatus };
+      const seriesAllPaid = invGroupAllPaid(item.occurrences);
+      const repOcc = { ...item.occurrences[0], amount: item.amount, invoiceSentAt: item.invoiceSentAt,
+        paymentStatus: seriesAllPaid ? 'paid'
+          : (item.paymentStatus === 'mixed' ? item.occurrences[0].paymentStatus : item.paymentStatus) };
       const noteBtn = '<button type="button" class="btn-note' + (repOcc.notes ? ' has-content' : '') + '" title="' + (repOcc.notes ? 'Note: ' + escHtml(repOcc.notes) : 'Add a note') + '" data-invoice-note-booking="' + repOcc.bookingId + '">\ud83d\udcdd</button>';
       const invoiceIcon = repOcc.invoiceSentAt
         ? '<button type="button" class="btn-invoice sent" title="Invoice sent ' + formatTimestampDate(repOcc.invoiceSentAt) + ' — click to view or download" data-invoice-popup-booking="' + repOcc.bookingId + '">\ud83d\udcc4</button>'
         : '<button type="button" class="btn-invoice attached" title="Not sent yet — click to view, send, or download" data-invoice-popup-booking="' + repOcc.bookingId + '">\ud83d\udcc4</button>';
       const receiptIcon = repOcc.receiptSentAt
         ? '<button type="button" class="btn-receipt sent" title="Receipt sent ' + formatTimestampDate(repOcc.receiptSentAt) + ' — click to view or download" data-receipt-popup-booking="' + repOcc.bookingId + '">\ud83e\uddfe</button>'
-        : (repOcc.paymentStatus === 'paid'
+        : (seriesAllPaid
             ? '<button type="button" class="btn-receipt attached" title="Not sent yet — click to view, send, or download" data-receipt-popup-booking="' + repOcc.bookingId + '">\ud83e\uddfe</button>'
             : '<button type="button" class="btn-receipt greyed" disabled title="Confirm as paid first">\ud83e\uddfe</button>');
-      const paymentCell = repOcc.paymentStatus === 'paid'
-        ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid' + (repOcc.paymentMethod ? ' \u00b7 ' + escHtml(repOcc.paymentMethod) : '') + '</span>'
+      const paidMethod = repOcc.paymentMethod ||
+        (item.occurrences.find(function (o) { return o.paymentStatus === 'paid' && o.paymentMethod; }) || {}).paymentMethod;
+      const paymentCell = seriesAllPaid
+        ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid' + (paidMethod ? ' \u00b7 ' + escHtml(paidMethod) : '') + '</span>'
         : (repOcc.invoiceSentAt
             ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + repOcc.bookingId + '">Mark paid</button>'
             : '<span style="color:var(--muted);font-size:0.78rem;" title="Send the invoice first">&mdash;</span>');

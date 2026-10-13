@@ -2828,7 +2828,17 @@ async function loadInvoices() {
   try {
     const params = new URLSearchParams({ startDate: start, endDate: end, sort: invSortKey, dir: invSortDir });
     const res = await authedFetch(API_BASE + '/finance/invoices?' + params.toString());
-    INVOICES = await res.json();
+    const data = await res.json();
+    // A non-OK response is a JSON error object, not a list. Assigning it
+    // straight to INVOICES turned every server-side failure into
+    // "list.forEach is not a function", which says nothing about what
+    // actually went wrong.
+    if (!res.ok) {
+      throw new Error((data && data.errors ? data.errors.join(' ') : null) ||
+        (data && data.error) || ('the server returned ' + res.status));
+    }
+    if (!Array.isArray(data)) throw new Error('the server sent back something unexpected.');
+    INVOICES = data;
     invPage = 1;
     renderInvoicesTable();
   } catch (err) {

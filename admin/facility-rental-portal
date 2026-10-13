@@ -6648,6 +6648,23 @@ window.addEventListener('beforeunload', function (e) {
 // editing, re-invoicing and re-marking paid - three emails for what is, to
 // them, one change. Amend does it in one step: the payment stays put, any
 // difference in price is carried as a balance, and one notice goes out.
+// The API speaks two error shapes: {errors:[...]} from its own validation,
+// but {error:"..."} from the 404 and 500 handlers. Reading only the first
+// turned every routing or server fault into a bland "could not check that
+// slot", which said nothing about what was actually wrong.
+function apiErrorText(data, res, fallback) {
+  const many = data && Array.isArray(data.errors) && data.errors.length ? data.errors.join(' ') : null;
+  const one = data && typeof data.error === 'string' && data.error ? data.error : null;
+  if (many || one) {
+    // A 404 on a route the page knows about means the portal is newer than
+    // the API. Say so rather than leaving someone to guess.
+    return (res && res.status === 404)
+      ? 'This action is not available on the server yet \u2014 the API needs the latest deploy. (' + (many || one) + ')'
+      : (many || one);
+  }
+  return fallback + (res ? ' (the server returned ' + res.status + ')' : '');
+}
+
 let amendingBookingId = null;
 let amendPreviewTimer = null;
 let amendLastPreview = null;
@@ -6725,7 +6742,8 @@ async function runAmendPreview() {
     const data = await res.json();
     if (!res.ok) {
       amendLastPreview = null;
-      body.innerHTML = '<div class="amend-balance blocked">' + escHtml((data.errors || ['Could not check that slot.']).join(' ')) + '</div>';
+      body.innerHTML = '<div class="amend-balance blocked">' +
+        escHtml(apiErrorText(data, res, 'Could not check that slot.')) + '</div>';
       return;
     }
     amendLastPreview = data;
@@ -6855,7 +6873,7 @@ document.getElementById('btn-save-amend').addEventListener('click', async functi
       body: JSON.stringify(Object.assign({ reason: reason, notifyRenter: notify }, v))
     });
     const data = await res.json();
-    if (!res.ok) { show('error', (data.errors || ['Something went wrong.']).join(' ')); return; }
+    if (!res.ok) { show('error', apiErrorText(data, res, 'Something went wrong.')); return; }
     let msg = 'Amended.';
     if (data.renterNotified) msg += ' One email sent to the customer.';
     else if (data.emailError) msg += ' The booking is saved, but the email did not go out: ' + data.emailError;

@@ -1238,6 +1238,14 @@ tr.series-row:hover td { background: var(--surface-soft); }
 .result-box.success { background: var(--green-bg); color: var(--green); border: 1px solid rgba(46,125,79,0.25); }
 .result-box.error { background: var(--red-bg); color: var(--red); border: 1px solid rgba(179,56,44,0.25); }
 
+/* ---- Amendment balance ---- */
+.bal-chip { font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; margin-left: 6px; white-space: nowrap; }
+.bal-chip.due { background: var(--amber-bg); color: var(--amber); }
+.bal-chip.refund { background: var(--green-bg); color: var(--green); }
+.bal-note { margin: 8px 0 0; padding: 10px 13px; border-radius: 9px; font-size: 0.82rem; line-height: 1.55; }
+.bal-note.due { background: var(--amber-bg); color: var(--amber); }
+.bal-note.refund { background: var(--green-bg); color: var(--green); }
+
     /* Y-axis scale for the income/expense trend. */
     .trend-plot { position: relative; padding-left: 62px; }
     .trend-axis { position: absolute; left: 0; bottom: 26px; width: 62px; height: 150px; }
@@ -3706,8 +3714,26 @@ function openFinanceInvoicePopup(bookingId) {
   // than the button being hidden and the work handed to someone else.
   const invIsPaid = inv.paymentStatus === 'paid';
   const canVoid = alreadySent;
+  // An amendment can leave the customer owing a difference, or us owing
+  // them one. No money moves in this system, so the only thing to record
+  // here is that someone has settled it.
+  const bal = Number(inv.balance) || 0;
+  if (Math.abs(bal) >= 0.005) {
+    html += '<button type="button" class="invoice-action-btn primary" data-fin-inv-action="settle-balance">' +
+      (bal > 0 ? 'Record ' + money(bal) + ' collected' : 'Record ' + money(Math.abs(bal)) + ' refunded') + '</button>';
+  }
   if (canVoid) {
     html += '<button type="button" class="invoice-action-btn" data-fin-inv-action="void" style="color:var(--red);border-color:var(--red);">Void invoice</button>';
+  }
+  if (Math.abs(bal) >= 0.005) {
+    html += '<p class="bal-note ' + (bal > 0 ? 'due' : 'refund') + '">' +
+      (bal > 0
+        ? 'Amended after payment. The customer paid ' + money(inv.amountPaid) +
+          ' and now owes <strong>' + money(bal) + '</strong>. Collect it, then record it here.'
+        : 'Amended after payment. The customer paid ' + money(inv.amountPaid) +
+          ' and is owed <strong>' + money(Math.abs(bal)) + '</strong> back. Refund it in Zeffy, then record it here.') +
+      (inv.lastAmendmentReason ? '<br>Reason given: ' + escHtml(inv.lastAmendmentReason) : '') +
+      '</p>';
   }
   html += alreadySent
     ? '<p class="card-sub" style="margin:6px 0 0;">Sent ' + formatTimestampDate(inv.invoiceSentAt) + '.'
@@ -3738,6 +3764,27 @@ document.getElementById('invoice-action-body').addEventListener('click', async f
       if (!msRes.ok) { alert((msData.errors || [msData.error]).join(' ') || 'Could not mark as sent.'); return; }
       await loadInvoices();
     } catch (err) { alert('Could not reach the server: ' + err.message); }
+    return;
+  }
+  if (btn.dataset.finInvAction === 'settle-balance') {
+    const inv = INVOICES.find(function (i) { return i.bookingId === bookingId; });
+    const bal = inv ? (Number(inv.balance) || 0) : 0;
+    const collected = bal > 0;
+    if (!confirm((collected
+      ? 'Record that ' + money(bal) + ' has been collected from ' + (inv ? inv.renterName : 'the customer') + '?'
+      : 'Record that ' + money(Math.abs(bal)) + ' has been refunded to ' + (inv ? inv.renterName : 'the customer') + '?') +
+      '\n\nThis only updates the record — it does not move any money.')) return;
+    document.getElementById('invoice-action-overlay').style.display = 'none';
+    try {
+      const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(bookingId) + '/settle-balance', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({})
+      });
+      const data = await res.json();
+      if (!res.ok) { alert('Could not record that: ' + ((data.errors || [data.error]).join(' ') || 'unknown error')); return; }
+      await loadInvoices();
+    } catch (err) {
+      alert('Could not reach the server: ' + err.message);
+    }
     return;
   }
   if (btn.dataset.finInvAction === 'void') {

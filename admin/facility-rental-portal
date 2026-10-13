@@ -848,6 +848,31 @@ a.ce-att:hover { border-color: var(--saffron); }
   .terms-meta { grid-template-columns: 1fr; }
   .terms-head-actions { width: 100%; }
 }
+
+/* ---- Amend booking ---- */
+.amend-when { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 14px; }
+@media (max-width: 620px) { .amend-when { grid-template-columns: 1fr; } }
+.amend-note { font-size: 0.82rem; color: var(--muted); background: var(--surface-soft); border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; margin-bottom: 16px; line-height: 1.6; }
+.amend-diff { border: 1.5px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-top: 4px; background: #fff; }
+.amend-diff h4 { font-family: Georgia, "Times New Roman", serif; font-size: 0.95rem; color: var(--maroon); margin-bottom: 10px; }
+.amend-diff-row { display: grid; grid-template-columns: 74px 1fr auto 1fr; gap: 8px; align-items: baseline; font-size: 0.85rem; padding: 5px 0; }
+.amend-diff-row .k { color: var(--muted); font-weight: 700; font-size: 0.78rem; }
+.amend-diff-row .from { color: var(--muted); text-decoration: line-through; }
+.amend-diff-row .arrow { color: var(--saffron-dark); font-weight: 700; }
+.amend-diff-row .to { font-weight: 700; }
+.amend-diff-none { font-size: 0.85rem; color: var(--muted); font-style: italic; }
+.amend-money { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 0.85rem; }
+.amend-money table { width: 100%; border-collapse: collapse; }
+.amend-money td { padding: 3px 0; }
+.amend-money td:last-child { text-align: right; font-weight: 700; }
+.amend-balance { margin-top: 10px; padding: 9px 12px; border-radius: 9px; font-size: 0.85rem; font-weight: 700; }
+.amend-balance.square { background: var(--green-bg); color: var(--green); }
+.amend-balance.due { background: var(--amber-bg); color: var(--amber); }
+.amend-balance.refund { background: var(--green-bg); color: var(--green); }
+.amend-balance.blocked { background: var(--red-bg); color: var(--red); font-weight: 400; line-height: 1.55; }
+.balance-chip { font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; margin-left: 6px; white-space: nowrap; }
+.balance-chip.due { background: var(--amber-bg); color: var(--amber); }
+.balance-chip.refund { background: var(--green-bg); color: var(--green); }
 </style>
 </head>
 <body>
@@ -1104,6 +1129,45 @@ a.ce-att:hover { border-color: var(--saffron); }
     <div class="modal-footer">
       <button type="button" class="btn-secondary" id="btn-cancel-edit-modal">Close</button>
       <button type="button" class="btn-primary" id="btn-save-edit">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="amend-modal-overlay" style="display:none;">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <h2 id="amend-modal-title">Amend booking</h2>
+      <button class="modal-close" id="btn-close-amend">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="amend-note" id="amend-intro"></div>
+
+      <div class="amend-when">
+        <div class="field"><label>Date</label><input type="date" id="amend-date"></div>
+        <div class="field"><label>Start</label><input type="time" id="amend-start" list="common-times"></div>
+        <div class="field"><label>End</label><input type="time" id="amend-end" list="common-times"></div>
+      </div>
+      <div class="field"><label>Rooms</label><div class="modal-room-picker" id="amend-room-picker"></div></div>
+
+      <div class="amend-diff" id="amend-diff">
+        <h4>What changes</h4>
+        <div id="amend-diff-body"><span class="amend-diff-none">Checking&hellip;</span></div>
+      </div>
+
+      <div class="field" style="margin-top:16px;">
+        <label>Reason (required &mdash; kept with the booking and shown in its history)</label>
+        <input type="text" id="amend-reason" placeholder="e.g. Customer asked to start two hours earlier">
+      </div>
+      <label style="display:flex;align-items:center;gap:9px;font-size:0.85rem;color:var(--text);cursor:pointer;">
+        <input type="checkbox" id="amend-notify" checked>
+        <span>Email the customer one notice covering all of this</span>
+      </label>
+
+      <div class="result-box" id="amend-result-box" style="display:none;"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-cancel-amend">Close</button>
+      <button type="button" class="btn-primary" id="btn-save-amend">Save and notify</button>
     </div>
   </div>
 </div>
@@ -2287,6 +2351,11 @@ function getColumnCellHtml(columnKey, data, isSubRow) {
       return '<td>' + data.hours + '</td>';
     case 'final_total': {
       let amt = '$' + Number(data.final_total).toFixed(2);
+      if (!isSeries) {
+        const bal = bookingBalance(data);
+        if (bal > 0.005) amt += ' <span class="balance-chip due">' + money(bal) + ' due</span>';
+        else if (bal < -0.005) amt += ' <span class="balance-chip refund">' + money(Math.abs(bal)) + ' refund</span>';
+      }
       if (isSeries) amt += ' <span class="method-tag">total</span>';
       return '<td class="amount">' + amt + '</td>';
     }
@@ -2376,12 +2445,19 @@ function renderBookingRow(b, isSubRow, seriesPerOccurrenceMode) {
   // everyone sees Edit and everyone gets told to void it first. Hiding the
   // option only left people unable to see what the route was.
   const invoiceAlreadySent = !!b.invoice_sent_at;
+  // Amend is the route for a booking the customer already holds paperwork
+  // for: it changes the slot, keeps the payment where it is, and sends one
+  // email instead of a void notice, a fresh invoice and a receipt.
+  const isSettled = !b.is_internal && (invoiceAlreadySent || b.payment_status === 'paid');
+  const canAmend = isSettled && notCancelled && b.payment_status !== 'requested' && !isBookingPast(b);
   const actions = [];
-  if (canEditThis) {
-    actions.push({
-      label: 'Edit',
-      fn: () => invoiceAlreadySent ? showInvoiceSentEditNotice() : openEditModal(b.booking_id)
-    });
+  if (canEditThis && !invoiceAlreadySent) {
+    actions.push({ label: 'Edit', fn: () => openEditModal(b.booking_id) });
+  }
+  if (canAmend) {
+    actions.push({ label: 'Amend date or time', fn: () => openAmendModal(b.booking_id) });
+  } else if (canEditThis && invoiceAlreadySent) {
+    actions.push({ label: 'Edit', fn: () => showInvoiceSentEditNotice() });
   }
   if (notCancelled && !locked) actions.push({ label: 'Cancel', danger: true, fn: () => cancelBookingFlow(b.booking_id) });
 
@@ -2392,10 +2468,15 @@ function renderBookingRow(b, isSubRow, seriesPerOccurrenceMode) {
   // occurrence, re-splitting any booking-wide discount across the rest.
   // Without this the only route was Edit series, whose room picker applies
   // to every date at once, so there was no way to add a room to one date.
-  const subRowActions = (treatAsSubRow && canEditThis) ? [{
-    label: 'Edit this date',
-    fn: () => invoiceAlreadySent ? showInvoiceSentEditNotice() : openEditModal(b.booking_id)
-  }] : [];
+  const subRowActions = [];
+  if (treatAsSubRow && canAmend) {
+    subRowActions.push({ label: 'Amend this date', fn: () => openAmendModal(b.booking_id) });
+  } else if (treatAsSubRow && canEditThis) {
+    subRowActions.push({
+      label: 'Edit this date',
+      fn: () => invoiceAlreadySent ? showInvoiceSentEditNotice() : openEditModal(b.booking_id)
+    });
+  }
   const actionsCell = treatAsSubRow
     ? '<td>' + renderActionsKebab(b.booking_id, subRowActions) + '</td>'
     : '<td><div style="display:flex;align-items:center;gap:8px;">' + actionIcons(b) + renderActionsKebab(b.booking_id, actions) + '</div></td>';
@@ -6558,6 +6639,241 @@ function initRentalTermsTab() {
 // A half-written set of terms is easy to lose by closing the tab.
 window.addEventListener('beforeunload', function (e) {
   if (termsDirty()) { e.preventDefault(); e.returnValue = ''; }
+});
+
+
+// ---- Amend booking ------------------------------------------------------
+// Changing a booking the customer has already paid for used to mean voiding
+// the invoice (which reversed the payment and un-linked the transaction),
+// editing, re-invoicing and re-marking paid - three emails for what is, to
+// them, one change. Amend does it in one step: the payment stays put, any
+// difference in price is carried as a balance, and one notice goes out.
+let amendingBookingId = null;
+let amendPreviewTimer = null;
+let amendLastPreview = null;
+
+// amount_paid is NULL on everything that predates amendments, and NULL
+// reads as "paid in full" - mirrors amountPaidOf() on the server.
+function bookingAmountPaid(b) {
+  if (b.amount_paid === null || b.amount_paid === undefined) {
+    return b.payment_status === 'paid' ? (Number(b.final_total) || 0) : 0;
+  }
+  return Number(b.amount_paid) || 0;
+}
+function bookingBalance(b) {
+  // Only meaningful once an amendment has actually set a figure; an
+  // ordinary unpaid invoice is not a "balance" worth flagging.
+  if (b.amount_paid === null || b.amount_paid === undefined) return 0;
+  return Math.round(((Number(b.final_total) || 0) - bookingAmountPaid(b)) * 100) / 100;
+}
+
+function buildAmendRoomPicker() {
+  const host = document.getElementById('amend-room-picker');
+  host.innerHTML = EDIT_ROOMS.map(function (r) {
+    const rateText = r.rate > 0 ? ('$' + r.rate + '/hr') : 'Free';
+    return '<label class="modal-room-check"><input type="checkbox" class="amend-room-cb" value="' + escHtml(r.name) + '"> ' + escHtml(r.name) + '<span class="rate">' + rateText + '</span></label>';
+  }).join('');
+  host.querySelectorAll('.amend-room-cb').forEach(function (cb) {
+    cb.addEventListener('change', function () { enforceAmendKitchenRule(); scheduleAmendPreview(); });
+  });
+}
+
+// Same rule the server enforces - catch it here so the preview does not
+// spend a round trip telling them something the form already knows.
+function enforceAmendKitchenRule() {
+  const picked = Array.from(document.querySelectorAll('.amend-room-cb:checked')).map(function (cb) { return cb.value; });
+  const kitchen = Array.from(document.querySelectorAll('.amend-room-cb')).find(function (cb) { return cb.value === 'Kitchen'; });
+  if (!kitchen) return;
+  const allowed = picked.includes('Surya Hall') || picked.includes('Patanjali Hall');
+  if (!allowed && kitchen.checked) kitchen.checked = false;
+  kitchen.disabled = !allowed;
+  kitchen.closest('.modal-room-check').style.opacity = allowed ? '1' : '0.45';
+}
+
+function amendFormValues() {
+  return {
+    eventDate: document.getElementById('amend-date').value,
+    startTime: document.getElementById('amend-start').value,
+    endTime: document.getElementById('amend-end').value,
+    rooms: Array.from(document.querySelectorAll('.amend-room-cb:checked')).map(function (cb) { return cb.value; })
+  };
+}
+
+function scheduleAmendPreview() {
+  clearTimeout(amendPreviewTimer);
+  amendPreviewTimer = setTimeout(runAmendPreview, 280);
+}
+
+// The money comes from the server, not from a second pricing
+// implementation here - a preview that disagrees with the save is worse
+// than no preview.
+async function runAmendPreview() {
+  if (!amendingBookingId) return;
+  const body = document.getElementById('amend-diff-body');
+  const v = amendFormValues();
+  if (!v.eventDate || !v.startTime || !v.endTime || !v.rooms.length) {
+    amendLastPreview = null;
+    body.innerHTML = '<span class="amend-diff-none">Pick a date, a start and end time, and at least one room.</span>';
+    return;
+  }
+  body.innerHTML = '<span class="amend-diff-none">Checking&hellip;</span>';
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(amendingBookingId) + '/amend', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({ preview: true }, v))
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      amendLastPreview = null;
+      body.innerHTML = '<div class="amend-balance blocked">' + escHtml((data.errors || ['Could not check that slot.']).join(' ')) + '</div>';
+      return;
+    }
+    amendLastPreview = data;
+    renderAmendPreview(data);
+  } catch (err) {
+    amendLastPreview = null;
+    body.innerHTML = '<div class="amend-balance blocked">Could not reach the booking system: ' + escHtml(err.message) + '</div>';
+  }
+}
+
+function renderAmendPreview(d) {
+  const body = document.getElementById('amend-diff-body');
+  let html = '';
+  if (!d.changes.length) {
+    html += '<span class="amend-diff-none">Nothing has changed yet.</span>';
+  } else {
+    html += d.changes.map(function (c) {
+      return '<div class="amend-diff-row">' +
+        '<span class="k">' + escHtml(c.label) + '</span>' +
+        '<span class="from">' + escHtml(c.from) + '</span>' +
+        '<span class="arrow">&rarr;</span>' +
+        '<span class="to">' + escHtml(c.to) + '</span>' +
+      '</div>';
+    }).join('');
+  }
+
+  html += '<div class="amend-money"><table>' +
+    '<tr><td>Total before</td><td>' + money(d.oldTotal) + '</td></tr>' +
+    '<tr><td>Total after</td><td>' + money(d.newTotal) + '</td></tr>' +
+    '<tr><td>Paid so far</td><td>' + money(d.paid) + '</td></tr>' +
+  '</table>';
+
+  if (Math.abs(d.balance) < 0.005) {
+    html += '<div class="amend-balance square">Nothing owed either way &mdash; the payment on file covers it.</div>';
+  } else if (d.balance > 0) {
+    html += '<div class="amend-balance due">' + money(d.balance) + ' will be due from the customer. ' +
+      'The payment already on file stays where it is.</div>';
+  } else {
+    html += '<div class="amend-balance refund">' + money(Math.abs(d.balance)) + ' will be owed back to the customer. ' +
+      'Refund it in Zeffy, then mark the balance settled in Finance.</div>';
+  }
+  html += '</div>';
+  body.innerHTML = html;
+}
+
+function openAmendModal(bookingId) {
+  const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
+  if (!b) return;
+  amendingBookingId = bookingId;
+  amendLastPreview = null;
+
+  buildAmendRoomPicker();
+
+  document.getElementById('amend-date').value = b.event_date;
+  document.getElementById('amend-start').value = utcIsoToEasternTimeInput(b.start_time);
+  document.getElementById('amend-end').value = utcIsoToEasternTimeInput(b.end_time);
+  document.querySelectorAll('.amend-room-cb').forEach(function (cb) { cb.checked = (b.rooms || []).includes(cb.value); });
+  enforceAmendKitchenRule();
+
+  document.getElementById('amend-reason').value = '';
+  document.getElementById('amend-notify').checked = true;
+  document.getElementById('amend-result-box').style.display = 'none';
+
+  const paidAlready = b.payment_status === 'paid';
+  const seriesTogether = !!b.recurring_series_id && b.invoice_mode !== 'per_occurrence';
+  document.getElementById('amend-modal-title').textContent = 'Amend booking';
+  document.getElementById('amend-intro').innerHTML =
+    'Move this booking without unwinding it. ' +
+    (paidAlready
+      ? 'The payment on file and its matched transaction stay exactly where they are.'
+      : 'The invoice the customer is holding will be replaced by the notice below.') +
+    ' The customer gets <strong>one</strong> email covering everything that changed.' +
+    (seriesTogether
+      ? '<br><br>This date is part of a series billed as one invoice, so the new slot has to price the same. ' +
+        'If it does not, you will be told before anything is saved.'
+      : '');
+
+  document.getElementById('amend-modal-overlay').style.display = 'flex';
+  runAmendPreview();
+}
+
+function closeAmendModal() {
+  document.getElementById('amend-modal-overlay').style.display = 'none';
+  amendingBookingId = null;
+  amendLastPreview = null;
+  clearTimeout(amendPreviewTimer);
+}
+
+['amend-date', 'amend-start', 'amend-end'].forEach(function (id) {
+  document.getElementById(id).addEventListener('input', scheduleAmendPreview);
+  document.getElementById(id).addEventListener('change', scheduleAmendPreview);
+});
+document.getElementById('btn-close-amend').addEventListener('click', closeAmendModal);
+document.getElementById('btn-cancel-amend').addEventListener('click', closeAmendModal);
+document.getElementById('amend-modal-overlay').addEventListener('click', function (e) {
+  if (e.target === this) closeAmendModal();
+});
+document.getElementById('amend-notify').addEventListener('change', function () {
+  document.getElementById('btn-save-amend').textContent = this.checked ? 'Save and notify' : 'Save without emailing';
+});
+
+document.getElementById('btn-save-amend').addEventListener('click', async function () {
+  const btn = this;
+  const box = document.getElementById('amend-result-box');
+  const v = amendFormValues();
+  const reason = document.getElementById('amend-reason').value.trim();
+  const notify = document.getElementById('amend-notify').checked;
+
+  const show = function (type, msg) {
+    box.style.display = 'block'; box.className = 'result-box ' + type; box.textContent = msg;
+  };
+  if (!v.eventDate || !v.startTime || !v.endTime || !v.rooms.length) { show('error', 'Pick a date, a start and end time, and at least one room.'); return; }
+  if (!reason) { show('error', 'Add a reason — it is kept with the booking and shows in its history.'); return; }
+  if (amendLastPreview && !amendLastPreview.changes.length) { show('error', 'Nothing has changed, so there is nothing to amend.'); return; }
+
+  if (amendLastPreview && Math.abs(amendLastPreview.balance) >= 0.005) {
+    const owed = amendLastPreview.balance > 0
+      ? money(amendLastPreview.balance) + ' will be due from the customer.'
+      : money(Math.abs(amendLastPreview.balance)) + ' will be owed back to the customer.';
+    if (!confirm('This changes the price.\n\n' + owed + '\n\nNo money moves on its own — settle it in Zeffy, then mark the balance settled in Finance. Go ahead?')) return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/' + encodeURIComponent(amendingBookingId) + '/amend', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({ reason: reason, notifyRenter: notify }, v))
+    });
+    const data = await res.json();
+    if (!res.ok) { show('error', (data.errors || ['Something went wrong.']).join(' ')); return; }
+    let msg = 'Amended.';
+    if (data.renterNotified) msg += ' One email sent to the customer.';
+    else if (data.emailError) msg += ' The booking is saved, but the email did not go out: ' + data.emailError;
+    else msg += ' No email sent.';
+    if (Math.abs(data.balance) >= 0.005) {
+      msg += data.balance > 0
+        ? ' ' + money(data.balance) + ' is now due — collect it, then mark the balance settled in Finance.'
+        : ' ' + money(Math.abs(data.balance)) + ' is owed back — refund it, then mark the balance settled in Finance.';
+    }
+    show('success', msg);
+    await loadBookings();
+    setTimeout(closeAmendModal, Math.abs(data.balance) >= 0.005 ? 3200 : 1200);
+  } catch (err) {
+    show('error', 'Could not reach the booking system: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = document.getElementById('amend-notify').checked ? 'Save and notify' : 'Save without emailing';
+  }
 });
 
 document.querySelectorAll('.tab-btn').forEach(function (btn) {

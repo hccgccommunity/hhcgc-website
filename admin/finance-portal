@@ -318,7 +318,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
 <div class="page-hero">
   <div class="container">
     <a class="back-link" href="https://hccgc.org/admin/admin-portal">&larr; Back to apps</a>
-    <h1>Finance <span id="portal-build" style="font-size:0.6rem;font-weight:400;color:rgba(255,255,255,0.55);vertical-align:middle;letter-spacing:0.04em;">build 2026-10-19-c</span></h1>
+    <h1>Finance <span id="portal-build" style="font-size:0.6rem;font-weight:400;color:rgba(255,255,255,0.55);vertical-align:middle;letter-spacing:0.04em;">build 2026-10-19-d</span></h1>
     <p>Categorize every transaction, reconcile Zeffy payouts, and generate the Statement of Activities — one place for all of it.</p>
   </div>
 </div>
@@ -3070,11 +3070,29 @@ function renderInvoiceRow(inv, isSubRow, showFullActions) {
     // individual occurrences show only their date and amount, not their
     // own independent invoice/receipt/payment actions (those only make
     // sense once, at the group row, not repeated per occurrence).
+    // These cells used to be empty. One invoice covers the group, so the
+    // per-date invoice/receipt/payment ACTIONS genuinely do not belong
+    // here - but hiding the per-date STATE meant a month could insist it
+    // was unpaid with nothing on screen to say which date disagreed, or
+    // why. Read-only, no actions, just what the record says.
+    const st = inv.paymentStatus || 'unknown';
+    const stColor = st === 'paid' ? 'var(--green)'
+      : st === 'voided' ? 'var(--amber)'
+      : st === 'cancelled' ? 'var(--red)' : 'var(--muted)';
+    const sent = [];
+    if (inv.invoiceSentAt) sent.push('invoice sent ' + formatTimestampDate(inv.invoiceSentAt));
+    else sent.push('invoice not sent');
+    if (inv.receiptSentAt) sent.push('receipt sent ' + formatTimestampDate(inv.receiptSentAt));
+    const payable = (st === 'pending' || st === 'invoiced');
     return '<tr class="sub-row">' +
       '<td></td>' +
       '<td style="color:var(--muted);font-size:0.86rem;">' + formatDate(inv.eventDate) + '</td>' +
       '<td class="amount" style="color:var(--muted);">' + money(inv.amount) + '</td>' +
-      '<td colspan="6"></td>' +
+      '<td colspan="6" style="font-size:0.78rem;color:var(--muted);">' +
+        '<span style="color:' + stColor + ';font-weight:700;">' + escHtml(st) + '</span>' +
+        '<span style="margin-left:8px;">' + escHtml(sent.join(' \u00b7 ')) + '</span>' +
+        (payable ? '' : '<span style="margin-left:8px;opacity:0.75;">(not markable)</span>') +
+      '</td>' +
     '</tr>';
   }
   const noteBtn = '<button type="button" class="btn-note' + (inv.notes ? ' has-content' : '') + '" title="' + (inv.notes ? 'Note: ' + escHtml(inv.notes) : 'Add a note') + '" data-invoice-note-booking="' + inv.bookingId + '">\ud83d\udcdd</button>';
@@ -3202,7 +3220,7 @@ function groupInvoicesIntoDisplayItems(list) {
 // occurrences[0], and if that one happened to be the cancelled date the row
 // still offered Mark paid long after everything payable had been paid and
 // the receipt sent.
-const FINANCE_PORTAL_BUILD = '2026-10-19-c';
+const FINANCE_PORTAL_BUILD = '2026-10-19-d';
 try { console.log('[finance-portal] build ' + FINANCE_PORTAL_BUILD); } catch (e) {}
 
 function invGroupAllPaid(occurrences) {
@@ -3230,16 +3248,33 @@ function invGroupCounts(occurrences) {
   };
 }
 
-// What this group still needs, in words, for the cell that replaces a
-// button that cannot do anything.
-function invBlockedLabel(c) {
-  if (c.voided > 0) {
-    return '<span style="color:var(--amber);font-size:0.78rem;font-weight:700;" title="' +
-      c.voided + ' date' + (c.voided === 1 ? ' has' : 's have') + ' a voided invoice. Re-issue the invoice for ' +
-      (c.voided === 1 ? 'that date' : 'those dates') + ', then it can be marked paid.">' +
-      c.voided + ' voided &mdash; re-issue</span>';
-  }
-  return '<span style="color:var(--muted);font-size:0.78rem;" title="Send the invoice first">&mdash;</span>';
+// When no button can do anything, say what the dates ARE rather than what
+// someone should do about it. The previous wording announced "N voided -
+// re-issue", which read as a diagnosis; it is only ever a restatement of
+// payment_status, and presenting it as a conclusion made a disagreement
+// about the data look like a fault in the page. Expand the row to see each
+// date's own status.
+function invStatusMix(occurrences) {
+  const live = (occurrences || []).filter(function (o) { return o.paymentStatus !== 'cancelled'; });
+  const order = ['paid', 'invoiced', 'pending', 'voided'];
+  const counts = {};
+  live.forEach(function (o) {
+    const k = o.paymentStatus || 'unknown';
+    counts[k] = (counts[k] || 0) + 1;
+  });
+  const keys = Object.keys(counts).sort(function (a, b) {
+    const ia = order.indexOf(a), ib = order.indexOf(b);
+    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+  });
+  return keys.map(function (k) { return counts[k] + ' ' + k; }).join(' \u00b7 ');
+}
+
+function invBlockedLabel(c, occurrences) {
+  const mix = invStatusMix(occurrences);
+  if (!mix) return '<span style="color:var(--muted);font-size:0.78rem;">&mdash;</span>';
+  const color = c.voided > 0 ? 'var(--amber)' : 'var(--muted)';
+  return '<span style="color:' + color + ';font-size:0.78rem;" title="Status of each date as stored. Expand this row to see them individually. Only pending and invoiced dates can be marked paid.">' +
+    escHtml(mix) + '</span>';
 }
 
 // Spelled out in the Mark paid tooltip: exactly which dates are holding
@@ -3352,7 +3387,7 @@ function renderInvoicesTable() {
         ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid' + (paidMethod ? ' \u00b7 ' + escHtml(paidMethod) : '') + '</span>'
         : (sCounts.markable > 0 && repOcc.invoiceSentAt
             ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + repOcc.bookingId + '" data-mark-paid-scope="series" data-mark-paid-series="' + escHtml(item.seriesId) + '" title="' + escHtml(invUnsettledSummary(item.occurrences)) + '">Mark paid (' + sCounts.markable + ' of ' + sCounts.live + ' dates)</button>'
-            : invBlockedLabel(sCounts));
+            : invBlockedLabel(sCounts, item.occurrences));
       seriesRow = '<tr class="series-row">' +
         nameCell +
         '<td>' + escHtml(item.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(item.eventDate) + ' \u2013 ' + formatDate(item.eventDateLast) + ' \u00b7 ' + escHtml(item.recurrenceSummary) + '</div></td>' +
@@ -3388,7 +3423,7 @@ function renderInvoicesTable() {
           ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid</span>'
           : (bCounts.markable > 0 && b.invoiceSentAt
               ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + b.rep.bookingId + '" data-mark-paid-scope="month" data-mark-paid-series="' + escHtml(item.seriesId) + '" data-mark-paid-month="' + escHtml(b.month) + '" title="' + escHtml(invUnsettledSummary(b.occurrences)) + '">Mark paid (' + bCounts.markable + ')</button>'
-              : invBlockedLabel(bCounts));
+              : invBlockedLabel(bCounts, b.occurrences));
         const monthRow = '<tr class="series-row" style="background:var(--surface-soft, #fff6ea);">' +
           '<td onclick="toggleInvoiceSeries(\'' + mKey + '\')" style="cursor:pointer;padding-left:26px;"><div class="renter-name">' + (mOpen ? '&#9660; ' : '&#9654; ') + escHtml(b.label) + ' <span class="discount-chip" style="margin-left:4px;">' + b.occurrences.length + ' occurrence' + (b.occurrences.length === 1 ? '' : 's') + '</span></div></td>' +
           '<td>' + escHtml(item.eventName || '') + '</td>' +

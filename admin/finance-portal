@@ -318,7 +318,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
 <div class="page-hero">
   <div class="container">
     <a class="back-link" href="https://hccgc.org/admin/admin-portal">&larr; Back to apps</a>
-    <h1>Finance <span id="portal-build" style="font-size:0.6rem;font-weight:400;color:rgba(255,255,255,0.55);vertical-align:middle;letter-spacing:0.04em;">build 2026-10-19-d</span></h1>
+    <h1>Finance <span id="portal-build" style="font-size:0.6rem;font-weight:400;color:rgba(255,255,255,0.55);vertical-align:middle;letter-spacing:0.04em;">build 2026-10-19-e</span></h1>
     <p>Categorize every transaction, reconcile Zeffy payouts, and generate the Statement of Activities — one place for all of it.</p>
   </div>
 </div>
@@ -3070,29 +3070,18 @@ function renderInvoiceRow(inv, isSubRow, showFullActions) {
     // individual occurrences show only their date and amount, not their
     // own independent invoice/receipt/payment actions (those only make
     // sense once, at the group row, not repeated per occurrence).
-    // These cells used to be empty. One invoice covers the group, so the
-    // per-date invoice/receipt/payment ACTIONS genuinely do not belong
-    // here - but hiding the per-date STATE meant a month could insist it
-    // was unpaid with nothing on screen to say which date disagreed, or
-    // why. Read-only, no actions, just what the record says.
+    // Date and amount only. The per-date state is carried in the row's
+    // hover text rather than printed - it is diagnostic detail, not
+    // something to read on every row.
     const st = inv.paymentStatus || 'unknown';
-    const stColor = st === 'paid' ? 'var(--green)'
-      : st === 'voided' ? 'var(--amber)'
-      : st === 'cancelled' ? 'var(--red)' : 'var(--muted)';
-    const sent = [];
-    if (inv.invoiceSentAt) sent.push('invoice sent ' + formatTimestampDate(inv.invoiceSentAt));
-    else sent.push('invoice not sent');
-    if (inv.receiptSentAt) sent.push('receipt sent ' + formatTimestampDate(inv.receiptSentAt));
-    const payable = (st === 'pending' || st === 'invoiced');
-    return '<tr class="sub-row">' +
+    const detail = formatDate(inv.eventDate) + ' \u2014 ' + st +
+      (inv.invoiceSentAt ? ', invoice sent ' + formatTimestampDate(inv.invoiceSentAt) : ', invoice not sent') +
+      (inv.receiptSentAt ? ', receipt sent ' + formatTimestampDate(inv.receiptSentAt) : '');
+    return '<tr class="sub-row" title="' + escHtml(detail) + '">' +
       '<td></td>' +
       '<td style="color:var(--muted);font-size:0.86rem;">' + formatDate(inv.eventDate) + '</td>' +
       '<td class="amount" style="color:var(--muted);">' + money(inv.amount) + '</td>' +
-      '<td colspan="6" style="font-size:0.78rem;color:var(--muted);">' +
-        '<span style="color:' + stColor + ';font-weight:700;">' + escHtml(st) + '</span>' +
-        '<span style="margin-left:8px;">' + escHtml(sent.join(' \u00b7 ')) + '</span>' +
-        (payable ? '' : '<span style="margin-left:8px;opacity:0.75;">(not markable)</span>') +
-      '</td>' +
+      '<td colspan="6"></td>' +
     '</tr>';
   }
   const noteBtn = '<button type="button" class="btn-note' + (inv.notes ? ' has-content' : '') + '" title="' + (inv.notes ? 'Note: ' + escHtml(inv.notes) : 'Add a note') + '" data-invoice-note-booking="' + inv.bookingId + '">\ud83d\udcdd</button>';
@@ -3220,7 +3209,7 @@ function groupInvoicesIntoDisplayItems(list) {
 // occurrences[0], and if that one happened to be the cancelled date the row
 // still offered Mark paid long after everything payable had been paid and
 // the receipt sent.
-const FINANCE_PORTAL_BUILD = '2026-10-19-d';
+const FINANCE_PORTAL_BUILD = '2026-10-19-e';
 try { console.log('[finance-portal] build ' + FINANCE_PORTAL_BUILD); } catch (e) {}
 
 function invGroupAllPaid(occurrences) {
@@ -3271,10 +3260,8 @@ function invStatusMix(occurrences) {
 
 function invBlockedLabel(c, occurrences) {
   const mix = invStatusMix(occurrences);
-  if (!mix) return '<span style="color:var(--muted);font-size:0.78rem;">&mdash;</span>';
-  const color = c.voided > 0 ? 'var(--amber)' : 'var(--muted)';
-  return '<span style="color:' + color + ';font-size:0.78rem;" title="Status of each date as stored. Expand this row to see them individually. Only pending and invoiced dates can be marked paid.">' +
-    escHtml(mix) + '</span>';
+  return '<span style="color:var(--muted);font-size:0.78rem;"' +
+    (mix ? ' title="' + escHtml(mix) + '"' : '') + '>&mdash;</span>';
 }
 
 // Spelled out in the Mark paid tooltip: exactly which dates are holding

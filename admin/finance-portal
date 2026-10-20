@@ -3100,7 +3100,7 @@ function renderInvoiceRow(inv, isSubRow, showFullActions) {
     : (inv.paymentStatus === 'paid'
         ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid' + (inv.paymentMethod ? ' \u00b7 ' + escHtml(inv.paymentMethod) : '') + '</span>'
         : (inv.invoiceSentAt
-            ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + inv.bookingId + '" data-mark-paid-scope="single">Mark paid</button>'
+            ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + inv.bookingId + '" data-mark-paid-scope="single" title="Status: ' + escHtml(inv.paymentStatus || 'unknown') + '">Mark paid</button>'
             : '<span style="color:var(--muted);font-size:0.78rem;" title="Send the invoice first">&mdash;</span>'));
   const cancelledTag = inv.paymentStatus === 'cancelled' ? ' <span class="method-tag" style="color:var(--red);">Cancelled</span>' : '';
   const linkedIndicator = inv.linkedToTransaction
@@ -3183,7 +3183,7 @@ function groupInvoicesIntoDisplayItems(list) {
         b.lastEventDate = b.occurrences.reduce(function (l, o) { return (!l || String(o.eventDate) > String(l)) ? o.eventDate : l; }, null);
         b.invoiceSentAt = b.occurrences.reduce(function (l, o) { return (!l || (o.invoiceSentAt && o.invoiceSentAt > l)) ? o.invoiceSentAt : l; }, null);
         b.receiptSentAt = b.occurrences.reduce(function (l, o) { return (!l || (o.receiptSentAt && o.receiptSentAt > l)) ? o.receiptSentAt : l; }, null);
-        b.allPaid = b.occurrences.every(function (o) { return o.paymentStatus === 'paid'; });
+        b.allPaid = invGroupAllPaid(b.occurrences);
         b.label = new Date(m + '-02T00:00:00').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
         return b;
       });
@@ -3205,6 +3205,24 @@ function groupInvoicesIntoDisplayItems(list) {
 function invGroupAllPaid(occurrences) {
   const live = (occurrences || []).filter(function (o) { return o.paymentStatus !== 'cancelled'; });
   return live.length > 0 && live.every(function (o) { return o.paymentStatus === 'paid'; });
+}
+
+// Spelled out in the Mark paid tooltip: exactly which dates are holding
+// this group open, and in what state.
+function invUnsettledSummary(occurrences) {
+  const all = occurrences || [];
+  const live = all.filter(function (o) { return o.paymentStatus !== 'cancelled'; });
+  const unpaid = live.filter(function (o) { return o.paymentStatus !== 'paid'; });
+  const cancelled = all.length - live.length;
+  const counts = {};
+  unpaid.forEach(function (o) {
+    const k = o.paymentStatus || 'unknown';
+    counts[k] = (counts[k] || 0) + 1;
+  });
+  const detail = Object.keys(counts).map(function (k) { return counts[k] + ' ' + k; }).join(', ');
+  return unpaid.length + ' of ' + live.length + ' date' + (live.length === 1 ? '' : 's') + ' still unpaid' +
+    (detail ? ' (' + detail + ')' : '') +
+    (cancelled ? '; ' + cancelled + ' cancelled, not counted' : '');
 }
 
 function invContactNameFor(item) {
@@ -3296,7 +3314,7 @@ function renderInvoicesTable() {
       const paymentCell = seriesAllPaid
         ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid' + (paidMethod ? ' \u00b7 ' + escHtml(paidMethod) : '') + '</span>'
         : (repOcc.invoiceSentAt
-            ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + repOcc.bookingId + '" data-mark-paid-scope="series" data-mark-paid-series="' + escHtml(item.seriesId) + '">Mark paid (all ' + item.occurrences.length + ' dates)</button>'
+            ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + repOcc.bookingId + '" data-mark-paid-scope="series" data-mark-paid-series="' + escHtml(item.seriesId) + '" title="' + escHtml(invUnsettledSummary(item.occurrences)) + '">Mark paid (all ' + item.occurrences.length + ' dates)</button>'
             : '<span style="color:var(--muted);font-size:0.78rem;" title="Send the invoice first">&mdash;</span>');
       seriesRow = '<tr class="series-row">' +
         nameCell +
@@ -3331,7 +3349,7 @@ function renderInvoicesTable() {
         const payCell = b.allPaid
           ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid</span>'
           : (b.invoiceSentAt
-              ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + b.rep.bookingId + '" data-mark-paid-scope="month" data-mark-paid-series="' + escHtml(item.seriesId) + '" data-mark-paid-month="' + escHtml(b.month) + '">Mark paid (' + b.occurrences.length + ')</button>'
+              ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + b.rep.bookingId + '" data-mark-paid-scope="month" data-mark-paid-series="' + escHtml(item.seriesId) + '" data-mark-paid-month="' + escHtml(b.month) + '" title="' + escHtml(invUnsettledSummary(b.occurrences)) + '">Mark paid (' + b.occurrences.length + ')</button>'
               : '<span style="color:var(--muted);font-size:0.78rem;" title="Send the invoice first">&mdash;</span>');
         const monthRow = '<tr class="series-row" style="background:var(--surface-soft, #fff6ea);">' +
           '<td onclick="toggleInvoiceSeries(\'' + mKey + '\')" style="cursor:pointer;padding-left:26px;"><div class="renter-name">' + (mOpen ? '&#9660; ' : '&#9654; ') + escHtml(b.label) + ' <span class="discount-chip" style="margin-left:4px;">' + b.occurrences.length + ' occurrence' + (b.occurrences.length === 1 ? '' : 's') + '</span></div></td>' +

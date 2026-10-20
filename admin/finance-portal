@@ -318,7 +318,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
 <div class="page-hero">
   <div class="container">
     <a class="back-link" href="https://hccgc.org/admin/admin-portal">&larr; Back to apps</a>
-    <h1>Finance <span id="portal-build" style="font-size:0.6rem;font-weight:400;color:rgba(255,255,255,0.55);vertical-align:middle;letter-spacing:0.04em;">build 2026-10-19-b</span></h1>
+    <h1>Finance <span id="portal-build" style="font-size:0.6rem;font-weight:400;color:rgba(255,255,255,0.55);vertical-align:middle;letter-spacing:0.04em;">build 2026-10-19-c</span></h1>
     <p>Categorize every transaction, reconcile Zeffy payouts, and generate the Statement of Activities — one place for all of it.</p>
   </div>
 </div>
@@ -3202,12 +3202,44 @@ function groupInvoicesIntoDisplayItems(list) {
 // occurrences[0], and if that one happened to be the cancelled date the row
 // still offered Mark paid long after everything payable had been paid and
 // the receipt sent.
-const FINANCE_PORTAL_BUILD = '2026-10-19-b';
+const FINANCE_PORTAL_BUILD = '2026-10-19-c';
 try { console.log('[finance-portal] build ' + FINANCE_PORTAL_BUILD); } catch (e) {}
 
 function invGroupAllPaid(occurrences) {
-  const live = (occurrences || []).filter(function (o) { return o.paymentStatus !== 'cancelled'; });
-  return live.length > 0 && live.every(function (o) { return o.paymentStatus === 'paid'; });
+  const c = invGroupCounts(occurrences);
+  return c.live > 0 && c.paid === c.live;
+}
+
+// Not every unpaid date can be marked paid. Only 'pending' and 'invoiced'
+// are markable - the backend deliberately touches nothing else. A voided
+// date was withdrawn and needs re-issuing, and a cancelled one is never
+// going to be paid. Offering "Mark paid" for those produced a button that
+// errored when pressed and then stayed on screen, which is what made this
+// look broken.
+function invGroupCounts(occurrences) {
+  const all = occurrences || [];
+  const live = all.filter(function (o) { return o.paymentStatus !== 'cancelled'; });
+  const by = function (st) { return live.filter(function (o) { return o.paymentStatus === st; }).length; };
+  return {
+    all: all.length,
+    live: live.length,
+    paid: by('paid'),
+    markable: by('pending') + by('invoiced'),
+    voided: by('voided'),
+    cancelled: all.length - live.length
+  };
+}
+
+// What this group still needs, in words, for the cell that replaces a
+// button that cannot do anything.
+function invBlockedLabel(c) {
+  if (c.voided > 0) {
+    return '<span style="color:var(--amber);font-size:0.78rem;font-weight:700;" title="' +
+      c.voided + ' date' + (c.voided === 1 ? ' has' : 's have') + ' a voided invoice. Re-issue the invoice for ' +
+      (c.voided === 1 ? 'that date' : 'those dates') + ', then it can be marked paid.">' +
+      c.voided + ' voided &mdash; re-issue</span>';
+  }
+  return '<span style="color:var(--muted);font-size:0.78rem;" title="Send the invoice first">&mdash;</span>';
 }
 
 // Spelled out in the Mark paid tooltip: exactly which dates are holding
@@ -3223,6 +3255,7 @@ function invUnsettledSummary(occurrences) {
     counts[k] = (counts[k] || 0) + 1;
   });
   const detail = Object.keys(counts).map(function (k) { return counts[k] + ' ' + k; }).join(', ');
+  // 'voided' reads as unpaid but is not markable - say so explicitly.
   return unpaid.length + ' of ' + live.length + ' date' + (live.length === 1 ? '' : 's') + ' still unpaid' +
     (detail ? ' (' + detail + ')' : '') +
     (cancelled ? '; ' + cancelled + ' cancelled, not counted' : '');
@@ -3314,11 +3347,12 @@ function renderInvoicesTable() {
             : '<button type="button" class="btn-receipt greyed" disabled title="Confirm as paid first">\ud83e\uddfe</button>');
       const paidMethod = repOcc.paymentMethod ||
         (item.occurrences.find(function (o) { return o.paymentStatus === 'paid' && o.paymentMethod; }) || {}).paymentMethod;
+      const sCounts = invGroupCounts(item.occurrences);
       const paymentCell = seriesAllPaid
         ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid' + (paidMethod ? ' \u00b7 ' + escHtml(paidMethod) : '') + '</span>'
-        : (repOcc.invoiceSentAt
-            ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + repOcc.bookingId + '" data-mark-paid-scope="series" data-mark-paid-series="' + escHtml(item.seriesId) + '" title="' + escHtml(invUnsettledSummary(item.occurrences)) + '">Mark paid (all ' + item.occurrences.length + ' dates)</button>'
-            : '<span style="color:var(--muted);font-size:0.78rem;" title="Send the invoice first">&mdash;</span>');
+        : (sCounts.markable > 0 && repOcc.invoiceSentAt
+            ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + repOcc.bookingId + '" data-mark-paid-scope="series" data-mark-paid-series="' + escHtml(item.seriesId) + '" title="' + escHtml(invUnsettledSummary(item.occurrences)) + '">Mark paid (' + sCounts.markable + ' of ' + sCounts.live + ' dates)</button>'
+            : invBlockedLabel(sCounts));
       seriesRow = '<tr class="series-row">' +
         nameCell +
         '<td>' + escHtml(item.eventName || '') + '<div style="font-size:0.76rem;color:var(--muted);">' + formatDate(item.eventDate) + ' \u2013 ' + formatDate(item.eventDateLast) + ' \u00b7 ' + escHtml(item.recurrenceSummary) + '</div></td>' +
@@ -3349,11 +3383,12 @@ function renderInvoicesTable() {
           : (b.allPaid
               ? '<button type="button" class="btn-receipt attached" title="Not sent yet" data-receipt-popup-booking="' + b.rep.bookingId + '">\ud83e\uddfe</button>'
               : '<button type="button" class="btn-receipt greyed" disabled title="Confirm as paid first">\ud83e\uddfe</button>');
+        const bCounts = invGroupCounts(b.occurrences);
         const payCell = b.allPaid
           ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid</span>'
-          : (b.invoiceSentAt
-              ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + b.rep.bookingId + '" data-mark-paid-scope="month" data-mark-paid-series="' + escHtml(item.seriesId) + '" data-mark-paid-month="' + escHtml(b.month) + '" title="' + escHtml(invUnsettledSummary(b.occurrences)) + '">Mark paid (' + b.occurrences.length + ')</button>'
-              : '<span style="color:var(--muted);font-size:0.78rem;" title="Send the invoice first">&mdash;</span>');
+          : (bCounts.markable > 0 && b.invoiceSentAt
+              ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + b.rep.bookingId + '" data-mark-paid-scope="month" data-mark-paid-series="' + escHtml(item.seriesId) + '" data-mark-paid-month="' + escHtml(b.month) + '" title="' + escHtml(invUnsettledSummary(b.occurrences)) + '">Mark paid (' + bCounts.markable + ')</button>'
+              : invBlockedLabel(bCounts));
         const monthRow = '<tr class="series-row" style="background:var(--surface-soft, #fff6ea);">' +
           '<td onclick="toggleInvoiceSeries(\'' + mKey + '\')" style="cursor:pointer;padding-left:26px;"><div class="renter-name">' + (mOpen ? '&#9660; ' : '&#9654; ') + escHtml(b.label) + ' <span class="discount-chip" style="margin-left:4px;">' + b.occurrences.length + ' occurrence' + (b.occurrences.length === 1 ? '' : 's') + '</span></div></td>' +
           '<td>' + escHtml(item.eventName || '') + '</td>' +

@@ -318,7 +318,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
 <div class="page-hero">
   <div class="container">
     <a class="back-link" href="https://hccgc.org/admin/admin-portal">&larr; Back to apps</a>
-    <h1>Finance <span id="portal-build" style="font-size:0.6rem;font-weight:400;color:rgba(255,255,255,0.55);vertical-align:middle;letter-spacing:0.04em;">build 2026-10-19-e</span></h1>
+    <h1>Finance <span id="portal-build" style="font-size:0.6rem;font-weight:400;color:rgba(255,255,255,0.55);vertical-align:middle;letter-spacing:0.04em;">build 2026-10-28-a</span></h1>
     <p>Categorize every transaction, reconcile Zeffy payouts, and generate the Statement of Activities — one place for all of it.</p>
   </div>
 </div>
@@ -3104,7 +3104,7 @@ function renderInvoiceRow(inv, isSubRow, showFullActions) {
   // actually uses), then marks paid immediately.
   const paymentCell = inv.paymentStatus === 'cancelled'
     ? '<span style="color:var(--muted);font-size:0.8rem;">&mdash;</span>'
-    : (inv.paymentStatus === 'paid'
+    : (invIsSettled(inv)
         ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid' + (inv.paymentMethod ? ' \u00b7 ' + escHtml(inv.paymentMethod) : '') + '</span>'
         : (inv.invoiceSentAt
             ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + inv.bookingId + '" data-mark-paid-scope="single" title="Status: ' + escHtml(inv.paymentStatus || 'unknown') + '">Mark paid</button>'
@@ -3209,7 +3209,7 @@ function groupInvoicesIntoDisplayItems(list) {
 // occurrences[0], and if that one happened to be the cancelled date the row
 // still offered Mark paid long after everything payable had been paid and
 // the receipt sent.
-const FINANCE_PORTAL_BUILD = '2026-10-19-e';
+const FINANCE_PORTAL_BUILD = '2026-10-28-a';
 try { console.log('[finance-portal] build ' + FINANCE_PORTAL_BUILD); } catch (e) {}
 
 function invGroupAllPaid(occurrences) {
@@ -3223,16 +3223,25 @@ function invGroupAllPaid(occurrences) {
 // going to be paid. Offering "Mark paid" for those produced a button that
 // errored when pressed and then stayed on screen, which is what made this
 // look broken.
+// A receipt has gone to the customer thanking them for payment, so the
+// booking is settled whatever payment_status says. Sending a receipt used
+// to write only its timestamp, which let the two disagree - and then the
+// row went on offering "Mark paid" for a date already receipted.
+function invIsSettled(o) {
+  return o.paymentStatus === 'paid' || !!o.receiptSentAt;
+}
+
 function invGroupCounts(occurrences) {
   const all = occurrences || [];
   const live = all.filter(function (o) { return o.paymentStatus !== 'cancelled'; });
-  const by = function (st) { return live.filter(function (o) { return o.paymentStatus === st; }).length; };
   return {
     all: all.length,
     live: live.length,
-    paid: by('paid'),
-    markable: by('pending') + by('invoiced'),
-    voided: by('voided'),
+    paid: live.filter(invIsSettled).length,
+    markable: live.filter(function (o) {
+      return !invIsSettled(o) && (o.paymentStatus === 'pending' || o.paymentStatus === 'invoiced');
+    }).length,
+    voided: live.filter(function (o) { return o.paymentStatus === 'voided' && !invIsSettled(o); }).length,
     cancelled: all.length - live.length
   };
 }
@@ -3373,7 +3382,7 @@ function renderInvoicesTable() {
       const paymentCell = seriesAllPaid
         ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid' + (paidMethod ? ' \u00b7 ' + escHtml(paidMethod) : '') + '</span>'
         : (sCounts.markable > 0 && repOcc.invoiceSentAt
-            ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + repOcc.bookingId + '" data-mark-paid-scope="series" data-mark-paid-series="' + escHtml(item.seriesId) + '" title="' + escHtml(invUnsettledSummary(item.occurrences)) + '">Mark paid (' + sCounts.markable + ' of ' + sCounts.live + ' dates)</button>'
+            ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + repOcc.bookingId + '" data-mark-paid-scope="series" data-mark-paid-series="' + escHtml(item.seriesId) + '" title="' + escHtml(invUnsettledSummary(item.occurrences)) + '">Mark paid</button>'
             : invBlockedLabel(sCounts, item.occurrences));
       seriesRow = '<tr class="series-row">' +
         nameCell +
@@ -3409,7 +3418,7 @@ function renderInvoicesTable() {
         const payCell = b.allPaid
           ? '<span style="color:var(--green);font-size:0.8rem;font-weight:700;">\u2713 Paid</span>'
           : (bCounts.markable > 0 && b.invoiceSentAt
-              ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + b.rep.bookingId + '" data-mark-paid-scope="month" data-mark-paid-series="' + escHtml(item.seriesId) + '" data-mark-paid-month="' + escHtml(b.month) + '" title="' + escHtml(invUnsettledSummary(b.occurrences)) + '">Mark paid (' + bCounts.markable + ')</button>'
+              ? '<button type="button" class="btn-secondary" style="padding:4px 10px;font-size:0.78rem;" data-mark-paid-booking="' + b.rep.bookingId + '" data-mark-paid-scope="month" data-mark-paid-series="' + escHtml(item.seriesId) + '" data-mark-paid-month="' + escHtml(b.month) + '" title="' + escHtml(invUnsettledSummary(b.occurrences)) + '">Mark paid</button>'
               : invBlockedLabel(bCounts, b.occurrences));
         const monthRow = '<tr class="series-row" style="background:var(--surface-soft, #fff6ea);">' +
           '<td onclick="toggleInvoiceSeries(\'' + mKey + '\')" style="cursor:pointer;padding-left:26px;"><div class="renter-name">' + (mOpen ? '&#9660; ' : '&#9654; ') + escHtml(b.label) + ' <span class="discount-chip" style="margin-left:4px;">' + b.occurrences.length + ' occurrence' + (b.occurrences.length === 1 ? '' : 's') + '</span></div></td>' +
@@ -4067,9 +4076,10 @@ function openInvoiceNotesModal(bookingId) {
   if (!inv) return;
   notesModalBookingId = bookingId;
   document.getElementById('invoice-notes-textarea').value = inv.notes || '';
-  // Only admins, and only while the booking is unpaid: after payment the
-  // invoice has to keep matching what the customer actually sent.
-  const canEditDeposit = !!window.__hccgcIsAdmin && inv.paymentStatus !== 'paid' && inv.paymentStatus !== 'cancelled';
+  // Anyone with Facility Rental access, while the booking is unpaid:
+  // after payment the invoice has to keep matching what the customer
+  // actually sent. The gate is the payment state, not the role.
+  const canEditDeposit = inv.paymentStatus !== 'paid' && inv.paymentStatus !== 'cancelled';
   document.getElementById('deposit-edit').style.display = canEditDeposit ? 'block' : 'none';
   document.getElementById('deposit-amount').value = Number(inv.depositAmount) || 0;
   document.getElementById('deposit-edit-note').textContent = inv.invoiceSentAt

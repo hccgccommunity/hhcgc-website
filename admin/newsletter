@@ -165,6 +165,42 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .nl-editing .nl-imgslot:hover { box-shadow: inset 0 0 0 3px var(--a); }
 .nl-printing .nl-imgph { display: none; }
 
+/* Dropping a photo straight onto a slot, and the per-slot progress that
+   stops a slow upload looking like a dead click. */
+.nl-imgslot.drop-on { box-shadow: inset 0 0 0 4px var(--a) !important; }
+.nl-page.drop-page { outline: 3px dashed var(--a); outline-offset: -6px; }
+.nl-imgslot.is-busy::after {
+  content: 'Uploading\2026'; position: absolute; inset: 0; z-index: 4; display: flex;
+  align-items: center; justify-content: center; background: rgba(255,249,241,0.82);
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.8rem; font-weight: 800; color: var(--a);
+}
+/* Replace / Remove, on hover, only in the editor. There was previously no way
+   to take a picture back OUT of a slot once it was in. */
+.nl-slot-tools { position: absolute; top: 8px; right: 8px; z-index: 5; display: none; gap: 6px; }
+.nl-editing .nl-imgslot:hover .nl-slot-tools { display: flex; }
+.nl-slot-tools button {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.72rem; font-weight: 800; line-height: 1;
+  padding: 6px 10px; border-radius: 7px; border: none; cursor: pointer;
+  background: rgba(28,16,8,0.74); color: #fff;
+}
+.nl-slot-tools button:hover { background: rgba(28,16,8,0.92); }
+.nl-slot-tools button[data-slot-act="remove"]:hover { background: #b3382c; }
+.nl-printing .nl-slot-tools { display: none !important; }
+
+/* Author credit — one per issue, at the foot of the last page. It FLOWS at
+   the end of the content rather than being pinned down with position:
+   absolute, so it can never land on top of a photo grid, a back-page footer
+   bar or a full-bleed caption. The body regions above it carry flex:1, which
+   is what pushes it to the bottom of the sheet on its own. */
+.nl-credit { display: flex; align-items: center; gap: 16px; margin-top: 20px; padding-top: 18px; border-top: 2px solid var(--soft); }
+.nl-credit .nl-imgslot { width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0; }
+.nl-credit-by { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--a); margin-bottom: 3px; font-family: Arial, Helvetica, sans-serif; }
+.nl-credit-name { font-family: var(--hf); font-size: 1.1rem; font-weight: 700; color: var(--d); line-height: 1.2; }
+.nl-credit-role { font-size: 0.88rem; color: #6a5141; margin-top: 2px; }
+.nl-credit.light { border-top-color: rgba(255,255,255,0.32); }
+.nl-credit.light .nl-credit-name, .nl-credit.light .nl-credit-role { color: #fff; }
+.nl-credit.light .nl-credit-by { color: #ffd9ab; }
+
 /* Cover */
 .nl-cover { height: 1056px; display: flex; flex-direction: column; }
 .nl-cover-top { height: 560px; position: relative; }
@@ -410,6 +446,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
           <label class="nl-color" title="Highlight"><span>&#9646;</span><input type="color" id="tb-highlight" value="#ffe9a8"></label>
           <span class="nl-sep"></span>
           <button type="button" id="tb-link">Link</button>
+          <button type="button" id="tb-add-photos" title="Fill this page's empty picture boxes">Add photos</button>
           <button type="button" id="tb-inline-img">Insert image</button>
           <button type="button" data-cmd="removeFormat" title="Clear formatting">Clear</button>
           <span class="nl-sep"></span>
@@ -460,6 +497,15 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
           <button class="btn-danger" id="btn-del-page">Delete page</button>
         </div>
 
+        <h4>Author credit</h4>
+        <label style="display:flex;align-items:center;gap:8px;font-size:0.82rem;">
+          <input type="checkbox" id="nl-credit-toggle"> Credit an author at the end of the issue
+        </label>
+        <div id="nl-credit-hint" class="nl-hint" style="margin-top:8px;display:none;">
+          It appears at the foot of the <strong>last</strong> page, wherever that ends up.
+          Click the round photo to add a picture, and the name or role to edit them.
+        </div>
+
         <h4>Output</h4>
         <div class="stack">
           <button class="btn-secondary" id="btn-save">Save</button>
@@ -479,7 +525,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
         <div id="editor-result" class="result-box" style="display:none;margin-top:12px;"></div>
 
         <h4>Tips</h4>
-        <div class="nl-hint">Click any text on the page and start typing. Click a shaded image box to upload a picture. Everything you see is exactly what lands in the PDF.</div>
+        <div class="nl-hint">Click any text and start typing. For pictures: click a shaded box, <strong>drag photos onto it</strong>, or paste from the clipboard \u2014 drop several at once and they fill the empty boxes in order. Hover a picture for <strong>Replace</strong> and <strong>Remove</strong>. Everything you see is exactly what lands in the PDF.</div>
       </aside>
     </div>
   </div>
@@ -499,7 +545,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 </div>
 
 <div id="site-footer"></div>
-<input type="file" id="nl-file-input" accept="image/*" style="display:none;">
+<input type="file" id="nl-file-input" accept="image/*" multiple style="display:none;">
 
 <!-- ── New newsletter modal ─────────────────────────────────── -->
 <div class="modal-overlay" id="modal-new" style="display:none;">
@@ -653,6 +699,10 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.register('/service-wor
    is what keeps one unsubscribe list behind both this and Email Blast.
    ═══════════════════════════════════════════════════════════════════ */
 
+// Tells the shared page renderer it is running inside the editor, so the
+// hover Replace/Remove controls are emitted here and nowhere else.
+window.__nlEditTools = true;
+
 const API_BASE = 'https://facility-rental-api-217911937447.us-central1.run.app';
 
 let __glPending = 0, __glTimer = null;
@@ -747,12 +797,44 @@ function migratePages(pages) {
   return pages;
 }
 
+/* `window.__nlEditTools` is set only by the admin editor, so the hover
+   Replace/Remove controls are never emitted into the public page's DOM at
+   all — not merely hidden there. */
+function slotTools(url) {
+  if (!url || !(typeof window !== 'undefined' && window.__nlEditTools)) return '';
+  return '<span class="nl-slot-tools">' +
+    '<button type="button" data-slot-act="replace" title="Choose a different picture">Replace</button>' +
+    '<button type="button" data-slot-act="remove" title="Take this picture out">Remove</button>' +
+  '</span>';
+}
 function imgSlot(page, name, extraClass) {
   var url = page.slots[name] || '';
   var inner = url
     ? '<img src="' + escHtml(url) + '" alt="">'
-    : '<span class="nl-imgph">Click to add<br>a picture</span>';
-  return '<div class="nl-imgslot ' + (extraClass || '') + '" data-imgslot="' + name + '">' + inner + '</div>';
+    : '<span class="nl-imgph">Click, drop or paste<br>a picture</span>';
+  return '<div class="nl-imgslot ' + (extraClass || '') + '" data-imgslot="' + name + '">' +
+    inner + slotTools(url) + '</div>';
+}
+
+/* ── Author credit ───────────────────────────────────────────────────
+   One per ISSUE, not per page, and stored on the document rather than on
+   whichever page happens to be last — hanging it off the last page breaks
+   silently the moment somebody reorders or appends a page, which is exactly
+   the sort of thing nobody notices until the issue has gone out.          */
+function creditBlock(ctx, light) {
+  if (!ctx || !ctx.isLast || !ctx.credit || !ctx.credit.show) return '';
+  var c = ctx.credit;
+  var photo = c.photo
+    ? '<img src="' + escHtml(c.photo) + '" alt="">'
+    : '<span class="nl-imgph">Photo</span>';
+  return '<div class="nl-credit' + (light ? ' light' : '') + '">' +
+    '<div class="nl-imgslot" data-docimgslot="photo">' + photo + slotTools(c.photo) + '</div>' +
+    '<div>' +
+      '<div class="nl-credit-by">' + escHtml(c.byLabel || 'Compiled by') + '</div>' +
+      '<div class="nl-credit-name" data-docslot="name" contenteditable="true">' + (c.name || 'Name Surname') + '</div>' +
+      '<div class="nl-credit-role" data-docslot="role" contenteditable="true">' + (c.role || 'Editor, HCCGC Newsletter') + '</div>' +
+    '</div>' +
+  '</div>';
 }
 function ed(page, name, fallback, tag, cls, style) {
   tag = tag || 'div';
@@ -835,7 +917,7 @@ function bodyFor(L, page) {
   return ed(page, 'c1', '<p>Click here and type.</p>', 'div', 'nl-text');
 }
 
-function renderPage(page) {
+function renderPage(page, ctx) {
   page.slots = page.slots || {};
   page.opts = page.opts || {};
   var L = layoutOf(page.layout);
@@ -845,7 +927,8 @@ function renderPage(page) {
       ed(page, 'kicker', 'HCCGC &middot; Newsletter', 'div', 'nl-bleed-badge') +
       ed(page, 'title', 'A season of coming together', 'h1') +
       ed(page, 'subtitle', 'News, events and gratitude from the Hindu Community Center of Greater Cincinnati.', 'div', 'nl-cover-sub') +
-      '<div class="nl-cover-foot">' + ed(page, 'date', monthYear(), 'div') + ed(page, 'edition', 'hccgc.org', 'div') + '</div>');
+      '<div class="nl-cover-foot">' + ed(page, 'date', monthYear(), 'div') + ed(page, 'edition', 'hccgc.org', 'div') + '</div>' +
+      creditBlock(ctx, true));
   }
   if (L.key === 'back' && page.opts.bleed) {
     return bleedPage(page,
@@ -856,7 +939,7 @@ function renderPage(page) {
         '<div>' + ed(page, 'c2t', 'Write', 'h3') + ed(page, 'c2b', '<p>info@hccgc.org</p>', 'div') + '</div>' +
         '<div>' + ed(page, 'c3t', 'Give', 'h3') + ed(page, 'c3b', '<p>hccgc.org/donate-now</p>', 'div') + '</div>' +
         '<div>' + ed(page, 'c4t', 'Rent the hall', 'h3') + ed(page, 'c4b', '<p>hccgc.org/facility-rental</p>', 'div') + '</div>' +
-      '</div></div>');
+      '</div></div>' + creditBlock(ctx, true));
   }
   if (L.key === 'cover') {
     return '<div class="nl-cover">' +
@@ -872,6 +955,7 @@ function renderPage(page) {
           ed(page, 'date', monthYear(), 'div') +
           ed(page, 'edition', 'hccgc.org', 'div') +
         '</div>' +
+        creditBlock(ctx) +
       '</div>' +
     '</div>';
   }
@@ -881,6 +965,7 @@ function renderPage(page) {
       ed(page, 'quote', 'A temple is not a building. It is what a community does together, week after week.', 'div', 'nl-quote') +
       ed(page, 'by', '&mdash; Name Surname', 'div', 'nl-quote-by') +
       ed(page, 'role', 'President, HCCGC', 'div', 'nl-quote-role') +
+      creditBlock(ctx) +
     '</div>';
   }
   if (L.key === 'back') {
@@ -893,6 +978,7 @@ function renderPage(page) {
           '<div>' + ed(page, 'c3t', 'Give', 'h3') + ed(page, 'c3b', '<p>hccgc.org/donate-now</p>', 'div') + '</div>' +
           '<div>' + ed(page, 'c4t', 'Rent the hall', 'h3') + ed(page, 'c4b', '<p>hccgc.org/facility-rental</p>', 'div') + '</div>' +
         '</div></div>' +
+        creditBlock(ctx) +
       '</div>' +
       '<div class="nl-footer-bar">' +
         ed(page, 'footL', 'Hindu Community Center of Greater Cincinnati', 'div') +
@@ -902,14 +988,15 @@ function renderPage(page) {
   }
   if (L.img === 'full') {
     return '<div class="nl-full">' + imgSlot(page, 'image') +
-      '<div class="nl-full-cap">' + ed(page, 'caption', 'A photograph that speaks for itself.', 'div') + '</div>' +
+      '<div class="nl-full-cap">' + ed(page, 'caption', 'A photograph that speaks for itself.', 'div') +
+        creditBlock(ctx, true) + '</div>' +
     '</div>';
   }
   if (L.img === 'top') {
     return '<div class="nl-banner">' + imgSlot(page, 'image') + '</div>' +
-      '<div class="nl-pad nl-flex" style="padding-top:38px;">' + headBlock(page) + bodyFor(L, page) + '</div>';
+      '<div class="nl-pad nl-flex" style="padding-top:38px;">' + headBlock(page) + bodyFor(L, page) + creditBlock(ctx) + '</div>';
   }
-  return '<div class="nl-pad nl-flex">' + headBlock(page) + bodyFor(L, page) + '</div>';
+  return '<div class="nl-pad nl-flex">' + headBlock(page) + bodyFor(L, page) + creditBlock(ctx) + '</div>';
 }
 
 /* Thumbnail schematic, derived from the layout spec rather than hand-drawn —
@@ -999,7 +1086,7 @@ function renderCanvas() {
     return '<div class="nl-page-wrap" data-i="' + i + '">' +
       '<div class="nl-page-num">' + (i + 1) + '</div>' +
       '<div class="nl-page nl-t-' + escHtml(DOC.theme) + (i === PAGE_I ? ' focused' : '') + '" data-i="' + i + '">' +
-        renderPage(p) +
+        renderPage(p, { credit: DOC.credit, isLast: i === DOC.pages.length - 1 }) +
       '</div>' +
       '<div class="nl-overflow-warn">This page is fuller than one printed sheet &mdash; trim it or move some of it to a new page.</div>' +
     '</div>';
@@ -1086,6 +1173,13 @@ function syncFromDom() {
       DOC.pages[i].slots[el.dataset.slot] = el.innerHTML;
     });
   });
+  // The author credit belongs to the document, not to the page it is drawn
+  // on, so it is read back separately — otherwise editing it would quietly
+  // write into whichever page happened to be last.
+  canvasEl.querySelectorAll('[data-docslot]').forEach(function (el) {
+    DOC.credit = DOC.credit || {};
+    DOC.credit[el.dataset.docslot] = el.innerHTML;
+  });
 }
 
 canvasEl.addEventListener('input', function (e) {
@@ -1100,15 +1194,19 @@ canvasEl.addEventListener('focusin', function (e) {
   var i = Number(pg.dataset.i);
   if (i !== PAGE_I) { setActivePage(i); }
 });
+var SLOT_SEL = '[data-imgslot],[data-docimgslot]';
 canvasEl.addEventListener('click', function (e) {
-  var slot = e.target.closest('[data-imgslot]');
-  if (slot) {
-    var pg = slot.closest('.nl-page');
-    setActivePage(Number(pg.dataset.i));
-    IMG_TARGET = 'slot:' + slot.dataset.imgslot;
-    document.getElementById('nl-file-input').click();
+  var act = e.target.closest('[data-slot-act]');
+  if (act) {
+    e.stopPropagation();
+    var owner = act.closest(SLOT_SEL);
+    if (!owner) return;
+    focusPageOf(owner);
+    if (act.dataset.slotAct === 'remove') clearSlot(owner); else pickInto(owner);
     return;
   }
+  var slot = e.target.closest(SLOT_SEL);
+  if (slot) { focusPageOf(slot); pickInto(slot); return; }
   var pgc = e.target.closest('.nl-page');
   if (pgc) setActivePage(Number(pgc.dataset.i));
 });
@@ -1164,44 +1262,246 @@ document.getElementById('tb-inline-img').addEventListener('click', function () {
   document.getElementById('nl-file-input').click();
 });
 
-/* ── Image upload ────────────────────────────────────────────────── */
-document.getElementById('nl-file-input').addEventListener('change', async function (e) {
-  var file = e.target.files[0];
-  this.value = '';
-  if (!file) return;
-  say('Uploading picture…');
-  try {
-    var base64 = await new Promise(function (res, rej) {
-      var r = new FileReader();
-      r.onload = function () { res(String(r.result).split(',')[1]); };
-      r.onerror = rej;
-      r.readAsDataURL(file);
-    });
-    var r = await authedFetch(API_BASE + '/pages/image-upload', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ base64: base64, filename: file.name, mimeType: file.type })
-    });
-    var d = await r.json().catch(function () { return {}; });
-    if (!r.ok || !d.imageUrl) { say((d.errors || [d.error] || ['Upload failed.']).join(' '), 'error'); return; }
+/* ── Pictures ────────────────────────────────────────────────────────
+   Four ways in, all landing in the same place: click a box, drop files on
+   one, paste from the clipboard, or pick several at once and let them fill
+   the empty boxes in order. A six-photo grid used to be six separate trips
+   through the file dialog.                                                */
+var LAST_SLOT = null;    // the box most recently clicked or dropped into
+var PICK_START = null;   // where the current pick should begin filling
 
-    if (IMG_TARGET === 'inline') {
-      var el = canvasEl.querySelector('.nl-page[data-i="' + PAGE_I + '"]');
-      if (IMG_RANGE) { var s = window.getSelection(); s.removeAllRanges(); s.addRange(IMG_RANGE); }
-      else if (el) { var f = el.querySelector('[data-slot]'); if (f) f.focus(); }
-      document.execCommand('insertHTML', false,
-        '<img src="' + escHtml(d.imageUrl) + '" style="max-width:100%;height:auto;border-radius:8px;display:block;margin:14px auto;">');
-      markDirty();
-    } else if (IMG_TARGET && IMG_TARGET.indexOf('slot:') === 0) {
-      var name = IMG_TARGET.slice(5);
-      DOC.pages[PAGE_I].slots[name] = d.imageUrl;
-      syncFromDom();
-      renderCanvas();
-      markDirty();
+function focusPageOf(el) {
+  var pg = el.closest('.nl-page');
+  if (pg) setActivePage(Number(pg.dataset.i));
+  if (el.matches(SLOT_SEL)) LAST_SLOT = el;
+}
+function slotTarget(el) {
+  if (el.hasAttribute('data-docimgslot')) return { kind: 'doc', slot: el.getAttribute('data-docimgslot') };
+  var pg = el.closest('.nl-page');
+  if (!pg) return null;
+  return { kind: 'page', pageIndex: Number(pg.dataset.i), slot: el.getAttribute('data-imgslot') };
+}
+function setSlotUrl(t, url) {
+  if (!t) return;
+  if (t.kind === 'doc') { DOC.credit = DOC.credit || {}; DOC.credit[t.slot] = url; }
+  else if (DOC.pages[t.pageIndex]) { DOC.pages[t.pageIndex].slots[t.slot] = url; }
+}
+function allSlotEls() { return Array.prototype.slice.call(canvasEl.querySelectorAll(SLOT_SEL)); }
+function isSlotEmpty(el) { return !el.querySelector('img'); }
+function firstEmptySlotOn(pg) {
+  var list = Array.prototype.slice.call(pg.querySelectorAll(SLOT_SEL));
+  for (var i = 0; i < list.length; i++) if (isSlotEmpty(list[i])) return list[i];
+  return null;
+}
+function pickInto(el) { PICK_START = el; IMG_TARGET = 'slot'; document.getElementById('nl-file-input').click(); }
+function clearSlot(el) {
+  if (!DOC) return;
+  syncFromDom();
+  setSlotUrl(slotTarget(el), '');
+  markDirty();
+  renderCanvas();
+  checkOverflow(); applyZoom();
+  say('Picture removed.', 'success');
+}
+
+function readBase64(file) {
+  return new Promise(function (res, rej) {
+    var r = new FileReader();
+    r.onload = function () { res(String(r.result).split(',')[1]); };
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+async function uploadImage(file) {
+  var base64 = await readBase64(file);
+  var r = await authedFetch(API_BASE + '/pages/image-upload', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ base64: base64, filename: file.name, mimeType: file.type })
+  });
+  var d = await r.json().catch(function () { return {}; });
+  if (!r.ok || !d.imageUrl) throw new Error((d.errors || [d.error] || ['Upload failed.']).join(' '));
+  return d.imageUrl;
+}
+
+/* Fill the box you started from, then carry on into the empty boxes after
+   it in page order — so six files dropped on a 3 x 2 grid fill the grid. */
+async function assignFiles(files, startEl) {
+  if (!DOC || !files.length) return;
+  syncFromDom();
+  var all = allSlotEls();
+  var from = startEl ? all.indexOf(startEl) : -1;
+  var targets = [];
+  if (from >= 0) targets.push(all[from]);
+  for (var i = (from >= 0 ? from + 1 : 0); i < all.length && targets.length < files.length; i++) {
+    if (isSlotEmpty(all[i])) targets.push(all[i]);
+  }
+  if (!targets.length) { say('There is no picture box to put that in.', 'error'); return; }
+
+  var used = Math.min(files.length, targets.length);
+  var done = 0, failed = 0;
+  say(used === 1 ? 'Uploading picture\u2026' : 'Uploading ' + used + ' pictures\u2026');
+  for (var j = 0; j < used; j++) {
+    var el = targets[j];
+    el.classList.add('is-busy');
+    try {
+      var url = await uploadImage(files[j]);
+      setSlotUrl(slotTarget(el), url);
+      done++;
+    } catch (err) {
+      failed++;
     }
+    el.classList.remove('is-busy');
+  }
+  markDirty();
+  renderCanvas();
+  checkOverflow(); applyZoom();
+  var spare = files.length - used;
+  var msg = done + (done === 1 ? ' picture added.' : ' pictures added.');
+  if (failed) msg += ' ' + failed + ' failed to upload.';
+  if (spare) msg += ' ' + spare + ' had nowhere to go \u2014 add a page or a layout with more picture boxes.';
+  say(msg, (failed || spare) ? 'error' : 'success');
+}
+
+async function insertInline(file) {
+  say('Uploading picture\u2026');
+  try {
+    var url = await uploadImage(file);
+    var el = canvasEl.querySelector('.nl-page[data-i="' + PAGE_I + '"]');
+    if (IMG_RANGE) { var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(IMG_RANGE); }
+    else if (el) { var f = el.querySelector('[data-slot]'); if (f) f.focus(); }
+    document.execCommand('insertHTML', false,
+      '<img src="' + escHtml(url) + '" style="max-width:100%;height:auto;border-radius:8px;display:block;margin:14px auto;">');
+    markDirty(); checkOverflow(); applyZoom();
     say('Picture added.', 'success');
-    checkOverflow(); applyZoom();
   } catch (err) {
     say('Upload failed: ' + err.message, 'error');
+  }
+}
+
+document.getElementById('nl-file-input').addEventListener('change', async function (e) {
+  var files = Array.prototype.slice.call(e.target.files || []);
+  this.value = '';
+  if (!files.length || !DOC) return;
+  if (IMG_TARGET === 'inline') { await insertInline(files[0]); return; }
+  await assignFiles(files, PICK_START);
+});
+
+document.getElementById('tb-add-photos').addEventListener('click', function () {
+  if (!DOC) return;
+  var pg = canvasEl.querySelector('.nl-page[data-i="' + PAGE_I + '"]');
+  var el = pg ? (firstEmptySlotOn(pg) || pg.querySelector(SLOT_SEL)) : null;
+  if (!el) { say('This page has no picture box \u2014 pick a layout with photos, or use Insert image.', 'error'); return; }
+  focusPageOf(el);
+  pickInto(el);
+});
+
+/* ── Drag and drop ─────────────────────────────────────────────────── */
+function imageFiles(dt) {
+  return Array.prototype.slice.call((dt && dt.files) || []).filter(function (f) { return /^image\//.test(f.type); });
+}
+function highlightDrop(target) {
+  clearDropHighlight();
+  if (!target || !target.closest) return;
+  var slot = target.closest(SLOT_SEL);
+  if (slot) { slot.classList.add('drop-on'); return; }
+  var pg = target.closest('.nl-page');
+  if (pg) pg.classList.add('drop-page');
+}
+function clearDropHighlight() {
+  canvasEl.querySelectorAll('.drop-on').forEach(function (el) { el.classList.remove('drop-on'); });
+  canvasEl.querySelectorAll('.drop-page').forEach(function (el) { el.classList.remove('drop-page'); });
+}
+['dragenter', 'dragover'].forEach(function (t) {
+  canvasEl.addEventListener(t, function (e) {
+    if (!DOC || !e.dataTransfer) return;
+    e.preventDefault();
+    try { e.dataTransfer.dropEffect = 'copy'; } catch (err) {}
+    highlightDrop(e.target);
+  });
+});
+canvasEl.addEventListener('dragleave', function (e) {
+  if (!e.relatedTarget || !canvasEl.contains(e.relatedTarget)) clearDropHighlight();
+});
+canvasEl.addEventListener('drop', async function (e) {
+  if (!DOC) return;
+  e.preventDefault();
+  clearDropHighlight();
+  var files = imageFiles(e.dataTransfer);
+  if (!files.length) return;
+  var slot = e.target.closest && e.target.closest(SLOT_SEL);
+  if (slot) { focusPageOf(slot); }
+  else {
+    var pg = e.target.closest && e.target.closest('.nl-page');
+    if (pg) {
+      setActivePage(Number(pg.dataset.i));
+      slot = firstEmptySlotOn(pg) || pg.querySelector(SLOT_SEL);
+      if (slot) LAST_SLOT = slot;
+    }
+  }
+  if (!slot) { say('That page has no picture box \u2014 switch it to a layout with one.', 'error'); return; }
+  await assignFiles(files, slot);
+});
+/* A photo dropped anywhere else would make the browser navigate away from
+   the editor and take unsaved work with it. */
+['dragover', 'drop'].forEach(function (t) {
+  window.addEventListener(t, function (e) {
+    if (canvasEl.contains(e.target)) return;
+    e.preventDefault();
+  });
+});
+
+/* ── Paste ─────────────────────────────────────────────────────────── */
+document.addEventListener('paste', async function (e) {
+  if (!DOC) return;
+  var modalOpen = Array.prototype.slice.call(document.querySelectorAll('.modal-overlay'))
+    .some(function (m) { return m.style.display === 'flex'; });
+  if (modalOpen) return;
+  var files = imageFiles(e.clipboardData);
+  if (!files.length) return;
+
+  // Caret inside a text block? Then an image paste means "put it here",
+  // not "fill a picture box on the other side of the page".
+  var sel = window.getSelection();
+  var node = sel && sel.anchorNode;
+  var host = node && (node.nodeType === 1 ? node : node.parentElement);
+  var caretSlot = host && host.closest && host.closest('[data-slot],[data-docslot]');
+  if (caretSlot && canvasEl.contains(caretSlot)) {
+    e.preventDefault();
+    IMG_RANGE = (sel && sel.rangeCount) ? sel.getRangeAt(0).cloneRange() : null;
+    await insertInline(files[0]);
+    return;
+  }
+
+  var target = (LAST_SLOT && canvasEl.contains(LAST_SLOT)) ? LAST_SLOT : null;
+  if (!target) {
+    var pg = canvasEl.querySelector('.nl-page[data-i="' + PAGE_I + '"]');
+    target = pg ? (firstEmptySlotOn(pg) || pg.querySelector(SLOT_SEL)) : null;
+  }
+  if (!target) return;
+  e.preventDefault();
+  await assignFiles(files, target);
+});
+
+/* ── Author credit ─────────────────────────────────────────────────── */
+function renderCreditState() {
+  var on = !!(DOC && DOC.credit && DOC.credit.show);
+  document.getElementById('nl-credit-hint').style.display = on ? 'block' : 'none';
+}
+document.getElementById('nl-credit-toggle').addEventListener('change', function () {
+  if (!DOC) { this.checked = false; return; }
+  syncFromDom();
+  DOC.credit = DOC.credit || {};
+  DOC.credit.show = this.checked;
+  if (this.checked && !DOC.credit.name) {
+    DOC.credit.name = 'Name Surname';
+    DOC.credit.role = 'Editor, HCCGC Newsletter';
+  }
+  markDirty();
+  renderCreditState();
+  renderCanvas();
+  if (this.checked) {
+    var w = canvasEl.querySelector('.nl-page-wrap[data-i="' + (DOC.pages.length - 1) + '"]');
+    if (w) w.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 });
 
@@ -1380,10 +1680,14 @@ async function openDoc(id) {
   var snap = await f.getDoc(f.doc(f.db, 'newsletters', id));
   if (!snap.exists()) { alert('That newsletter no longer exists.'); loadLibrary(); return; }
   var d = snap.data();
-  DOC = { id: id, title: d.title || 'Untitled', theme: d.theme || 'saffron', pages: (d.pages && d.pages.length ? d.pages : [blankPage('cover')]) };
+  DOC = { id: id, title: d.title || 'Untitled', theme: d.theme || 'saffron',
+          pages: (d.pages && d.pages.length ? d.pages : [blankPage('cover')]),
+          credit: d.credit || { show: false } };
   migratePages(DOC.pages);
   PAGE_I = 0; DIRTY = false;
   document.getElementById('nl-title').value = DOC.title;
+  document.getElementById('nl-credit-toggle').checked = !!DOC.credit.show;
+  renderCreditState();
   renderThemeChips('nl-themes', DOC.theme, 'data-theme');
   showEditor(true);
   goTab('editor');
@@ -1431,6 +1735,7 @@ document.getElementById('btn-create').addEventListener('click', async function (
     var ref = await f.addDoc(f.collection(f.db, 'newsletters'), {
       title: title, theme: theme,
       pages: pages,
+      credit: { show: false },
       createdAt: f.serverTimestamp(), updatedAt: f.serverTimestamp(),
       createdBy: window.__hccgcCurrentUser.email, updatedBy: window.__hccgcCurrentUser.email
     });
@@ -1447,6 +1752,7 @@ async function saveDoc(quiet) {
   var f = fb();
   await f.updateDoc(f.doc(f.db, 'newsletters', DOC.id), {
     title: DOC.title, theme: DOC.theme, pages: DOC.pages,
+    credit: DOC.credit || { show: false },
     updatedAt: f.serverTimestamp(), updatedBy: window.__hccgcCurrentUser.email
   });
   DIRTY = false;
@@ -1596,6 +1902,7 @@ document.getElementById('btn-publish').addEventListener('click', async function 
       coverImage: coverOf(DOC),
       theme: DOC.theme,
       pages: DOC.pages,
+      credit: DOC.credit || { show: false },
       publishedAt: (PUB && PUB.publishedAt) ? PUB.publishedAt : f.serverTimestamp(),
       updatedAt: f.serverTimestamp(),
       publishedBy: window.__hccgcCurrentUser.email

@@ -118,6 +118,9 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .nl-thumb .sk .row { display: flex; gap: 4px; flex: 1; }
 .nl-thumb .sk .row > div { flex: 1; display: flex; flex-direction: column; gap: 4px; }
 .nl-thumb .cap { font-size: 0.66rem; font-weight: 700; color: var(--muted); padding: 4px 6px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; }
+.nl-thumb-art { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em;
+  background: var(--saffron-dark); color: #fff; padding: 3px 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nl-thumb.in-art { border-left-width: 5px; border-left-color: rgba(141,62,13,0.45); }
 .nl-rail-add { width: 100%; font-family: inherit; font-size: 0.78rem; font-weight: 700; padding: 8px; border-radius: 9px; border: 1.5px dashed var(--border); background: var(--surface-soft); color: var(--saffron-dark); cursor: pointer; }
 
 .nl-stage { min-width: 0; }
@@ -187,11 +190,11 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .nl-slot-tools button[data-slot-act="remove"]:hover { background: #b3382c; }
 .nl-printing .nl-slot-tools { display: none !important; }
 
-/* Author credit — one per issue, at the foot of the last page. It FLOWS at
-   the end of the content rather than being pinned down with position:
-   absolute, so it can never land on top of a photo grid, a back-page footer
-   bar or a full-bleed caption. The body regions above it carry flex:1, which
-   is what pushes it to the bottom of the sheet on its own. */
+/* Article byline — one per article, at the foot of that article's last page.
+   It FLOWS at the end of the content rather than being pinned down with
+   position: absolute, so it can never land on top of a photo grid, a
+   back-page footer bar or a full-bleed caption. The body regions above it
+   carry flex:1, which is what pushes it to the bottom of the sheet. */
 .nl-credit { display: flex; align-items: center; gap: 16px; margin-top: 20px; padding-top: 18px; border-top: 2px solid var(--soft); }
 .nl-credit .nl-imgslot { width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0; }
 .nl-credit-by { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--a); margin-bottom: 3px; font-family: Arial, Helvetica, sans-serif; }
@@ -497,14 +500,20 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
           <button class="btn-danger" id="btn-del-page">Delete page</button>
         </div>
 
-        <h4>Author credit</h4>
+        <h4>Article</h4>
         <label style="display:flex;align-items:center;gap:8px;font-size:0.82rem;">
-          <input type="checkbox" id="nl-credit-toggle"> Credit an author at the end of the issue
+          <input type="checkbox" id="nl-art-start"> This page starts a new article
         </label>
-        <div id="nl-credit-hint" class="nl-hint" style="margin-top:8px;display:none;">
-          It appears at the foot of the <strong>last</strong> page, wherever that ends up.
-          Click the round photo to add a picture, and the name or role to edit them.
+        <div id="nl-art-fields" style="display:none;margin-top:10px;">
+          <div class="field" style="margin-bottom:10px;">
+            <label for="nl-art-title">Article name (for you &mdash; not printed)</label>
+            <input type="text" id="nl-art-title" placeholder="Diwali recap">
+          </div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:0.82rem;">
+            <input type="checkbox" id="nl-art-credit"> Credit an author at the end of it
+          </label>
         </div>
+        <div id="nl-art-owner" class="nl-hint" style="margin-top:8px;"></div>
 
         <h4>Output</h4>
         <div class="stack">
@@ -525,7 +534,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
         <div id="editor-result" class="result-box" style="display:none;margin-top:12px;"></div>
 
         <h4>Tips</h4>
-        <div class="nl-hint">Click any text and start typing. For pictures: click a shaded box, <strong>drag photos onto it</strong>, or paste from the clipboard \u2014 drop several at once and they fill the empty boxes in order. Hover a picture for <strong>Replace</strong> and <strong>Remove</strong>. Everything you see is exactly what lands in the PDF.</div>
+        <div class="nl-hint">Click any text and start typing. For pictures: click a shaded box, <strong>drag photos onto it</strong>, or paste from the clipboard &mdash; drop several at once and they fill the empty boxes in order. Hover a picture for <strong>Replace</strong> and <strong>Remove</strong>. Everything you see is exactly what lands in the PDF.</div>
       </aside>
     </div>
   </div>
@@ -570,7 +579,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
         <label style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="new-cover" checked> First page is a cover</label>
         <label style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="new-back"> Last page is a back page</label>
       </div>
-      <div class="card-sub" style="margin-bottom:14px;">Nothing here is fixed &mdash; add, delete, reorder or re-lay-out any page afterwards. A one-page flyer and a twenty-page issue are both fine.</div>
+      <div class="card-sub" style="margin-bottom:14px;">Nothing here is fixed &mdash; add, delete, reorder or re-lay-out any page afterwards. A one-page flyer and a twenty-page edition are both fine.</div>
       <div class="field">
         <label>Theme</label>
         <div class="nl-theme-row" id="new-themes"></div>
@@ -788,12 +797,29 @@ function layoutOf(key) {
   var k = LEGACY_LAYOUTS[key] || key;
   return LAYOUTS.find(function (l) { return l.key === k; }) || LAYOUTS[0];
 }
-function migratePages(pages) {
+function migratePages(pages, legacyCredit) {
   (pages || []).forEach(function (p) {
     p.slots = p.slots || {};
     p.opts = p.opts || {};
     if (LEGACY_LAYOUTS[p.layout]) p.layout = LEGACY_LAYOUTS[p.layout];
   });
+  // The first cut had one credit for the whole edition. Turn it into a single
+  // article covering everything, so nothing published under the old shape
+  // loses its byline.
+  var hasArticle = (pages || []).some(function (p) { return p.article && p.article.start; });
+  if (legacyCredit && legacyCredit.show && (pages || []).length && !hasArticle) {
+    pages[0].article = {
+      start: true,
+      title: 'Article 1',
+      credit: {
+        show: true,
+        photo: legacyCredit.photo || '',
+        name: legacyCredit.name || '',
+        role: legacyCredit.role || '',
+        byLabel: legacyCredit.byLabel || 'By'
+      }
+    };
+  }
   return pages;
 }
 
@@ -816,23 +842,42 @@ function imgSlot(page, name, extraClass) {
     inner + slotTools(url) + '</div>';
 }
 
-/* ── Author credit ───────────────────────────────────────────────────
-   One per ISSUE, not per page, and stored on the document rather than on
-   whichever page happens to be last — hanging it off the last page breaks
-   silently the moment somebody reorders or appends a page, which is exactly
-   the sort of thing nobody notices until the issue has gone out.          */
+/* ── Articles and their bylines ───────────────────────────────────────
+   An EDITION is made of ARTICLES. A page marks itself as the start of one;
+   every page after it belongs to that article until the next start. The
+   marker lives on the page rather than in a separate list of ranges, so
+   moving a page carries its article with it instead of silently shifting
+   somebody else's byline onto the wrong pages.                            */
+function articleContexts(pages) {
+  pages = pages || [];
+  var out = [], current = null, startIndex = -1;
+  for (var i = 0; i < pages.length; i++) {
+    var a = pages[i] && pages[i].article;
+    if (a && a.start) { current = a; startIndex = i; }
+    out.push({ article: current, startIndex: startIndex });
+  }
+  // A page ends its article when the next page belongs to a different one
+  // (or there is no next page). That is where the byline goes.
+  for (var j = 0; j < out.length; j++) {
+    var next = out[j + 1];
+    out[j].isArticleEnd = !!out[j].article && (!next || next.article !== out[j].article);
+  }
+  return out;
+}
+
 function creditBlock(ctx, light) {
-  if (!ctx || !ctx.isLast || !ctx.credit || !ctx.credit.show) return '';
-  var c = ctx.credit;
+  if (!ctx || !ctx.isArticleEnd || !ctx.article) return '';
+  var c = ctx.article.credit;
+  if (!c || !c.show) return '';
   var photo = c.photo
     ? '<img src="' + escHtml(c.photo) + '" alt="">'
     : '<span class="nl-imgph">Photo</span>';
-  return '<div class="nl-credit' + (light ? ' light' : '') + '">' +
-    '<div class="nl-imgslot" data-docimgslot="photo">' + photo + slotTools(c.photo) + '</div>' +
+  return '<div class="nl-credit' + (light ? ' light' : '') + '" data-artpage="' + ctx.startIndex + '">' +
+    '<div class="nl-imgslot" data-artimgslot="photo">' + photo + slotTools(c.photo) + '</div>' +
     '<div>' +
-      '<div class="nl-credit-by">' + escHtml(c.byLabel || 'Compiled by') + '</div>' +
-      '<div class="nl-credit-name" data-docslot="name" contenteditable="true">' + (c.name || 'Name Surname') + '</div>' +
-      '<div class="nl-credit-role" data-docslot="role" contenteditable="true">' + (c.role || 'Editor, HCCGC Newsletter') + '</div>' +
+      '<div class="nl-credit-by">' + escHtml(c.byLabel || 'By') + '</div>' +
+      '<div class="nl-credit-name" data-artslot="name" contenteditable="true">' + (c.name || 'Name Surname') + '</div>' +
+      '<div class="nl-credit-role" data-artslot="role" contenteditable="true">' + (c.role || 'Contributor') + '</div>' +
     '</div>' +
   '</div>';
 }
@@ -863,7 +908,7 @@ function bleedPage(page, innerHtml) {
    layout can carry one or go straight into the content. */
 function headBlock(page) {
   if (page.opts && page.opts.head === false) return '';
-  return ed(page, 'eyebrow', 'In this issue', 'div', 'nl-eyebrow') +
+  return ed(page, 'eyebrow', 'In this edition', 'div', 'nl-eyebrow') +
     ed(page, 'title', 'Page heading', 'h2', 'nl-h') +
     '<div class="nl-underline"></div>';
 }
@@ -1067,7 +1112,7 @@ function markDirty() { DIRTY = true; }
 function blankPage(layout) { return { layout: layout || 'col1', slots: {}, opts: {} }; }
 
 /* Build the starting page list from a count, not from a fixed template — a
-   two-page flyer is as ordinary a newsletter as a twelve-page issue. */
+   two-page flyer is as ordinary a newsletter as a twelve-page edition. */
 function startingPages(count, wantCover, wantBack, innerLayout) {
   count = Math.max(1, Math.min(60, Number(count) || 1));
   var out = [];
@@ -1082,11 +1127,12 @@ function startingPages(count, wantCover, wantBack, innerLayout) {
 function renderCanvas() {
   if (!DOC) return;
   canvasEl.className = 'nl-canvas nl-editing';
+  var ARTS = articleContexts(DOC.pages);
   canvasEl.innerHTML = DOC.pages.map(function (p, i) {
     return '<div class="nl-page-wrap" data-i="' + i + '">' +
       '<div class="nl-page-num">' + (i + 1) + '</div>' +
       '<div class="nl-page nl-t-' + escHtml(DOC.theme) + (i === PAGE_I ? ' focused' : '') + '" data-i="' + i + '">' +
-        renderPage(p, { credit: DOC.credit, isLast: i === DOC.pages.length - 1 }) +
+        renderPage(p, ARTS[i]) +
       '</div>' +
       '<div class="nl-overflow-warn">This page is fuller than one printed sheet &mdash; trim it or move some of it to a new page.</div>' +
     '</div>';
@@ -1095,13 +1141,22 @@ function renderCanvas() {
   checkOverflow();
   renderThumbs();
   renderLayoutButtons();
+  renderArticleState();
 }
 
 function renderThumbs() {
   var wrap = document.getElementById('nl-thumbs');
+  var arts = articleContexts(DOC.pages);
   wrap.innerHTML = DOC.pages.map(function (p, i) {
     var lay = LAYOUTS.find(function (l) { return l.key === p.layout; });
-    return '<div class="nl-thumb' + (i === PAGE_I ? ' active' : '') + '" data-goto="' + i + '">' +
+    var startsOne = !!(p.article && p.article.start);
+    // Where an article begins is the one thing the rail cannot show with a
+    // layout schematic, and it is what you need when hunting for a byline.
+    var band = startsOne
+      ? '<div class="nl-thumb-art">' + escHtml(p.article.title || 'Article') + '</div>'
+      : '';
+    return '<div class="nl-thumb' + (i === PAGE_I ? ' active' : '') + (arts[i].article ? ' in-art' : '') + '" data-goto="' + i + '">' +
+      band +
       '<div class="sk">' + thumbSkeleton(p.layout) + '</div>' +
       '<div class="cap"><span>' + (i + 1) + '</span><span>' + escHtml(lay ? lay.name : p.layout) + '</span></div>' +
     '</div>';
@@ -1173,12 +1228,17 @@ function syncFromDom() {
       DOC.pages[i].slots[el.dataset.slot] = el.innerHTML;
     });
   });
-  // The author credit belongs to the document, not to the page it is drawn
-  // on, so it is read back separately — otherwise editing it would quietly
-  // write into whichever page happened to be last.
-  canvasEl.querySelectorAll('[data-docslot]').forEach(function (el) {
-    DOC.credit = DOC.credit || {};
-    DOC.credit[el.dataset.docslot] = el.innerHTML;
+  // A byline is drawn on the LAST page of its article but belongs to the
+  // page that STARTED it, so it is read back via data-artpage. Writing it
+  // into the page it happens to sit on would move the author the moment
+  // anyone added a page to the article.
+  canvasEl.querySelectorAll('[data-artslot]').forEach(function (el) {
+    var holder = el.closest('[data-artpage]');
+    if (!holder) return;
+    var owner = DOC.pages[Number(holder.dataset.artpage)];
+    if (!owner || !owner.article) return;
+    owner.article.credit = owner.article.credit || {};
+    owner.article.credit[el.dataset.artslot] = el.innerHTML;
   });
 }
 
@@ -1194,7 +1254,7 @@ canvasEl.addEventListener('focusin', function (e) {
   var i = Number(pg.dataset.i);
   if (i !== PAGE_I) { setActivePage(i); }
 });
-var SLOT_SEL = '[data-imgslot],[data-docimgslot]';
+var SLOT_SEL = '[data-imgslot],[data-artimgslot]';
 canvasEl.addEventListener('click', function (e) {
   var act = e.target.closest('[data-slot-act]');
   if (act) {
@@ -1216,6 +1276,7 @@ function setActivePage(i) {
   canvasEl.querySelectorAll('.nl-page').forEach(function (p) { p.classList.toggle('focused', Number(p.dataset.i) === i); });
   renderThumbs();
   renderLayoutButtons();
+  renderArticleState();
 }
 
 document.getElementById('nl-thumbs').addEventListener('click', function (e) {
@@ -1276,15 +1337,26 @@ function focusPageOf(el) {
   if (el.matches(SLOT_SEL)) LAST_SLOT = el;
 }
 function slotTarget(el) {
-  if (el.hasAttribute('data-docimgslot')) return { kind: 'doc', slot: el.getAttribute('data-docimgslot') };
+  if (el.hasAttribute('data-artimgslot')) {
+    var holder = el.closest('[data-artpage]');
+    if (!holder) return null;
+    return { kind: 'article', pageIndex: Number(holder.dataset.artpage), slot: el.getAttribute('data-artimgslot') };
+  }
   var pg = el.closest('.nl-page');
   if (!pg) return null;
   return { kind: 'page', pageIndex: Number(pg.dataset.i), slot: el.getAttribute('data-imgslot') };
 }
 function setSlotUrl(t, url) {
   if (!t) return;
-  if (t.kind === 'doc') { DOC.credit = DOC.credit || {}; DOC.credit[t.slot] = url; }
-  else if (DOC.pages[t.pageIndex]) { DOC.pages[t.pageIndex].slots[t.slot] = url; }
+  var owner = DOC.pages[t.pageIndex];
+  if (!owner) return;
+  if (t.kind === 'article') {
+    owner.article = owner.article || { start: true, title: 'Article', credit: {} };
+    owner.article.credit = owner.article.credit || {};
+    owner.article.credit[t.slot] = url;
+  } else {
+    owner.slots[t.slot] = url;
+  }
 }
 function allSlotEls() { return Array.prototype.slice.call(canvasEl.querySelectorAll(SLOT_SEL)); }
 function isSlotEmpty(el) { return !el.querySelector('img'); }
@@ -1464,7 +1536,7 @@ document.addEventListener('paste', async function (e) {
   var sel = window.getSelection();
   var node = sel && sel.anchorNode;
   var host = node && (node.nodeType === 1 ? node : node.parentElement);
-  var caretSlot = host && host.closest && host.closest('[data-slot],[data-docslot]');
+  var caretSlot = host && host.closest && host.closest('[data-slot],[data-artslot]');
   if (caretSlot && canvasEl.contains(caretSlot)) {
     e.preventDefault();
     IMG_RANGE = (sel && sel.rangeCount) ? sel.getRangeAt(0).cloneRange() : null;
@@ -1482,25 +1554,87 @@ document.addEventListener('paste', async function (e) {
   await assignFiles(files, target);
 });
 
-/* ── Author credit ─────────────────────────────────────────────────── */
-function renderCreditState() {
-  var on = !!(DOC && DOC.credit && DOC.credit.show);
-  document.getElementById('nl-credit-hint').style.display = on ? 'block' : 'none';
-}
-document.getElementById('nl-credit-toggle').addEventListener('change', function () {
-  if (!DOC) { this.checked = false; return; }
-  syncFromDom();
-  DOC.credit = DOC.credit || {};
-  DOC.credit.show = this.checked;
-  if (this.checked && !DOC.credit.name) {
-    DOC.credit.name = 'Name Surname';
-    DOC.credit.role = 'Editor, HCCGC Newsletter';
+/* ── Articles ──────────────────────────────────────────────────────── */
+function pageRangeLabel(ctx, i) {
+  var pages = DOC.pages, from = ctx.startIndex, to = from;
+  var arts = articleContexts(pages);
+  for (var j = from; j < pages.length; j++) {
+    if (arts[j].article !== ctx.article) break;
+    to = j;
   }
+  return from === to ? ('page ' + (from + 1)) : ('pages ' + (from + 1) + '\u2013' + (to + 1));
+}
+function renderArticleState() {
+  if (!DOC) return;
+  var arts = articleContexts(DOC.pages);
+  var ctx = arts[PAGE_I] || { article: null, startIndex: -1 };
+  var page = DOC.pages[PAGE_I] || {};
+  var startsOne = !!(page.article && page.article.start);
+
+  document.getElementById('nl-art-start').checked = startsOne;
+  document.getElementById('nl-art-fields').style.display = startsOne ? 'block' : 'none';
+  if (startsOne) {
+    document.getElementById('nl-art-title').value = page.article.title || '';
+    document.getElementById('nl-art-credit').checked = !!(page.article.credit && page.article.credit.show);
+  }
+
+  var owner = document.getElementById('nl-art-owner');
+  if (startsOne) {
+    owner.innerHTML = 'This article runs over <strong>' + escHtml(pageRangeLabel(ctx, PAGE_I)) + '</strong>. ' +
+      'Its byline appears at the foot of the last of them.';
+  } else if (ctx.article) {
+    owner.innerHTML = 'Part of <strong>' + escHtml(ctx.article.title || 'the previous article') + '</strong> (' +
+      escHtml(pageRangeLabel(ctx, PAGE_I)) + ').';
+  } else {
+    owner.textContent = 'Not part of an article yet. Tick the box above to start one here.';
+  }
+}
+function editArticle(mutate) {
+  if (!DOC) return;
+  syncFromDom();
+  var page = DOC.pages[PAGE_I];
+  if (!page) return;
+  mutate(page);
   markDirty();
-  renderCreditState();
   renderCanvas();
-  if (this.checked) {
-    var w = canvasEl.querySelector('.nl-page-wrap[data-i="' + (DOC.pages.length - 1) + '"]');
+}
+document.getElementById('nl-art-start').addEventListener('change', function () {
+  var on = this.checked;
+  editArticle(function (page) {
+    if (on) {
+      page.article = page.article || {};
+      page.article.start = true;
+      if (!page.article.title) page.article.title = 'Article ' + (PAGE_I + 1);
+      page.article.credit = page.article.credit || { show: false };
+    } else {
+      delete page.article;
+    }
+  });
+});
+document.getElementById('nl-art-title').addEventListener('input', function () {
+  if (!DOC) return;
+  var page = DOC.pages[PAGE_I];
+  if (!page || !page.article) return;
+  page.article.title = this.value;
+  markDirty();
+  renderThumbs();
+});
+document.getElementById('nl-art-credit').addEventListener('change', function () {
+  var on = this.checked;
+  editArticle(function (page) {
+    page.article = page.article || { start: true, title: 'Article ' + (PAGE_I + 1) };
+    page.article.credit = page.article.credit || {};
+    page.article.credit.show = on;
+    if (on && !page.article.credit.name) {
+      page.article.credit.name = 'Name Surname';
+      page.article.credit.role = 'Contributor';
+    }
+  });
+  if (on) {
+    var arts = articleContexts(DOC.pages);
+    var last = PAGE_I;
+    for (var j = PAGE_I; j < DOC.pages.length; j++) { if (arts[j].article !== arts[PAGE_I].article) break; last = j; }
+    var w = canvasEl.querySelector('.nl-page-wrap[data-i="' + last + '"]');
     if (w) w.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 });
@@ -1681,13 +1815,12 @@ async function openDoc(id) {
   if (!snap.exists()) { alert('That newsletter no longer exists.'); loadLibrary(); return; }
   var d = snap.data();
   DOC = { id: id, title: d.title || 'Untitled', theme: d.theme || 'saffron',
-          pages: (d.pages && d.pages.length ? d.pages : [blankPage('cover')]),
-          credit: d.credit || { show: false } };
-  migratePages(DOC.pages);
+          pages: (d.pages && d.pages.length ? d.pages : [blankPage('cover')]) };
+  // d.credit is the first cut's edition-level byline; migratePages folds it
+  // into an article so nothing saved under the old shape loses its author.
+  migratePages(DOC.pages, d.credit);
   PAGE_I = 0; DIRTY = false;
   document.getElementById('nl-title').value = DOC.title;
-  document.getElementById('nl-credit-toggle').checked = !!DOC.credit.show;
-  renderCreditState();
   renderThemeChips('nl-themes', DOC.theme, 'data-theme');
   showEditor(true);
   goTab('editor');
@@ -1735,7 +1868,6 @@ document.getElementById('btn-create').addEventListener('click', async function (
     var ref = await f.addDoc(f.collection(f.db, 'newsletters'), {
       title: title, theme: theme,
       pages: pages,
-      credit: { show: false },
       createdAt: f.serverTimestamp(), updatedAt: f.serverTimestamp(),
       createdBy: window.__hccgcCurrentUser.email, updatedBy: window.__hccgcCurrentUser.email
     });
@@ -1752,14 +1884,13 @@ async function saveDoc(quiet) {
   var f = fb();
   await f.updateDoc(f.doc(f.db, 'newsletters', DOC.id), {
     title: DOC.title, theme: DOC.theme, pages: DOC.pages,
-    credit: DOC.credit || { show: false },
     updatedAt: f.serverTimestamp(), updatedBy: window.__hccgcCurrentUser.email
   });
   DIRTY = false;
   if (!quiet) say('Saved.', 'success');
 }
 /* ── Publishing to the public site ───────────────────────────────────
-   A published issue is a *copy* in `publishedNewsletters`, not a flag on the
+   A published edition is a *copy* in `publishedNewsletters`, not a flag on the
    draft. The drafts collection is staff-only on purpose — publishing must not
    mean opening half-written work to the world — so the public page reads a
    separate collection that only ever contains what someone chose to publish.
@@ -1902,7 +2033,6 @@ document.getElementById('btn-publish').addEventListener('click', async function 
       coverImage: coverOf(DOC),
       theme: DOC.theme,
       pages: DOC.pages,
-      credit: DOC.credit || { show: false },
       publishedAt: (PUB && PUB.publishedAt) ? PUB.publishedAt : f.serverTimestamp(),
       updatedAt: f.serverTimestamp(),
       publishedBy: window.__hccgcCurrentUser.email
@@ -1982,8 +2112,8 @@ async function inlineImages() {
     } else {
       // A picture we could not read would taint the canvas, and a tainted
       // canvas makes toDataURL throw — losing the whole PDF over one photo.
-      // Drop it for the duration of the capture instead: an issue with a
-      // missing picture still beats no issue at all, and the caller says so.
+      // Drop it for the duration of the capture instead: an edition with a
+      // missing picture still beats no edition at all, and the caller says so.
       originals.push([imgs[i], src]);
       imgs[i].removeAttribute('src');
       MISSED_IMAGES++;
@@ -2070,9 +2200,9 @@ function updateAttachNote() {
   var on = document.getElementById('send-attach').checked;
   document.getElementById('send-filename-field').style.display = on ? '' : 'none';
   document.getElementById('send-attach-note').innerHTML = on
-    ? 'Every email carries the PDF. Large issues send more slowly.'
-    : (PUB ? 'No attachment. A <strong>Read the newsletter</strong> button linking to the issue on the website is added to the email, and clicks on it are tracked.'
-           : '<span style="color:var(--red);font-weight:700;">This issue isn\'t on the website yet</span>, so without the PDF readers only get the email text. Publish it first, or keep the attachment.');
+    ? 'Every email carries the PDF. Large editions send more slowly.'
+    : (PUB ? 'No attachment. A <strong>Read the newsletter</strong> button linking to the edition on the website is added to the email, and clicks on it are tracked.'
+           : '<span style="color:var(--red);font-weight:700;">This edition isn\'t on the website yet</span>, so without the PDF readers only get the email text. Publish it first, or keep the attachment.');
 }
 document.getElementById('send-attach').addEventListener('change', updateAttachNote);
 function readOnlineButton() {
@@ -2095,7 +2225,7 @@ async function checkUnfinishedSend() {
     box.innerHTML = 'An earlier send of <strong>' + escHtml(open.subject || '') + '</strong> stopped with <strong>' + open.pending +
       '</strong> of ' + open.recipientCount + ' people not emailed yet. ' +
       '<button class="btn-secondary" id="btn-resume-send" style="margin-left:6px;padding:5px 12px;font-size:0.8rem;">Finish that send</button>' +
-      '<div style="font-size:0.78rem;margin-top:6px;">It keeps its original subject and text' + (open.attachPdf ? ', and attaches the PDF as the issue looks now' : '') + '. Nobody who already got it is emailed again.</div>';
+      '<div style="font-size:0.78rem;margin-top:6px;">It keeps its original subject and text' + (open.attachPdf ? ', and attaches the PDF as the edition looks now' : '') + '. Nobody who already got it is emailed again.</div>';
     document.getElementById('btn-resume-send').addEventListener('click', function () { resumeSend(open); });
   } catch (e) { /* the dialog works without this */ }
 }
@@ -2245,7 +2375,7 @@ async function doSend(testOnly) {
   if (!/\.pdf$/i.test(filename)) filename += '.pdf';
   if (!subject) { sendSay('Add a subject.', 'error'); return; }
   if (!bodyHtml) { sendSay('The email body is empty.', 'error'); return; }
-  if (!attach && !PUB && !window.confirm('This email has no attachment and the issue isn\'t on the website, so readers will only get the email text.\n\nSend anyway?')) return;
+  if (!attach && !PUB && !window.confirm('This email has no attachment and the edition isn\'t on the website, so readers will only get the email text.\n\nSend anyway?')) return;
   if (!testOnly && !window.confirm(
     'Send this to the FULL list?\n\n' + document.getElementById('send-reach').textContent +
     '\n\nThis is not a test. It cannot be undone.')) return;

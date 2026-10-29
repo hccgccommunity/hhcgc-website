@@ -59,18 +59,18 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .pub-views { font-size: 0.78rem; font-weight: 700; color: var(--muted); white-space: nowrap; }
 .pub-read { margin-top: auto; padding-top: 10px; font-size: 0.85rem; font-weight: 800; color: var(--saffron-dark); }
 
-.issue-bar { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding: 22px 0 6px; }
-.issue-bar h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.25rem; color: var(--maroon); }
-.issue-bar .meta { font-size: 0.8rem; color: var(--muted); }
+.edition-bar { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding: 22px 0 6px; }
+.edition-bar h2 { font-family: Georgia, "Times New Roman", serif; font-size: 1.25rem; color: var(--maroon); }
+.edition-bar .meta { font-size: 0.8rem; color: var(--muted); }
 .btn-primary { font-family: Arial, Helvetica, sans-serif; font-size: 0.88rem; font-weight: 700; color: #fff; background: linear-gradient(135deg, var(--saffron-dark), var(--maroon)); border: none; border-radius: 10px; padding: 11px 18px; cursor: pointer; text-decoration: none; display: inline-block; }
 .btn-primary:disabled { opacity: 0.55; cursor: default; }
 .btn-secondary { font-family: Arial, Helvetica, sans-serif; font-size: 0.86rem; font-weight: 700; color: var(--text); background: #fff; border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 16px; cursor: pointer; text-decoration: none; display: inline-block; }
 .empty-state { text-align: center; padding: 70px 20px; color: var(--muted); }
-.issue-wrap { padding: 10px 0 70px; }
+.edition-wrap { padding: 10px 0 70px; }
 .pdf-note { font-size: 0.78rem; color: var(--muted); margin-top: 10px; }
 
 /* The page renderer's own stylesheet, byte-for-byte the admin editor's, so a
-   published issue and its PDF cannot drift apart. */
+   published edition and its PDF cannot drift apart. */
 .nl-canvas { display: flex; flex-direction: column; align-items: center; gap: 26px; padding-bottom: 20px; }
 .nl-page-wrap { position: relative; }
 .nl-page-num { position: absolute; left: -30px; top: 0; font-size: 0.72rem; font-weight: 800; color: var(--muted); }
@@ -128,11 +128,11 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .nl-slot-tools button[data-slot-act="remove"]:hover { background: #b3382c; }
 .nl-printing .nl-slot-tools { display: none !important; }
 
-/* Author credit — one per issue, at the foot of the last page. It FLOWS at
-   the end of the content rather than being pinned down with position:
-   absolute, so it can never land on top of a photo grid, a back-page footer
-   bar or a full-bleed caption. The body regions above it carry flex:1, which
-   is what pushes it to the bottom of the sheet on its own. */
+/* Article byline — one per article, at the foot of that article's last page.
+   It FLOWS at the end of the content rather than being pinned down with
+   position: absolute, so it can never land on top of a photo grid, a
+   back-page footer bar or a full-bleed caption. The body regions above it
+   carry flex:1, which is what pushes it to the bottom of the sheet. */
 .nl-credit { display: flex; align-items: center; gap: 16px; margin-top: 20px; padding-top: 18px; border-top: 2px solid var(--soft); }
 .nl-credit .nl-imgslot { width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0; }
 .nl-credit-by { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--a); margin-bottom: 3px; font-family: Arial, Helvetica, sans-serif; }
@@ -289,7 +289,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 
 <div class="page-hero">
   <div class="container">
-    <a class="back-link" id="hero-back" href="/newsletters" style="display:none;">&larr; All issues</a>
+    <a class="back-link" id="hero-back" href="/newsletters" style="display:none;">&larr; All editions</a>
     <h1 id="hero-title">Newsletter</h1>
     <p id="hero-sub">News, events and gratitude from the Hindu Community Center of Greater Cincinnati.</p>
   </div>
@@ -300,23 +300,23 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
     <div id="pub-list"><div class="empty-state">Loading&hellip;</div></div>
   </div>
 
-  <div id="issue-view" style="display:none;">
-    <div class="issue-bar">
+  <div id="edition-view" style="display:none;">
+    <div class="edition-bar">
       <div>
-        <h2 id="issue-title"></h2>
-        <div class="meta" id="issue-meta"></div>
+        <h2 id="edition-title"></h2>
+        <div class="meta" id="edition-meta"></div>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <a class="btn-secondary" href="/newsletters">All issues</a>
+        <a class="btn-secondary" href="/newsletters">All editions</a>
         <button class="btn-primary" id="btn-pdf">Download PDF</button>
       </div>
     </div>
     <div class="pdf-note" id="pdf-note"></div>
-    <div class="issue-wrap"><div class="nl-canvas" id="nl-canvas"></div></div>
+    <div class="edition-wrap"><div class="nl-canvas" id="nl-canvas"></div></div>
 
     <section class="nl-engage" id="nl-engage" style="display:none;" aria-label="Reactions and comments">
       <div class="nl-engage-card">
-        <h3>React to this issue</h3>
+        <h3>React to this edition</h3>
         <div class="nl-reactions" id="nl-reactions"></div>
         <div class="nl-react-hint">Tap again to take your reaction back.</div>
       </div>
@@ -379,7 +379,7 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.register('/service-wor
 
    Reads `publishedNewsletters` — a separate collection from the staff-only
    `newsletters` drafts, so publishing is an explicit copy and an unfinished
-   issue can never leak. The page renderer below is lifted verbatim from the
+   edition can never leak. The page renderer below is lifted verbatim from the
    admin editor at build time, which is what makes what a visitor reads and
    what the PDF contains the same thing rather than two implementations that
    agree for a while.
@@ -445,12 +445,29 @@ function layoutOf(key) {
   var k = LEGACY_LAYOUTS[key] || key;
   return LAYOUTS.find(function (l) { return l.key === k; }) || LAYOUTS[0];
 }
-function migratePages(pages) {
+function migratePages(pages, legacyCredit) {
   (pages || []).forEach(function (p) {
     p.slots = p.slots || {};
     p.opts = p.opts || {};
     if (LEGACY_LAYOUTS[p.layout]) p.layout = LEGACY_LAYOUTS[p.layout];
   });
+  // The first cut had one credit for the whole edition. Turn it into a single
+  // article covering everything, so nothing published under the old shape
+  // loses its byline.
+  var hasArticle = (pages || []).some(function (p) { return p.article && p.article.start; });
+  if (legacyCredit && legacyCredit.show && (pages || []).length && !hasArticle) {
+    pages[0].article = {
+      start: true,
+      title: 'Article 1',
+      credit: {
+        show: true,
+        photo: legacyCredit.photo || '',
+        name: legacyCredit.name || '',
+        role: legacyCredit.role || '',
+        byLabel: legacyCredit.byLabel || 'By'
+      }
+    };
+  }
   return pages;
 }
 
@@ -473,23 +490,42 @@ function imgSlot(page, name, extraClass) {
     inner + slotTools(url) + '</div>';
 }
 
-/* ── Author credit ───────────────────────────────────────────────────
-   One per ISSUE, not per page, and stored on the document rather than on
-   whichever page happens to be last — hanging it off the last page breaks
-   silently the moment somebody reorders or appends a page, which is exactly
-   the sort of thing nobody notices until the issue has gone out.          */
+/* ── Articles and their bylines ───────────────────────────────────────
+   An EDITION is made of ARTICLES. A page marks itself as the start of one;
+   every page after it belongs to that article until the next start. The
+   marker lives on the page rather than in a separate list of ranges, so
+   moving a page carries its article with it instead of silently shifting
+   somebody else's byline onto the wrong pages.                            */
+function articleContexts(pages) {
+  pages = pages || [];
+  var out = [], current = null, startIndex = -1;
+  for (var i = 0; i < pages.length; i++) {
+    var a = pages[i] && pages[i].article;
+    if (a && a.start) { current = a; startIndex = i; }
+    out.push({ article: current, startIndex: startIndex });
+  }
+  // A page ends its article when the next page belongs to a different one
+  // (or there is no next page). That is where the byline goes.
+  for (var j = 0; j < out.length; j++) {
+    var next = out[j + 1];
+    out[j].isArticleEnd = !!out[j].article && (!next || next.article !== out[j].article);
+  }
+  return out;
+}
+
 function creditBlock(ctx, light) {
-  if (!ctx || !ctx.isLast || !ctx.credit || !ctx.credit.show) return '';
-  var c = ctx.credit;
+  if (!ctx || !ctx.isArticleEnd || !ctx.article) return '';
+  var c = ctx.article.credit;
+  if (!c || !c.show) return '';
   var photo = c.photo
     ? '<img src="' + escHtml(c.photo) + '" alt="">'
     : '<span class="nl-imgph">Photo</span>';
-  return '<div class="nl-credit' + (light ? ' light' : '') + '">' +
-    '<div class="nl-imgslot" data-docimgslot="photo">' + photo + slotTools(c.photo) + '</div>' +
+  return '<div class="nl-credit' + (light ? ' light' : '') + '" data-artpage="' + ctx.startIndex + '">' +
+    '<div class="nl-imgslot" data-artimgslot="photo">' + photo + slotTools(c.photo) + '</div>' +
     '<div>' +
-      '<div class="nl-credit-by">' + escHtml(c.byLabel || 'Compiled by') + '</div>' +
-      '<div class="nl-credit-name" data-docslot="name" contenteditable="true">' + (c.name || 'Name Surname') + '</div>' +
-      '<div class="nl-credit-role" data-docslot="role" contenteditable="true">' + (c.role || 'Editor, HCCGC Newsletter') + '</div>' +
+      '<div class="nl-credit-by">' + escHtml(c.byLabel || 'By') + '</div>' +
+      '<div class="nl-credit-name" data-artslot="name" contenteditable="true">' + (c.name || 'Name Surname') + '</div>' +
+      '<div class="nl-credit-role" data-artslot="role" contenteditable="true">' + (c.role || 'Contributor') + '</div>' +
     '</div>' +
   '</div>';
 }
@@ -520,7 +556,7 @@ function bleedPage(page, innerHtml) {
    layout can carry one or go straight into the content. */
 function headBlock(page) {
   if (page.opts && page.opts.head === false) return '';
-  return ed(page, 'eyebrow', 'In this issue', 'div', 'nl-eyebrow') +
+  return ed(page, 'eyebrow', 'In this edition', 'div', 'nl-eyebrow') +
     ed(page, 'title', 'Page heading', 'h2', 'nl-h') +
     '<div class="nl-underline"></div>';
 }
@@ -698,17 +734,21 @@ function thumbSkeleton(key) {
 }
 
 /* ── View ────────────────────────────────────────────────────────── */
-var ISSUE = null;
+var EDITION = null;
 var canvasEl = document.getElementById('nl-canvas');
 
-function renderIssue(doc) {
-  ISSUE = doc;
-  migratePages(doc.pages || []);
+function renderEdition(doc) {
+  EDITION = doc;
+  // doc.credit is the first cut's edition-level byline; migratePages folds it
+  // into a single article so an edition published under the old shape keeps
+  // its author instead of silently losing it.
+  migratePages(doc.pages || [], doc.credit);
   var pages = doc.pages || [];
+  var arts = articleContexts(pages);
   canvasEl.innerHTML = pages.map(function (p, i) {
     return '<div class="nl-page-wrap" data-i="' + i + '">' +
       '<div class="nl-page nl-t-' + escHtml(doc.theme || 'saffron') + '" data-i="' + i + '">' +
-        renderPage(p, { credit: doc.credit, isLast: i === pages.length - 1 }) +
+        renderPage(p, arts[i]) +
       '</div>' +
     '</div>';
   }).join('');
@@ -733,11 +773,11 @@ function fitPages() {
     w.style.height = (1056 * z) + 'px';
   });
 }
-window.addEventListener('resize', function () { if (ISSUE) fitPages(); });
+window.addEventListener('resize', function () { if (EDITION) fitPages(); });
 
 /* ── PDF, rebuilt in the reader's own browser ────────────────────────
    Nothing is stored server-side: the same DOM that is on screen is what
-   goes into the file, so a published issue never needs a hosted PDF that
+   goes into the file, so a published edition never needs a hosted PDF that
    could fall out of step with it. */
 var IMG_CACHE = {};
 async function toDataUrl(url) {
@@ -781,7 +821,7 @@ async function inlineImages() {
   return { restored: restored, missed: missed };
 }
 document.getElementById('btn-pdf').addEventListener('click', async function () {
-  if (!ISSUE) return;
+  if (!EDITION) return;
   var note = document.getElementById('pdf-note');
   this.disabled = true;
   note.textContent = 'Building the PDF — a few seconds per page…';
@@ -802,7 +842,7 @@ document.getElementById('btn-pdf').addEventListener('click', async function () {
       if (i > 0) pdf.addPage('letter', 'portrait');
       pdf.addImage(c.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, 612, 792, undefined, 'FAST');
     }
-    pdf.save((ISSUE.title || 'HCCGC-Newsletter').replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-') + '.pdf');
+    pdf.save((EDITION.title || 'HCCGC-Newsletter').replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-') + '.pdf');
     note.textContent = res.missed
       ? 'Downloaded. ' + res.missed + ' picture(s) could not be embedded and may be missing from the PDF.'
       : '';
@@ -834,7 +874,7 @@ var COLL = 'publishedNewsletters';
 
 function showIndex() {
   document.getElementById('index-view').style.display = 'block';
-  document.getElementById('issue-view').style.display = 'none';
+  document.getElementById('edition-view').style.display = 'none';
   document.getElementById('hero-back').style.display = 'none';
   document.getElementById('hero-title').textContent = 'Newsletter';
   document.getElementById('hero-sub').textContent = 'News, events and gratitude from the Hindu Community Center of Greater Cincinnati.';
@@ -846,7 +886,7 @@ async function loadIndex() {
     var snap = await getDocs(query(collection(db, COLL), orderBy('publishedAt', 'desc')));
     var rows = [];
     snap.forEach(function (d) { rows.push(Object.assign({ id: d.id }, d.data())); });
-    if (!rows.length) { el.innerHTML = '<div class="empty-state">No issues have been published yet. Please check back soon.</div>'; return; }
+    if (!rows.length) { el.innerHTML = '<div class="empty-state">No editions have been published yet. Please check back soon.</div>'; return; }
     el.innerHTML = '<div class="pub-grid">' + rows.map(function (n) {
       var cover = n.coverImage || '';
       return '<a class="pub-card" href="/newsletters?id=' + encodeURIComponent(n.id) + '">' +
@@ -855,7 +895,7 @@ async function loadIndex() {
           '<div class="pub-date">' + escHtml(fmtDate(n.publishedAt)) + '</div>' +
           '<h2>' + escHtml(n.headline || n.title || 'Newsletter') + '</h2>' +
           (n.summary ? '<div class="pub-sum">' + escHtml(n.summary) + '</div>' : '') +
-          '<div class="pub-foot"><div class="pub-read">Read this issue &rarr;</div>' +
+          '<div class="pub-foot"><div class="pub-read">Read this edition &rarr;</div>' +
             '<span class="pub-views" data-views-for="' + escHtml(n.id) + '"></span></div>' +
         '</div>' +
       '</a>';
@@ -866,27 +906,27 @@ async function loadIndex() {
   }
 }
 
-async function loadIssue(id) {
+async function loadEdition(id) {
   try {
     var snap = await getDoc(doc(db, COLL, id));
     if (!snap.exists()) { showIndex(); loadIndex(); return; }
     var d = snap.data();
     document.getElementById('index-view').style.display = 'none';
-    document.getElementById('issue-view').style.display = 'block';
+    document.getElementById('edition-view').style.display = 'block';
     document.getElementById('hero-back').style.display = 'inline-flex';
     document.getElementById('hero-title').textContent = d.headline || d.title || 'Newsletter';
     document.getElementById('hero-sub').textContent = d.summary || '';
-    document.getElementById('issue-title').textContent = d.title || '';
-    document.getElementById('issue-meta').textContent =
+    document.getElementById('edition-title').textContent = d.title || '';
+    document.getElementById('edition-meta').textContent =
       (d.pages ? d.pages.length + ' page' + (d.pages.length === 1 ? '' : 's') : '') +
       (d.publishedAt ? ' · Published ' + fmtDate(d.publishedAt) : '');
     document.title = (d.headline || d.title || 'Newsletter') + ' — HCCGC';
-    window.renderIssue(d);
+    window.renderEdition(d);
     startEngagement(id);
   } catch (err) {
     showIndex();
     document.getElementById('pub-list').innerHTML =
-      '<div class="empty-state">Could not load that issue right now. Please try again shortly.</div>';
+      '<div class="empty-state">Could not load that edition right now. Please try again shortly.</div>';
   }
 }
 
@@ -907,14 +947,14 @@ var REACTIONS = [
   { key: 'party', emoji: '\u{1F389}', label: 'Celebrate' }
 ];
 var COMMENT_MAX = 1500, NAME_MAX = 60, COMMENT_GAP_MS = 30000;
-var ISSUE_ID = null, COUNTS = {}, MINE = {};
+var EDITION_ID = null, COUNTS = {}, MINE = {};
 
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 function ssGet(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
 function ssSet(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }
 
-// One view per issue per browser session, so a refresh or a PDF download
+// One view per edition per browser session, so a refresh or a PDF download
 // doesn't inflate the count. uniqueViews counts each browser once, ever.
 function countView(issueId) {
   if (ssGet('nl-viewed-' + issueId)) return;
@@ -944,12 +984,12 @@ function renderReactions() {
 
 document.getElementById('nl-reactions').addEventListener('click', async function (e) {
   var btn = e.target.closest('[data-react]');
-  if (!btn || !ISSUE_ID || btn.disabled) return;
+  if (!btn || !EDITION_ID || btn.disabled) return;
   var key = btn.dataset.react, field = 'r_' + key;
   var had = !!MINE[key];
   var delta = had ? -1 : 1;
   // Never try to take a count below zero — the rules would refuse it anyway.
-  if (delta < 0 && (Number(COUNTS[field]) || 0) <= 0) { delete MINE[key]; saveMine(ISSUE_ID); renderReactions(); return; }
+  if (delta < 0 && (Number(COUNTS[field]) || 0) <= 0) { delete MINE[key]; saveMine(EDITION_ID); renderReactions(); return; }
   btn.disabled = true;
   // Optimistic, then put it back if the write is refused.
   COUNTS[field] = (Number(COUNTS[field]) || 0) + delta;
@@ -957,8 +997,8 @@ document.getElementById('nl-reactions').addEventListener('click', async function
   renderReactions();
   var payload = {}; payload[field] = increment(delta);
   try {
-    await setDoc(doc(db, STATS, ISSUE_ID), payload, { merge: true });
-    saveMine(ISSUE_ID);
+    await setDoc(doc(db, STATS, EDITION_ID), payload, { merge: true });
+    saveMine(EDITION_ID);
   } catch (err) {
     COUNTS[field] = (Number(COUNTS[field]) || 0) - delta;
     if (had) MINE[key] = 1; else delete MINE[key];
@@ -1016,7 +1056,7 @@ function setStatus(msg, cls) { statusEl.textContent = msg || ''; statusEl.classN
 
 document.getElementById('nl-comment-form').addEventListener('submit', async function (e) {
   e.preventDefault();
-  if (!ISSUE_ID) return;
+  if (!EDITION_ID) return;
   var name = nameInput.value.trim().replace(/\s+/g, ' ');
   var text = textInput.value.trim();
   if (!name) { setStatus('Please add your name.', 'err'); nameInput.focus(); return; }
@@ -1028,10 +1068,10 @@ document.getElementById('nl-comment-form').addEventListener('submit', async func
   var btn = document.getElementById('nl-comment-submit');
   btn.disabled = true; setStatus('Posting…');
   try {
-    var ref = await addDoc(collection(db, COMMENTS), { issueId: ISSUE_ID, name: name, text: text, createdAt: serverTimestamp() });
+    var ref = await addDoc(collection(db, COMMENTS), { issueId: EDITION_ID, name: name, text: text, createdAt: serverTimestamp() });
     lsSet('nl-commenter-name', name);
     lsSet('nl-comment-last', String(Date.now()));
-    COMMENT_LIST.push({ id: ref.id, issueId: ISSUE_ID, name: name, text: text, createdAt: new Date() });
+    COMMENT_LIST.push({ id: ref.id, issueId: EDITION_ID, name: name, text: text, createdAt: new Date() });
     renderComments(COMMENT_LIST);
     textInput.value = '';
     document.getElementById('nl-comment-counter').textContent = '0 / ' + COMMENT_MAX;
@@ -1058,15 +1098,15 @@ async function fillCardViews() {
     });
   } catch (e) { /* view counts are extra; the cards are already usable */ }
 }
-var ISSUE_META_BASE = '';
-function showIssueViews(n) {
-  var el = document.getElementById('issue-meta');
-  if (!ISSUE_META_BASE) ISSUE_META_BASE = el.textContent;
-  el.textContent = ISSUE_META_BASE + (ISSUE_META_BASE ? ' · ' : '') + viewsLabel(n);
+var EDITION_META_BASE = '';
+function showEditionViews(n) {
+  var el = document.getElementById('edition-meta');
+  if (!EDITION_META_BASE) EDITION_META_BASE = el.textContent;
+  el.textContent = EDITION_META_BASE + (EDITION_META_BASE ? ' · ' : '') + viewsLabel(n);
 }
 
 async function startEngagement(issueId) {
-  ISSUE_ID = issueId;
+  EDITION_ID = issueId;
   document.getElementById('nl-engage').style.display = 'flex';
   loadMine(issueId);
   COUNTS = {};
@@ -1078,13 +1118,13 @@ async function startEngagement(issueId) {
   renderReactions();
   var countingNow = !ssGet('nl-viewed-' + issueId);
   countView(issueId);
-  ISSUE_META_BASE = '';
-  showIssueViews((Number(COUNTS.views) || 0) + (countingNow ? 1 : 0));
+  EDITION_META_BASE = '';
+  showEditionViews((Number(COUNTS.views) || 0) + (countingNow ? 1 : 0));
   loadComments(issueId);
 }
 
 var id = new URLSearchParams(window.location.search).get('id');
-if (id) loadIssue(id); else { showIndex(); loadIndex(); }
+if (id) loadEdition(id); else { showIndex(); loadIndex(); }
 </script>
 </body>
 </html>

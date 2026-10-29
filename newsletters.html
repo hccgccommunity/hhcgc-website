@@ -106,6 +106,42 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .nl-editing .nl-imgslot:hover { box-shadow: inset 0 0 0 3px var(--a); }
 .nl-printing .nl-imgph { display: none; }
 
+/* Dropping a photo straight onto a slot, and the per-slot progress that
+   stops a slow upload looking like a dead click. */
+.nl-imgslot.drop-on { box-shadow: inset 0 0 0 4px var(--a) !important; }
+.nl-page.drop-page { outline: 3px dashed var(--a); outline-offset: -6px; }
+.nl-imgslot.is-busy::after {
+  content: 'Uploading\2026'; position: absolute; inset: 0; z-index: 4; display: flex;
+  align-items: center; justify-content: center; background: rgba(255,249,241,0.82);
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.8rem; font-weight: 800; color: var(--a);
+}
+/* Replace / Remove, on hover, only in the editor. There was previously no way
+   to take a picture back OUT of a slot once it was in. */
+.nl-slot-tools { position: absolute; top: 8px; right: 8px; z-index: 5; display: none; gap: 6px; }
+.nl-editing .nl-imgslot:hover .nl-slot-tools { display: flex; }
+.nl-slot-tools button {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.72rem; font-weight: 800; line-height: 1;
+  padding: 6px 10px; border-radius: 7px; border: none; cursor: pointer;
+  background: rgba(28,16,8,0.74); color: #fff;
+}
+.nl-slot-tools button:hover { background: rgba(28,16,8,0.92); }
+.nl-slot-tools button[data-slot-act="remove"]:hover { background: #b3382c; }
+.nl-printing .nl-slot-tools { display: none !important; }
+
+/* Author credit — one per issue, at the foot of the last page. It FLOWS at
+   the end of the content rather than being pinned down with position:
+   absolute, so it can never land on top of a photo grid, a back-page footer
+   bar or a full-bleed caption. The body regions above it carry flex:1, which
+   is what pushes it to the bottom of the sheet on its own. */
+.nl-credit { display: flex; align-items: center; gap: 16px; margin-top: 20px; padding-top: 18px; border-top: 2px solid var(--soft); }
+.nl-credit .nl-imgslot { width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0; }
+.nl-credit-by { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--a); margin-bottom: 3px; font-family: Arial, Helvetica, sans-serif; }
+.nl-credit-name { font-family: var(--hf); font-size: 1.1rem; font-weight: 700; color: var(--d); line-height: 1.2; }
+.nl-credit-role { font-size: 0.88rem; color: #6a5141; margin-top: 2px; }
+.nl-credit.light { border-top-color: rgba(255,255,255,0.32); }
+.nl-credit.light .nl-credit-name, .nl-credit.light .nl-credit-role { color: #fff; }
+.nl-credit.light .nl-credit-by { color: #ffd9ab; }
+
 /* Cover */
 .nl-cover { height: 1056px; display: flex; flex-direction: column; }
 .nl-cover-top { height: 560px; position: relative; }
@@ -347,6 +383,10 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.register('/service-wor
    admin editor at build time, which is what makes what a visitor reads and
    what the PDF contains the same thing rather than two implementations that
    agree for a while.
+
+   `window.__nlEditTools` is deliberately NOT set here: the shared renderer
+   checks it before emitting the hover Replace/Remove controls, so those
+   never reach a reader's DOM at all.
    ═══════════════════════════════════════════════════════════════════ */
 function escHtml(s) {
   return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -414,12 +454,44 @@ function migratePages(pages) {
   return pages;
 }
 
+/* `window.__nlEditTools` is set only by the admin editor, so the hover
+   Replace/Remove controls are never emitted into the public page's DOM at
+   all — not merely hidden there. */
+function slotTools(url) {
+  if (!url || !(typeof window !== 'undefined' && window.__nlEditTools)) return '';
+  return '<span class="nl-slot-tools">' +
+    '<button type="button" data-slot-act="replace" title="Choose a different picture">Replace</button>' +
+    '<button type="button" data-slot-act="remove" title="Take this picture out">Remove</button>' +
+  '</span>';
+}
 function imgSlot(page, name, extraClass) {
   var url = page.slots[name] || '';
   var inner = url
     ? '<img src="' + escHtml(url) + '" alt="">'
-    : '<span class="nl-imgph">Click to add<br>a picture</span>';
-  return '<div class="nl-imgslot ' + (extraClass || '') + '" data-imgslot="' + name + '">' + inner + '</div>';
+    : '<span class="nl-imgph">Click, drop or paste<br>a picture</span>';
+  return '<div class="nl-imgslot ' + (extraClass || '') + '" data-imgslot="' + name + '">' +
+    inner + slotTools(url) + '</div>';
+}
+
+/* ── Author credit ───────────────────────────────────────────────────
+   One per ISSUE, not per page, and stored on the document rather than on
+   whichever page happens to be last — hanging it off the last page breaks
+   silently the moment somebody reorders or appends a page, which is exactly
+   the sort of thing nobody notices until the issue has gone out.          */
+function creditBlock(ctx, light) {
+  if (!ctx || !ctx.isLast || !ctx.credit || !ctx.credit.show) return '';
+  var c = ctx.credit;
+  var photo = c.photo
+    ? '<img src="' + escHtml(c.photo) + '" alt="">'
+    : '<span class="nl-imgph">Photo</span>';
+  return '<div class="nl-credit' + (light ? ' light' : '') + '">' +
+    '<div class="nl-imgslot" data-docimgslot="photo">' + photo + slotTools(c.photo) + '</div>' +
+    '<div>' +
+      '<div class="nl-credit-by">' + escHtml(c.byLabel || 'Compiled by') + '</div>' +
+      '<div class="nl-credit-name" data-docslot="name" contenteditable="true">' + (c.name || 'Name Surname') + '</div>' +
+      '<div class="nl-credit-role" data-docslot="role" contenteditable="true">' + (c.role || 'Editor, HCCGC Newsletter') + '</div>' +
+    '</div>' +
+  '</div>';
 }
 function ed(page, name, fallback, tag, cls, style) {
   tag = tag || 'div';
@@ -502,7 +574,7 @@ function bodyFor(L, page) {
   return ed(page, 'c1', '<p>Click here and type.</p>', 'div', 'nl-text');
 }
 
-function renderPage(page) {
+function renderPage(page, ctx) {
   page.slots = page.slots || {};
   page.opts = page.opts || {};
   var L = layoutOf(page.layout);
@@ -512,7 +584,8 @@ function renderPage(page) {
       ed(page, 'kicker', 'HCCGC &middot; Newsletter', 'div', 'nl-bleed-badge') +
       ed(page, 'title', 'A season of coming together', 'h1') +
       ed(page, 'subtitle', 'News, events and gratitude from the Hindu Community Center of Greater Cincinnati.', 'div', 'nl-cover-sub') +
-      '<div class="nl-cover-foot">' + ed(page, 'date', monthYear(), 'div') + ed(page, 'edition', 'hccgc.org', 'div') + '</div>');
+      '<div class="nl-cover-foot">' + ed(page, 'date', monthYear(), 'div') + ed(page, 'edition', 'hccgc.org', 'div') + '</div>' +
+      creditBlock(ctx, true));
   }
   if (L.key === 'back' && page.opts.bleed) {
     return bleedPage(page,
@@ -523,7 +596,7 @@ function renderPage(page) {
         '<div>' + ed(page, 'c2t', 'Write', 'h3') + ed(page, 'c2b', '<p>info@hccgc.org</p>', 'div') + '</div>' +
         '<div>' + ed(page, 'c3t', 'Give', 'h3') + ed(page, 'c3b', '<p>hccgc.org/donate-now</p>', 'div') + '</div>' +
         '<div>' + ed(page, 'c4t', 'Rent the hall', 'h3') + ed(page, 'c4b', '<p>hccgc.org/facility-rental</p>', 'div') + '</div>' +
-      '</div></div>');
+      '</div></div>' + creditBlock(ctx, true));
   }
   if (L.key === 'cover') {
     return '<div class="nl-cover">' +
@@ -539,6 +612,7 @@ function renderPage(page) {
           ed(page, 'date', monthYear(), 'div') +
           ed(page, 'edition', 'hccgc.org', 'div') +
         '</div>' +
+        creditBlock(ctx) +
       '</div>' +
     '</div>';
   }
@@ -548,6 +622,7 @@ function renderPage(page) {
       ed(page, 'quote', 'A temple is not a building. It is what a community does together, week after week.', 'div', 'nl-quote') +
       ed(page, 'by', '&mdash; Name Surname', 'div', 'nl-quote-by') +
       ed(page, 'role', 'President, HCCGC', 'div', 'nl-quote-role') +
+      creditBlock(ctx) +
     '</div>';
   }
   if (L.key === 'back') {
@@ -560,6 +635,7 @@ function renderPage(page) {
           '<div>' + ed(page, 'c3t', 'Give', 'h3') + ed(page, 'c3b', '<p>hccgc.org/donate-now</p>', 'div') + '</div>' +
           '<div>' + ed(page, 'c4t', 'Rent the hall', 'h3') + ed(page, 'c4b', '<p>hccgc.org/facility-rental</p>', 'div') + '</div>' +
         '</div></div>' +
+        creditBlock(ctx) +
       '</div>' +
       '<div class="nl-footer-bar">' +
         ed(page, 'footL', 'Hindu Community Center of Greater Cincinnati', 'div') +
@@ -569,14 +645,15 @@ function renderPage(page) {
   }
   if (L.img === 'full') {
     return '<div class="nl-full">' + imgSlot(page, 'image') +
-      '<div class="nl-full-cap">' + ed(page, 'caption', 'A photograph that speaks for itself.', 'div') + '</div>' +
+      '<div class="nl-full-cap">' + ed(page, 'caption', 'A photograph that speaks for itself.', 'div') +
+        creditBlock(ctx, true) + '</div>' +
     '</div>';
   }
   if (L.img === 'top') {
     return '<div class="nl-banner">' + imgSlot(page, 'image') + '</div>' +
-      '<div class="nl-pad nl-flex" style="padding-top:38px;">' + headBlock(page) + bodyFor(L, page) + '</div>';
+      '<div class="nl-pad nl-flex" style="padding-top:38px;">' + headBlock(page) + bodyFor(L, page) + creditBlock(ctx) + '</div>';
   }
-  return '<div class="nl-pad nl-flex">' + headBlock(page) + bodyFor(L, page) + '</div>';
+  return '<div class="nl-pad nl-flex">' + headBlock(page) + bodyFor(L, page) + creditBlock(ctx) + '</div>';
 }
 
 /* Thumbnail schematic, derived from the layout spec rather than hand-drawn —
@@ -627,9 +704,12 @@ var canvasEl = document.getElementById('nl-canvas');
 function renderIssue(doc) {
   ISSUE = doc;
   migratePages(doc.pages || []);
-  canvasEl.innerHTML = (doc.pages || []).map(function (p, i) {
+  var pages = doc.pages || [];
+  canvasEl.innerHTML = pages.map(function (p, i) {
     return '<div class="nl-page-wrap" data-i="' + i + '">' +
-      '<div class="nl-page nl-t-' + escHtml(doc.theme || 'saffron') + '" data-i="' + i + '">' + renderPage(p) + '</div>' +
+      '<div class="nl-page nl-t-' + escHtml(doc.theme || 'saffron') + '" data-i="' + i + '">' +
+        renderPage(p, { credit: doc.credit, isLast: i === pages.length - 1 }) +
+      '</div>' +
     '</div>';
   }).join('');
   /* The renderer marks its text slots editable for the admin editor's sake.
@@ -821,7 +901,7 @@ var STATS = 'newsletterStats';
 var COMMENTS = 'newsletterComments';
 var REACTIONS = [
   { key: 'pray',  emoji: '\u{1F64F}', label: 'Namaste' },
-  { key: 'heart', emoji: '\u2764\uFE0F', label: 'Love' },
+  { key: 'heart', emoji: '❤️', label: 'Love' },
   { key: 'clap',  emoji: '\u{1F44F}', label: 'Applause' },
   { key: 'smile', emoji: '\u{1F60A}', label: 'Smile' },
   { key: 'party', emoji: '\u{1F389}', label: 'Celebrate' }

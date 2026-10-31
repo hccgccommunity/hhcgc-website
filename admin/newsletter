@@ -163,7 +163,11 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .nl-editing [data-slot]:focus { background: rgba(181,90,24,0.09); box-shadow: 0 0 0 2px rgba(181,90,24,0.25); border-radius: 4px; }
 
 /* Image slots */
-.nl-imgslot { position: relative; background: var(--soft); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+/* No overflow:hidden any more. The photo is a background, which the box
+   (and its border-radius) clips by itself, and hiding overflow made the
+   hover controls unreachable on a small slot like the 72px byline
+   circle — they were clipped away the moment they were wider than it. */
+.nl-imgslot { position: relative; background: var(--soft); display: flex; align-items: center; justify-content: center; }
 .nl-imgslot img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .nl-imgph { font-size: 0.82rem; font-weight: 700; color: var(--a); text-align: center; padding: 10px; font-family: Arial, Helvetica, sans-serif; }
 .nl-editing .nl-imgslot { cursor: pointer; }
@@ -181,7 +185,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 }
 /* Replace / Remove, on hover, only in the editor. There was previously no way
    to take a picture back OUT of a slot once it was in. */
-.nl-slot-tools { position: absolute; top: 8px; right: 8px; z-index: 5; display: none; gap: 6px; }
+.nl-slot-tools { position: absolute; top: 6px; left: 6px; z-index: 12; display: none; gap: 5px; white-space: nowrap; }
 .nl-editing .nl-imgslot:hover .nl-slot-tools { display: flex; }
 .nl-slot-tools button {
   font-family: Arial, Helvetica, sans-serif; font-size: 0.72rem; font-weight: 800; line-height: 1;
@@ -348,6 +352,9 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .nl-img-bar button.danger { color: var(--red); border-color: rgba(179,56,44,0.35); }
 .nl-img-bar .w { font-size: 0.72rem; font-weight: 800; color: var(--muted); padding: 0 6px; align-self: center; min-width: 38px; text-align: center; }
 .nl-img-bar .sep { width: 1px; background: var(--border); margin: 0 2px; }
+.nl-imgslot.framing { box-shadow: inset 0 0 0 3px var(--saffron-dark) !important; cursor: move; }
+.nl-frame-bar { z-index: 45; }
+.nl-frame-bar .hint { font-size: 0.68rem; color: var(--muted); align-self: center; padding: 0 4px; }
 .nl-overflow-warn { display: none; margin-top: 8px; font-size: 0.76rem; color: var(--red); font-weight: 700; }
 .nl-page-wrap.over .nl-overflow-warn { display: block; }
 .nl-zoom { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--muted); }
@@ -871,22 +878,39 @@ function migratePages(pages, legacyCredit) {
 }
 
 /* `window.__nlEditTools` is set only by the admin editor, so the hover
-   Replace/Remove controls are never emitted into the public page's DOM at
-   all — not merely hidden there. */
+   controls are never emitted into the public page's DOM at all — not merely
+   hidden there. */
 function slotTools(url) {
   if (!url || !(typeof window !== 'undefined' && window.__nlEditTools)) return '';
   return '<span class="nl-slot-tools">' +
+    '<button type="button" data-slot-act="frame" title="Move and zoom the picture inside its box">Frame</button>' +
     '<button type="button" data-slot-act="replace" title="Choose a different picture">Replace</button>' +
     '<button type="button" data-slot-act="remove" title="Take this picture out">Remove</button>' +
   '</span>';
 }
+
+/* A picture box paints its photo as a BACKGROUND, not as an <img>.
+   html2canvas — which rasterises the PDF — does not implement object-fit, so
+   an <img> that is correctly cropped on screen comes out squashed to the
+   shape of its box in the PDF: glaring on a round headshot, quietly wrong on
+   every other photo. background-size it does implement, and it gives framing
+   (position and zoom) for free. */
+function slotDiv(url, attr, extraClass, pos, size) {
+  var style = '';
+  if (url) {
+    style = ' style="background-image:url(&quot;' + escHtml(url) + '&quot;);' +
+      'background-size:' + escHtml(size || 'cover') + ';' +
+      'background-position:' + escHtml(pos || '50% 50%') + ';' +
+      'background-repeat:no-repeat;"';
+  }
+  return '<div class="nl-imgslot ' + (extraClass || '') + (url ? ' filled' : '') + '" ' + attr + style + '>' +
+    (url ? '' : '<span class="nl-imgph">Click, drop or paste<br>a picture</span>') +
+    slotTools(url) +
+  '</div>';
+}
 function imgSlot(page, name, extraClass) {
-  var url = page.slots[name] || '';
-  var inner = url
-    ? '<img src="' + escHtml(url) + '" alt="">'
-    : '<span class="nl-imgph">Click, drop or paste<br>a picture</span>';
-  return '<div class="nl-imgslot ' + (extraClass || '') + '" data-imgslot="' + name + '">' +
-    inner + slotTools(url) + '</div>';
+  return slotDiv(page.slots[name] || '', 'data-imgslot="' + name + '"', extraClass,
+                 page.slots[name + '@pos'], page.slots[name + '@size']);
 }
 
 /* ── Articles and their bylines ───────────────────────────────────────
@@ -916,11 +940,8 @@ function creditBlock(ctx, light) {
   if (!ctx || !ctx.isArticleEnd || !ctx.article) return '';
   var c = ctx.article.credit;
   if (!c || !c.show) return '';
-  var photo = c.photo
-    ? '<img src="' + escHtml(c.photo) + '" alt="">'
-    : '<span class="nl-imgph">Photo</span>';
   return '<div class="nl-credit' + (light ? ' light' : '') + '" data-artpage="' + ctx.startIndex + '">' +
-    '<div class="nl-imgslot" data-artimgslot="photo">' + photo + slotTools(c.photo) + '</div>' +
+    slotDiv(c.photo || '', 'data-artimgslot="photo"', '', c.photoPos, c.photoSize) +
     '<div>' +
       '<div class="nl-credit-by">' + escHtml(c.byLabel || 'By') + '</div>' +
       '<div class="nl-credit-name" data-artslot="name" contenteditable="true">' + (c.name || 'Name Surname') + '</div>' +
@@ -1185,6 +1206,7 @@ function renderCanvas() {
     '</div>';
   }).join('');
   hideImageUI();
+  stopFraming();
   applyZoom();
   checkOverflow();
   renderThumbs();
@@ -1310,7 +1332,9 @@ canvasEl.addEventListener('click', function (e) {
     var owner = act.closest(SLOT_SEL);
     if (!owner) return;
     focusPageOf(owner);
-    if (act.dataset.slotAct === 'remove') clearSlot(owner); else pickInto(owner);
+    if (act.dataset.slotAct === 'remove') clearSlot(owner);
+    else if (act.dataset.slotAct === 'frame') startFraming(owner);
+    else pickInto(owner);
     return;
   }
   var slot = e.target.closest(SLOT_SEL);
@@ -1430,44 +1454,49 @@ function setBlockStyle(prop, value) {
   blocksInSelection().forEach(function (el) { el.style[prop] = value; });
   markDirty(); checkOverflow(); applyZoom();
 }
-/* Wrapping the selected range keeps whatever markup is inside it, which
-   re-serialising the selection as text would not. */
-function wrapSelectionStyle(css) {
-  var slot = activeSlot();
-  var sel = window.getSelection();
-  if (!slot || !sel.rangeCount || sel.isCollapsed) return false;
-  var range = sel.getRangeAt(0);
-  var span = document.createElement('span');
-  span.setAttribute('style', css);
-  try {
-    span.appendChild(range.extractContents());
-    range.insertNode(span);
-  } catch (e) { return false; }
-  var nr = document.createRange();
-  nr.selectNodeContents(span);
-  sel.removeAllRanges(); sel.addRange(nr);
-  return true;
-}
 
-/* Wrapping the selection in font-family:inherit is NOT enough to undo a font:
-   a nested span with its own font-family still wins, and inherit would take
-   the value from whatever ancestor set it in the first place. The override
-   has to be removed outright, everywhere inside the selection. */
+/* Undoing a font is not a matter of wrapping the selection in something:
+   a nested span with its own family still wins, and `inherit` takes its
+   value from the very ancestor that set it. Worse, the first cut did this
+   with extractContents(), which pulls <p> elements inside a <span> and
+   mangles the document. Strip the override in place instead. */
 function clearFontFamily() {
   var slot = activeSlot();
   var sel = window.getSelection();
-  if (!slot || !sel.rangeCount || sel.isCollapsed) return false;
+  if (!slot || !sel.rangeCount) return false;
   var range = sel.getRangeAt(0);
-  var span = document.createElement('span');
-  try {
-    span.appendChild(range.extractContents());
-    range.insertNode(span);
-  } catch (e) { return false; }
-  span.querySelectorAll('[style]').forEach(function (el) { el.style.fontFamily = ''; });
-  span.querySelectorAll('font[face]').forEach(function (el) { el.removeAttribute('face'); });
-  var nr = document.createRange();
-  nr.selectNodeContents(span);
-  sel.removeAllRanges(); sel.addRange(nr);
+  Array.prototype.slice.call(slot.querySelectorAll('[style],font[face]')).forEach(function (el) {
+    if (!range.intersectsNode(el)) return;
+    if (el.style) el.style.fontFamily = '';
+    if (el.hasAttribute('face')) el.removeAttribute('face');
+  });
+  slot.style.fontFamily = '';
+  // Anything still overridden is sitting on an ancestor only partly inside
+  // the selection. Naming the theme font outright fixes that without
+  // restructuring anything.
+  var page = slot.closest('.nl-page');
+  var themeFont = page ? window.getComputedStyle(page).fontFamily : '';
+  var probe = styleProbe(sel);
+  if (!sel.isCollapsed && probe && themeFont && window.getComputedStyle(probe).fontFamily !== themeFont) {
+    try { document.execCommand('styleWithCSS', false, true); } catch (e) {}
+    document.execCommand('fontName', false, themeFont);
+  }
+  return true;
+}
+
+/* With nothing selected, "apply to the paragraph I am standing in" is what
+   people mean. The first cut quietly did nothing at all. */
+function expandToBlockIfCollapsed() {
+  var slot = activeSlot();
+  var sel = window.getSelection();
+  if (!slot || !sel.rangeCount || !sel.isCollapsed) return false;
+  var n = sel.anchorNode;
+  var el = n && (n.nodeType === 1 ? n : n.parentElement);
+  var block = (el && el.closest(BLOCK_SEL)) || slot;
+  if (!slot.contains(block) && block !== slot) return false;
+  var r = document.createRange();
+  r.selectNodeContents(block);
+  sel.removeAllRanges(); sel.addRange(r);
   return true;
 }
 
@@ -1475,6 +1504,7 @@ document.getElementById('tb-font').addEventListener('change', function () {
   var v = this.value;
   this.value = '';
   if (!activeSlot()) { say('Click into some text first.', 'error'); return; }
+  expandToBlockIfCollapsed();
   if (v) exec('fontName', v);
   // "Theme default" means stop overriding, not "set it to Arial".
   else if (clearFontFamily()) { markDirty(); checkOverflow(); applyZoom(); }
@@ -1542,17 +1572,44 @@ document.getElementById('tb-painter').addEventListener('click', function () {
   setPaint({ inline: inline, block: block });
   say('Format copied \u2014 now select the text to paint it onto.', 'success');
 });
+/* Applying character formatting across paragraph boundaries is the one job
+   execCommand actually does well. The first cut extracted the range and
+   wrapped it in a span, which put <p> elements inside a <span> and — when
+   the selection covered two paragraphs — emptied the first one outright.
+   That was silent data loss, so none of this goes near extractContents. */
+function execAbsolute(cmd, want) {
+  var is = false;
+  try { is = document.queryCommandState(cmd); } catch (e) {}
+  if (!!is !== !!want) document.execCommand(cmd, false, null);
+}
+/* execCommand('fontSize') speaks the old 1–7 scale, not pixels. */
+function pxToFontSize(px) {
+  var n = parseFloat(px) || 16;
+  var table = [[11, 1], [13, 2], [16, 3], [19, 4], [25, 5], [33, 6]];
+  for (var i = 0; i < table.length; i++) if (n <= table[i][0]) return table[i][1];
+  return 7;
+}
+
 /* Painting lands on the next selection the reader makes, which is how a
    format painter is expected to behave — not on a second trip to the bar. */
 canvasEl.addEventListener('mouseup', function () {
   if (!PAINT) return;
   setTimeout(function () {
     if (!PAINT) return;
+    if (!activeSlot()) return;
+    expandToBlockIfCollapsed();
     var sel = window.getSelection();
-    if (!activeSlot() || !sel || sel.isCollapsed) return;
-    var css = Object.keys(PAINT.inline).map(function (k) { return dashed(k) + ':' + PAINT.inline[k]; }).join(';');
+    if (!sel || sel.isCollapsed) return;
     var blocks = blocksInSelection();
-    wrapSelectionStyle(css);
+    var c = PAINT.inline;
+    try { document.execCommand('styleWithCSS', false, true); } catch (e) {}
+    if (c.fontFamily) document.execCommand('fontName', false, c.fontFamily);
+    if (c.color) document.execCommand('foreColor', false, c.color);
+    if (c.backgroundColor) document.execCommand('hiliteColor', false, c.backgroundColor);
+    if (c.fontSize) document.execCommand('fontSize', false, String(pxToFontSize(c.fontSize)));
+    execAbsolute('bold', Number(c.fontWeight) >= 600);
+    execAbsolute('italic', c.fontStyle === 'italic');
+    execAbsolute('underline', /underline/.test(c.textDecorationLine || ''));
     blocks.forEach(function (el) {
       PAINT_BLOCK.forEach(function (k) { el.style[k] = PAINT.block[k]; });
     });
@@ -1760,7 +1817,7 @@ function setSlotUrl(t, url) {
   }
 }
 function allSlotEls() { return Array.prototype.slice.call(canvasEl.querySelectorAll(SLOT_SEL)); }
-function isSlotEmpty(el) { return !el.querySelector('img'); }
+function isSlotEmpty(el) { return !el.classList.contains('filled'); }
 function firstEmptySlotOn(pg) {
   var list = Array.prototype.slice.call(pg.querySelectorAll(SLOT_SEL));
   for (var i = 0; i < list.length; i++) if (isSlotEmpty(list[i])) return list[i];
@@ -1866,6 +1923,154 @@ document.getElementById('tb-add-photos').addEventListener('click', function () {
   if (!el) { say('This page has no picture box \u2014 pick a layout with photos, or use Insert image.', 'error'); return; }
   focusPageOf(el);
   pickInto(el);
+});
+
+/* ── Framing a photo inside its box ──────────────────────────────────
+   The box crops; framing decides WHICH part it keeps. Everything is written
+   as an explicit background-size in pixels plus a percentage position, so
+   the maths below is exact rather than a feel-right nudge: with a known
+   displayed size, 0%–100% of position maps precisely onto the overflow. */
+var FRAME_SLOT = null, FRAME_BAR = null, FRAME_NAT = {};
+
+function frameStore(t) {
+  if (!t) return null;
+  var owner = DOC.pages[t.pageIndex];
+  if (!owner) return null;
+  if (t.kind === 'article') {
+    if (!owner.article) return null;
+    owner.article.credit = owner.article.credit || {};
+    return { bag: owner.article.credit, posKey: 'photoPos', sizeKey: 'photoSize' };
+  }
+  return { bag: owner.slots, posKey: t.slot + '@pos', sizeKey: t.slot + '@size' };
+}
+function naturalSize(url) {
+  if (FRAME_NAT[url]) return Promise.resolve(FRAME_NAT[url]);
+  return new Promise(function (res) {
+    var im = new Image();
+    im.onload = function () { FRAME_NAT[url] = { w: im.naturalWidth, h: im.naturalHeight }; res(FRAME_NAT[url]); };
+    im.onerror = function () { res(null); };
+    im.src = url;
+  });
+}
+function coverSize(nat, box) {
+  var k = Math.max(box.w / nat.w, box.h / nat.h);
+  return { w: nat.w * k, h: nat.h * k };
+}
+function currentDisplay(el, nat) {
+  var box = { w: el.clientWidth, h: el.clientHeight };
+  var m = /(-?[\d.]+)px\s+(-?[\d.]+)px/.exec(el.style.backgroundSize || '');
+  if (m) return { w: parseFloat(m[1]), h: parseFloat(m[2]), box: box };
+  var c = coverSize(nat, box);
+  return { w: c.w, h: c.h, box: box };
+}
+function currentPos(el) {
+  var m = /(-?[\d.]+)%\s+(-?[\d.]+)%/.exec(el.style.backgroundPosition || '');
+  return m ? { x: parseFloat(m[1]), y: parseFloat(m[2]) } : { x: 50, y: 50 };
+}
+function writeFrame(el, disp, pos) {
+  var store = frameStore(slotTarget(el));
+  if (!store) return;
+  var sizeStr = disp.w.toFixed(1) + 'px ' + disp.h.toFixed(1) + 'px';
+  var posStr = pos.x.toFixed(1) + '% ' + pos.y.toFixed(1) + '%';
+  el.style.backgroundSize = sizeStr;
+  el.style.backgroundPosition = posStr;
+  store.bag[store.sizeKey] = sizeStr;
+  store.bag[store.posKey] = posStr;
+  markDirty();
+  if (FRAME_BAR) FRAME_BAR.querySelector('.w').textContent = frameZoomLabel(el, disp) + '%';
+}
+function frameZoomLabel(el, disp) {
+  var nat = FRAME_NAT[bgUrlOf(el)];
+  if (!nat) return '100';
+  var c = coverSize(nat, { w: el.clientWidth, h: el.clientHeight });
+  return String(Math.round(disp.w / c.w * 100));
+}
+
+async function startFraming(el) {
+  var url = bgUrlOf(el);
+  if (!url) return;
+  var nat = await naturalSize(url);
+  if (!nat) { say('That picture could not be measured, so it cannot be framed.', 'error'); return; }
+  stopFraming();
+  FRAME_SLOT = el;
+  el.classList.add('framing');
+  var wrap = el.closest('.nl-page-wrap');
+  FRAME_BAR = document.createElement('div');
+  FRAME_BAR.className = 'nl-img-bar nl-frame-bar';
+  FRAME_BAR.innerHTML =
+    '<span class="w"></span><span class="sep"></span>' +
+    '<button type="button" data-fz="out">&minus;</button>' +
+    '<button type="button" data-fz="in">+</button>' +
+    '<span class="sep"></span>' +
+    '<button type="button" data-fz="reset">Reset</button>' +
+    '<button type="button" data-fz="done">Done</button>' +
+    '<span class="hint">drag the picture to move it</span>';
+  wrap.appendChild(FRAME_BAR);
+  var a = el.getBoundingClientRect(), b = wrap.getBoundingClientRect();
+  FRAME_BAR.style.left = Math.max(0, a.left - b.left) + 'px';
+  FRAME_BAR.style.top = Math.max(0, a.top - b.top - 46) + 'px';
+  // Pin the current look down as explicit pixels so dragging has something
+  // definite to move; "cover" alone carries no overflow to pan across.
+  writeFrame(el, currentDisplay(el, nat), currentPos(el));
+}
+function stopFraming() {
+  if (FRAME_SLOT) FRAME_SLOT.classList.remove('framing');
+  if (FRAME_BAR && FRAME_BAR.parentElement) FRAME_BAR.parentElement.removeChild(FRAME_BAR);
+  FRAME_SLOT = null; FRAME_BAR = null;
+}
+function frameZoom(mult) {
+  if (!FRAME_SLOT) return;
+  var nat = FRAME_NAT[bgUrlOf(FRAME_SLOT)];
+  if (!nat) return;
+  var box = { w: FRAME_SLOT.clientWidth, h: FRAME_SLOT.clientHeight };
+  var cov = coverSize(nat, box);
+  var d = currentDisplay(FRAME_SLOT, nat);
+  var k = Math.max(1, Math.min(4, (d.w / cov.w) * mult));
+  writeFrame(FRAME_SLOT, { w: cov.w * k, h: cov.h * k }, currentPos(FRAME_SLOT));
+}
+canvasEl.addEventListener('click', function (e) {
+  var f = e.target.closest && e.target.closest('[data-fz]');
+  if (!f) return;
+  e.stopPropagation();
+  var act = f.dataset.fz;
+  if (act === 'in') frameZoom(1.15);
+  else if (act === 'out') frameZoom(1 / 1.15);
+  else if (act === 'reset') {
+    var store = frameStore(slotTarget(FRAME_SLOT));
+    if (store) { delete store.bag[store.sizeKey]; delete store.bag[store.posKey]; }
+    FRAME_SLOT.style.backgroundSize = 'cover';
+    FRAME_SLOT.style.backgroundPosition = '50% 50%';
+    markDirty();
+    startFraming(FRAME_SLOT);
+  } else stopFraming();
+}, true);
+
+/* Drag inside the box to pan. The page is CSS-scaled, so pointer deltas are
+   divided by that scale; the position percentage then maps across exactly
+   the overflow the zoom has created. */
+canvasEl.addEventListener('mousedown', function (e) {
+  if (!FRAME_SLOT || !FRAME_SLOT.contains(e.target) || e.target.closest('.nl-slot-tools')) return;
+  var nat = FRAME_NAT[bgUrlOf(FRAME_SLOT)];
+  if (!nat) return;
+  e.preventDefault();
+  var el = FRAME_SLOT;
+  var scale = pageScale(el);
+  var disp = currentDisplay(el, nat);
+  var start = currentPos(el);
+  var sx = e.clientX, sy = e.clientY;
+  var overX = disp.w - disp.box.w, overY = disp.h - disp.box.h;
+  function move(ev) {
+    var dx = (ev.clientX - sx) / scale, dy = (ev.clientY - sy) / scale;
+    var nx = overX > 0.5 ? start.x - dx / overX * 100 : start.x;
+    var ny = overY > 0.5 ? start.y - dy / overY * 100 : start.y;
+    writeFrame(el, disp, { x: Math.max(0, Math.min(100, nx)), y: Math.max(0, Math.min(100, ny)) });
+  }
+  function up() {
+    document.removeEventListener('mousemove', move);
+    document.removeEventListener('mouseup', up);
+  }
+  document.addEventListener('mousemove', move);
+  document.addEventListener('mouseup', up);
 });
 
 /* ── Drag and drop ─────────────────────────────────────────────────── */
@@ -2471,6 +2676,11 @@ window.addEventListener('beforeunload', function (e) {
    html2canvas taints on a cross-origin image, so every picture is turned
    into a data URL first. A direct fetch is tried before the API proxy so a
    correctly CORS-configured bucket costs nothing extra.                  */
+/* 3x the 816px sheet is 2448px across a Letter page: 288 dpi, against the
+   192 dpi that scale 2 gave. Measured at six pages, the step up costs
+   ~180ms and ~0.35MB — cheap for the difference it makes to a small
+   photo such as a byline headshot. */
+var PDF_SCALE = 3;
 var IMG_CACHE = {};
 var MISSED_IMAGES = 0;
 async function toDataUrl(url) {
@@ -2499,23 +2709,38 @@ async function toDataUrl(url) {
   if (dataUrl) IMG_CACHE[url] = dataUrl;
   return dataUrl;
 }
+/* Picture boxes are painted backgrounds and in-text pictures are <img>
+   elements, so both have to be turned into data URLs before capture. */
+function bgUrlOf(el) {
+  var m = /url\((["']?)(.*?)\1\)/.exec(el.style.backgroundImage || '');
+  return m ? m[2] : '';
+}
 async function inlineImages() {
-  var imgs = Array.prototype.slice.call(canvasEl.querySelectorAll('img'));
   var originals = [];
   MISSED_IMAGES = 0;
+
+  var slots = Array.prototype.slice.call(canvasEl.querySelectorAll('.nl-imgslot.filled'));
+  for (var k = 0; k < slots.length; k++) {
+    var bg = bgUrlOf(slots[k]);
+    if (!bg || bg.indexOf('data:') === 0) continue;
+    var bd = await toDataUrl(bg);
+    originals.push([slots[k], 'bg', slots[k].style.backgroundImage]);
+    if (bd) slots[k].style.backgroundImage = 'url("' + bd + '")';
+    else { slots[k].style.backgroundImage = 'none'; MISSED_IMAGES++; }
+  }
+
+  var imgs = Array.prototype.slice.call(canvasEl.querySelectorAll('img'));
   for (var i = 0; i < imgs.length; i++) {
     var src = imgs[i].getAttribute('src') || '';
     if (!src || src.indexOf('data:') === 0) continue;
     var d = await toDataUrl(src);
+    originals.push([imgs[i], 'src', src]);
     if (d) {
-      originals.push([imgs[i], src]);
       imgs[i].setAttribute('src', d);
     } else {
       // A picture we could not read would taint the canvas, and a tainted
       // canvas makes toDataURL throw — losing the whole PDF over one photo.
-      // Drop it for the duration of the capture instead: an edition with a
-      // missing picture still beats no edition at all, and the caller says so.
-      originals.push([imgs[i], src]);
+      // Drop it for the duration of the capture instead.
       imgs[i].removeAttribute('src');
       MISSED_IMAGES++;
     }
@@ -2542,7 +2767,7 @@ async function buildPdf() {
     var pages = canvasEl.querySelectorAll('.nl-page');
     for (var i = 0; i < pages.length; i++) {
       var c = await html2canvas(pages[i], {
-        scale: 2, useCORS: true, backgroundColor: '#ffffff',
+        scale: PDF_SCALE, useCORS: true, backgroundColor: '#ffffff',
         width: 816, height: 1056, windowWidth: 816, scrollX: 0, scrollY: 0
       });
       var img = c.toDataURL('image/jpeg', 0.92);
@@ -2551,7 +2776,10 @@ async function buildPdf() {
     }
     return pdf;
   } finally {
-    restored.forEach(function (pair) { pair[0].setAttribute('src', pair[1]); });
+    restored.forEach(function (r) {
+      if (r[1] === 'bg') r[0].style.backgroundImage = r[2];
+      else r[0].setAttribute('src', r[2]);
+    });
     canvasEl.classList.remove('nl-printing');
     canvasEl.classList.add('nl-editing');
     ZOOM = prevZoom; applyZoom();

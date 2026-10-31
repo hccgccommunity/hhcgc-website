@@ -99,7 +99,11 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .nl-editing [data-slot]:focus { background: rgba(181,90,24,0.09); box-shadow: 0 0 0 2px rgba(181,90,24,0.25); border-radius: 4px; }
 
 /* Image slots */
-.nl-imgslot { position: relative; background: var(--soft); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+/* No overflow:hidden any more. The photo is a background, which the box
+   (and its border-radius) clips by itself, and hiding overflow made the
+   hover controls unreachable on a small slot like the 72px byline
+   circle — they were clipped away the moment they were wider than it. */
+.nl-imgslot { position: relative; background: var(--soft); display: flex; align-items: center; justify-content: center; }
 .nl-imgslot img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .nl-imgph { font-size: 0.82rem; font-weight: 700; color: var(--a); text-align: center; padding: 10px; font-family: Arial, Helvetica, sans-serif; }
 .nl-editing .nl-imgslot { cursor: pointer; }
@@ -117,7 +121,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 }
 /* Replace / Remove, on hover, only in the editor. There was previously no way
    to take a picture back OUT of a slot once it was in. */
-.nl-slot-tools { position: absolute; top: 8px; right: 8px; z-index: 5; display: none; gap: 6px; }
+.nl-slot-tools { position: absolute; top: 6px; left: 6px; z-index: 12; display: none; gap: 5px; white-space: nowrap; }
 .nl-editing .nl-imgslot:hover .nl-slot-tools { display: flex; }
 .nl-slot-tools button {
   font-family: Arial, Helvetica, sans-serif; font-size: 0.72rem; font-weight: 800; line-height: 1;
@@ -472,22 +476,39 @@ function migratePages(pages, legacyCredit) {
 }
 
 /* `window.__nlEditTools` is set only by the admin editor, so the hover
-   Replace/Remove controls are never emitted into the public page's DOM at
-   all — not merely hidden there. */
+   controls are never emitted into the public page's DOM at all — not merely
+   hidden there. */
 function slotTools(url) {
   if (!url || !(typeof window !== 'undefined' && window.__nlEditTools)) return '';
   return '<span class="nl-slot-tools">' +
+    '<button type="button" data-slot-act="frame" title="Move and zoom the picture inside its box">Frame</button>' +
     '<button type="button" data-slot-act="replace" title="Choose a different picture">Replace</button>' +
     '<button type="button" data-slot-act="remove" title="Take this picture out">Remove</button>' +
   '</span>';
 }
+
+/* A picture box paints its photo as a BACKGROUND, not as an <img>.
+   html2canvas — which rasterises the PDF — does not implement object-fit, so
+   an <img> that is correctly cropped on screen comes out squashed to the
+   shape of its box in the PDF: glaring on a round headshot, quietly wrong on
+   every other photo. background-size it does implement, and it gives framing
+   (position and zoom) for free. */
+function slotDiv(url, attr, extraClass, pos, size) {
+  var style = '';
+  if (url) {
+    style = ' style="background-image:url(&quot;' + escHtml(url) + '&quot;);' +
+      'background-size:' + escHtml(size || 'cover') + ';' +
+      'background-position:' + escHtml(pos || '50% 50%') + ';' +
+      'background-repeat:no-repeat;"';
+  }
+  return '<div class="nl-imgslot ' + (extraClass || '') + (url ? ' filled' : '') + '" ' + attr + style + '>' +
+    (url ? '' : '<span class="nl-imgph">Click, drop or paste<br>a picture</span>') +
+    slotTools(url) +
+  '</div>';
+}
 function imgSlot(page, name, extraClass) {
-  var url = page.slots[name] || '';
-  var inner = url
-    ? '<img src="' + escHtml(url) + '" alt="">'
-    : '<span class="nl-imgph">Click, drop or paste<br>a picture</span>';
-  return '<div class="nl-imgslot ' + (extraClass || '') + '" data-imgslot="' + name + '">' +
-    inner + slotTools(url) + '</div>';
+  return slotDiv(page.slots[name] || '', 'data-imgslot="' + name + '"', extraClass,
+                 page.slots[name + '@pos'], page.slots[name + '@size']);
 }
 
 /* ── Articles and their bylines ───────────────────────────────────────
@@ -517,11 +538,8 @@ function creditBlock(ctx, light) {
   if (!ctx || !ctx.isArticleEnd || !ctx.article) return '';
   var c = ctx.article.credit;
   if (!c || !c.show) return '';
-  var photo = c.photo
-    ? '<img src="' + escHtml(c.photo) + '" alt="">'
-    : '<span class="nl-imgph">Photo</span>';
   return '<div class="nl-credit' + (light ? ' light' : '') + '" data-artpage="' + ctx.startIndex + '">' +
-    '<div class="nl-imgslot" data-artimgslot="photo">' + photo + slotTools(c.photo) + '</div>' +
+    slotDiv(c.photo || '', 'data-artimgslot="photo"', '', c.photoPos, c.photoSize) +
     '<div>' +
       '<div class="nl-credit-by">' + escHtml(c.byLabel || 'By') + '</div>' +
       '<div class="nl-credit-name" data-artslot="name" contenteditable="true">' + (c.name || 'Name Surname') + '</div>' +
@@ -779,6 +797,11 @@ window.addEventListener('resize', function () { if (EDITION) fitPages(); });
    Nothing is stored server-side: the same DOM that is on screen is what
    goes into the file, so a published edition never needs a hosted PDF that
    could fall out of step with it. */
+/* 3x the 816px sheet is 2448px across a Letter page: 288 dpi, against the
+   192 dpi that scale 2 gave. Measured at six pages, the step up costs
+   ~180ms and ~0.35MB — cheap for the difference it makes to a small
+   photo such as a byline headshot. */
+var PDF_SCALE = 3;
 var IMG_CACHE = {};
 async function toDataUrl(url) {
   if (IMG_CACHE[url]) return IMG_CACHE[url];
@@ -796,20 +819,36 @@ async function toDataUrl(url) {
     return d;
   } catch (e) { return null; }
 }
+/* Picture boxes are painted backgrounds and in-text pictures are <img>
+   elements, so both have to become data URLs before capture. */
+function bgUrlOf(el) {
+  var m = /url\((["']?)(.*?)\1\)/.exec(el.style.backgroundImage || '');
+  return m ? m[2] : '';
+}
 async function inlineImages() {
-  var imgs = Array.prototype.slice.call(canvasEl.querySelectorAll('img'));
   var restored = [], missed = 0;
+
+  var slots = Array.prototype.slice.call(canvasEl.querySelectorAll('.nl-imgslot.filled'));
+  for (var k = 0; k < slots.length; k++) {
+    var bg = bgUrlOf(slots[k]);
+    if (!bg || bg.indexOf('data:') === 0) continue;
+    var bd = await toDataUrl(bg);
+    restored.push([slots[k], 'bg', slots[k].style.backgroundImage]);
+    if (bd) slots[k].style.backgroundImage = 'url("' + bd + '")';
+    else { slots[k].style.backgroundImage = 'none'; missed++; }
+  }
+
+  var imgs = Array.prototype.slice.call(canvasEl.querySelectorAll('img'));
   for (var i = 0; i < imgs.length; i++) {
     var src = imgs[i].getAttribute('src') || '';
     if (!src || src.indexOf('data:') === 0) continue;
     var d = await toDataUrl(src);
-    restored.push([imgs[i], src]);
+    restored.push([imgs[i], 'src', src]);
     if (d) {
       imgs[i].setAttribute('src', d);
     } else {
       // An unreadable picture taints the canvas and makes toDataURL throw,
-      // which would cost the reader the whole PDF over one photo. Drop it
-      // for the capture and say so afterwards.
+      // which would cost the reader the whole PDF over one photo.
       imgs[i].removeAttribute('src');
       missed++;
     }
@@ -836,7 +875,7 @@ document.getElementById('btn-pdf').addEventListener('click', async function () {
     var pdf = new Ctor({ unit: 'pt', format: 'letter', orientation: 'portrait' });
     for (var i = 0; i < pages.length; i++) {
       var c = await html2canvas(pages[i], {
-        scale: 2, useCORS: true, backgroundColor: '#ffffff',
+        scale: PDF_SCALE, useCORS: true, backgroundColor: '#ffffff',
         width: 816, height: 1056, windowWidth: 816, scrollX: 0, scrollY: 0
       });
       if (i > 0) pdf.addPage('letter', 'portrait');
@@ -849,7 +888,10 @@ document.getElementById('btn-pdf').addEventListener('click', async function () {
   } catch (err) {
     note.textContent = 'Could not build the PDF: ' + err.message;
   } finally {
-    res.restored.forEach(function (pair) { pair[0].setAttribute('src', pair[1]); });
+    res.restored.forEach(function (r) {
+      if (r[1] === 'bg') r[0].style.backgroundImage = r[2];
+      else r[0].setAttribute('src', r[2]);
+    });
     pages.forEach(function (p, i) { p.style.transform = prev[i]; });
     fitPages();
     this.disabled = false;

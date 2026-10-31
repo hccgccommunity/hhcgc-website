@@ -323,6 +323,31 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
 .nl-lay-btn { font-family: inherit; font-size: 0.74rem; font-weight: 700; padding: 7px 6px; border-radius: 8px; border: 1.5px solid var(--border); background: #fff; cursor: pointer; text-align: center; }
 .nl-lay-btn.active { background: var(--saffron-dark); color: #fff; border-color: var(--saffron-dark); }
 .nl-side .stack { display: flex; flex-direction: column; gap: 8px; }
+/* Resize handles for an inline image. The overlay lives in .nl-page-wrap,
+   NOT in .nl-page: the wrap is untransformed, so the controls stay a
+   constant size whatever the zoom, and html2canvas — which captures
+   .nl-page — never sees them, so nothing has to be hidden before a PDF. */
+.nl-img-ui { position: absolute; z-index: 40; pointer-events: none; display: none; }
+.nl-img-ui.on { display: block; }
+.nl-img-ui .frame { position: absolute; inset: 0; border: 2px solid var(--saffron-dark); border-radius: 4px; }
+.nl-img-ui .grip {
+  position: absolute; right: -7px; bottom: -7px; width: 14px; height: 14px; border-radius: 3px;
+  background: var(--saffron-dark); border: 2px solid #fff; cursor: nwse-resize; pointer-events: auto;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+.nl-img-bar {
+  position: absolute; left: 0; bottom: calc(100% + 8px); display: flex; gap: 4px; flex-wrap: nowrap;
+  background: #fff; border: 1.5px solid var(--border); border-radius: 9px; padding: 5px;
+  box-shadow: var(--shadow); pointer-events: auto; white-space: nowrap;
+}
+.nl-img-bar button {
+  font-family: Arial, Helvetica, sans-serif; font-size: 0.72rem; font-weight: 700; line-height: 1;
+  padding: 5px 8px; border: 1px solid var(--border); background: #fff; border-radius: 6px; cursor: pointer; color: var(--text);
+}
+.nl-img-bar button:hover { border-color: var(--saffron); }
+.nl-img-bar button.danger { color: var(--red); border-color: rgba(179,56,44,0.35); }
+.nl-img-bar .w { font-size: 0.72rem; font-weight: 800; color: var(--muted); padding: 0 6px; align-self: center; min-width: 38px; text-align: center; }
+.nl-img-bar .sep { width: 1px; background: var(--border); margin: 0 2px; }
 .nl-overflow-warn { display: none; margin-top: 8px; font-size: 0.76rem; color: var(--red); font-weight: 700; }
 .nl-page-wrap.over .nl-overflow-warn { display: block; }
 .nl-zoom { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--muted); }
@@ -556,7 +581,7 @@ body { font-family: Arial, Helvetica, sans-serif; background: radial-gradient(ci
         <div id="editor-result" class="result-box" style="display:none;margin-top:12px;"></div>
 
         <h4>Tips</h4>
-        <div class="nl-hint">Click any text and start typing. For pictures: click a shaded box, <strong>drag photos onto it</strong>, or paste from the clipboard &mdash; drop several at once and they fill the empty boxes in order. Hover a picture for <strong>Replace</strong> and <strong>Remove</strong>. Everything you see is exactly what lands in the PDF.</div>
+        <div class="nl-hint">Click any text and start typing. For pictures: click a shaded box, <strong>drag photos onto it</strong>, or paste from the clipboard &mdash; drop several at once and they fill the empty boxes in order. Hover a picture for <strong>Replace</strong> and <strong>Remove</strong>. An <strong>Insert image</strong> picture can be clicked to resize it &mdash; drag its corner or use the 25/50/75% buttons. Everything you see is exactly what lands in the PDF.</div>
       </aside>
     </div>
   </div>
@@ -1159,6 +1184,7 @@ function renderCanvas() {
       '<div class="nl-overflow-warn">This page is fuller than one printed sheet &mdash; trim it or move some of it to a new page.</div>' +
     '</div>';
   }).join('');
+  hideImageUI();
   applyZoom();
   checkOverflow();
   renderThumbs();
@@ -1289,6 +1315,17 @@ canvasEl.addEventListener('click', function (e) {
   }
   var slot = e.target.closest(SLOT_SEL);
   if (slot) { focusPageOf(slot); pickInto(slot); return; }
+  if (IMG_DRAGGED) { IMG_DRAGGED = false; return; }
+  if (e.target.closest('.nl-img-ui')) return;
+  // An image dropped into running text, as opposed to one filling a picture
+  // box, is resizable — select it and put the handles up.
+  if (e.target.tagName === 'IMG' && e.target.closest('[data-slot],[data-artslot]')) {
+    var pgi = e.target.closest('.nl-page');
+    if (pgi) setActivePage(Number(pgi.dataset.i));
+    selectInlineImage(e.target);
+    return;
+  }
+  hideImageUI();
   var pgc = e.target.closest('.nl-page');
   if (pgc) setActivePage(Number(pgc.dataset.i));
 });
@@ -1527,6 +1564,159 @@ canvasEl.addEventListener('mouseup', function () {
 document.addEventListener('keydown', function (e) {
   if (e.key === 'Escape' && PAINT) setPaint(null);
 });
+/* ── Resizing an inline image ─────────────────────────────────────────
+   Width is stored as a PERCENTAGE of the column it sits in, not as pixels.
+   A pixel width looks right in the editor and then overflows the moment the
+   image is moved into a narrower layout — a 2-column page, say — or viewed
+   on the public site, where the sheet is scaled down. A percentage survives
+   all three.                                                              */
+var IMG_SEL = null;      // the <img> currently selected
+var IMG_UI = null;       // its overlay, living in the page wrap
+var IMG_DRAGGED = false; // a drag just ended; swallow the click it leaves behind
+
+function imgUiFor(wrap) {
+  var ui = wrap.querySelector('.nl-img-ui');
+  if (ui) return ui;
+  ui = document.createElement('div');
+  ui.className = 'nl-img-ui';
+  ui.innerHTML =
+    '<div class="frame"></div>' +
+    '<div class="nl-img-bar">' +
+      '<span class="w"></span><span class="sep"></span>' +
+      '<button type="button" data-imgw="25">25%</button>' +
+      '<button type="button" data-imgw="50">50%</button>' +
+      '<button type="button" data-imgw="75">75%</button>' +
+      '<button type="button" data-imgw="100">Full</button>' +
+      '<span class="sep"></span>' +
+      '<button type="button" data-imga="left" title="Align left">Left</button>' +
+      '<button type="button" data-imga="center" title="Centre">Centre</button>' +
+      '<button type="button" data-imga="right" title="Align right">Right</button>' +
+      '<span class="sep"></span>' +
+      '<button type="button" class="danger" data-imgdel="1">Remove</button>' +
+    '</div>' +
+    '<div class="grip"></div>';
+  wrap.appendChild(ui);
+  return ui;
+}
+function pageScale(el) {
+  var pg = el.closest('.nl-page');
+  if (!pg) return 1;
+  var r = pg.getBoundingClientRect();
+  return r.width ? (r.width / 816) : 1;
+}
+function columnWidth(img) {
+  var parent = img.parentElement;
+  while (parent && parent.clientWidth === 0) parent = parent.parentElement;
+  return (parent ? parent.clientWidth : 684) || 684;
+}
+function currentPct(img) {
+  var w = img.style.width;
+  if (w && w.indexOf('%') > 0) return Math.round(parseFloat(w));
+  return Math.round(img.getBoundingClientRect().width / pageScale(img) / columnWidth(img) * 100);
+}
+function positionImageUI() {
+  if (!IMG_SEL || !IMG_UI) return;
+  if (!canvasEl.contains(IMG_SEL)) { hideImageUI(); return; }
+  var wrap = IMG_UI.parentElement;
+  var a = IMG_SEL.getBoundingClientRect(), b = wrap.getBoundingClientRect();
+  IMG_UI.style.left = (a.left - b.left) + 'px';
+  IMG_UI.style.top = (a.top - b.top) + 'px';
+  IMG_UI.style.width = a.width + 'px';
+  IMG_UI.style.height = a.height + 'px';
+  IMG_UI.querySelector('.w').textContent = currentPct(IMG_SEL) + '%';
+}
+function selectInlineImage(img) {
+  var wrap = img.closest('.nl-page-wrap');
+  if (!wrap) return;
+  if (IMG_UI && IMG_UI.parentElement !== wrap) hideImageUI();
+  IMG_SEL = img;
+  IMG_UI = imgUiFor(wrap);
+  IMG_UI.classList.add('on');
+  positionImageUI();
+}
+function hideImageUI() {
+  if (IMG_UI) IMG_UI.classList.remove('on');
+  IMG_SEL = null;
+}
+function setInlineWidth(pct) {
+  if (!IMG_SEL) return;
+  pct = Math.max(10, Math.min(100, Math.round(pct)));
+  IMG_SEL.style.width = pct + '%';
+  IMG_SEL.style.height = 'auto';
+  IMG_SEL.style.maxWidth = '100%';
+  // A width attribute left over from an older insert would fight the style.
+  IMG_SEL.removeAttribute('width');
+  IMG_SEL.removeAttribute('height');
+  markDirty();
+  positionImageUI();
+}
+function setInlineAlign(how) {
+  if (!IMG_SEL) return;
+  IMG_SEL.style.display = 'block';
+  IMG_SEL.style.marginLeft = (how === 'left') ? '0' : 'auto';
+  IMG_SEL.style.marginRight = (how === 'right') ? '0' : 'auto';
+  markDirty();
+  positionImageUI();
+}
+
+document.addEventListener('mousedown', function (e) {
+  var bar = e.target.closest && e.target.closest('.nl-img-bar, .nl-img-ui');
+  if (!bar && IMG_SEL && e.target !== IMG_SEL) hideImageUI();
+});
+/* Capture phase, and it stops there: the canvas's own click handler treats
+   anything that is not an image as "clicked away" and would close the
+   overlay the instant one of its own buttons was pressed. */
+canvasEl.addEventListener('click', function (e) {
+  if (!e.target.closest || !e.target.closest('.nl-img-ui')) return;
+  e.stopPropagation();
+  var w = e.target.closest('[data-imgw]');
+  if (w) { setInlineWidth(Number(w.dataset.imgw)); checkOverflow(); applyZoom(); return; }
+  var a = e.target.closest('[data-imga]');
+  if (a) { setInlineAlign(a.dataset.imga); checkOverflow(); applyZoom(); return; }
+  var d = e.target.closest('[data-imgdel]');
+  if (d && IMG_SEL) {
+    IMG_SEL.parentNode.removeChild(IMG_SEL);
+    hideImageUI();
+    markDirty(); checkOverflow(); applyZoom();
+    say('Picture removed.', 'success');
+  }
+}, true);
+
+/* Drag the corner. The page is CSS-scaled, so the pointer movement has to be
+   divided by that scale before it means anything in page coordinates —
+   otherwise the image grows faster than the cursor at Fit zoom. */
+canvasEl.addEventListener('mousedown', function (e) {
+  if (!IMG_SEL || !e.target.classList || !e.target.classList.contains('grip')) return;
+  e.preventDefault();
+  var img = IMG_SEL;
+  var scale = pageScale(img);
+  var colW = columnWidth(img);
+  var startX = e.clientX;
+  var startW = img.getBoundingClientRect().width / scale;
+  function move(ev) {
+    var pxw = startW + (ev.clientX - startX) / scale;
+    setInlineWidth(pxw / colW * 100);
+  }
+  function up() {
+    document.removeEventListener('mousemove', move);
+    document.removeEventListener('mouseup', up);
+    // The browser fires a click after the drag, and its target is the common
+    // ancestor of where the press and release happened — which is the page,
+    // not the grip. Left alone that reads as "clicked away" and the handles
+    // disappear after every single resize.
+    IMG_DRAGGED = true;
+    checkOverflow(); applyZoom();
+  }
+  document.addEventListener('mousemove', move);
+  document.addEventListener('mouseup', up);
+});
+
+canvasEl.addEventListener('input', function () { if (IMG_SEL) positionImageUI(); });
+window.addEventListener('resize', function () { if (IMG_SEL) positionImageUI(); });
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape' && IMG_SEL) hideImageUI();
+});
+
 document.getElementById('tb-inline-img').addEventListener('click', function () {
   var sel = window.getSelection();
   IMG_RANGE = (sel && sel.rangeCount && canvasEl.contains(sel.anchorNode)) ? sel.getRangeAt(0).cloneRange() : null;
@@ -1653,7 +1843,7 @@ async function insertInline(file) {
     if (IMG_RANGE) { var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(IMG_RANGE); }
     else if (el) { var f = el.querySelector('[data-slot]'); if (f) f.focus(); }
     document.execCommand('insertHTML', false,
-      '<img src="' + escHtml(url) + '" style="max-width:100%;height:auto;border-radius:8px;display:block;margin:14px auto;">');
+      '<img src="' + escHtml(url) + '" style="width:100%;max-width:100%;height:auto;border-radius:8px;display:block;margin:14px auto;">');
     markDirty(); checkOverflow(); applyZoom();
     say('Picture added.', 'success');
   } catch (err) {

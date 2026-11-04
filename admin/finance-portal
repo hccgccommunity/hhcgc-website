@@ -318,7 +318,7 @@ tr.series-row:hover td { background: var(--surface-soft); }
 <div class="page-hero">
   <div class="container">
     <a class="back-link" href="https://hccgc.org/admin/admin-portal">&larr; Back to apps</a>
-    <h1>Finance <span id="portal-build" style="font-size:0.6rem;font-weight:400;color:rgba(255,255,255,0.55);vertical-align:middle;letter-spacing:0.04em;">build 2026-10-28-a</span></h1>
+    <h1>Finance <span id="portal-build" style="font-size:0.6rem;font-weight:400;color:rgba(255,255,255,0.55);vertical-align:middle;letter-spacing:0.04em;">build 2026-11-03-a</span></h1>
     <p>Categorize every transaction, reconcile Zeffy payouts, and generate the Statement of Activities — one place for all of it.</p>
   </div>
 </div>
@@ -3209,7 +3209,7 @@ function groupInvoicesIntoDisplayItems(list) {
 // occurrences[0], and if that one happened to be the cancelled date the row
 // still offered Mark paid long after everything payable had been paid and
 // the receipt sent.
-const FINANCE_PORTAL_BUILD = '2026-10-28-a';
+const FINANCE_PORTAL_BUILD = '2026-11-03-a';
 try { console.log('[finance-portal] build ' + FINANCE_PORTAL_BUILD); } catch (e) {}
 
 function invGroupAllPaid(occurrences) {
@@ -4071,6 +4071,24 @@ function depositPayload(body) {
   }
   return body;
 }
+// Every date the invoice for this row covers: the series for combined
+// billing, that month for monthly, the single date for per-occurrence -
+// matching what the invoice document itself pulls together.
+function invoiceUnitRows(inv) {
+  if (!inv.seriesId || inv.invoiceMode === 'per_occurrence') return [inv];
+  const sameSeries = INVOICES.filter(function (o) {
+    return o.seriesId === inv.seriesId && o.paymentStatus !== 'cancelled';
+  });
+  if (inv.invoiceMode !== 'monthly') return sameSeries;
+  const month = String(inv.eventDate || '').slice(0, 7);
+  return sameSeries.filter(function (o) { return String(o.eventDate || '').slice(0, 7) === month; });
+}
+function invoiceUnitDeposit(inv) {
+  return Math.round(invoiceUnitRows(inv).reduce(function (sum, o) {
+    return sum + (Number(o.depositAmount) || 0);
+  }, 0) * 100) / 100;
+}
+
 function openInvoiceNotesModal(bookingId) {
   const inv = INVOICES.find(function (i) { return i.bookingId === bookingId; });
   if (!inv) return;
@@ -4081,7 +4099,7 @@ function openInvoiceNotesModal(bookingId) {
   // actually sent. The gate is the payment state, not the role.
   const canEditDeposit = inv.paymentStatus !== 'paid' && inv.paymentStatus !== 'cancelled';
   document.getElementById('deposit-edit').style.display = canEditDeposit ? 'block' : 'none';
-  document.getElementById('deposit-amount').value = Number(inv.depositAmount) || 0;
+  document.getElementById('deposit-amount').value = invoiceUnitDeposit(inv);
   document.getElementById('deposit-edit-note').textContent = inv.invoiceSentAt
     ? 'The invoice has already been sent — void it first, then change the deposit and re-send.'
     : 'For exceptional bookings. Set it to 0, or use Remove deposit, to drop the line entirely.';

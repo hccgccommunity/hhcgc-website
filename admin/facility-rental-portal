@@ -2482,6 +2482,15 @@ function renderBookingRow(b, isSubRow, seriesPerOccurrenceMode) {
       fn: () => invoiceAlreadySent ? showInvoiceSentEditNotice() : openEditModal(b.booking_id)
     });
   }
+  // Dropping one date from a series. Allowed while the invoice covering
+  // that date has not gone out - the same billing-unit rule the series
+  // editor uses, so the two never disagree about what can be touched.
+  if (treatAsSubRow && notCancelled && !locked && !occurrenceUnitLocked(b)) {
+    subRowActions.push({
+      label: 'Remove this date', danger: true,
+      fn: () => removeSeriesDateFlow(b.booking_id)
+    });
+  }
   const actionsCell = treatAsSubRow
     ? '<td>' + renderActionsKebab(b.booking_id, subRowActions) + '</td>'
     : '<td><div style="display:flex;align-items:center;gap:8px;">' + actionIcons(b) + renderActionsKebab(b.booking_id, actions) + '</div></td>';
@@ -3216,6 +3225,50 @@ function computeCancellationPreview(b) {
   const fee = Math.round(Number(b.final_total) * feeRate * 100) / 100;
   const refund = Math.round((Number(b.final_total) - fee) * 100) / 100;
   return { daysUntil, feeRate, fee, refund };
+}
+
+function occurrenceUnitLocked(b) {
+  if (!b.recurring_series_id) return !!b.invoice_sent_at;
+  const mode = b.invoice_mode || 'combined';
+  const siblings = BOOKINGS.filter(function (o) { return o.recurring_series_id === b.recurring_series_id; });
+  return seriesLockedUnits(siblings, mode).has(seriesUnitKeyFor(b.event_date, mode));
+}
+
+// Removes a single date from a series whose invoice has not been sent.
+// Posts only that occurrence: the others are left out of the payload
+// entirely, so nothing else in the series is rewritten.
+async function removeSeriesDateFlow(bookingId) {
+  const b = BOOKINGS.find(function (x) { return x.booking_id === bookingId; });
+  if (!b) return;
+  const unitWord = (b.invoice_mode === 'monthly') ? 'this month' :
+    (b.invoice_mode === 'per_occurrence' ? 'this date' : 'this series');
+  if (!confirm('Remove ' + formatDate(b.event_date) + ' from this series?\n\n' +
+      'The invoice for ' + unitWord + ' has not been sent, so there is no cancellation fee. ' +
+      'The date stays listed as cancelled and drops off the invoice.')) return;
+  try {
+    const res = await authedFetch(API_BASE + '/bookings/series/' + encodeURIComponent(b.recurring_series_id), {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        rooms: b.rooms,
+        renterId: b.is_internal ? null : (b.renter_id || null),
+        renterName: b.is_internal ? b.renter_name : null,
+        invoiceMode: b.invoice_mode || undefined,
+        occurrences: [{
+          bookingId: bookingId,
+          eventDate: b.event_date,
+          startTime: utcIsoToEasternTimeInput(b.start_time),
+          endTime: utcIsoToEasternTimeInput(b.end_time),
+          remove: true
+        }]
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) { alert((data.errors || [data.error || 'Could not remove that date.']).join(' ')); return; }
+    if (data.occurrenceErrors && data.occurrenceErrors.length) { alert(data.occurrenceErrors.join(' ')); }
+    await loadBookings();
+  } catch (err) {
+    alert('Could not reach the booking system: ' + err.message);
+  }
 }
 
 async function cancelBookingFlow(bookingId) {

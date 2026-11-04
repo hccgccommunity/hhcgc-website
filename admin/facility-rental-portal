@@ -1242,10 +1242,15 @@ a.ce-att:hover { border-color: var(--saffron); }
       </div>
 
       <div class="field"><label>Occurrences</label></div>
+      <div class="card-sub" id="series-edit-lock-note" style="display:none;margin-bottom:8px;color:var(--amber);"></div>
       <table class="occ-table" style="width:100%;">
         <thead><tr><th>Date</th><th>Start</th><th>End</th><th>Remove</th></tr></thead>
         <tbody id="series-edit-occ-tbody"></tbody>
       </table>
+      <div style="margin-top:8px;">
+        <button type="button" class="btn-secondary" id="btn-series-add-occ" style="padding:5px 12px;font-size:0.8rem;">+ Add a date</button>
+        <span class="card-sub" id="series-edit-add-hint" style="margin-left:8px;"></span>
+      </div>
 
       <div class="result-box" id="series-edit-result-box" style="display:none;"></div>
     </div>
@@ -2522,12 +2527,16 @@ function renderSeriesSummaryRow(item) {
   // same as the individual-booking lock above.
   const canEditThis = notCancelled && !allPaid && (!allHistoricallyLocked || (allPast && PAST_BOOKING_EDIT_ALLOWLIST.includes(currentUserEmail())));
 
-  const seriesInvoiceSent = item.occurrences.some(function (o) { return o.invoice_sent_at; });
+  const seriesLocked = seriesLockedUnits(item.occurrences, seriesMode);
+  const liveOccs = item.occurrences.filter(function (o) { return o.payment_status !== 'cancelled'; });
+  const everythingLocked = liveOccs.length > 0 && liveOccs.every(function (o) {
+    return seriesLocked.has(seriesUnitKeyFor(o.event_date, seriesMode));
+  });
   const actions = [];
   if (canEditThis) {
     actions.push({
       label: 'Edit series',
-      fn: () => seriesInvoiceSent ? showInvoiceSentEditNotice() : openSeriesEditModal(item.seriesId)
+      fn: () => everythingLocked ? showInvoiceSentEditNotice() : openSeriesEditModal(item.seriesId)
     });
   }
   if (notCancelled && !allHistoricallyLocked) actions.push({ label: 'Cancel all', danger: true, fn: () => cancelSeriesFlow(item.seriesId) });
@@ -3527,9 +3536,68 @@ function enforceSeriesEditKitchenRule() {
   if (!eligible) kitchenCb.checked = false;
 }
 
+// An invoice locks exactly what it covers, and no more:
+//   combined        one invoice for the series  -> one unit
+//   monthly         one invoice per month       -> one unit per month
+//   per_occurrence  one invoice per date        -> one unit per date
+// A locked unit is read-only here and must be voided in Finance first.
+// Everything else can be edited, and dates added to or dropped from it.
+function seriesUnitKeyFor(dateStr, mode) {
+  if (mode === 'per_occurrence') return 'date ' + dateStr;
+  if (mode === 'monthly') return 'month ' + String(dateStr || '').slice(0, 7);
+  return 'series';
+}
+function seriesUnitLabel(key) {
+  if (key === 'series') return 'this series';
+  if (key.indexOf('month ') === 0) {
+    const p = key.slice(6).split('-');
+    const names = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    return (names[Number(p[1]) - 1] || p[1]) + ' ' + p[0];
+  }
+  return key.slice(5);
+}
+function seriesLockedUnits(occurrences, mode) {
+  const locked = new Set();
+  (occurrences || []).forEach(function (o) {
+    if (o.payment_status === 'cancelled') return;
+    if (o.invoice_sent_at || o.receipt_sent_at || o.payment_status === 'paid') {
+      locked.add(seriesUnitKeyFor(o.event_date, mode));
+    }
+  });
+  return locked;
+}
+var SERIES_EDIT_LOCKED_UNITS = new Set();
+var SERIES_EDIT_MODE = 'combined';
+
+// A row for a date being added. It carries no booking id, which is how the
+// server tells it apart from an edit.
+function seriesEditNewRowHtml(defaults) {
+  return '<tr class="new-occ-row" style="background:rgba(46,125,79,0.06);">' +
+    '<td><input type="date" class="series-occ-date" value="' + (defaults.date || '') + '"></td>' +
+    '<td><input type="time" class="series-occ-start" value="' + (defaults.start || '10:00') + '" list="common-times"></td>' +
+    '<td><input type="time" class="series-occ-end" value="' + (defaults.end || '12:00') + '" list="common-times"></td>' +
+    '<td style="text-align:center;">' +
+      '<button type="button" class="btn-secondary series-occ-discard" style="padding:2px 8px;font-size:0.75rem;">Discard</button>' +
+    '</td>' +
+  '</tr>';
+}
+
 function renderSeriesEditOccTable(occurrences) {
   const tbody = document.getElementById('series-edit-occ-tbody');
   tbody.innerHTML = occurrences.map(function (occ) {
+    const unitKey = seriesUnitKeyFor(occ.event_date, SERIES_EDIT_MODE);
+    if (SERIES_EDIT_LOCKED_UNITS.has(unitKey)) {
+      // Its invoice has gone out. Shown so the series still reads as a
+      // whole, but nothing here can be changed until it is voided.
+      const r = formatTimeRange(occ.start_time, occ.end_time).split('\u2013');
+      return '<tr data-booking-id="' + occ.booking_id + '" class="locked-occ-row" style="opacity:0.65;">' +
+        '<td>' + formatDate(occ.event_date) + ' <span class="method-tag" title="An invoice has been sent for ' +
+          escHtml(seriesUnitLabel(unitKey)) + '. Void it in Finance \u2192 Invoices &amp; Receipts to edit this date.">invoice sent</span></td>' +
+        '<td>' + (r[0] || '') + '</td>' +
+        '<td>' + (r[1] || '') + '</td>' +
+        '<td style="text-align:center;color:var(--muted);font-size:0.78rem;">locked</td>' +
+      '</tr>';
+    }
     const past = isBookingPast(occ);
     if (past) {
       const rangeStr = formatTimeRange(occ.start_time, occ.end_time).split('\u2013');
@@ -3552,6 +3620,29 @@ function renderSeriesEditOccTable(occurrences) {
       this.closest('tr').classList.toggle('marked-for-removal', this.checked);
     });
   });
+  wireSeriesEditNewRows();
+  updateSeriesEditLockNote(occurrences);
+}
+
+function wireSeriesEditNewRows() {
+  document.querySelectorAll('#series-edit-occ-tbody .series-occ-discard').forEach(function (btn) {
+    btn.onclick = function () { this.closest('tr').remove(); };
+  });
+}
+
+// Says once, above the table, which units are locked - rather than
+// repeating the whole explanation on every row.
+function updateSeriesEditLockNote(occurrences) {
+  const el = document.getElementById('series-edit-lock-note');
+  if (!el) return;
+  if (!SERIES_EDIT_LOCKED_UNITS.size) { el.style.display = 'none'; return; }
+  const names = Array.from(SERIES_EDIT_LOCKED_UNITS).map(seriesUnitLabel).join(', ');
+  el.style.display = 'block';
+  el.innerHTML = 'An invoice has already been sent for <strong>' + escHtml(names) + '</strong>, so ' +
+    (SERIES_EDIT_LOCKED_UNITS.has('series')
+      ? 'no date can be changed, added or removed'
+      : 'those dates are locked and nothing can be added to them') +
+    '. Void the invoice in Finance \u2192 Invoices &amp; Receipts to unlock. Everything else can be edited as usual.';
 }
 
 var SERIES_EDIT_ORIGINAL_INVOICE_MODE = null;
@@ -3561,6 +3652,8 @@ async function openSeriesEditModal(seriesId) {
   if (!occurrences.length) return;
   editingSeriesId = seriesId;
   const first = occurrences[0];
+  SERIES_EDIT_MODE = first.invoice_mode || 'combined';
+  SERIES_EDIT_LOCKED_UNITS = seriesLockedUnits(occurrences, SERIES_EDIT_MODE);
 
   buildSeriesEditRoomPicker();
   await loadEditRenters();
@@ -3632,6 +3725,31 @@ async function openSeriesEditModal(seriesId) {
   enforceSeriesEditKitchenRule();
   renderSeriesEditOccTable(occurrences);
 
+  const addBtn = document.getElementById('btn-series-add-occ');
+  const addHint = document.getElementById('series-edit-add-hint');
+  // With combined billing the whole series is one invoice, so once it has
+  // gone out there is nowhere to add a date.
+  const wholeSeriesLocked = SERIES_EDIT_LOCKED_UNITS.has('series');
+  addBtn.style.display = wholeSeriesLocked ? 'none' : 'inline-block';
+  addHint.textContent = wholeSeriesLocked ? ''
+    : (SERIES_EDIT_MODE === 'monthly'
+        ? 'New dates can go in any month whose invoice has not been sent.'
+        : (SERIES_EDIT_MODE === 'per_occurrence'
+            ? 'Each date is invoiced on its own, so a new one is always free to add.'
+            : 'Nothing has been invoiced yet, so dates are free to add.'));
+  addBtn.onclick = function () {
+    const last = occurrences[occurrences.length - 1];
+    const tbody = document.getElementById('series-edit-occ-tbody');
+    tbody.insertAdjacentHTML('beforeend', seriesEditNewRowHtml({
+      date: '',
+      start: last ? utcIsoToEasternTimeInput(last.start_time) : '10:00',
+      end: last ? utcIsoToEasternTimeInput(last.end_time) : '12:00'
+    }));
+    wireSeriesEditNewRows();
+    const added = tbody.querySelector('tr.new-occ-row:last-child .series-occ-date');
+    if (added) added.focus();
+  };
+
   document.getElementById('series-edit-modal-title').textContent = (first.is_internal ? 'Edit internal series' : 'Edit series') + ' (' + occurrences.length + ' occurrences)';
   document.getElementById('series-edit-result-box').style.display = 'none';
   document.getElementById('series-edit-modal-overlay').style.display = 'flex';
@@ -3660,6 +3778,18 @@ document.getElementById('btn-save-series-edit').addEventListener('click', async 
 
   const occInputs = Array.from(document.querySelectorAll('#series-edit-occ-tbody tr')).map(function (tr) {
     const bookingId = tr.dataset.bookingId;
+    // A date being added: no booking id, which is how the server tells it
+    // apart from an edit.
+    if (tr.classList.contains('new-occ-row')) {
+      return {
+        eventDate: tr.querySelector('.series-occ-date').value,
+        startTime: tr.querySelector('.series-occ-start').value,
+        endTime: tr.querySelector('.series-occ-end').value
+      };
+    }
+    // Its invoice has gone out, so it is read-only and not submitted. The
+    // server would skip it anyway; leaving it out keeps the payload honest.
+    if (tr.classList.contains('locked-occ-row')) return null;
     if (tr.classList.contains('past-occ-row')) {
       // Past occurrences are read-only here — submit their existing values
       // unchanged rather than trying to read inputs that don't exist on
@@ -3674,7 +3804,14 @@ document.getElementById('btn-save-series-edit').addEventListener('click', async 
       endTime: tr.querySelector('.series-occ-end').value,
       remove: tr.querySelector('.series-occ-remove').checked
     };
-  });
+  }).filter(Boolean);
+
+  const blankNew = occInputs.filter(function (o) { return !o.bookingId && !o.eventDate; });
+  if (blankNew.length) {
+    resultBox.style.display = 'block'; resultBox.className = 'result-box error';
+    resultBox.textContent = 'Pick a date for the row you added, or discard it.';
+    return;
+  }
 
   const payload = {
     rooms: rooms,
@@ -3704,6 +3841,7 @@ document.getElementById('btn-save-series-edit').addEventListener('click', async 
     } else {
       resultBox.style.display = 'block'; resultBox.className = 'result-box success';
       let msg = 'Saved — ' + data.updatedCount + ' occurrence(s) updated';
+      if (data.addedCount) msg += ', ' + data.addedCount + ' added';
       if (data.removedCount) msg += ', ' + data.removedCount + ' removed';
       msg += '.';
       if (data.occurrenceErrors && data.occurrenceErrors.length) msg += ' Some rows had issues: ' + data.occurrenceErrors.join(' ');
